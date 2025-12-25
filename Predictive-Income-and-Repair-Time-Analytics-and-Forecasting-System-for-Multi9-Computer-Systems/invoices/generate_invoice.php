@@ -1,5 +1,5 @@
 <?php 
-include("../config/db.php"); 
+include("../config/db.php");
 $job_no = $_GET['job_no'] ?? '';
 
 if(isset($_POST['save_bill'])) {
@@ -90,19 +90,20 @@ if(isset($_POST['save_bill'])) {
 </div>
 
 <script>
-
+// අලුත් පේළියක් එකතු කිරීමේ function එක
 function addRow() {
     let container = document.getElementById('item-list');
     let rows = document.getElementsByClassName('item-row');
-    let newRow = rows[0].cloneNode(true); 
+    let newRow = rows[0].cloneNode(true); // පළමු පේළිය කොපි කරයි
     
-   
+    // කොපි කළ පේළියේ අගයන් හිස් කිරීම
     newRow.querySelector('select').value = "";
     newRow.querySelector('input').value = "1";
     
     container.appendChild(newRow);
 }
 
+// පේළියක් ඉවත් කිරීමේ function එක
 function removeRow(btn) {
     let rows = document.getElementsByClassName('item-row');
     if(rows.length > 1) {
