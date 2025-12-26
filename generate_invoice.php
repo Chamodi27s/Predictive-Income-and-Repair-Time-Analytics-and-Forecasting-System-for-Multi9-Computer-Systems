@@ -1,5 +1,7 @@
 <?php
 include 'db_config.php';
+include 'navbar.php';
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $job_no = $_POST['job_no'];

@@ -1,4 +1,8 @@
-<?php include 'db_config.php'; ?>
+<?php include 'db_config.php'; 
+include 'navbar.php';
+?>
+
+
 <h2>Active Repair Records</h2>
 <form method="GET">
     <input type="text" name="q" placeholder="Search Issue, Job No or Name..." style="padding: 10px; width: 300px;">

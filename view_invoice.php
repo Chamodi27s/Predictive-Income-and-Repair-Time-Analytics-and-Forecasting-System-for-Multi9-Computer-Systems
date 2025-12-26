@@ -1,5 +1,8 @@
 <?php 
 include 'db_config.php';
+include 'navbar.php';
+
+
 $inv_id = $_GET['id'];
 $inv = $conn->query("SELECT * FROM invoice JOIN jobs ON invoice.job_no = jobs.job_no JOIN customer ON jobs.cust_phone = customer.phone WHERE invoice_no='$inv_id'")->fetch_assoc();
 ?>

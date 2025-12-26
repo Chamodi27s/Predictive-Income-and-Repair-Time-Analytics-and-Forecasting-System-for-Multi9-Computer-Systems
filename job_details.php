@@ -1,5 +1,6 @@
 <?php 
 include 'db_config.php'; 
+include 'navbar.php';
 
 $job_no = $_GET['id'];
 

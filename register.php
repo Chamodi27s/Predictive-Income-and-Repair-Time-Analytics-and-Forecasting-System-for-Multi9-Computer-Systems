@@ -1,4 +1,7 @@
-<?php include 'db_config.php'; ?>
+<?php include 'db_config.php'; 
+include 'navbar.php';
+?>
+
 <!DOCTYPE html>
 <html>
 <head>

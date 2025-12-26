@@ -1,5 +1,6 @@
 <?php
 include 'db_config.php';
+include 'navbar.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $phone = $_POST['phone_number'];
