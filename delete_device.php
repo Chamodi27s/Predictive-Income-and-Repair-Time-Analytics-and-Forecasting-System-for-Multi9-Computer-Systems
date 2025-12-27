@@ -1,26 +1,23 @@
 <?php
-// delete_device.php
 include 'db_config.php';
 
-// CSS hari Navbar hari meheta include karanna EPA. 
-// "Success" kiyana wachane witharak echo wenna ona.
-
-if (isset($_POST['device_id'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['device_id'])) {
+    // ID එක clean කරගන්නවා
     $id = mysqli_real_escape_string($conn, $_POST['device_id']);
-    
-    // Check if ID is not empty
-    if(!empty($id)) {
-        $sql = "DELETE FROM job_device WHERE job_device_id = '$id'";
-        if (mysqli_query($conn, $sql)) {
-            echo "Success";
-        } else {
-            echo "Error: " . mysqli_error($conn);
-        }
+
+    // Job_device table එකෙන් අදාළ record එක delete කරන query එක
+    // සටහන: මෙතනින් delete වෙන්නේ job_device එකේ row එක විතරයි. 
+    // මුළු Job එකම (Customer details එක්ක) delete කරන්න ඕන නම් query එක වෙනස් වෙන්න ඕනේ.
+    $sql = "DELETE FROM job_device WHERE job_device_id = '$id'";
+
+    if (mysqli_query($conn, $sql)) {
+        echo "Success";
     } else {
-        echo "Empty ID Received";
+        echo "Error: " . mysqli_error($conn);
     }
 } else {
-    echo "No ID Received";
+    echo "Invalid Request";
 }
-exit();
+
+mysqli_close($conn);
 ?>
