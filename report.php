@@ -121,6 +121,12 @@ if(empty($months)) {
         .progress-bar { height: 10px; background: #e9ecef; border-radius: 10px; overflow: hidden; }
         .progress-fill { height: 100%; border-radius: 10px; transition: width 0.8s ease-in-out; }
 
+        /* Responsive Mobile Settings */
+        @media (max-width: 850px) {
+            .charts-grid { grid-template-columns: 1fr; }
+            .canvas-container { height: 300px; }
+            body { padding: 5px; }
+        }
     </style>
 </head>
 <body>
