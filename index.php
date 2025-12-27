@@ -2,19 +2,24 @@
 include 'db_config.php';
 include 'navbar.php';
 
-// 1. Pending Repairs
-$pending_sql = "SELECT COUNT(*) as count FROM job WHERE job_status = 'Pending'";
+// Ada dinaya
+$today = date('Y-m-d');
+
+// 1. Pending Repairs (job_device table eken status eka check kirima)
+$pending_sql = "SELECT COUNT(*) as count FROM job_device WHERE device_status = 'Pending'";
 $pending_res = $conn->query($pending_sql);
 $pending_count = $pending_res->fetch_assoc()['count'];
 
 // 2. In-progress Repairs
-$inprogress_sql = "SELECT COUNT(*) as count FROM job WHERE job_status = 'In-progress'";
+$inprogress_sql = "SELECT COUNT(*) as count FROM job_device WHERE device_status = 'In Progress'";
 $inprogress_res = $conn->query($inprogress_sql);
 $inprogress_count = $inprogress_res->fetch_assoc()['count'];
 
-// 3. Completed Today
-$today = date('Y-m-d');
-$completed_sql = "SELECT COUNT(*) as count FROM job WHERE job_status = 'Completed' AND job_date = '$today'";
+// 3. Completed Today (Ada completed karapu ewa)
+// Meeta job table eka join karanna ona date eka job table eke thiyana nisa
+$completed_sql = "SELECT COUNT(*) as count FROM job_device jd 
+                  JOIN job j ON jd.job_no = j.job_no 
+                  WHERE jd.device_status = 'Completed' AND j.job_date = '$today'";
 $completed_res = $conn->query($completed_sql);
 $completed_count = $completed_res->fetch_assoc()['count'];
 
@@ -23,10 +28,11 @@ $customer_sql = "SELECT COUNT(*) as count FROM customer";
 $customer_res = $conn->query($customer_sql);
 $total_customers = $customer_res->fetch_assoc()['count'];
 
-// 5. Revenue Today
-$revenue_sql = "SELECT SUM(income) as total FROM cashbook WHERE date = '$today'";
+// 5. Revenue Today (Invoice table eken ganna eka thamai wadath niwaradi)
+$revenue_sql = "SELECT SUM(grand_total) as total FROM invoice WHERE DATE(invoice_date) = '$today'";
 $revenue_res = $conn->query($revenue_sql);
-$revenue_today = $revenue_res->fetch_assoc()['total'] ?? 0;
+$revenue_row = $revenue_res->fetch_assoc();
+$revenue_today = $revenue_row['total'] ?? 0;
 ?>
 
 <!DOCTYPE html>
@@ -56,14 +62,18 @@ $revenue_today = $revenue_res->fetch_assoc()['total'] ?? 0;
             flex-direction: column;
             justify-content: space-between;
         }
-        .bg-green { background-color: #dcfce7; }
-        .bg-red { background-color: #fee2e2; }
-        .bg-yellow { background-color: #fef9c3; }
+        /* Dashboard Colors */
+        .bg-pending { background-color: #dcfce7; } /* Light Green */
+        .bg-progress { background-color: #fee2e2; } /* Light Red */
+        .bg-completed { background-color: #fef9c3; } /* Light Yellow */
+        .bg-customers { background-color: #e0f2fe; } /* Light Blue */
+        .bg-revenue { background-color: #ffedd5; } /* Light Orange */
+
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
         .card-title { font-weight: 600; font-size: 1.1rem; color: #374151; }
-        .icon-box { background: rgba(255,255,255,0.5); padding: 8px; border-radius: 8px; font-size: 20px; }
+        .icon-box { background: rgba(255,255,255,0.5); padding: 8px; border-radius: 8px; font-size: 24px; }
         .card-value { font-size: 2.2rem; font-weight: 700; margin: 15px 0; color: #000; }
-        .card-footer { font-size: 0.85rem; color: #059669; font-weight: 500; }
+        .card-footer { font-size: 0.85rem; color: #4b5563; font-weight: 500; }
         .trend-up::before { content: "↑ "; }
         @media (max-width: 768px) { body { padding: 20px; } }
     </style>
@@ -73,7 +83,7 @@ $revenue_today = $revenue_res->fetch_assoc()['total'] ?? 0;
     <h1>Welcome back, Vibuddha</h1>
 
     <div class="dashboard-grid">
-        <div class="card bg-green">
+        <div class="card bg-pending">
             <div class="card-header">
                 <span class="card-title">Pending Repairs</span>
                 <span class="icon-box">⏳</span>
@@ -82,7 +92,7 @@ $revenue_today = $revenue_res->fetch_assoc()['total'] ?? 0;
             <div class="card-footer trend-up">Current status</div>
         </div>
 
-        <div class="card bg-red">
+        <div class="card bg-progress">
             <div class="card-header">
                 <span class="card-title">In-progress Repairs</span>
                 <span class="icon-box">⌛</span>
@@ -91,7 +101,7 @@ $revenue_today = $revenue_res->fetch_assoc()['total'] ?? 0;
             <div class="card-footer trend-up">Actively working</div>
         </div>
 
-        <div class="card bg-yellow">
+        <div class="card bg-completed">
             <div class="card-header">
                 <span class="card-title">Completed Today</span>
                 <span class="icon-box">✅</span>
@@ -100,7 +110,7 @@ $revenue_today = $revenue_res->fetch_assoc()['total'] ?? 0;
             <div class="card-footer trend-up">Jobs finished today</div>
         </div>
 
-        <div class="card bg-green">
+        <div class="card bg-customers">
             <div class="card-header">
                 <span class="card-title">Total Customers</span>
                 <span class="icon-box">👥</span>
@@ -109,7 +119,7 @@ $revenue_today = $revenue_res->fetch_assoc()['total'] ?? 0;
             <div class="card-footer trend-up">Registered in system</div>
         </div>
 
-        <div class="card bg-red">
+        <div class="card bg-revenue">
             <div class="card-header">
                 <span class="card-title">Revenue Today</span>
                 <span class="icon-box">💰</span>
@@ -119,8 +129,5 @@ $revenue_today = $revenue_res->fetch_assoc()['total'] ?? 0;
         </div>
     </div>
 
-    <script>
-        console.log("Dashboard Loaded Successfully");
-    </script>
 </body>
 </html>
