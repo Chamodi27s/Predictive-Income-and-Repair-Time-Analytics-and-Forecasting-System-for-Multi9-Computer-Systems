@@ -1,38 +1,64 @@
-<?php include 'db_config.php'; 
-include 'navbar.php';
+<?php 
+include 'db_config.php'; 
+include 'navbar.php'; 
+$job_no = "ORD-" . rand(1000, 9999);
+$today = date('Y-m-d'); // අද දිනය ලබා ගැනීම
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Registration - Multi 9</title>
+    <title>Job Registration</title>
     <style>
-        body { font-family: sans-serif; background: #e8f5e9; padding: 20px; }
-        .form-container { background: white; padding: 25px; border-radius: 12px; display: flex; gap: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        input, textarea, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; }
-        .btn { background: #2e7d32; color: white; padding: 12px 25px; border: none; cursor: pointer; border-radius: 5px; width: 100%; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
+        .form-container { background: white; padding: 30px; border-radius: 12px; display: flex; gap: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .section { flex: 1; }
+        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .btn-save { background: #27ae60; color: white; padding: 15px; border: none; width: 100%; border-radius: 5px; cursor: pointer; font-size: 18px; margin-top: 20px; font-weight: bold; }
+        .btn-add { background: #2980b9; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 10px; }
+        .device-card { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid #2980b9; position: relative; }
+        .remove-btn { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; float: right; }
     </style>
 </head>
 <body>
+    <h2 style="text-align: center; color: #34495e;">Multi-Device Service Registration</h2>
     <form action="save_jobs.php" method="POST">
         <div class="form-container">
-            <div style="flex: 1;">
+            <div class="section">
                 <h3>Customer Details</h3>
-                Phone Number (PK): <input type="text" name="phone_number" required>
+                Phone: <input type="text" name="phone_number" required>
                 Customer Name: <input type="text" name="customer_name" required>
-                Address: <textarea name="address"></textarea>
-                Email: <input type="email" name="email">
+                Address: <textarea name="address" rows="3"></textarea>
             </div>
-            <div style="flex: 1;">
-                <h3>Job Details</h3>
-                Job No: <input type="text" name="job_no" value="ORD-<?php echo rand(1000, 9999); ?>" readonly>
-                Device Name: <input type="text" name="device_name" required placeholder="Ex: Laptop / Printer">
-                Model & Serial: <input type="text" name="model" placeholder="Model No">
-                Issue Name: <input type="text" name="issue_name" placeholder="Ex: Display Cracked">
-                Technician: <input type="text" name="technician">
+            <div class="section">
+                <h3>Job & Device Details</h3>
+                Job No: <input type="text" name="job_no" value="<?php echo $job_no; ?>" readonly>
+                
+                Job Date: <input type="date" name="job_date" value="<?php echo $today; ?>" required>
+
+                <div id="device-list">
+                    <div class="device-card">
+                        <button type="button" class="remove-btn" onclick="this.parentElement.remove()">X</button>
+                        <input type="text" name="devices[]" placeholder="Device (e.g. Laptop)" required>
+                        <input type="text" name="models[]" placeholder="Model/Serial">
+                        <input type="text" name="issues[]" placeholder="Issue (e.g. No Power)" required>
+                    </div>
+                </div>
+                <button type="button" class="btn-add" onclick="addMore()">+ Add Another Device</button>
+                <br>Technician: <input type="text" name="technician">
             </div>
         </div>
-        <button type="submit" class="btn" style="margin-top: 15px;">Save & Register Job</button>
+        <button type="submit" class="btn-save">Register Job</button>
     </form>
+    <script>
+        function addMore() {
+            const div = document.createElement('div');
+            div.className = 'device-card';
+            div.innerHTML = `<button type="button" class="remove-btn" onclick="this.parentElement.remove()">X</button>
+                             <input type="text" name="devices[]" placeholder="Device" required>
+                             <input type="text" name="models[]" placeholder="Model/Serial">
+                             <input type="text" name="issues[]" placeholder="Issue" required>`;
+            document.getElementById('device-list').appendChild(div);
+        }
+    </script>
 </body>
 </html>
