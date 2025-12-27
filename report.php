@@ -1,6 +1,7 @@
 <?php
 include 'db_config.php';
 include 'navbar.php';
+
 // 1. Total Repairs ලබා ගැනීම
 $totalRepairsQuery = "SELECT COUNT(*) as total FROM job_device";
 $totalRepairsResult = $conn->query($totalRepairsQuery);
