@@ -1,19 +1,20 @@
 <?php
 include 'db_config.php';
 
-if (isset($_POST['id']) && isset($_POST['field']) && isset($_POST['value'])) {
+// Data tika check karanna
+if (isset($_POST['id']) && isset($_POST['device_name']) && isset($_POST['issue_name']) && isset($_POST['device_status'])) {
+    
     $id = mysqli_real_escape_string($conn, $_POST['id']);
-    $field = mysqli_real_escape_string($conn, $_POST['field']);
-    $value = mysqli_real_escape_string($conn, $_POST['value']);
-    $type = $_POST['type'];
+    $dev_name = mysqli_real_escape_string($conn, $_POST['device_name']);
+    $iss_name = mysqli_real_escape_string($conn, $_POST['issue_name']);
+    $status = mysqli_real_escape_string($conn, $_POST['device_status']);
 
-    if ($type == 'device') {
-        // ඔබේ table එකේ තීරු නම 'device_status' දැයි පරීක්ෂා කරන්න
-        $sql = "UPDATE job_device SET $field = '$value' WHERE job_device_id = '$id'";
-    } else {
-        // Technician update කිරීමට
-        $sql = "UPDATE job SET $field = '$value' WHERE job_no = '$id'";
-    }
+    // Database eka update karana query eka
+    $sql = "UPDATE job_device SET 
+            device_name = '$dev_name', 
+            issue_name = '$iss_name', 
+            device_status = '$status' 
+            WHERE job_device_id = '$id'";
 
     if (mysqli_query($conn, $sql)) {
         echo "Success";
@@ -21,6 +22,7 @@ if (isset($_POST['id']) && isset($_POST['field']) && isset($_POST['value'])) {
         echo "Database Error: " . mysqli_error($conn);
     }
 } else {
-    echo "Missing Data";
+    echo "Error: Missing Data"; // Meka thamai oyaata enne
 }
+exit();
 ?>

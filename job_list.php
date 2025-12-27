@@ -6,10 +6,12 @@ include 'navbar.php';
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 $status_filter = isset($_GET['status']) ? mysqli_real_escape_string($conn, $_GET['status']) : '';
 
-$sql = "SELECT j.job_no, j.job_date, j.technician, c.customer_name, j.phone_number, jd.job_device_id, jd.device_name, jd.issue_name, jd.device_status 
+// LEFT JOIN wenuwata INNER JOIN pawichchi kara, ethakota device details nathi jobs enne naha
+$sql = "SELECT j.job_no, j.job_date, j.technician, c.customer_name, j.phone_number, 
+               jd.job_device_id, jd.device_name, jd.issue_name, jd.device_status 
         FROM job j
         INNER JOIN customer c ON j.phone_number = c.phone_number
-        LEFT JOIN job_device jd ON j.job_no = jd.job_no 
+        INNER JOIN job_device jd ON j.job_no = jd.job_no 
         WHERE 1=1";
 
 if ($search != '') {
@@ -48,13 +50,8 @@ $result = mysqli_query($conn, $sql);
 
     /* Button Styling */
     .btn-edit { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-right: 5px; }
-    .btn-edit:hover { background: #c0392b; }
-    
-    .btn-save-active { background: #27ae60 !important; } /* Save අවස්ථාවේදී කොළ පාට */
-    .btn-save-active:hover { background: #219150 !important; }
-
     .btn-delete { background: #7f8c8d; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-    .btn-delete:hover { background: #636e72; }
+    .btn-save-active { background: #27ae60 !important; }
 
     select { padding: 6px; border-radius: 4px; border: 1px solid #ccc; background: #f9f9f9; }
     select:disabled { color: #333; opacity: 1; border: 1px solid transparent; -webkit-appearance: none; }
@@ -98,7 +95,7 @@ $result = mysqli_query($conn, $sql);
                 <td><input type="text" id="iss-<?php echo $id; ?>" class="inline-input" value="<?php echo $row['issue_name']; ?>" readonly></td>
                 
                 <td>
-                    <select id="stat-<?php echo $id; ?>" disabled onchange="updateRow(<?php echo $id; ?>, 'device_status', this.value)">
+                    <select id="stat-<?php echo $id; ?>" disabled>
                         <option value="Pending" <?= $row['device_status'] == 'Pending' ? 'selected' : '' ?>>Pending</option>
                         <option value="In Progress" <?= $row['device_status'] == 'In Progress' ? 'selected' : '' ?>>In Progress</option>
                         <option value="Completed" <?= $row['device_status'] == 'Completed' ? 'selected' : '' ?>>Completed</option>
@@ -124,18 +121,14 @@ function toggleEdit(id) {
     let editBtn = document.getElementById('btn-edit-' + id);
 
     if (devInput.readOnly) {
-        // Edit mode එකට ඇතුල් වීම
         devInput.readOnly = false;
         issInput.readOnly = false;
         statSelect.disabled = false;
-        
         devInput.classList.add('editing');
         issInput.classList.add('editing');
-        
         editBtn.innerText = "Save";
         editBtn.classList.add('btn-save-active');
     } else {
-        // Save කර නැවත Read-only කිරීම
         saveChanges(id);
     }
 }
@@ -145,50 +138,45 @@ function saveChanges(id) {
     let issVal = document.getElementById('iss-' + id).value;
     let statVal = document.getElementById('stat-' + id).value;
 
-    // Database එකට දත්ත යැවීම
-    updateField(id, 'device_name', devVal);
-    updateField(id, 'issue_name', issVal);
-    updateField(id, 'device_status', statVal);
-
-    // පෙනුම සාමාන්‍ය තත්වයට පත් කිරීම
-    let devInput = document.getElementById('dev-' + id);
-    let issInput = document.getElementById('iss-' + id);
-    let statSelect = document.getElementById('stat-' + id);
-    let editBtn = document.getElementById('btn-edit-' + id);
-
-    devInput.readOnly = true;
-    issInput.readOnly = true;
-    statSelect.disabled = true;
+    let params = "id=" + id + "&device_name=" + encodeURIComponent(devVal) + "&issue_name=" + encodeURIComponent(issVal) + "&device_status=" + encodeURIComponent(statVal);
     
-    devInput.classList.remove('editing');
-    issInput.classList.remove('editing');
-    
-    editBtn.innerText = "Edit";
-    editBtn.classList.remove('btn-save-active');
-}
-
-function updateField(id, field, value) {
-    let params = "id=" + id + "&field=" + field + "&value=" + encodeURIComponent(value) + "&type=device";
     fetch('inline_update_api.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: params
     }).then(res => res.text()).then(data => {
-        if(data.trim() !== "Success") console.error("Error updating " + field);
+        if(data.trim() === "Success") {
+            let devInput = document.getElementById('dev-' + id);
+            let issInput = document.getElementById('iss-' + id);
+            let statSelect = document.getElementById('stat-' + id);
+            let editBtn = document.getElementById('btn-edit-' + id);
+
+            devInput.readOnly = true;
+            issInput.readOnly = true;
+            statSelect.disabled = true;
+            devInput.classList.remove('editing');
+            issInput.classList.remove('editing');
+            editBtn.innerText = "Edit";
+            editBtn.classList.remove('btn-save-active');
+        } else {
+            alert("Error: " + data);
+        }
     });
 }
 
 function deleteItem(id) {
-    if(confirm("Are you sure you want to delete this data permanently?")) {
+    if(confirm("Are you sure you want to delete this?")) {
         fetch('delete_device.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: "device_id=" + id
-        }).then(res => res.text()).then(data => {
+        })
+        .then(res => res.text())
+        .then(data => {
             if(data.trim() === "Success") {
                 document.getElementById('row-' + id).remove();
             } else {
-                alert("Error: " + data);
+                alert("Delete Error: " + data);
             }
         });
     }
