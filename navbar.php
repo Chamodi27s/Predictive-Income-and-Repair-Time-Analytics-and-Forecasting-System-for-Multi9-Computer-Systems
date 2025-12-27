@@ -6,7 +6,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 .topbar {
     background: linear-gradient(90deg, #043f2e, #065f46);
     color: white;
-    padding: 18px 50px;          
+    padding: 18px 50px;          /* ⬅ palal una */
     display: flex;
     align-items: center;
     justify-content: space-between;
