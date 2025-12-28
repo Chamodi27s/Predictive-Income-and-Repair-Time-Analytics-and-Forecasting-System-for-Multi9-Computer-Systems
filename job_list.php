@@ -42,7 +42,7 @@ $result = mysqli_query($conn, $sql);
         .filter-tag { padding: 8px 18px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 13px; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .btn-save { background: #27ae60; }
         .tag-all { background:#27ae60 ; color: white; }
-        .tag-pending { background:#27ae60 ; color: #333; }
+        .tag-pending { background:#27ae60 ; color: white; }
         .tag-progress { background: #27ae60; color: white; }
         .tag-completed { background: #28a745; color: white; }
         .tag-cancel { background: #27ae60; color: white; }
