@@ -549,7 +549,7 @@ $total_pages = ceil($total_records / $records_per_page);
             </thead>
             <tbody>
             <?php while($row = mysqli_fetch_assoc($customers_result)): ?>
-                <tr onclick="window.location.href='customer_detail.php?phone=<?= urlencode($row['phone_number']) ?>'">
+                <tr onclick="window.location.href='customer_details.php?phone=<?= urlencode($row['phone_number']) ?>'">
                     <td data-label="Date"><?= $row['job_date'] ? date('d/m/Y', strtotime($row['job_date'])) : '-' ?></td>
                     <td data-label="Phone"><?= htmlspecialchars($row['phone_number']) ?></td>
                     <td data-label="Job No"><?= htmlspecialchars($row['job_no']) ?></td>
