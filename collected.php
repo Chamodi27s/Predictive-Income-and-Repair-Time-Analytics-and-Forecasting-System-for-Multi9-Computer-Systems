@@ -86,7 +86,7 @@ include 'navbar.php';
                 <td><input type="text" id="phone-<?php echo $id; ?>" class="table-input" value="<?php echo $row['phone_number']; ?>" readonly></td>
                 <td>
                     <select id="stat-<?php echo $id; ?>" class="status-select <?php echo $status_class; ?>" disabled>
-                        <option value="Pending" <?php if($row['job_status']=='Pending') echo 'selected'; ?>>Pending</option>
+                        
                         <option value="Approved" <?php if($row['job_status']=='Approved') echo 'selected'; ?>>Approved</option>
                         
                         <option value="Non Approved" <?php if($row['job_status']=='Non Approved') echo 'selected'; ?>>Non Approved</option>
