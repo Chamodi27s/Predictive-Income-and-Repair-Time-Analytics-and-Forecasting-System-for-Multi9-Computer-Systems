@@ -5,7 +5,6 @@ include 'navbar.php';
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 $status_filter = isset($_GET['status']) ? mysqli_real_escape_string($conn, $_GET['status']) : '';
 
-// Query එකෙන් jd.warranty_status ඉවත් කළා
 $sql = "SELECT j.job_no, j.job_date, t.name as technician_name, c.customer_name, j.phone_number, 
                 jd.job_device_id, jd.device_name, jd.issue_name, jd.device_status 
         FROM job j
@@ -30,32 +29,60 @@ $result = mysqli_query($conn, $sql);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Jobs</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
-        .search-container { text-align: center; margin: 20px 0; }
-        .search-box { padding: 10px 20px; width: 350px; border-radius: 25px; border: 1px solid #ddd; outline: none; }
-        .btn-search { padding: 10px 25px; border-radius: 25px; border: none; background: #2e7d32; color: white; cursor: pointer; margin-left: -55px; font-weight: bold; }
-        .filter-bar { text-align: center; margin-bottom: 25px; }
-        .filter-bar a { text-decoration: none; padding: 10px 20px; margin: 0 5px; background: #fff; color: #2e7d32; border-radius: 20px; border: 1px solid #ddd; font-size: 14px; font-weight: 600; }
+        
+        /* Search Section */
+        .search-container { text-align: center; margin: 20px 10px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .search-box { padding: 12px 20px; width: 300px; border-radius: 25px; border: 1px solid #ddd; outline: none; }
+        .btn-search { padding: 10px 25px; border-radius: 25px; border: none; background: #2e7d32; color: white; cursor: pointer; font-weight: bold; }
+        .btn-clear { padding: 10px 25px; border-radius: 25px; border: 1px solid #ccc; background: #fff; color: #333; text-decoration: none; font-size: 14px; font-weight: bold; display: flex; align-items: center; }
+
+        /* Filter Bar */
+        .filter-bar { text-align: center; margin-bottom: 25px; display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
+        .filter-bar a { text-decoration: none; padding: 8px 15px; background: #fff; color: #2e7d32; border-radius: 20px; border: 1px solid #ddd; font-size: 14px; font-weight: 600; }
         .filter-bar a.active { background: #2e7d32; color: #fff; }
+
+        /* Responsive Table */
         .status-table { width: 98%; margin: auto; border-collapse: collapse; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden; }
         .status-table th { background: #2e7d32; color: white; padding: 15px; font-size: 13px; text-transform: uppercase; }
         .status-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
+        
+        /* Inputs & Buttons */
         .inline-input { width: 90%; border: 1px solid transparent; background: transparent; text-align: center; padding: 6px; border-radius: 4px; font-size: 14px; }
         .editing { border: 1px solid #3498db !important; background: #fff !important; }
-        .btn-edit { background: #1976d2; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
-        .btn-delete { background: #7f8c8d; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        .btn-edit { background: #1976d2; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 5px; }
+        .btn-delete { background: #e53935; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
         .btn-save-active { background: #27ae60 !important; }
-        select:disabled { color: #333; opacity: 1; border: none; -webkit-appearance: none; }
+        select { padding: 5px; border-radius: 5px; }
+        select:disabled { color: #333; opacity: 1; border: none; -webkit-appearance: none; appearance: none; background: transparent; }
+
+        /* MOBILE RESPONSIVE CSS */
+        @media screen and (max-width: 768px) {
+            .status-table thead { display: none; } /* Hide headers on mobile */
+            .status-table, .status-table tbody, .status-table tr, .status-table td { display: block; width: 100%; }
+            .status-table tr { margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; box-sizing: border-box; }
+            .status-table td { text-align: right; padding-left: 50%; position: relative; border-bottom: 1px solid #f9f9f9; }
+            .status-table td::before {
+                content: attr(data-label);
+                position: absolute; left: 15px; width: 45%; text-align: left; font-weight: bold; color: #2e7d32;
+            }
+            .inline-input { text-align: right; }
+            .search-box { width: 100%; max-width: 300px; }
+        }
     </style>
 </head>
 <body>
 
 <div class="search-container">
-    <form action="job_list.php" method="GET">
-        <input type="text" name="search" class="search-box" placeholder="Search Job, Customer, or Technician..." value="<?= htmlspecialchars($search) ?>">
+    <form action="job_list.php" method="GET" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+        <input type="text" name="search" class="search-box" placeholder="Search Job, Customer..." value="<?= htmlspecialchars($search) ?>">
         <button type="submit" class="btn-search">Search</button>
+        <?php if($search != '' || $status_filter != ''): ?>
+            <a href="job_list.php" class="btn-clear">Clear All</a>
+        <?php endif; ?>
     </form>
 </div>
 
@@ -82,20 +109,20 @@ $result = mysqli_query($conn, $sql);
     <tbody>
         <?php while($row = mysqli_fetch_assoc($result)): $id = $row['job_device_id']; ?>
         <tr id="row-<?= $id ?>">
-            <td><?= $row['job_date'] ?></td>
-            <td><b><?= $row['job_no'] ?></b></td>
-            <td><?= $row['customer_name'] ?></td>
-            <td style="color:#1976d2; font-weight:600;"><?= $row['technician_name'] ?: 'N/A' ?></td>
-            <td><input type="text" id="dev-<?= $id ?>" class="inline-input" value="<?= $row['device_name'] ?>" readonly></td>
-            <td><input type="text" id="iss-<?= $id ?>" class="inline-input" value="<?= $row['issue_name'] ?>" readonly></td>
-            <td>
+            <td data-label="Date"><?= $row['job_date'] ?></td>
+            <td data-label="Job No"><b><?= $row['job_no'] ?></b></td>
+            <td data-label="Customer"><?= $row['customer_name'] ?></td>
+            <td data-label="Technician" style="color:#1976d2; font-weight:600;"><?= $row['technician_name'] ?: 'N/A' ?></td>
+            <td data-label="Device"><input type="text" id="dev-<?= $id ?>" class="inline-input" value="<?= $row['device_name'] ?>" readonly></td>
+            <td data-label="Issue"><input type="text" id="iss-<?= $id ?>" class="inline-input" value="<?= $row['issue_name'] ?>" readonly></td>
+            <td data-label="Status">
                 <select id="stat-<?= $id ?>" disabled>
                     <option value="Pending" <?= $row['device_status'] == 'Pending' ? 'selected' : '' ?>>Pending</option>
                     <option value="In Progress" <?= $row['device_status'] == 'In Progress' ? 'selected' : '' ?>>In Progress</option>
                     <option value="Completed" <?= $row['device_status'] == 'Completed' ? 'selected' : '' ?>>Completed</option>
                 </select>
             </td>
-            <td>
+            <td data-label="Action">
                 <button id="btn-edit-<?= $id ?>" onclick="toggleEdit(<?= $id ?>)" class="btn-edit">Edit</button>
                 <button onclick="deleteItem(<?= $id ?>)" class="btn-delete">Delete</button>
             </td>
@@ -105,7 +132,6 @@ $result = mysqli_query($conn, $sql);
 </table>
 
 <script>
-// JS functions එලෙසම පවතී (saveChanges වලදී warranty status එක යවන්නේ නැති නිසා ගැටලුවක් නැත)
 function toggleEdit(id) {
     let dev = document.getElementById('dev-' + id);
     let iss = document.getElementById('iss-' + id);
@@ -126,7 +152,6 @@ function saveChanges(id) {
     let issVal = document.getElementById('iss-' + id).value;
     let statVal = document.getElementById('stat-' + id).value;
 
-    // Params වලින් warranty එක ඉවත් කළා
     let params = `id=${id}&device_name=${encodeURIComponent(devVal)}&issue_name=${encodeURIComponent(issVal)}&device_status=${encodeURIComponent(statVal)}`;
     
     fetch('inline_update_api.php', {
@@ -148,7 +173,9 @@ function deleteItem(id) {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: "device_id=" + id
         }).then(res => res.text()).then(data => {
-            if(data.trim() === "Success") { document.getElementById('row-' + id).remove(); }
+            if(data.trim() === "Success") { 
+                document.getElementById('row-' + id).style.display = 'none';
+            }
         });
     }
 }
