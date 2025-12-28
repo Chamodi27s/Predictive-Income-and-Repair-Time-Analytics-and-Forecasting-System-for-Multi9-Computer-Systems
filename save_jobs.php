@@ -18,8 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $tech_id = mysqli_insert_id($conn);
     }
 
-    // 3. Customer තොරතුරු Update කිරීම හෝ අලුතින් දැමීම
-    // මෙහිදී phone_number එක Unique කියා උපකල්පනය කෙරේ
+    // 3. Customer තොරතුරු Update කිරීම හෝ අලුතින් දැමීම (Phone Number is Primary Key)
     $cust_sql = "INSERT INTO customer (phone_number, customer_name, email, address) 
                  VALUES ('$phone', '$cust_name', '$email', '$address') 
                  ON DUPLICATE KEY UPDATE customer_name='$cust_name', email='$email', address='$address'";
@@ -31,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     if (mysqli_query($conn, $sql_job)) {
         
-        // 5. Multiple Devices Loop එක (Description සහ Image සමඟ)
+        // 5. Multiple Devices Loop එක
         if (isset($_POST['devices'])) {
             foreach ($_POST['devices'] as $key => $device) {
                 $device_name = mysqli_real_escape_string($conn, $device);
@@ -39,13 +38,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $warranty = mysqli_real_escape_string($conn, $_POST['warranty_status'][$key]);
                 $description = mysqli_real_escape_string($conn, $_POST['descriptions'][$key]);
                 
-                $img_name = ""; // Default empty
+                $img_name = ""; 
 
                 // Image Upload කොටස
                 if (!empty($_FILES['device_images']['name'][$key])) {
                     $target_dir = "uploads/devices/";
-                    
-                    // Folder එක නැත්නම් සාදන්න
                     if (!is_dir($target_dir)) {
                         mkdir($target_dir, 0777, true);
                     }
@@ -57,8 +54,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     move_uploaded_file($_FILES['device_images']['tmp_name'][$key], $target_file);
                 }
 
-                // job_device table එකට දත්ත ඇතුළත් කිරීම
-                // ඔබේ table එකේ column names මේවා බව නැවත පරීක්ෂා කරන්න
                 $sql_device = "INSERT INTO job_device (job_no, device_name, issue_name, device_status, warranty_status, description, device_image) 
                                VALUES ('$job_no', '$device_name', '$issue', 'Pending', '$warranty', '$description', '$img_name')";
                 
@@ -66,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
-        // සාර්ථක පණිවිඩය (SweetAlert2)
+        // 6. සාර්ථක පණිවිඩය සහ Redirection (Primary Key එක URL එකට එක් කර ඇත)
         echo "
         <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
         <body style='font-family:sans-serif;'>
@@ -74,12 +69,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             Swal.fire({
                 icon: 'success',
                 title: 'Job Registered Successfully!',
-                text: 'Order ID: $job_no',
-                confirmButtonColor: '#007bff',
-                confirmButtonText: 'View Jobs'
-            }).then(() => {
-                window.location = 'collected.php';
-                
+                text: 'Job No: $job_no | Customer: $cust_name',
+                confirmButtonColor: '#28a745',
+                confirmButtonText: 'View Full Details',
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Navbar එකේ නැතත් Phone Number එක Primary Key එක නිසා එය URL එකට යවා පේජ් එකට යයි
+                    window.location.href = 'customer_details.php?phone=' + encodeURIComponent('$phone');
+                }
             });
         </script>
         </body>";
