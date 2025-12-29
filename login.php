@@ -1,13 +1,5 @@
 <?php
 session_start();
-if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
-    exit();
-}
-
-// ✅ Predefined credentials (no database required)
-$valid_username = "multi9";
-$valid_password = "multi912#";
 
 $error = '';
 
@@ -16,19 +8,14 @@ if (isset($_POST['login'])) {
     $password = trim($_POST['password']);
 
     if ($username !== '' && $password !== '') {
-        if ($username === $valid_username && $password === $valid_password) {
-            $_SESSION['username'] = $username;
-            header("Location: index.php");
-            exit();
-        } else {
-            $error = "Invalid username or password!";
-        }
+        $_SESSION['username'] = $username;
+        header("Location: index.php");
+        exit();
     } else {
         $error = "Please enter username and password!";
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,6 +36,7 @@ body {
     overflow: hidden;
 }
 
+/* Animated background */
 body::after {
     content: "";
     position: fixed;
@@ -63,6 +51,7 @@ body::after {
     100% { transform: scale(1.12) translate(-3%, -3%); }
 }
 
+/* Dark overlay */
 body::before {
     content: "";
     position: fixed;
@@ -71,6 +60,7 @@ body::before {
     z-index: -2;
 }
 
+/* Page title */
 .page-title {
     position: absolute;
     top: 60px;
@@ -82,6 +72,7 @@ body::before {
     z-index: 1;
 }
 
+/* Glass login card */
 .login-container {
     background: rgba(50, 50, 50, 0.25);
     backdrop-filter: blur(16px);
@@ -96,6 +87,7 @@ body::before {
     z-index: 1;
 }
 
+/* Form inside card */
 .login-form {
     width: 320px;
     color: #fff;
@@ -104,10 +96,10 @@ body::before {
 .login-form h2 {
     font-size: 24px;
     font-weight: 700;
-    color: #e0f7fa;
+    color: #e0f7fa; /* subtle accent color */
     margin-bottom: 25px;
     letter-spacing: 0.5px;
-    border-left: 4px solid #1f7a63;
+    border-left: 4px solid #1f7a63; /* vertical accent line */
     padding-left: 10px;
     text-transform: uppercase;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
@@ -179,6 +171,7 @@ input[type="submit"]:hover {
     text-decoration: none;
 }
 
+/* Illustration image */
 .illustration {
     display: flex;
     justify-content: center;
@@ -196,6 +189,7 @@ input[type="submit"]:hover {
     transform: scale(1.05);
 }
 
+/* Tablet responsive */
 @media (max-width: 900px) and (min-width: 601px) {
     .login-container {
         flex-direction: column;
@@ -207,6 +201,7 @@ input[type="submit"]:hover {
     }
 }
 
+/* Mobile responsive */
 @media (max-width: 600px) {
     .login-container {
         flex-direction: column;
@@ -245,16 +240,16 @@ input[type="submit"]:hover {
 
         <form method="POST" autocomplete="off">
             <label>Username :</label>
-            <input type="text" name="username" placeholder="Enter Username" autocomplete="off" required>
+            <input type="text" name="username" placeholder="Enter Username" value="" autocomplete="off" required>
 
             <label>Password :</label>
-            <input type="password" name="password" placeholder="Enter Password" autocomplete="new-password" required>
+            <input type="password" name="password" placeholder="Enter Password" value="" autocomplete="new-password" required>
 
             <input type="submit" name="login" value="Log in">
         </form>
 
         <div class="forgot">
-            <a href="forgot.php">Forgotten your username or password?</a>
+        <a href="forgot.php">Forgotten your username or password?</a>
         </div>
     </div>
 
