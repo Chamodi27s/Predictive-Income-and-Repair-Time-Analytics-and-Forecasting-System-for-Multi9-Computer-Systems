@@ -439,7 +439,7 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
                     <label>Warranty Status</label>
                     <select name="warranty_status[]" required>
                         <option value="Non-Warranty">Non-Warranty</option>
-                        <option value="Warranty">Under Warranty</option>
+                        <option value="Warranty"> Warranty</option>
                     </select>
                 </div>
             </div>

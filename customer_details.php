@@ -23,9 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     mysqli_query($conn,"UPDATE customer SET customer_name='$name', email='$email', address='$address' WHERE phone_number='$phone'");
 
-    // Devices & Description Update
-    if (isset($_POST['device_status'])) {
-        foreach ($_POST['device_status'] as $id => $status) {
+    // Warranty & Description Update
+    if (isset($_POST['warranty_status'])) {
+        foreach ($_POST['warranty_status'] as $id => $status) {
             $id = mysqli_real_escape_string($conn, $id);
             $status = mysqli_real_escape_string($conn, $status);
             $desc = mysqli_real_escape_string($conn, $_POST['device_desc'][$id]);
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             mysqli_query($conn,"UPDATE job_device SET 
-                device_status='$status', 
+                warranty_status='$status', 
                 description='$desc' 
                 $image_sql 
                 WHERE job_device_id='$id'");
@@ -98,7 +98,6 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
 
         .container { max-width: 1000px; margin: auto; padding-bottom: 100px; }
 
-        /* Professional Card Styling */
         .card { 
             background: var(--card-bg); 
             padding: 32px; 
@@ -119,7 +118,6 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
             gap: 10px;
         }
 
-        /* Form Elements */
         label { 
             font-weight: 600; 
             font-size: 0.75rem; 
@@ -150,7 +148,6 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
 
         input[readonly] { background-color: #f1f5f9; cursor: not-allowed; border-color: transparent; }
 
-        /* Device Box */
         .device-box { 
             background: #fdfdfd; 
             padding: 24px; 
@@ -159,7 +156,6 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
             border: 1px solid var(--border);
         }
 
-        /* Buttons */
         .btn { 
             background: var(--primary); 
             color: white; 
@@ -184,9 +180,7 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
             color: var(--primary); 
             border: 1.5px solid var(--primary); 
         }
-        .btn-outline:hover { background: rgba(67, 97, 238, 0.05); color: var(--primary-hover); }
 
-        /* Status Badges */
         .status-badge { 
             padding: 6px 14px; 
             border-radius: 30px; 
@@ -194,9 +188,9 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
             font-size: 11px; 
             text-transform: uppercase;
         }
-        .status-pending { background: #fef3c7; color: #92400e; }
-        .status-repairing { background: #dbeafe; color: #1e40af; }
-        .status-completed { background: #dcfce7; color: #166534; }
+        
+        .status-completed { background: #dcfce7; color: #166534; } /* Warranty */
+        .status-danger { background: #fee2e2; color: #991b1b; }    /* No Warranty */
 
         .device-img { 
             width: 100%; 
@@ -207,7 +201,6 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        /* Floating Action Bar */
         .action-bar {
             position: fixed; 
             bottom: 30px; 
@@ -285,7 +278,9 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
             $job_no = $job['job_no'];
             $devices_res = mysqli_query($conn,"SELECT * FROM job_device WHERE job_no='$job_no'");
             while($d = mysqli_fetch_assoc($devices_res)):
-                $status_class = 'status-' . strtolower($d['device_status']);
+                $w_raw = strtolower($d['warranty_status']);
+                // මෙතනදී "Warranty" නම් කොළ පාටත්, "No Warranty" නම් රතු පාටත් ලැබේ
+                $w_class = ($w_raw == 'warranty') ? 'status-completed' : 'status-danger';
             ?>
             <div class="device-box">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
@@ -293,7 +288,7 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
                         <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">📱 <?= $d['device_name'] ?></div>
                         <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Issue: <?= htmlspecialchars($d['issue_name']) ?></div>
                     </div>
-                    <span class="status-badge <?= $status_class ?>"><?= $d['device_status'] ?></span>
+                    <span class="status-badge <?= $w_class ?>">🛡️ <?= strtoupper($d['warranty_status']) ?></span>
                 </div>
 
                 <label>Notes / Condition Report</label>
@@ -302,11 +297,10 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
                 <?php if($is_edit): ?>
                     <div class="grid-layout">
                         <div>
-                            <label>Update Status</label>
-                            <select name="device_status[<?= $d['job_device_id'] ?>]">
-                                <option value="Pending" <?= $d['device_status']=='Pending'?'selected':'' ?>>Pending</option>
-                                <option value="Repairing" <?= $d['device_status']=='Repairing'?'selected':'' ?>>Repairing</option>
-                                <option value="Completed" <?= $d['device_status']=='Completed'?'selected':'' ?>>Completed</option>
+                            <label>Update Warranty Status</label>
+                            <select name="warranty_status[<?= $d['job_device_id'] ?>]">
+                                <option value="Warranty" <?= strtolower($d['warranty_status'])=='warranty'?'selected':'' ?>>Warranty</option>
+                                <option value="No Warranty" <?= strtolower($d['warranty_status'])=='no warranty'?'selected':'' ?>>No Warranty</option>
                             </select>
                         </div>
                         <div>
@@ -338,7 +332,7 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
 
             <?php if(!$is_edit): ?>
                 <a href="?phone=<?= $phone ?>&edit=1" class="btn">
-                    ✏️ Edit Profile & Jobs
+                    ✏️ Edit Profile & Warranty
                 </a>
             <?php else: ?>
                 <button type="submit" class="btn btn-success">
