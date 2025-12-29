@@ -6,14 +6,15 @@ include 'navbar.php';
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 $filter_status = isset($_GET['status']) ? mysqli_real_escape_string($conn, $_GET['status']) : '';
 
-// මූලික SQL Query එක
+// මූලික SQL Query එක - 'billed' නොවන දත්ත පමණක් ලබා ගැනීමට
 $sql = "SELECT j.job_no, j.job_date, t.name as technician_name, c.customer_name, j.phone_number, 
-                jd.job_device_id, jd.device_name, jd.issue_name, jd.device_status 
+               jd.job_device_id, jd.device_name, jd.issue_name, jd.device_status 
         FROM job j
         INNER JOIN customer c ON j.phone_number = c.phone_number
         INNER JOIN job_device jd ON j.job_no = jd.job_no 
         LEFT JOIN technicians t ON j.technician_id = t.technician_id
-        WHERE j.job_status = 'Approved'"; 
+        WHERE j.job_status = 'Approved' 
+        AND jd.device_status != 'billed'"; 
 
 // Status අනුව Filter කිරීම
 if ($filter_status != '') {
@@ -22,7 +23,7 @@ if ($filter_status != '') {
 
 // Search අනුව Filter කිරීම
 if ($search != '') {
-    $sql .= " AND (j.job_no LIKE '%$search%' OR j.phone_number LIKE '%$search%' OR jd.issue_name LIKE '%$search%' OR c.customer_name LIKE '%$search%' OR t.name LIKE '%$search%')";
+    $sql .= " AND (j.job_no LIKE '%$search%' OR j.phone_number LIKE '%$search%' OR jd.issue_name LIKE '%$search%' OR c.customer_name LIKE '%$search%')";
 }
 
 $sql .= " ORDER BY jd.job_device_id DESC";
@@ -33,93 +34,87 @@ $result = mysqli_query($conn, $sql);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Billing & SMS Management</title>
+    <title>Job Management - Multi9</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 0; }
         
-        /* Filter Tags Styling */
-        .filter-container { display: flex; justify-content: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-        .filter-tag { padding: 8px 18px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 13px; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .btn-save { background: #27ae60; }
-        .tag-all { background:#27ae60 ; color: white; }
-        .tag-pending { background:#27ae60 ; color: white; }
-        .tag-progress { background: #27ae60; color: white; }
-        .tag-completed { background: #28a745; color: white; }
-        .tag-cancel { background: #27ae60; color: white; }
+        /* Filter Section */
+        .filter-container { display: flex; justify-content: center; gap: 10px; margin-top: 25px; flex-wrap: wrap; }
+        .filter-tag { padding: 8px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 13px; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: white; }
+        .tag-all { background: #2e7d32; }
+        .tag-pending { background: #f39c12; }
+        .tag-progress { background: #3498db; }
+        .tag-completed { background: #28a745; }
         .active-tag { border: 3px solid #333; transform: scale(1.05); }
 
-        .search-container { text-align: center; margin: 20px; display: flex; justify-content: center; gap: 10px; }
-        .search-box { padding: 12px 20px; width: 300px; border-radius: 25px; border: 1px solid #ddd; outline: none; }
-        .btn-search { padding: 10px 25px; border-radius: 25px; border: none; background: #2e7d32; color: white; cursor: pointer; font-weight: bold; }
+        /* Search Bar */
+        .search-container { text-align: center; margin: 25px; display: flex; justify-content: center; gap: 10px; align-items: center; }
+        .search-box { padding: 12px 25px; width: 350px; border-radius: 30px; border: 1px solid #ddd; outline: none; font-size: 14px; }
+        .btn-search { padding: 11px 25px; border-radius: 30px; border: none; background: #2e7d32; color: white; cursor: pointer; font-weight: bold; }
         
-        .status-table { width: 98%; margin: 20px auto; border-collapse: collapse; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 10px; }
-        .status-table th { background: #2e7d32; color: white; padding: 15px; font-size: 14px; }
-        .status-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; vertical-align: middle; }
-
-        /* Actions Column Styling - මේ කොටසින් Buttons එක පේළියට ගනී */
-        .action-gap { 
-            display: flex; 
-            gap: 6px; 
-            justify-content: center; 
-            align-items: center; 
-            white-space: nowrap; 
+        .btn-clear { 
+            padding: 10px 20px; 
+            border-radius: 30px; 
+            border: 1px solid #e53935; 
+            background: white; 
+            color: #e53935; 
+            text-decoration: none; 
+            font-weight: bold; 
+            font-size: 13px;
+            transition: 0.3s;
         }
+        .btn-clear:hover { background: #e53935; color: white; }
 
+        /* Table Styling */
+        .status-table { width: 96%; margin: 20px auto; border-collapse: collapse; background: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.08); border-radius: 12px; overflow: hidden; }
+        .status-table th { background: #2e7d32; color: white; padding: 15px; font-size: 14px; text-transform: uppercase; }
+        .status-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; font-size: 14px; }
+
+        .action-gap { display: flex; gap: 8px; justify-content: center; align-items: center; }
+        
         .btn-bill, .btn-sms, .btn-edit, .btn-delete, .btn-save { 
-            height: 34px;
-            min-width: 70px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 11px;
-            border: none;
-            cursor: pointer;
-            color: white;
-            padding: 0 10px;
-            transition: 0.2s;
+            padding: 7px 14px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 11px; color: white; border: none; cursor: pointer; transition: 0.2s;
         }
-
-        .btn-bill { background: #f39c12; }
+        .btn-bill { background: #e67e22; }
         .btn-sms { background: #9b59b6; }
         .btn-edit { background: #1976d2; }
-        .btn-save { background: #27ae60; }
         .btn-delete { background: #e53935; }
+        .btn-save { background: #2ecc71; }
 
-        .inline-input { width: 95%; border: 1px solid transparent; background: transparent; text-align: center; padding: 6px; font-size: 14px; }
+        .inline-input { width: 90%; border: 1px solid transparent; background: transparent; text-align: center; padding: 6px; font-size: 14px; }
         .editing { border: 1px solid #3498db !important; background: #fff !important; border-radius: 4px; }
-        .status-select { padding: 6px; border-radius: 5px; border: 1px solid #ccc; font-size: 12px; background: #f9f9f9; }
     </style>
 </head>
 <body>
 
 <div class="filter-container">
-    <a href="?" class="filter-tag tag-all <?= $filter_status == '' ? 'active-tag' : '' ?>">All Jobs</a>
+    <a href="?" class="filter-tag tag-all <?= $filter_status == '' ? 'active-tag' : '' ?>">All Active Jobs</a>
     <a href="?status=Pending" class="filter-tag tag-pending <?= $filter_status == 'Pending' ? 'active-tag' : '' ?>">🕒 Pending</a>
     <a href="?status=In Progress" class="filter-tag tag-progress <?= $filter_status == 'In Progress' ? 'active-tag' : '' ?>">⚙️ In Progress</a>
     <a href="?status=Completed" class="filter-tag tag-completed <?= $filter_status == 'Completed' ? 'active-tag' : '' ?>">✅ Completed</a>
-    <a href="?status=Cancel" class="filter-tag tag-cancel <?= $filter_status == 'Cancel' ? 'active-tag' : '' ?>">❌ Cancel</a>
 </div>
 
 <div class="search-container">
-    <form action="" method="GET" style="display: flex; gap: 10px;">
+    <form action="" method="GET" style="display: flex; gap: 10px; align-items: center;">
         <input type="hidden" name="status" value="<?= htmlspecialchars($filter_status) ?>">
-        <input type="text" name="search" class="search-box" placeholder="Search..." value="<?= htmlspecialchars($search) ?>">
+        <input type="text" name="search" class="search-box" placeholder="Search by Job No, Name or Phone..." value="<?= htmlspecialchars($search) ?>">
         <button type="submit" class="btn-search">Search</button>
+        
+        <?php if($search != '' || $filter_status != ''): ?>
+            <a href="?" class="btn-clear">✕ Clear All</a>
+        <?php endif; ?>
     </form>
 </div>
 
 <table class="status-table">
     <thead>
         <tr>
-            <th style="width: 80px;">Job No</th>
+            <th>Job No</th>
             <th>Customer</th>
             <th>Device</th>
             <th>Issue</th>
-            <th style="width: 120px;">Status</th>
-            <th style="width: 320px;">Action</th>
+            <th>Status</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -131,7 +126,7 @@ $result = mysqli_query($conn, $sql);
                 <td><input type="text" id="dev-<?= $id ?>" class="inline-input" value="<?= $row['device_name'] ?>" readonly></td>
                 <td><input type="text" id="iss-<?= $id ?>" class="inline-input" value="<?= $row['issue_name'] ?>" readonly></td>
                 <td>
-                    <select id="stat-<?= $id ?>" class="status-select" onchange="updateStatusOnly(<?= $id ?>)">
+                    <select id="stat-<?= $id ?>" onchange="updateStatusOnly(<?= $id ?>)" style="padding:6px; border-radius:5px; border:1px solid #ccc;">
                         <option value="Pending" <?= $row['device_status'] == 'Pending' ? 'selected' : '' ?>>Pending</option>
                         <option value="In Progress" <?= $row['device_status'] == 'In Progress' ? 'selected' : '' ?>>In Progress</option>
                         <option value="Completed" <?= $row['device_status'] == 'Completed' ? 'selected' : '' ?>>Completed</option>
@@ -140,7 +135,7 @@ $result = mysqli_query($conn, $sql);
                 </td>
                 <td>
                     <div class="action-gap">
-                        <button onclick="manualSMS(<?= $id ?>)" class="btn-sms">Send SMS</button>
+                        <button onclick="manualSMS(<?= $id ?>)" class="btn-sms">SMS</button>
                         
                         <span id="bill-container-<?= $id ?>">
                             <?php if($row['device_status'] == 'Completed'): ?>
@@ -155,7 +150,7 @@ $result = mysqli_query($conn, $sql);
             </tr>
             <?php endwhile; ?>
         <?php else: ?>
-            <tr><td colspan="6" style="padding: 40px; color: #999;">No records found.</td></tr>
+            <tr><td colspan="6" style="padding: 50px; color: #999;">No active orders matching your criteria.</td></tr>
         <?php endif; ?>
     </tbody>
 </table>
@@ -168,24 +163,12 @@ function updateStatusOnly(id) {
     
     sendUpdate(id, devVal, issVal, statVal);
 
-    // Bill Button update
     let billContainer = document.getElementById('bill-container-' + id);
     if(statVal === 'Completed') {
         let jobNo = document.querySelector(`#row-${id} td b`).innerText;
         billContainer.innerHTML = `<a href="generate_bill.php?job_no=${jobNo}" class="btn-bill">Make Bill</a>`;
     } else {
         billContainer.innerHTML = '';
-    }
-}
-
-function manualSMS(id) {
-    let statVal = document.getElementById('stat-' + id).value;
-    if(confirm("Send SMS notification?")) {
-        fetch('send_sms_api.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${id}&status=${statVal}`
-        }).then(res => res.text()).then(data => alert("Response: " + data));
     }
 }
 
@@ -217,18 +200,34 @@ function sendUpdate(id, dev, iss, stat) {
             devInput.readOnly = true; issInput.readOnly = true;
             devInput.classList.remove('editing'); issInput.classList.remove('editing');
             btn.innerText = "Edit"; btn.className = "btn-edit";
+        } else {
+            alert("Error updating: " + data);
         }
     });
 }
 
+function manualSMS(id) {
+    let statVal = document.getElementById('stat-' + id).value;
+    if(confirm("Send SMS notification to customer?")) {
+        fetch('send_sms_api.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${id}&status=${statVal}`
+        }).then(res => res.text()).then(data => alert("Notification: " + data));
+    }
+}
+
 function deleteItem(id) {
-    if(confirm("Delete this record?")) {
+    if(confirm("Are you sure you want to delete this record?")) {
         fetch('delete_device.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: "device_id=" + id
         }).then(res => res.text()).then(data => {
-            if(data.trim() === "Success") document.getElementById('row-' + id).remove();
+            if(data.trim() === "Success") {
+                document.getElementById('row-' + id).style.background = "#ffebee";
+                setTimeout(() => document.getElementById('row-' + id).remove(), 500);
+            }
         });
     }
 }
