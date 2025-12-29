@@ -87,7 +87,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <a href="add_customer.php">Register</a>
         <a href="warrenty">Warrenty</a>
         <a href="duration">Duration</a>
-        <a href="jobsheet.php">Jobsheet</a>
+
         <a href="collected.php">Collected</a>
         <a href="job_list.php">Order</a>
         <a href="cashbook_view.php">Payment</a>
