@@ -21,141 +21,211 @@ $stocks = $conn->query("
 <head>
 <title>Stock Management</title>
 <style>
-body{font-family:'Segoe UI',Arial,sans-serif;background:#f3f4f6;margin:0;padding:0}
-.container{max-width:1300px;margin:auto;padding:25px}
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f9fafb;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1400px;
+    margin: auto;
+    padding: 25px;
+}
 
 /* ===== TOP BAR & SEARCH ===== */
-.search-add-bar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-top:15px;
-    margin-bottom:20px; 
-    flex-wrap:wrap;
+.search-add-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 15px 0 25px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
-.search-box{
-    padding:10px 18px 10px 38px;
-    width:280px;
-    border-radius:28px;
-    border:1px solid #ddd;
-    font-size:14px;
-    background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%23999" viewBox="0 0 24 24"><path d="M21.71 20.29l-3.388-3.387A8.948 8.948 0 0018 10a9 9 0 10-9 9 8.948 8.948 0 006.902-2.678l3.388 3.387a1 1 0 001.414-1.414zM4 10a6 6 0 1112 0 6 6 0 01-12 0z"/></svg>') no-repeat 10px center;
-    background-size:18px;
+.search-box {
+    padding: 10px 18px 10px 38px;
+    width: 280px;
+    border-radius: 30px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%23999" viewBox="0 0 24 24"><path d="M21.71 20.29l-3.388-3.387A8.948 8.948 0 0018 10a9 9 0 10-9 9 8.948 8.948 0 006.902-2.678l3.388 3.387a1 1 0 001.414-1.414zM4 10a6 6 0 1112 0 6 6 0 01-12 0z"/></svg>') no-repeat 12px center;
+    background-size: 18px;
+    transition: all 0.3s;
 }
-.add-btn{
-    background:linear-gradient(90deg,#22c55e,#16a34a);
-    color:#fff;
-    padding:10px 24px;
-    border-radius:36px;
-    text-decoration:none;
-    font-weight:bold;
-    box-shadow:0 8px 18px rgba(0,0,0,.15);
-    transition:.3s;
+.search-box:focus {
+    border-color: #22c55e;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
 }
-.add-btn:hover{transform:translateY(-2px);opacity:.95}
+
+/* ===== ADD BUTTON ===== */
+.add-btn {
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    color: #fff;
+    padding: 14px 32px;       /* Bigger padding */
+    border-radius: 50px;      /* More rounded pill shape */
+    font-weight: 700;          /* Bolder text */
+    font-size: 16px;           /* Slightly larger font */
+    text-decoration: none;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);  /* Stronger shadow */
+    transition: all 0.3s;
+}
+.add-btn:hover {
+    transform: translateY(-3px) scale(1.05);  /* Slightly bigger on hover */
+    opacity: 0.95;
+}
 
 /* ===== CARDS ===== */
-.cards{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px;justify-content:flex-start}
-.card{
-    flex:0 0 200px; 
-    height:140px;   
-    padding:20px;
-    border-radius:20px;
-    position:relative;
-    cursor:pointer;
-    box-shadow:0 10px 20px rgba(0,0,0,.08);
-    transition:.3s;
+.cards {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
 }
-.card:hover{transform:translateY(-3px)}
-.card span{font-size:32px;position:absolute;top:15px;right:15px}
-.card h3{margin:0;font-size:14px;color:#1f2937}
-.card h1{margin-top:8px;font-size:28px;color:#1f2937}
+.card {
+    flex: 0 0 220px;
+    height: 150px;
+    padding: 20px;
+    border-radius: 20px;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(0,0,0,.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,.15);
+}
+.card span {
+    font-size: 36px;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+.card h3 {
+    margin: 0;
+    font-size: 14px;
+    color: #1f2937;
+    font-weight: 600;
+}
+.card h1 {
+    margin-top: 10px;
+    font-size: 32px;
+    color: #1f2937;
+    font-weight: 700;
+}
 
-/* Card colors – light/pastel */
-.total{background:linear-gradient(135deg,#d1fae5,#a7f3d0)}   /* Light Green */
-.in{background:linear-gradient(135deg,#dbeafe,#bfdbfe)}      /* Light Blue */
-.out{background:linear-gradient(135deg,#fee2e2,#fecaca)}     /* Light Red */
-.low{background:linear-gradient(135deg,#ffedd5,#fed7aa)}     /* Light Orange */
+/* Card colors – light/pastel gradients */
+.total {background: linear-gradient(135deg, #d1fae5, #a7f3d0);}
+.in {background: linear-gradient(135deg, #dbeafe, #bfdbfe);}
+.out {background: linear-gradient(135deg, #fee2e2, #fecaca);}
+.low {background: linear-gradient(135deg, #ffedd5, #fed7aa);}
 
 /* ===== TABLE ===== */
-.table-box{
-    background:#fff;padding:22px;border-radius:18px;box-shadow:0 10px 25px rgba(0,0,0,.08);
-    margin-bottom:15px;
+.table-box {
+    background: #fff;
+    padding: 22px;
+    border-radius: 18px;
+    box-shadow: 0 12px 28px rgba(0,0,0,.08);
 }
-table{width:100%;border-collapse:collapse}
-th,td{padding:12px;border-bottom:1px solid #eee;text-align:left}
-th{background:#f9fafb;font-size:13px;color:#555}
-.qty-input{width:70px;padding:6px;border-radius:6px;border:1px solid #ccc;text-align:center;pointer-events:none;}
-.edit-btn{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;transition:.3s;}
-.edit-btn:hover{opacity:.85;}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    font-size: 14px;
+}
+th {
+    background: #f3f4f6;
+    color: #555;
+    font-weight: 600;
+}
+tr:hover {background: #f1f5f9;}
+.qty-input {
+    width: 70px;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    text-align: center;
+    pointer-events: none;
+}
+.edit-btn {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+.edit-btn:hover {opacity: 0.85;}
 
-/* Status */
-.status{
-    padding:6px 14px;
-    border-radius:20px;
-    font-size:12px;
-    font-weight:bold;
+/* Status badges */
+.status {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
 }
-.in-stock{background:#dcfce7;color:#166534}
-.low-stock{background:#ffedd5;color:#c2410c}
-.out-stock{background:#fee2e2;color:#b91c1c}
+.in-stock {background: #dcfce7; color: #166534;}
+.low-stock {background: #ffedd5; color: #c2410c;}
+.out-stock {background: #fee2e2; color: #b91c1c;}
 
-/* ===== PAGINATION BELOW TABLE ===== */
-.pagination{
-    display:flex;
-    justify-content:center; 
-    gap:8px;
-    margin:20px 0 40px;
+/* ===== PAGINATION ===== */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0 40px;
 }
-.pagination button{
-    padding:8px 14px;
-    border:none;
-    border-radius:6px; 
-    background:#22c55e;
-    color:#fff;
-    font-weight:bold;
-    cursor:pointer;
-    transition:.3s;
+.pagination button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    background: #22c55e;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
 }
-.pagination button:hover{opacity:.85}
-.pagination button.active{background:#16a34a}
+.pagination button.active {background: #16a34a;}
+.pagination button:hover {opacity: 0.85;}
 
-/* ===== POPUP ===== */
-.popup{
-    position:fixed;
-    top:-100px;
-    right:20px;
-    background: linear-gradient(135deg,#fef3c7,#f97316);
-    color:#1f2937;
-    padding:16px 22px;
-    border-radius:16px;
-    box-shadow:0 12px 28px rgba(0,0,0,.2);
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-    min-width:220px;
-    transition:top 0.6s ease, opacity 0.6s ease;
-    opacity:0;
-    z-index:999;
+/* ===== LOW STOCK POPUP ===== */
+.popup {
+    position: fixed;
+    top: -100px;
+    right: 20px;
+    background: linear-gradient(135deg, #fef3c7, #f97316);
+    color: #1f2937;
+    padding: 16px 22px;
+    border-radius: 16px;
+    box-shadow: 0 12px 28px rgba(0,0,0,.2);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 240px;
+    transition: top 0.6s ease, opacity 0.6s ease;
+    opacity: 0;
+    z-index: 999;
 }
-.popup.show{
-    top:20px;
-    opacity:1;
+.popup.show {top: 20px; opacity: 1;}
+.popup h4 {margin: 0; font-size: 16px; font-weight: bold;}
+.popup p {margin: 0; font-size: 14px;}
+.popup button {
+    align-self: flex-start;
+    background: #fff;
+    color: #f97316;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
 }
-.popup h4{margin:0;font-size:16px;font-weight:bold}
-.popup p{margin:0;font-size:14px}
-.popup button{
-    align-self:flex-start;
-    background:#fff;
-    color:#f97316;
-    border:none;
-    padding:6px 14px;
-    border-radius:20px;
-    cursor:pointer;
-    font-weight:bold;
-    transition:.3s;
-}
-.popup button:hover{opacity:.85}
+.popup button:hover {opacity: 0.85;}
 </style>
 </head>
 <body>
@@ -214,14 +284,10 @@ th{background:#f9fafb;font-size:13px;color:#555}
 <td><?= $r['item_code'] ?></td>
 <td><?= $r['item_name'] ?></td>
 <td><?= $r['category_name'] ?></td>
-<td>
-    <input type="number" class="qty-input" min="0" value="<?= $r['quantity'] ?>" disabled>
-</td>
+<td><input type="number" class="qty-input" min="0" value="<?= $r['quantity'] ?>" disabled></td>
 <td>Rs.<?= number_format($r['unit_price'],2) ?></td>
 <td><span class="status <?= $cl ?>"><?= $st ?></span></td>
-<td>
-    <button class="edit-btn <?= $cl ?>" onclick="toggleEdit(this)">Edit</button>
-</td>
+<td><button class="edit-btn <?= $cl ?>" onclick="toggleEdit(this)">Edit</button></td>
 </tr>
 <?php } ?>
 </tbody>
@@ -286,7 +352,6 @@ function toggleEdit(btn){
         .then(res=>res.json())
         .then(data=>{
             if(data.status==="success"){
-                // Update row status
                 const statusSpan = tr.querySelector(".status");
                 let newStatus, cl;
                 if(qty===0){ newStatus="Out Stock"; cl="out-stock"; }
