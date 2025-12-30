@@ -6,17 +6,28 @@ include 'navbar.php';
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Warranty Jobs Management</title>
+    <title>Jobs Management | Smart Repair</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background-color: #f4f7f6; padding: 20px; }
-        .container { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        h2 { margin-bottom: 20px; color: #2e7d32; border-left: 5px solid #2e7d32; padding-left: 10px; }
-        table { width: 100%; border-collapse: collapse; min-width: 1000px; margin-top: 20px; }
+        .container { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        
+        /* Header & Search Styling */
+        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+        h2 { color: #2e7d32; border-left: 5px solid #2e7d32; padding-left: 10px; }
+        
+        .search-box { display: flex; gap: 10px; align-items: center; }
+        .search-input { padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; width: 300px; outline: none; transition: 0.3s; }
+        .search-input:focus { border-color: #2e7d32; }
+        
+        .btn-clear { background: #f44336; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .btn-clear:hover { background: #d32f2f; }
+
+        /* Table Styling */
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
         th { background: #2e7d32; text-align: left; padding: 12px; font-size: 13px; color: #fff; }
         td { padding: 12px; font-size: 13px; border-bottom: 1px solid #f1f1f1; }
         
-        /* Input Styling for Editing */
         .table-input { width: 100%; border: 1px solid transparent; background: transparent; padding: 6px; outline: none; }
         .editing-active { background: #fff !important; border: 1px solid #3b82f6 !important; border-radius: 6px; }
 
@@ -38,9 +49,16 @@ include 'navbar.php';
 <body>
 
 <div class="container">
-    <h2>🛡️ Warranty Collected Jobs</h2>
+    <div class="header-section">
+        <h2>🛡️ Jobs Management</h2>
+        
+        <div class="search-box">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search Job No, Issue, or Phone..." onkeyup="filterTable()">
+            <button class="btn-clear" onclick="clearSearch()">Clear</button>
+        </div>
+    </div>
     
-    <table>
+    <table id="jobsTable">
         <thead>
             <tr>
                 <th>Job No</th>
@@ -54,12 +72,13 @@ include 'navbar.php';
         </thead>
         <tbody>
             <?php
-            $sql = "SELECT j.job_no, j.job_status, c.customer_name, c.email, c.phone_number, jd.issue_name, jd.warranty_status 
-                    FROM job j
-                    LEFT JOIN customer c ON j.phone_number = c.phone_number
-                    LEFT JOIN job_device jd ON j.job_no = jd.job_no
-                    WHERE jd.warranty_status = 'Warranty' 
-                    ORDER BY j.job_no DESC";
+            // මෙතැන WHERE clause එකට 'No-Warranty' එකතු කරන්න
+$sql = "SELECT j.job_no, j.job_status, c.customer_name, c.email, c.phone_number, jd.issue_name, jd.warranty_status 
+        FROM job j
+        LEFT JOIN customer c ON j.phone_number = c.phone_number
+        LEFT JOIN job_device jd ON j.job_no = jd.job_no
+        WHERE jd.warranty_status = 'No Warranty' 
+        ORDER BY j.job_no DESC";
             $result = $conn->query($sql);
             
             if ($result && $result->num_rows > 0) {
@@ -70,7 +89,6 @@ include 'navbar.php';
             ?>
             <tr id="row-<?php echo $id; ?>">
                 <td><strong>#<?php echo $id; ?></strong></td>
-                
                 <td><input type="text" id="name-<?php echo $id; ?>" class="table-input" value="<?php echo htmlspecialchars($row['customer_name']); ?>" readonly></td>
                 <td><input type="text" id="issue-<?php echo $id; ?>" class="table-input" value="<?php echo htmlspecialchars($row['issue_name']); ?>" readonly></td>
                 <td><input type="text" id="phone-<?php echo $id; ?>" class="table-input" value="<?php echo htmlspecialchars($row['phone_number']); ?>" readonly></td>
@@ -81,7 +99,7 @@ include 'navbar.php';
                 <td>
                     <select id="stat-<?php echo $id; ?>" class="status-select <?php echo $status_class; ?>" onchange="updateStatusOnly('<?php echo $id; ?>')">
                         <option value="Pending" <?php if($status_val=='Pending') echo 'selected'; ?>>Pending</option>
-                        <option value="Pending" <?php if($status_val=='not-Approved') echo 'selected'; ?>>not-Approved</option>
+                        <option value="not-Approved" <?php if($status_val=='not-Approved') echo 'selected'; ?>>not-Approved</option>
                         <option value="Approved" <?php if($status_val=='Approved') echo 'selected'; ?>>Approved</option>
                     </select>
                     <span id="msg-<?php echo $id; ?>" class="save-msg">✓ Saved</span>
@@ -93,7 +111,7 @@ include 'navbar.php';
             <?php 
                 }
             } else { 
-                echo "<tr><td colspan='7' style='text-align:center; padding: 30px; color: #666;'>No warranty jobs found.</td></tr>"; 
+                echo "<tr><td colspan='7' style='text-align:center; padding: 30px; color: #666;'>No jobs found.</td></tr>"; 
             }
             ?>
         </tbody>
@@ -101,14 +119,48 @@ include 'navbar.php';
 </div>
 
 <script>
-// Edit button එක එබූ විට ක්‍රියාත්මක වන function එක
+// Search Functionality
+function filterTable() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("jobsTable");
+    const tr = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < tr.length; i++) {
+        let showRow = false;
+        // Columns to search: Job No (0), Issue (2), Phone (3)
+        const jobNoCol = tr[i].getElementsByTagName("td")[0];
+        const issueCol = tr[i].getElementsByTagName("td")[2];
+        const phoneCol = tr[i].getElementsByTagName("td")[3];
+
+        if (jobNoCol || issueCol || phoneCol) {
+            const jobText = jobNoCol.textContent || jobNoCol.innerText;
+            const issueInput = issueCol.getElementsByTagName("input")[0].value;
+            const phoneInput = phoneCol.getElementsByTagName("input")[0].value;
+
+            if (jobText.toUpperCase().indexOf(filter) > -1 || 
+                issueInput.toUpperCase().indexOf(filter) > -1 || 
+                phoneInput.toUpperCase().indexOf(filter) > -1) {
+                showRow = true;
+            }
+        }
+        tr[i].style.display = showRow ? "" : "none";
+    }
+}
+
+// Clear Search
+function clearSearch() {
+    document.getElementById("searchInput").value = "";
+    filterTable();
+}
+
+// Edit button toggle
 function toggleEdit(id) {
     const fields = ['name', 'issue', 'phone'];
     const btn = document.getElementById('btn-edit-' + id);
     const isReadOnly = document.getElementById('name-' + id).readOnly;
 
     if (isReadOnly) {
-        // Edit Mode එකට මාරු වීම
         fields.forEach(f => {
             let el = document.getElementById(f + '-' + id);
             el.readOnly = false;
@@ -117,7 +169,6 @@ function toggleEdit(id) {
         btn.innerText = "Save";
         btn.classList.add('btn-save-active');
     } else {
-        // Save කිරීම
         saveToDB(id, () => {
             fields.forEach(f => {
                 let el = document.getElementById(f + '-' + id);
@@ -132,11 +183,7 @@ function toggleEdit(id) {
 
 function updateStatusOnly(id) {
     const statSelect = document.getElementById('stat-' + id);
-    if(statSelect.value === 'Approved') {
-        statSelect.className = 'status-select status-approved';
-    } else {
-        statSelect.className = 'status-select status-pending';
-    }
+    statSelect.className = 'status-select ' + (statSelect.value === 'Approved' ? 'status-approved' : 'status-pending');
     saveToDB(id);
 }
 
