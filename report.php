@@ -225,20 +225,22 @@ if(empty($months)) {
 <script>
 const ctx = document.getElementById('revenueChart').getContext('2d');
 new Chart(ctx, {
-    type: 'line', 
+    type: 'bar', 
     data: {
         labels: <?php echo json_encode($months); ?>, 
         datasets: [{
             label: 'Revenue (Rs.)',
             data: <?php echo json_encode($revenues); ?>,
-            borderColor: '#2e7d32',
-            backgroundColor: 'rgba(46, 125, 50, 0.1)',
-            fill: true,
-            tension: 0.4,
-            borderWidth: 3,
-            pointRadius: 5,
-            pointBackgroundColor: '#fff',
-            pointBorderColor: '#1b5e20'
+            
+            // 1. පාට සහ Border එක පැහැදිලිව දමන්න
+            backgroundColor: '#96d79aff', 
+            borderColor: '#1b5e20',
+            borderWidth: 1,
+            borderRadius: 5,
+
+            // 2. පළල අඩු කරන ප්‍රධාන සැකසුම් (Settings)
+            barPercentage: 0.9,       // මේ අගය (0.1 - 0.9) අතර වෙනස් කර බලන්න
+            maxBarThickness: 80       // බාර් එකේ පළල pixels 50 කට වඩා වැඩි වෙන්නේ නැහැ
         }]
     },
     options: {
@@ -246,8 +248,15 @@ new Chart(ctx, {
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-            y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
-            x: { grid: { display: false } }
+            y: { 
+                beginAtZero: true, 
+                grid: { color: '#f0f0f0' } 
+            },
+            x: { 
+                grid: { display: false },
+                // බාර් එක මැදට පෙන්වීමට මෙය උපකාරී වේ
+                offset: true 
+            }
         }
     }
 });
