@@ -46,19 +46,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 /* ===============================
     FETCH DATA
 ================================ */
+// පාරිභෝගිකයාගේ විස්තර ලබා ගැනීම
 $customer_res = mysqli_query($conn,"SELECT * FROM customer WHERE phone_number='$phone'");
 $customer = mysqli_fetch_assoc($customer_res);
 
+// 2. අලුත්ම ජොබ් අංකය ලබා ගැනීම (Action Bar එක සඳහා)
+// ORDER BY job_no DESC මගින් ලොකුම අංකය (අලුත්ම එක) මුලට එයි.
+$latest_job_res = mysqli_query($conn, "SELECT job_no FROM job WHERE phone_number='$phone' ORDER BY job_no DESC LIMIT 1");
+$latest_job_data = mysqli_fetch_assoc($latest_job_res);
+$current_job_no = isset($latest_job_data['job_no']) ? $latest_job_data['job_no'] : '';
+
+// සියලුම ජොබ් ලැයිස්තුව ලබා ගැනීම
 $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech 
                             FROM job 
                             LEFT JOIN technicians ON job.technician_id = technicians.technician_id 
                             WHERE job.phone_number='$phone' 
-                            ORDER BY job.job_date DESC, job.job_no DESC");
-
-// 2. අලුත්ම ජොබ් අංකය ලබා ගැනීම (Action Bar එක සඳහා)
-$latest_job_res = mysqli_query($conn, "SELECT job_no FROM job WHERE phone_number='$phone' ORDER BY job_date DESC, job_no DESC LIMIT 1");
-$latest_job_data = mysqli_fetch_assoc($latest_job_res);
-$current_job_no = isset($latest_job_data['job_no']) ? $latest_job_data['job_no'] : '';
+                            ORDER BY job.job_no DESC");
 ?>
 
 <!DOCTYPE html>
@@ -84,7 +87,6 @@ $current_job_no = isset($latest_job_data['job_no']) ? $latest_job_data['job_no']
         .status-badge { padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 11px; text-transform: uppercase; }
         .status-completed { background: #dcfce7; color: #166534; }
         .status-danger { background: #fee2e2; color: #991b1b; }
-        .device-img { width: 100%; max-width: 280px; border-radius: 12px; margin-top: 12px; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .action-bar { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); padding: 16px 32px; border-radius: 100px; box-shadow: 0 10px 15px rgba(0,0,0,0.1); display: flex; gap: 12px; z-index: 1000; border: 1px solid var(--border); }
         .grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
     </style>
@@ -96,17 +98,20 @@ $current_job_no = isset($latest_job_data['job_no']) ? $latest_job_data['job_no']
         <div class="card">
             <h2>👤 Customer Profile</h2>
             <div class="grid-layout">
-                <div><label>Name</label><input type="text" name="customer_name" value="<?= htmlspecialchars($customer['customer_name']) ?>" <?= !$is_edit?'readonly':'' ?>></div>
-                <div><label>Phone</label><input type="text" value="<?= $customer['phone_number'] ?>" readonly></div>
-                <div><label>Email</label><input type="email" name="email" value="<?= htmlspecialchars($customer['email']) ?>" <?= !$is_edit?'readonly':'' ?>></div>
-                <div><label>Address</label><input type="text" name="address" value="<?= htmlspecialchars($customer['address']) ?>" <?= !$is_edit?'readonly':'' ?>></div>
+                <div><label>Name</label><input type="text" name="customer_name" value="<?= htmlspecialchars($customer['customer_name'] ?? '') ?>" <?= !$is_edit?'readonly':'' ?>></div>
+                <div><label>Phone</label><input type="text" value="<?= htmlspecialchars($phone) ?>" readonly></div>
+                <div><label>Email</label><input type="email" name="email" value="<?= htmlspecialchars($customer['email'] ?? '') ?>" <?= !$is_edit?'readonly':'' ?>></div>
+                <div><label>Address</label><input type="text" name="address" value="<?= htmlspecialchars($customer['address'] ?? '') ?>" <?= !$is_edit?'readonly':'' ?>></div>
             </div>
         </div>
 
         <?php while($job = mysqli_fetch_assoc($jobs)): ?>
         <div class="card">
-            <h3>📑 Job No: <?= $job['job_no'] ?> <small style="margin-left:auto; font-size: 12px; color: var(--text-muted);">📅 <?= date("M d, Y", strtotime($job['job_date'])) ?></small></h3>
-            <p><strong>Technician:</strong> <?= $job['tech'] ?? 'Not Assigned' ?></p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="margin:0;">📑 Job No: <?= $job['job_no'] ?></h3>
+                <span style="font-size: 12px; color: var(--text-muted);">📅 <?= date("M d, Y", strtotime($job['job_date'])) ?></span>
+            </div>
+            <p><strong>Technician:</strong> <?= htmlspecialchars($job['tech'] ?? 'Not Assigned') ?></p>
 
             <?php
             $jno = $job['job_no'];
@@ -116,8 +121,8 @@ $current_job_no = isset($latest_job_data['job_no']) ? $latest_job_data['job_no']
             ?>
             <div class="device-box">
                 <div style="display: flex; justify-content: space-between;">
-                    <div><strong>📱 <?= $d['device_name'] ?></strong><br><small>Issue: <?= $d['issue_name'] ?></small></div>
-                    <span class="status-badge <?= $w_class ?>">🛡️ <?= $d['warranty_status'] ?></span>
+                    <div><strong>📱 <?= htmlspecialchars($d['device_name']) ?></strong><br><small>Issue: <?= htmlspecialchars($d['issue_name']) ?></small></div>
+                    <span class="status-badge <?= $w_class ?>">🛡️ <?= htmlspecialchars($d['warranty_status']) ?></span>
                 </div>
                 <label style="margin-top:10px;">Notes</label>
                 <textarea name="device_desc[<?= $d['job_device_id'] ?>]" rows="2" <?= !$is_edit?'readonly':'' ?>><?= htmlspecialchars($d['description']) ?></textarea>
@@ -139,7 +144,7 @@ $current_job_no = isset($latest_job_data['job_no']) ? $latest_job_data['job_no']
         <div class="action-bar">
             <?php if(!empty($current_job_no)): ?>
                 <a href="jobsheet.php?job_no=<?= $current_job_no ?>" class="btn btn-outline" target="_blank">
-                    📄 Print Current Job (<?= $current_job_no ?>)
+                    📄 Print Current Job (#<?= $current_job_no ?>)
                 </a>
             <?php endif; ?>
 

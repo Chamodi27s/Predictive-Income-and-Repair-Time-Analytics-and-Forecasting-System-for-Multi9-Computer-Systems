@@ -2,40 +2,33 @@
 include 'db_config.php';
 include 'navbar.php';
 
-// URL එකේ id එකක් තියෙනවාද කියලා බලනවා
-if (isset($_GET['id']) && !empty($_GET['id'])) {
-    $id = $conn->real_escape_string($_GET['id']);
-    
-    // වැදගත්: මෙතන WHERE jd.job_device_id = '$id' ලෙස තිබිය යුතුමයි
-    $query = "SELECT jd.*, j.phone_number, c.customer_name, c.email as customer_email
-              FROM job_device jd
-              INNER JOIN job j ON jd.job_no = j.job_no
+// 1. URL එකෙන් job_no එක ලබා ගැනීම
+$job_no_param = isset($_GET['job_no']) ? $conn->real_escape_string($_GET['job_no']) : '';
+
+if (!empty($job_no_param)) {
+    // පාරිභෝගික සහ ජොබ් දත්ත ලබා ගැනීම
+    $query = "SELECT j.*, c.customer_name, c.email as customer_email
+              FROM job j
               INNER JOIN customer c ON j.phone_number = c.phone_number
-              WHERE jd.job_device_id = '$id'"; 
+              WHERE j.job_no = '$job_no_param' LIMIT 1"; 
 } else {
-    // ID එකක් නැතිනම් අන්තිමටම දාපු ජොබ් එක පෙන්වනවා
-    $query = "SELECT jd.*, j.phone_number, c.customer_name, c.email as customer_email
-              FROM job_device jd
-              INNER JOIN job j ON jd.job_no = j.job_no
+    $query = "SELECT j.*, c.customer_name, c.email as customer_email
+              FROM job j
               INNER JOIN customer c ON j.phone_number = c.phone_number
-              ORDER BY jd.job_device_id DESC LIMIT 1";
+              ORDER BY j.job_no DESC LIMIT 1";
 }
 
 $result = $conn->query($query);
-$job = $result->fetch_assoc();
+$job_main = $result->fetch_assoc();
 
-if (!$job) {
+if (!$job_main) {
     die("දත්ත සොයාගත නොහැක.");
 }
 
-// Variables වලට දත්ත දැමීම
-$job_no      = $job['job_no'] ?? '';
-$cus_name    = $job['customer_name'] ?? '';
-$phone       = $job['phone_number'] ?? '';
-$email       = $job['customer_email'] ?? '';
-$description = $job['description'] ?? '';
-$device      = $job['device_name'] ?? '';
-$service     = $job['issue_name'] ?? '';
+$job_no = $job_main['job_no'];
+
+// 2. අදාළ ජොබ් එකේ සියලුම ඩිවයිස් ලබා ගැනීම
+$devices_res = $conn->query("SELECT * FROM job_device WHERE job_no = '$job_no'");
 ?>
 
 <!DOCTYPE html>
@@ -44,7 +37,7 @@ $service     = $job['issue_name'] ?? '';
 <meta charset="UTF-8">
 <title>Jobsheet - <?= $job_no ?></title>
 <style>
-    /* ඔයාගේ පරණ CSS එකම මෙතනට දාන්න */
+    /* ඔයාගේ පරණ CSS එකමයි, කිසිම වෙනසක් නැහැ */
     *{box-sizing:border-box;font-family:Segoe UI,Arial,sans-serif}
     body{margin:0;background:#f6f4ef;color:#083024}
     .page{width:92%;max-width:1200px;margin:30px auto 60px}
@@ -78,23 +71,33 @@ $service     = $job['issue_name'] ?? '';
       <label>Job No :</label>
       <input class="input" type="text" value="<?= $job_no ?>">
       <label>Customer Name :</label>
-      <input class="input" type="text" value="<?= $cus_name ?>">
+      <input class="input" type="text" value="<?= htmlspecialchars($job_main['customer_name']) ?>">
       <label>Contact Number :</label>
-      <input class="input" type="text" value="<?= $phone ?>">
+      <input class="input" type="text" value="<?= htmlspecialchars($job_main['phone_number']) ?>">
       <label>Email :</label>
-      <input class="input" type="email" value="<?= $email ?>">
-      <label>Description :</label>
-      <textarea class="textarea" rows="2"><?= $description ?></textarea>
+      <input class="input" type="email" value="<?= htmlspecialchars($job_main['customer_email']) ?>">
     </div>
+    
     <div class="right">
-      <div class="pill green">
-        <label>Device Name :</label>
-        <input type="text" value="<?= $device ?>">
+      <?php 
+      // ඩිවයිස් එකක් හෝ කිහිපයක් තිබේ නම් ඒවා පෙන්වන ලූපය
+      while($d = $devices_res->fetch_assoc()): 
+      ?>
+      <div class="device-group" style="margin-bottom: 10px;">
+          <div class="pill green">
+            <label>Device Name :</label>
+            <input type="text" value="<?= htmlspecialchars($d['device_name']) ?>">
+          </div>
+          <div class="pill pink" style="margin-top:10px;">
+            <label>Services (Issue) :</label>
+            <input type="text" value="<?= htmlspecialchars($d['issue_name']) ?>">
+          </div>
+          <div style="padding: 5px 15px; font-size: 13px; color: #666;">
+              Note: <?= htmlspecialchars($d['description']) ?>
+          </div>
       </div>
-      <div class="pill pink">
-        <label>Services (Issue) :</label>
-        <input type="text" value="<?= $service ?>">
-      </div>
+      <?php endwhile; ?>
+
       <div class="sign">
         <div class="head received">Received By</div>
         <div class="body"><div class="line">.......................</div><strong>Multi9 Computers</strong></div>
