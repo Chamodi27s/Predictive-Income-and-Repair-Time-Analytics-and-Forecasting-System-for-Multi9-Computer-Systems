@@ -85,7 +85,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <div class="menu">
         <a href="index.php" class="<?= $current_page=='index.php'?'active':'' ?>">Dashboard</a>
         <a href="add_customer.php">Register</a>
-        <a href="warrenty">Warrenty</a>
+        <a href="warranty_list.php">Warrenty</a>
         <a href="duration">Duration</a>
 
         <a href="collected.php">Collected</a>
