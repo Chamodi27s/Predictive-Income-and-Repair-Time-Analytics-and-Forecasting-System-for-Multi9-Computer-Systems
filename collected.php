@@ -6,103 +6,104 @@ include 'navbar.php';
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Service Center Dashboard</title>
+    <title>Warranty Jobs Management</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background-color: #f4f7f6; padding: 20px; }
         .container { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        
-        h2 { margin-bottom: 20px; color: #333; }
-        table { width: 100%; border-collapse: collapse; min-width: 1100px; margin-top: 20px; }
-        th { background: #2e7d32; text-align: left; padding: 12px; font-size: 13px; color: #fff; border-bottom: 2px solid #eee; }
+        h2 { margin-bottom: 20px; color: #2e7d32; border-left: 5px solid #2e7d32; padding-left: 10px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; margin-top: 20px; }
+        th { background: #2e7d32; text-align: left; padding: 12px; font-size: 13px; color: #fff; }
         td { padding: 12px; font-size: 13px; border-bottom: 1px solid #f1f1f1; }
-
-        /* Inputs */
+        
+        /* Input Styling for Editing */
         .table-input { width: 100%; border: 1px solid transparent; background: transparent; padding: 6px; outline: none; }
         .editing-active { background: #fff !important; border: 1px solid #3b82f6 !important; border-radius: 6px; }
 
-        /* Status Select Styling */
-        .status-select { padding: 8px; border-radius: 8px; font-weight: bold; border: 1px solid #ddd; cursor: pointer; min-width: 130px; outline: none; }
+        .warranty-badge { 
+            background: #fff3e0; color: #e65100; padding: 4px 10px; border-radius: 20px; 
+            font-weight: bold; font-size: 11px; border: 1px solid #ffcc80; display: inline-block;
+        }
         
-        /* Status Colors */
-        .approved { background: #dcfce7; color: #166534; border: 1px solid #166534; }
-        .non-approved { background: #fef3c7; color: #92400e; border: 1px solid #92400e; }
-        .pending { background: #e0e7ff; color: #3730a3; border: 1px solid #3730a3; }
+        .status-select { padding: 6px; border-radius: 6px; border: 1px solid #ddd; outline: none; cursor: pointer; }
+        .save-msg { font-size: 11px; color: #059669; display: none; font-weight: bold; margin-left: 10px; }
+        
+        .status-pending { background-color: #e0e7ff; color: #3730a3; }
+        .status-approved { background-color: #dcfce7; color: #166534; }
 
-        /* Buttons */
-        .btn-edit { background: #065f46; color: white; border:none; padding: 8px 16px; border-radius: 6px; cursor:pointer; font-weight: 500; }
+        .btn-edit { background: #065f46; color: white; border:none; padding: 7px 14px; border-radius: 6px; cursor:pointer; }
         .btn-save-active { background: #2563eb !important; }
-        .btn-delete { background: #7f1d1d; color: white; padding: 8px 16px; text-decoration: none; border-radius: 6px; font-size: 12px; }
-        
-        .save-msg { font-size: 11px; color: #059669; display: none; font-weight: bold; margin-top: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Service Job Management</h2>
+    <h2>🛡️ Warranty Collected Jobs</h2>
     
     <table>
         <thead>
             <tr>
                 <th>Job No</th>
                 <th>Customer Name</th>
-                <th>Email</th>
                 <th>Issue</th>
                 <th>Phone</th>
+                <th>Warranty Status</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             <?php
-            $sql = "SELECT j.job_no, j.job_status, c.customer_name, c.email, c.phone_number, jd.issue_name 
+            $sql = "SELECT j.job_no, j.job_status, c.customer_name, c.email, c.phone_number, jd.issue_name, jd.warranty_status 
                     FROM job j
                     LEFT JOIN customer c ON j.phone_number = c.phone_number
                     LEFT JOIN job_device jd ON j.job_no = jd.job_no
+                    WHERE jd.warranty_status = 'Warranty' 
                     ORDER BY j.job_no DESC";
-            
             $result = $conn->query($sql);
             
             if ($result && $result->num_rows > 0) {
                 while($row = $result->fetch_assoc()) {
                     $id = $row['job_no'];
                     $status_val = $row['job_status'] ?? 'Pending';
-                    $status_class = strtolower(str_replace(' ', '-', $status_val));
+                    $status_class = ($status_val == 'Approved') ? 'status-approved' : 'status-pending';
             ?>
             <tr id="row-<?php echo $id; ?>">
                 <td><strong>#<?php echo $id; ?></strong></td>
-                <td><input type="text" id="name-<?php echo $id; ?>" class="table-input" value="<?php echo $row['customer_name']; ?>" readonly></td>
-                <td><input type="text" id="email-<?php echo $id; ?>" class="table-input" value="<?php echo $row['email']; ?>" readonly></td>
-                <td><input type="text" id="issue-<?php echo $id; ?>" class="table-input" value="<?php echo $row['issue_name']; ?>" readonly></td>
-                <td><input type="text" id="phone-<?php echo $id; ?>" class="table-input" value="<?php echo $row['phone_number']; ?>" readonly></td>
+                
+                <td><input type="text" id="name-<?php echo $id; ?>" class="table-input" value="<?php echo htmlspecialchars($row['customer_name']); ?>" readonly></td>
+                <td><input type="text" id="issue-<?php echo $id; ?>" class="table-input" value="<?php echo htmlspecialchars($row['issue_name']); ?>" readonly></td>
+                <td><input type="text" id="phone-<?php echo $id; ?>" class="table-input" value="<?php echo htmlspecialchars($row['phone_number']); ?>" readonly></td>
+                
+                <input type="hidden" id="email-<?php echo $id; ?>" value="<?php echo htmlspecialchars($row['email'] ?? ''); ?>">
+
+                <td><span class="warranty-badge"><?php echo htmlspecialchars($row['warranty_status']); ?></span></td>
                 <td>
                     <select id="stat-<?php echo $id; ?>" class="status-select <?php echo $status_class; ?>" onchange="updateStatusOnly('<?php echo $id; ?>')">
                         <option value="Pending" <?php if($status_val=='Pending') echo 'selected'; ?>>Pending</option>
+                        <option value="Pending" <?php if($status_val=='not-Approved') echo 'selected'; ?>>not-Approved</option>
                         <option value="Approved" <?php if($status_val=='Approved') echo 'selected'; ?>>Approved</option>
-                        <option value="Non Approved" <?php if($status_val=='Non Approved') echo 'selected'; ?>>Non Approved</option>
                     </select>
+                    <span id="msg-<?php echo $id; ?>" class="save-msg">✓ Saved</span>
                 </td>
                 <td>
-                    <div style="display: flex; gap: 5px; align-items: center;">
-                        <button id="btn-edit-<?php echo $id; ?>" class="btn-edit" onclick="toggleEdit('<?php echo $id; ?>')">Edit</button>
-                        <a href="delete.php?job_no=<?php echo $id; ?>" class="btn-delete" onclick="return confirm('Delete this job?')">Delete</a>
-                    </div>
-                    <span id="msg-<?php echo $id; ?>" class="save-msg">✓ Updated</span>
+                    <button id="btn-edit-<?php echo $id; ?>" class="btn-edit" onclick="toggleEdit('<?php echo $id; ?>')">Edit</button>
                 </td>
             </tr>
             <?php 
                 }
-            } else { echo "<tr><td colspan='7' style='text-align:center;'>No jobs found.</td></tr>"; }
+            } else { 
+                echo "<tr><td colspan='7' style='text-align:center; padding: 30px; color: #666;'>No warranty jobs found.</td></tr>"; 
+            }
             ?>
         </tbody>
     </table>
 </div>
 
 <script>
-// විස්තර වෙනස් කිරීම සඳහා Edit Button එකේ ක්‍රියාකාරීත්වය
+// Edit button එක එබූ විට ක්‍රියාත්මක වන function එක
 function toggleEdit(id) {
-    const fields = ['name', 'email', 'issue', 'phone'];
+    const fields = ['name', 'issue', 'phone'];
     const btn = document.getElementById('btn-edit-' + id);
     const isReadOnly = document.getElementById('name-' + id).readOnly;
 
@@ -117,31 +118,26 @@ function toggleEdit(id) {
         btn.classList.add('btn-save-active');
     } else {
         // Save කිරීම
-        saveFullRow(id, fields, btn);
+        saveToDB(id, () => {
+            fields.forEach(f => {
+                let el = document.getElementById(f + '-' + id);
+                el.readOnly = true;
+                el.classList.remove('editing-active');
+            });
+            btn.innerText = "Edit";
+            btn.classList.remove('btn-save-active');
+        });
     }
 }
 
-// Status එක Dropdown එකෙන් වෙනස් කළ සැණින් Save වීමට
 function updateStatusOnly(id) {
-    const stat = document.getElementById('stat-' + id);
-    // වර්ණය වෙනස් කිරීම
-    stat.className = 'status-select ' + stat.value.toLowerCase().replace(' ', '-');
-    
-    // දත්ත Database එකට යැවීම
+    const statSelect = document.getElementById('stat-' + id);
+    if(statSelect.value === 'Approved') {
+        statSelect.className = 'status-select status-approved';
+    } else {
+        statSelect.className = 'status-select status-pending';
+    }
     saveToDB(id);
-}
-
-// පොදුවේ Database එකට දත්ත යවන function එක
-function saveFullRow(id, fields, btn) {
-    saveToDB(id, () => {
-        fields.forEach(f => {
-            let el = document.getElementById(f + '-' + id);
-            el.readOnly = true;
-            el.classList.remove('editing-active');
-        });
-        btn.innerText = "Edit";
-        btn.classList.remove('btn-save-active');
-    });
 }
 
 function saveToDB(id, callback = null) {
@@ -162,7 +158,7 @@ function saveToDB(id, callback = null) {
         if (this.readyState == 4 && this.status == 200) {
             if (this.responseText.trim() === "success") {
                 let msg = document.getElementById('msg-' + id);
-                msg.style.display = 'block';
+                msg.style.display = 'inline';
                 setTimeout(() => { msg.style.display = 'none'; }, 2000);
                 if (callback) callback();
             } else {
