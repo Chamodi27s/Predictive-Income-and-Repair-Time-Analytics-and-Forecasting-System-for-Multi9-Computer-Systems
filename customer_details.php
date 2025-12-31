@@ -15,15 +15,12 @@ $is_edit = isset($_GET['edit']);
     DATA UPDATE (SAVE) SECTION
 ================================ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    // Customer Update
     $name = mysqli_real_escape_string($conn, $_POST['customer_name']);
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $address = mysqli_real_escape_string($conn, $_POST['address']);
 
     mysqli_query($conn,"UPDATE customer SET customer_name='$name', email='$email', address='$address' WHERE phone_number='$phone'");
 
-    // Warranty & Description Update
     if (isset($_POST['warranty_status'])) {
         foreach ($_POST['warranty_status'] as $id => $status) {
             $id = mysqli_real_escape_string($conn, $id);
@@ -34,20 +31,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!empty($_FILES['device_image']['name'][$id])) {
                 $target_dir = "uploads/devices/";
                 if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
-
                 $img_name = time() . "_" . preg_replace("/[^a-zA-Z0-9.]/", "_", $_FILES['device_image']['name'][$id]);
                 move_uploaded_file($_FILES['device_image']['tmp_name'][$id], $target_dir . $img_name);
                 $image_sql = ", device_image='$img_name'";
             }
 
-            mysqli_query($conn,"UPDATE job_device SET 
-                warranty_status='$status', 
-                description='$desc' 
-                $image_sql 
-                WHERE job_device_id='$id'");
+            mysqli_query($conn,"UPDATE job_device SET warranty_status='$status', description='$desc' $image_sql WHERE job_device_id='$id'");
         }
     }
-
     header("Location: customer_details.php?phone=$phone");
     exit();
 }
@@ -55,14 +46,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 /* ===============================
     FETCH DATA
 ================================ */
+// පාරිභෝගිකයාගේ විස්තර ලබා ගැනීම
 $customer_res = mysqli_query($conn,"SELECT * FROM customer WHERE phone_number='$phone'");
 $customer = mysqli_fetch_assoc($customer_res);
 
+// 2. අලුත්ම ජොබ් අංකය ලබා ගැනීම (Action Bar එක සඳහා)
+// ORDER BY job_no DESC මගින් ලොකුම අංකය (අලුත්ම එක) මුලට එයි.
+$latest_job_res = mysqli_query($conn, "SELECT job_no FROM job WHERE phone_number='$phone' ORDER BY job_no DESC LIMIT 1");
+$latest_job_data = mysqli_fetch_assoc($latest_job_res);
+$current_job_no = isset($latest_job_data['job_no']) ? $latest_job_data['job_no'] : '';
+
+// සියලුම ජොබ් ලැයිස්තුව ලබා ගැනීම
 $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech 
                             FROM job 
                             LEFT JOIN technicians ON job.technician_id = technicians.technician_id 
                             WHERE job.phone_number='$phone' 
-                            ORDER BY job.job_date DESC");
+                            ORDER BY job.job_no DESC");
 ?>
 
 <!DOCTYPE html>
@@ -72,278 +71,91 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Details - <?= htmlspecialchars($phone) ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
     <style>
-        :root {
-            --primary: #4361ee;
-            --primary-hover: #3a56d4;
-            --success: #2ec4b6;
-            --danger: #e63946;
-            --secondary: #64748b;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-        }
-
-        body { 
-            background-color: var(--bg); 
-            font-family: 'Inter', sans-serif; 
-            padding: 40px 20px; 
-            color: var(--text-main);
-            line-height: 1.6;
-            margin: 0;
-        }
-
+        :root { --primary: #4361ee; --primary-hover: #3a56d4; --success: #2ec4b6; --danger: #e63946; --secondary: #64748b; --bg: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b; --border: #e2e8f0; }
+        body { background-color: var(--bg); font-family: 'Inter', sans-serif; padding: 40px 20px; color: var(--text-main); line-height: 1.6; margin: 0; }
         .container { max-width: 1000px; margin: auto; padding-bottom: 100px; }
-
-        .card { 
-            background: var(--card-bg); 
-            padding: 32px; 
-            border-radius: 16px; 
-            margin-bottom: 24px; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            border: 1px solid var(--border);
-        }
-
-        h2, h3 { 
-            font-weight: 700; 
-            letter-spacing: -0.02em; 
-            color: var(--text-main); 
-            margin-top: 0;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        label { 
-            font-weight: 600; 
-            font-size: 0.75rem; 
-            text-transform: uppercase; 
-            color: var(--text-muted); 
-            margin-bottom: 8px;
-            display: block;
-            letter-spacing: 0.05em;
-        }
-
-        input, textarea, select { 
-            width: 100%; 
-            padding: 12px 16px; 
-            border: 1px solid var(--border); 
-            border-radius: 10px; 
-            margin-bottom: 20px; 
-            background: #fff;
-            transition: all 0.2s ease;
-            font-size: 14px;
-            color: var(--text-main);
-        }
-
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
-        }
-
-        input[readonly] { background-color: #f1f5f9; cursor: not-allowed; border-color: transparent; }
-
-        .device-box { 
-            background: #fdfdfd; 
-            padding: 24px; 
-            border-radius: 12px; 
-            margin-top: 20px; 
-            border: 1px solid var(--border);
-        }
-
-        .btn { 
-            background: var(--primary); 
-            color: white; 
-            padding: 12px 24px; 
-            border: none; 
-            border-radius: 10px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            text-decoration: none; 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 8px;
-            transition: all 0.2s;
-            font-size: 14px;
-        }
-
-        .btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
-        .btn-secondary { background: var(--secondary); }
+        .card { background: var(--card-bg); padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); }
+        h2, h3 { font-weight: 700; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        label { font-weight: 600; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; display: block; }
+        input, textarea, select { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 20px; font-size: 14px; }
+        input[readonly] { background-color: #f1f5f9; cursor: not-allowed; }
+        .device-box { background: #fdfdfd; padding: 24px; border-radius: 12px; margin-top: 20px; border: 1px solid var(--border); }
+        .btn { background: var(--primary); color: white; padding: 12px 24px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
         .btn-success { background: var(--success); }
-        .btn-outline { 
-            background: transparent; 
-            color: var(--primary); 
-            border: 1.5px solid var(--primary); 
-        }
-
-        .status-badge { 
-            padding: 6px 14px; 
-            border-radius: 30px; 
-            font-weight: 700; 
-            font-size: 11px; 
-            text-transform: uppercase;
-        }
-        
-        .status-completed { background: #dcfce7; color: #166534; } /* Warranty */
-        .status-danger { background: #fee2e2; color: #991b1b; }    /* No Warranty */
-
-        .device-img { 
-            width: 100%; 
-            max-width: 280px; 
-            border-radius: 12px; 
-            margin-top: 12px;
-            border: 2px solid #fff;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .action-bar {
-            position: fixed; 
-            bottom: 30px; 
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(12px);
-            padding: 16px 32px;
-            border-radius: 100px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border: 1px solid rgba(255,255,255,0.3);
-            z-index: 1000;
-        }
-
-        .grid-layout {
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-            gap: 20px;
-        }
-
-        .empty-img {
-            padding: 30px; 
-            background: #f1f5f9; 
-            border-radius: 12px; 
-            text-align: center; 
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            border: 2px dashed var(--border);
-        }
+        .btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+        .status-badge { padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 11px; text-transform: uppercase; }
+        .status-completed { background: #dcfce7; color: #166534; }
+        .status-danger { background: #fee2e2; color: #991b1b; }
+        .action-bar { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); padding: 16px 32px; border-radius: 100px; box-shadow: 0 10px 15px rgba(0,0,0,0.1); display: flex; gap: 12px; z-index: 1000; border: 1px solid var(--border); }
+        .grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <form method="POST" enctype="multipart/form-data">
-        
         <div class="card">
             <h2>👤 Customer Profile</h2>
             <div class="grid-layout">
-                <div>
-                    <label>Customer Name</label>
-                    <input type="text" name="customer_name" value="<?= htmlspecialchars($customer['customer_name']) ?>" <?= !$is_edit?'readonly':'' ?>>
-                </div>
-                <div>
-                    <label>Phone Number</label>
-                    <input type="text" value="<?= $customer['phone_number'] ?>" readonly>
-                </div>
-                <div>
-                    <label>Email Address</label>
-                    <input type="email" name="email" value="<?= htmlspecialchars($customer['email']) ?>" <?= !$is_edit?'readonly':'' ?>>
-                </div>
-                <div>
-                    <label>Address</label>
-                    <input type="text" name="address" value="<?= htmlspecialchars($customer['address']) ?>" <?= !$is_edit?'readonly':'' ?>>
-                </div>
+                <div><label>Name</label><input type="text" name="customer_name" value="<?= htmlspecialchars($customer['customer_name'] ?? '') ?>" <?= !$is_edit?'readonly':'' ?>></div>
+                <div><label>Phone</label><input type="text" value="<?= htmlspecialchars($phone) ?>" readonly></div>
+                <div><label>Email</label><input type="email" name="email" value="<?= htmlspecialchars($customer['email'] ?? '') ?>" <?= !$is_edit?'readonly':'' ?>></div>
+                <div><label>Address</label><input type="text" name="address" value="<?= htmlspecialchars($customer['address'] ?? '') ?>" <?= !$is_edit?'readonly':'' ?>></div>
             </div>
         </div>
 
         <?php while($job = mysqli_fetch_assoc($jobs)): ?>
         <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 20px;">
-                <h3 style="margin:0;">📑 Job ID: <?= $job['job_no'] ?></h3>
-                <span style="font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">📅 <?= date("M d, Y", strtotime($job['job_date'])) ?></span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="margin:0;">📑 Job No: <?= $job['job_no'] ?></h3>
+                <span style="font-size: 12px; color: var(--text-muted);">📅 <?= date("M d, Y", strtotime($job['job_date'])) ?></span>
             </div>
-            
-            <p style="margin-bottom: 20px;">
-                <strong>Technician:</strong> 
-                <?= $job['tech'] ? '<span style="color:var(--primary)">'.$job['tech'].'</span>' : '<span style="color:var(--danger)">Not Assigned</span>' ?>
-            </p>
+            <p><strong>Technician:</strong> <?= htmlspecialchars($job['tech'] ?? 'Not Assigned') ?></p>
 
             <?php
-            $job_no = $job['job_no'];
-            $devices_res = mysqli_query($conn,"SELECT * FROM job_device WHERE job_no='$job_no'");
+            $jno = $job['job_no'];
+            $devices_res = mysqli_query($conn,"SELECT * FROM job_device WHERE job_no='$jno'");
             while($d = mysqli_fetch_assoc($devices_res)):
-                $w_raw = strtolower($d['warranty_status']);
-                // මෙතනදී "Warranty" නම් කොළ පාටත්, "No Warranty" නම් රතු පාටත් ලැබේ
-                $w_class = ($w_raw == 'warranty') ? 'status-completed' : 'status-danger';
+                $w_class = (strtolower($d['warranty_status']) == 'warranty') ? 'status-completed' : 'status-danger';
             ?>
             <div class="device-box">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                    <div>
-                        <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">📱 <?= $d['device_name'] ?></div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Issue: <?= htmlspecialchars($d['issue_name']) ?></div>
-                    </div>
-                    <span class="status-badge <?= $w_class ?>">🛡️ <?= strtoupper($d['warranty_status']) ?></span>
+                <div style="display: flex; justify-content: space-between;">
+                    <div><strong>📱 <?= htmlspecialchars($d['device_name']) ?></strong><br><small>Issue: <?= htmlspecialchars($d['issue_name']) ?></small></div>
+                    <span class="status-badge <?= $w_class ?>">🛡️ <?= htmlspecialchars($d['warranty_status']) ?></span>
                 </div>
-
-                <label>Notes / Condition Report</label>
-                <textarea name="device_desc[<?= $d['job_device_id'] ?>]" rows="2" <?= !$is_edit?'readonly':'' ?> placeholder="Add notes about device condition..."><?= htmlspecialchars($d['description']) ?></textarea>
-
+                <label style="margin-top:10px;">Notes</label>
+                <textarea name="device_desc[<?= $d['job_device_id'] ?>]" rows="2" <?= !$is_edit?'readonly':'' ?>><?= htmlspecialchars($d['description']) ?></textarea>
+                
                 <?php if($is_edit): ?>
                     <div class="grid-layout">
-                        <div>
-                            <label>Update Warranty Status</label>
-                            <select name="warranty_status[<?= $d['job_device_id'] ?>]">
-                                <option value="Warranty" <?= strtolower($d['warranty_status'])=='warranty'?'selected':'' ?>>Warranty</option>
-                                <option value="No Warranty" <?= strtolower($d['warranty_status'])=='no warranty'?'selected':'' ?>>No Warranty</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>New Device Photo</label>
-                            <input type="file" name="device_image[<?= $d['job_device_id'] ?>]">
-                        </div>
+                        <select name="warranty_status[<?= $d['job_device_id'] ?>]">
+                            <option value="Warranty" <?= $d['warranty_status']=='Warranty'?'selected':'' ?>>Warranty</option>
+                            <option value="No Warranty" <?= $d['warranty_status']=='No Warranty'?'selected':'' ?>>No Warranty</option>
+                        </select>
+                        <input type="file" name="device_image[<?= $d['job_device_id'] ?>]">
                     </div>
                 <?php endif; ?>
-
-                <div style="margin-top: 10px;">
-                    <label>Inspection Photo</label>
-                    <?php if(!empty($d['device_image'])): ?>
-                        <a href="uploads/devices/<?= $d['device_image'] ?>" target="_blank">
-                            <img src="uploads/devices/<?= $d['device_image'] ?>" class="device-img" alt="Device">
-                        </a>
-                    <?php else: ?>
-                        <div class="empty-img">No visual documentation provided</div>
-                    <?php endif; ?>
-                </div>
             </div>
             <?php endwhile; ?>
         </div>
         <?php endwhile; ?>
 
         <div class="action-bar">
-            <a href="jobsheet.php?phone=<?= $phone ?>" class="btn btn-outline" target="_blank">
-                📄 Generate Job Sheet
-            </a>
+            <?php if(!empty($current_job_no)): ?>
+                <a href="jobsheet.php?job_no=<?= $current_job_no ?>" class="btn btn-outline" target="_blank">
+                    📄 Print Current Job (#<?= $current_job_no ?>)
+                </a>
+            <?php endif; ?>
 
             <?php if(!$is_edit): ?>
-                <a href="?phone=<?= $phone ?>&edit=1" class="btn">
-                    ✏️ Edit Profile & Warranty
-                </a>
+                <a href="?phone=<?= $phone ?>&edit=1" class="btn">✏️ Edit</a>
             <?php else: ?>
-                <button type="submit" class="btn btn-success">
-                    💾 Save All Changes
-                </button>
-                <a href="?phone=<?= $phone ?>" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-success">💾 Save All</button>
+                <a href="?phone=<?= $phone ?>" class="btn">Cancel</a>
             <?php endif; ?>
         </div>
-
     </form>
 </div>
-
 </body>
 </html>

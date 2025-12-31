@@ -58,15 +58,17 @@ $q = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
         <tbody>
             <?php
             // SQL Query: Job, Customer සහ Job_Device වගු JOIN කර ඇත
-            $sql = "SELECT j.job_no, c.customer_name, jd.device_name, jd.issue_name, j.job_date, j.job_status 
-                    FROM job j 
-                    JOIN customer c ON j.phone_number = c.phone_number 
-                    JOIN job_device jd ON j.job_no = jd.job_no 
-                    WHERE j.job_no LIKE '%$q%' 
-                    OR c.customer_name LIKE '%$q%' 
-                    OR jd.device_name LIKE '%$q%' 
-                    OR jd.issue_name LIKE '%$q%' 
-                    ORDER BY j.job_date DESC";
+           // නිවැරදි කළ SQL Query එක
+$sql = "SELECT j.job_no, c.customer_name, jd.device_name, jd.issue_name, j.job_date, j.job_status 
+        FROM job j 
+        LEFT JOIN customer c ON j.phone_number = c.phone_number 
+        LEFT JOIN job_device jd ON j.job_no = jd.job_no 
+        WHERE j.job_status = 'Approved' 
+        AND (j.job_no LIKE '%$q%' 
+             OR c.customer_name LIKE '%$q%' 
+             OR jd.device_name LIKE '%$q%' 
+             OR jd.issue_name LIKE '%$q%') 
+        ORDER BY j.job_date DESC";
 
             $res = $conn->query($sql);
 
