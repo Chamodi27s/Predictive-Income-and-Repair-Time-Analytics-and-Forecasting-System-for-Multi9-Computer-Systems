@@ -68,6 +68,9 @@ if(empty($months)) {
             background-color: #f9fdf9; 
             margin: 0; padding: 0; 
             color: #263238;
+            padding-top: 120px;   /* 🔥 navbar height */
+    padding-left: 40px;
+    padding-right: 40px;
         }
 
         .container { 

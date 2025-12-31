@@ -4,9 +4,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 <style>
 .topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 9999;
+
     background: linear-gradient(90deg, #043f2e, #065f46);
     color: white;
-    padding: 18px 50px;          /* ⬅ palal una */
+    padding: 18px 50px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -85,7 +91,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <div class="menu">
         <a href="index.php" class="<?= $current_page=='index.php'?'active':'' ?>">Dashboard</a>
         <a href="add_customer.php">Register</a>
-        <a href="warrenty">Warrenty</a>
+        <a href="warranty_list.php">Warrenty</a>
         <a href="duration">Duration</a>
 
         <a href="collected.php">Collected</a>
@@ -93,7 +99,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <a href="cashbook_view.php">Payment</a>
         <a href="report.php">Report</a>
         <a href="stock.php">Stock</a>
-        <a href="setting.php">Setting</a>
+        <a href="distroy.php">Distroy Items</a>
     </div>
 
     <div class="profile">V</div>

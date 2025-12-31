@@ -80,7 +80,9 @@ $total_pages = ceil($total_records / $records_per_page);
             font-family: 'Segoe UI', Tahoma, sans-serif; 
             background: #f0f4f8;
             min-height: 100vh;
-            padding: 20px;
+           padding-top: 120px;   /* 🔥 navbar height */
+    padding-left: 40px;
+    padding-right: 40px;
             color: #2c3e50;
         }
         
