@@ -25,7 +25,9 @@ body {
     font-family: 'Segoe UI', Arial, sans-serif;
     background: #f9fafb;
     margin: 0;
-    padding: 0;
+    padding-top: 120px;   /* 🔥 navbar height */
+    padding-left: 40px;
+    padding-right: 40px;
 }
 
 .container {
@@ -197,7 +199,7 @@ tr:hover {background: #f1f5f9;}
 /* ===== LOW STOCK POPUP ===== */
 .popup {
     position: fixed;
-    top: -100px;
+    top: 110px;
     right: 20px;
     background: linear-gradient(135deg, #fef3c7, #f97316);
     color: #1f2937;
@@ -210,9 +212,9 @@ tr:hover {background: #f1f5f9;}
     min-width: 240px;
     transition: top 0.6s ease, opacity 0.6s ease;
     opacity: 0;
-    z-index: 999;
+    z-index: 900;
 }
-.popup.show {top: 20px; opacity: 1;}
+.popup.show {opacity: 1;}
 .popup h4 {margin: 0; font-size: 16px; font-weight: bold;}
 .popup p {margin: 0; font-size: 14px;}
 .popup button {

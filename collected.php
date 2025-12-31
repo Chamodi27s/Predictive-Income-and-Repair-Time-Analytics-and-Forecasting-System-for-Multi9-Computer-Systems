@@ -9,7 +9,9 @@ include 'navbar.php';
     <title>Jobs Management | Smart Repair</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #f4f7f6; padding: 20px; }
+        body { background-color: #f4f7f6; padding-top: 120px;   /* 🔥 navbar height */
+    padding-left: 40px;
+    padding-right: 40px; }
         .container { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         
         /* Header & Search Styling */

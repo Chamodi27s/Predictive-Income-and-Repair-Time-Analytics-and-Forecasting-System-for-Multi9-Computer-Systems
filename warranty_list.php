@@ -9,7 +9,9 @@ include 'navbar.php';
     <title>Warranty Management | Smart Repair</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #f1f5f9; padding: 25px; }
+        body { background-color: #f1f5f9; padding-top: 120px;   /* 🔥 navbar height */
+    padding-left: 40px;
+    padding-right: 40px;}
         .container { max-width: 1350px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         

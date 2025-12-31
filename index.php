@@ -44,7 +44,9 @@ $revenue_today = $revenue_row['total'] ?? 0;
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background-color: #f0fdf4; padding: 40px; }
+        body { background-color: #f0fdf4; padding-top: 120px;   /* 🔥 navbar height */
+    padding-left: 40px;
+    padding-right: 40px; }
         h1 { color: #444; margin-bottom: 40px; font-weight: 400; }
         .dashboard-grid {
             display: grid;

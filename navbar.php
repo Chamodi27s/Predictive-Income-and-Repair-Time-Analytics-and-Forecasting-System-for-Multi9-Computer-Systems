@@ -4,9 +4,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 <style>
 .topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 9999;
+
     background: linear-gradient(90deg, #043f2e, #065f46);
     color: white;
-    padding: 18px 50px;          /* ⬅ palal una */
+    padding: 18px 50px;
     display: flex;
     align-items: center;
     justify-content: space-between;

@@ -41,7 +41,9 @@ include_once 'navbar.php';
     <meta charset="UTF-8">
     <title>Cashbook Management</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding-top: 120px;   /* 🔥 navbar height */
+    padding-left: 40px;
+    padding-right: 40px; }
         .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .form-section { background: #e8f5e9; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c8e6c9; }
         .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; align-items: end; }
