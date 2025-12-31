@@ -17,26 +17,29 @@ $stocks = $conn->query("
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stock Management</title>
 <style>
+/* ===== BODY & CONTAINER ===== */
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
-    background: #f9fafb;
+    background: #f3f4f6;
     margin: 0;
-    padding-top: 120px;   /* 🔥 navbar height */
+    padding-top: 120px;   
     padding-left: 40px;
     padding-right: 40px;
+    color: #1f2937;
 }
-
 .container {
     max-width: 1400px;
     margin: auto;
     padding: 25px;
 }
 
-/* ===== TOP BAR & SEARCH ===== */
+/* ===== TOP BAR: SEARCH + ADD ===== */
 .search-add-bar {
     display: flex;
     justify-content: space-between;
@@ -46,7 +49,7 @@ body {
     gap: 10px;
 }
 .search-box {
-    padding: 10px 18px 10px 38px;
+    padding: 12px 18px 12px 40px;
     width: 280px;
     border-radius: 30px;
     border: 1px solid #ddd;
@@ -57,71 +60,104 @@ body {
 }
 .search-box:focus {
     border-color: #22c55e;
-    box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.3);
 }
 
 /* ===== ADD BUTTON ===== */
-.add-btn {
-    background: linear-gradient(90deg, #22c55e, #16a34a);
-    color: #fff;
-    padding: 14px 32px;       /* Bigger padding */
-    border-radius: 50px;      /* More rounded pill shape */
-    font-weight: 700;          /* Bolder text */
-    font-size: 16px;           /* Slightly larger font */
+.add-btn { 
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white; 
+    padding: 15px 50px;
+    border-radius: 35px;
+    font-weight: 700;
+    font-size: 17px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    border: 2px solid rgba(255,255,255,0.3);
+    box-shadow: 0 10px 28px rgba(46, 204, 113, 0.4);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
     text-decoration: none;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);  /* Stronger shadow */
-    transition: all 0.3s;
 }
+.add-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+.add-btn:hover::before { left: 100%; }
 .add-btn:hover {
-    transform: translateY(-3px) scale(1.05);  /* Slightly bigger on hover */
-    opacity: 0.95;
+    transform: translateY(-5px);
+    box-shadow: 0 14px 36px rgba(46, 204, 113, 0.5);
 }
+.add-btn:active { transform: translateY(-2px); }
 
 /* ===== CARDS ===== */
 .cards {
     display: flex;
-    gap: 20px;
     flex-wrap: wrap;
+    gap: 20px;
     margin-bottom: 25px;
 }
 .card {
     flex: 0 0 220px;
     height: 150px;
-    padding: 20px;
-    border-radius: 20px;
+    padding: 20px 25px;
+    border-radius: 16px;
     position: relative;
     cursor: pointer;
-    box-shadow: 0 10px 25px rgba(0,0,0,.1);
-    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 10px 28px rgba(0,0,0,.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+.card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    transition: all 0.5s ease;
 }
 .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0,0,0,.15);
+    transform: translateY(-8px);
+    box-shadow: 0 14px 36px rgba(0,0,0,.15);
+}
+.card h3 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: #5a6c7d;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.card h1 {
+    margin: 10px 0 0;
+    font-size: 32px;
+    font-weight: 800;
+    color: #2c3e50;
 }
 .card span {
-    font-size: 36px;
+    font-size: 20px;
     position: absolute;
     top: 15px;
     right: 15px;
 }
-.card h3 {
-    margin: 0;
-    font-size: 14px;
-    color: #1f2937;
-    font-weight: 600;
-}
-.card h1 {
-    margin-top: 10px;
-    font-size: 32px;
-    color: #1f2937;
-    font-weight: 700;
-}
 
-/* Card colors – light/pastel gradients */
-.total {background: linear-gradient(135deg, #d1fae5, #a7f3d0);}
-.in {background: linear-gradient(135deg, #dbeafe, #bfdbfe);}
-.out {background: linear-gradient(135deg, #fee2e2, #fecaca);}
-.low {background: linear-gradient(135deg, #ffedd5, #fed7aa);}
+/* Card colors */
+.total { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border: 2px solid rgba(34,197,94,.3);}
+.in    { background: linear-gradient(135deg, #dbeafe, #bfdbfe); border: 2px solid rgba(59,130,246,.3);}
+.out   { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid rgba(239,68,68,.3);}
+.low   { background: linear-gradient(135deg, #fff7ed, #fed7aa); border: 2px solid rgba(249,115,22,.3);}
 
 /* ===== TABLE ===== */
 .table-box {
@@ -129,11 +165,9 @@ body {
     padding: 22px;
     border-radius: 18px;
     box-shadow: 0 12px 28px rgba(0,0,0,.08);
+    overflow-x: auto;
 }
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+table { width: 100%; border-collapse: collapse; }
 th, td {
     padding: 12px;
     border-bottom: 1px solid #eee;
@@ -145,7 +179,7 @@ th {
     color: #555;
     font-weight: 600;
 }
-tr:hover {background: #f1f5f9;}
+tr:hover { background: #f1f5f9; }
 .qty-input {
     width: 70px;
     padding: 6px;
@@ -162,8 +196,7 @@ tr:hover {background: #f1f5f9;}
     font-weight: bold;
     transition: all 0.3s;
 }
-.edit-btn:hover {opacity: 0.85;}
-
+.edit-btn:hover { opacity: 0.85; }
 /* Status badges */
 .status {
     padding: 6px 14px;
@@ -193,8 +226,8 @@ tr:hover {background: #f1f5f9;}
     cursor: pointer;
     transition: all 0.3s;
 }
-.pagination button.active {background: #16a34a;}
-.pagination button:hover {opacity: 0.85;}
+.pagination button.active { background: #16a34a; }
+.pagination button:hover { opacity: 0.85; }
 
 /* ===== LOW STOCK POPUP ===== */
 .popup {
@@ -209,14 +242,14 @@ tr:hover {background: #f1f5f9;}
     display: flex;
     flex-direction: column;
     gap: 6px;
-    min-width: 240px;
-    transition: top 0.6s ease, opacity 0.6s ease;
+    min-width: 260px;
+    transition: all 0.6s ease;
     opacity: 0;
     z-index: 900;
 }
-.popup.show {opacity: 1;}
-.popup h4 {margin: 0; font-size: 16px; font-weight: bold;}
-.popup p {margin: 0; font-size: 14px;}
+.popup.show { opacity: 1; }
+.popup h4 { margin: 0; font-size: 16px; font-weight: bold; }
+.popup p { margin: 0; font-size: 14px; }
 .popup button {
     align-self: flex-start;
     background: #fff;
@@ -227,13 +260,13 @@ tr:hover {background: #f1f5f9;}
     cursor: pointer;
     font-weight: bold;
 }
-.popup button:hover {opacity: 0.85;}
+.popup button:hover { opacity: 0.85; }
 </style>
 </head>
 <body>
 <div class="container">
 
-<!-- 🔔 LOW STOCK POPUP -->
+<!-- LOW STOCK POPUP -->
 <div class="popup" id="lowPopup">
     <h4>🔔 Low Stock Alert</h4>
     <p id="lowCount"><?= $lowStock ?> items are running low!</p>
@@ -296,7 +329,7 @@ tr:hover {background: #f1f5f9;}
 </table>
 </div>
 
-<!-- PAGINATION BELOW TABLE -->
+<!-- PAGINATION -->
 <div class="pagination" id="pagination"></div>
 </div>
 
@@ -332,7 +365,7 @@ function filterLow(){rows.forEach(r=>{let q=r.querySelector(".qty-input").value;
 function filterIn(){rows.forEach(r=>{let q=r.querySelector(".qty-input").value;r.style.display=(q>5)?"":"none"})}
 function filterOut(){rows.forEach(r=>{let q=r.querySelector(".qty-input").value;r.style.display=(q==0)?"":"none"})}
 
-// Toggle Edit/Save button
+// Toggle Edit/Save
 function toggleEdit(btn){
     const tr = btn.closest("tr");
     const input = tr.querySelector(".qty-input");

@@ -39,7 +39,9 @@ $devices_res = $conn->query("SELECT * FROM job_device WHERE job_no = '$job_no'")
 
 <style>
 *{box-sizing:border-box;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif}
-body{margin:0;background:#f6f4ef;color:#083024;font-size:13px}
+body{margin:0;background:#f6f4ef;color:#083024;font-size:13px; padding-top: 120px;   /* 🔥 navbar height */
+    padding-left: 40px;
+    padding-right: 40px;}
 
 /* ===== SCREEN ONLY ===== */
 .no-print{display:block}
