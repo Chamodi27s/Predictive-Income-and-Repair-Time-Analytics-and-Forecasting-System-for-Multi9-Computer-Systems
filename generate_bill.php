@@ -2,11 +2,13 @@
 include 'db_config.php';
 include 'navbar.php';
 
-// ගැටලුවක් වුවහොත් හඳුනා ගැනීමට Error Reporting සක්‍රීය කිරීම
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $invoice_saved = false;
 $saved_items = [];
+
+// URL එකෙන් එන Rent Fee එක ලබා ගැනීම
+$delay_fee = isset($_GET['fee']) ? floatval($_GET['fee']) : (isset($_POST['delay_fee']) ? floatval($_POST['delay_fee']) : 0);
 
 if (isset($_POST['save_invoice'])) {
     $inv_no = $_POST['invoice_no'];
@@ -16,7 +18,6 @@ if (isset($_POST['save_invoice'])) {
     $p_total = floatval($_POST['parts_total']);
     $g_total = floatval($_POST['grand_total']);
 
-    // 1. භාණ්ඩ ලැයිස්තුව JSON එකක් ලෙස සකස් කිරීම
     $temp_items = [];
     if (isset($_POST['item_codes'])) {
         foreach ($_POST['item_codes'] as $key => $code) {
@@ -32,19 +33,15 @@ if (isset($_POST['save_invoice'])) {
     $items_json = json_encode($temp_items);
 
     $conn->begin_transaction();
-
     try {
-        // 2. Invoice දත්ත ඇතුළත් කිරීම
         $sql1 = "INSERT INTO invoice (invoice_no, job_no, invoice_date, service_charge, parts_total, grand_total, items_json) 
                  VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt1 = $conn->prepare($sql1);
         $stmt1->bind_param("ssdddds", $inv_no, $job_no, $inv_date, $s_charge, $p_total, $g_total, $items_json);
         $stmt1->execute();
 
-        // 3. job_device table එකේ device_status එක 'billed' ලෙස වෙනස් කිරීම
         $conn->query("UPDATE job_device SET device_status = 'billed' WHERE job_no = '$job_no'");
 
-        // 4. Stock එකෙන් ප්‍රමාණය අඩු කිරීම
         if (!empty($temp_items)) {
             foreach ($temp_items as $item) {
                 $code = $item['code'];
@@ -53,7 +50,6 @@ if (isset($_POST['save_invoice'])) {
             }
         }
 
-        // 5. Cashbook Update කිරීම
         $balance_res = $conn->query("SELECT balance FROM cashbook ORDER BY cashid DESC LIMIT 1");
         $last_balance = ($balance_res->num_rows > 0) ? floatval($balance_res->fetch_assoc()['balance']) : 0;
         $new_balance = $last_balance + $g_total;
@@ -63,17 +59,12 @@ if (isset($_POST['save_invoice'])) {
         $conn->commit();
         $invoice_saved = true;
         $saved_items = $temp_items;
-
     } catch (Exception $e) {
         $conn->rollback();
-        die("<div style='color:red; padding:20px; border:1px solid red;'>
-                <h3>Database Error!</h3>
-                බිල සේව් කිරීමට නොහැකි විය. හේතුව: " . $e->getMessage() . "
-             </div>");
+        die("Error: " . $e->getMessage());
     }
 }
 
-// Next Invoice Number & Stock Loading
 $stock_res = $conn->query("SELECT item_code, item_name, unit_price FROM stock WHERE quantity > 0");
 $stock_items = $stock_res->fetch_all(MYSQLI_ASSOC);
 
@@ -88,7 +79,7 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
     <meta charset="UTF-8">
     <title>Invoice - Multi9 Repair</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; padding: 20px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; padding: 20px; padding-top:130px; }
         .invoice-box { max-width: 800px; margin: auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .header { text-align: center; border-bottom: 3px solid #2ecc71; padding-bottom: 15px; margin-bottom: 25px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -108,14 +99,15 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
     <div class="header">
         <h1>MULTI9 COMPUTER REPAIR</h1>
         <p>Invoice No: <strong>#<?= $invoice_saved ? $_POST['invoice_no'] : $next_invoice_no ?></strong> | 
-           Job No: <strong><?= htmlspecialchars($job_no_display) ?></strong></p>
+            Job No: <strong><?= htmlspecialchars($job_no_display) ?></strong></p>
         <p>Date: <?= date("Y-m-d") ?></p>
     </div>
 
-    <form method="POST">
+    <form method="POST" id="invoiceForm">
         <input type="hidden" name="invoice_no" value="<?= $invoice_saved ? $_POST['invoice_no'] : $next_invoice_no ?>">
         <input type="hidden" name="job_no" value="<?= $job_no_display ?>">
         <input type="hidden" name="parts_total" id="p_total_val" value="<?= $invoice_saved ? $_POST['parts_total'] : '0' ?>">
+        <input type="hidden" name="delay_fee" id="delay_fee_val" value="<?= $delay_fee ?>">
         <input type="hidden" name="grand_total" id="g_total_val" value="<?= $invoice_saved ? $_POST['grand_total'] : '0' ?>">
 
         <?php if (!$invoice_saved): ?>
@@ -158,13 +150,20 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
 
         <div class="total-section">
             <p>Parts Total: Rs. <span id="p_disp"><?= $invoice_saved ? number_format($_POST['parts_total'], 2) : '0.00' ?></span></p>
+            
             <p>Service Charge: 
                 <?php if(!$invoice_saved): ?>
                     <input type="number" name="service_charge" id="s_charge" value="0" step="0.01" oninput="calcTotal()" style="text-align: right; padding: 5px;">
                 <?php else: ?>
-                    <strong>Rs. <?= number_format($_POST['service_charge'], 2) ?></strong>
+                    <strong id="s_charge_display">Rs. <?= number_format($_POST['service_charge'], 2) ?></strong>
+                    <input type="hidden" id="s_charge" value="<?= $_POST['service_charge'] ?>">
                 <?php endif; ?>
             </p>
+
+            <?php if($delay_fee > 0): ?>
+            <p style="color: #d32f2f;">Late Collection Fee (Rent): <strong>Rs. <?= number_format($delay_fee, 2) ?></strong></p>
+            <?php endif; ?>
+
             <hr>
             <h2 style="color: #2ecc71;">Grand Total: Rs. <span id="g_disp"><?= $invoice_saved ? number_format($_POST['grand_total'], 2) : '0.00' ?></span></h2>
         </div>
@@ -173,16 +172,20 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
             <?php if (!$invoice_saved): ?>
                 <button type="submit" name="save_invoice" class="btn btn-save no-print">💾 SAVE & COMPLETE INVOICE</button>
             <?php else: ?>
-                <button type="button" onclick="window.print()" class="btn btn-print no-print">🖨️ PRINT INVOICE</button>
-                <p class="no-print" style="text-align:center; margin-top:15px;">
-                    <a href="generate_bill.php" style="color:#27ae60; text-decoration:none; font-weight:bold;">+ Create New Invoice</a>
-                </p>
+                <button type="button" onclick="window.print()" class="btn btn-print no-print" style="margin-bottom:10px;">🖨️ PRINT INVOICE</button>
+                <div class="no-print" style="text-align:center;">
+                    <a href="job_list.php" style="display:inline-block; padding:10px 20px; background:#eee; color:#333; text-decoration:none; border-radius:5px; font-weight:bold; width:95%;">← Back to Order Page</a>
+                </div>
             <?php endif; ?>
         </div>
     </form>
 </div>
 
 <script>
+window.onload = function() {
+    calcTotal(); 
+};
+
 function addItem() {
     const sel = document.getElementById('itemSelect');
     const opt = sel.options[sel.selectedIndex];
@@ -212,17 +215,21 @@ function addItem() {
 function calcTotal() {
     let pTotal = 0;
     document.querySelectorAll('#billTable tbody tr').forEach(row => {
-        const rowTotal = parseFloat(row.cells[3].innerText);
+        const rowTotalText = row.cells[3].innerText.replace(/,/g, '');
+        const rowTotal = parseFloat(rowTotalText);
         if(!isNaN(rowTotal)) pTotal += rowTotal;
     });
     
     document.getElementById('p_disp').innerText = pTotal.toFixed(2);
     document.getElementById('p_total_val').value = pTotal;
     
-    const sCharge = parseFloat(document.getElementById('s_charge')?.value || 0);
-    const gTotal = pTotal + sCharge;
+    const sChargeInput = document.getElementById('s_charge');
+    const sCharge = sChargeInput ? parseFloat(sChargeInput.value || 0) : 0;
+    const dFee = parseFloat(document.getElementById('delay_fee_val').value || 0);
     
-    document.getElementById('g_disp').innerText = gTotal.toFixed(2);
+    const gTotal = pTotal + sCharge + dFee;
+    
+    document.getElementById('g_disp').innerText = gTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
     document.getElementById('g_total_val').value = gTotal;
 }
 </script>
