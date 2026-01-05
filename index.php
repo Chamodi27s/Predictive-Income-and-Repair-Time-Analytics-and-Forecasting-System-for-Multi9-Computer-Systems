@@ -2,10 +2,10 @@
 include 'db_config.php';
 include 'navbar.php';
 
-// Ada dinaya
+// Ada dinaya (Today's Date)
 $today = date('Y-m-d');
 
-// 1. Pending Repairs (job_device table eken status eka check kirima)
+// 1. Pending Repairs
 $pending_sql = "SELECT COUNT(*) as count FROM job_device WHERE device_status = 'Pending'";
 $pending_res = $conn->query($pending_sql);
 $pending_count = $pending_res->fetch_assoc()['count'];
@@ -15,8 +15,7 @@ $inprogress_sql = "SELECT COUNT(*) as count FROM job_device WHERE device_status 
 $inprogress_res = $conn->query($inprogress_sql);
 $inprogress_count = $inprogress_res->fetch_assoc()['count'];
 
-// 3. Completed Today (Ada completed karapu ewa)
-// Meeta job table eka join karanna ona date eka job table eke thiyana nisa
+// 3. Completed Today
 $completed_sql = "SELECT COUNT(*) as count FROM job_device jd 
                   JOIN job j ON jd.job_no = j.job_no 
                   WHERE jd.device_status = 'Completed' AND j.job_date = '$today'";
@@ -28,11 +27,15 @@ $customer_sql = "SELECT COUNT(*) as count FROM customer";
 $customer_res = $conn->query($customer_sql);
 $total_customers = $customer_res->fetch_assoc()['count'];
 
-// 5. Revenue Today (Invoice table eken ganna eka thamai wadath niwaradi)
-$revenue_sql = "SELECT SUM(grand_total) as total FROM invoice WHERE DATE(invoice_date) = '$today'";
+// 5. Revenue Today (Based on your 'cash' table screenshot)
+// Table Name: cash | Columns: date, income
+$revenue_sql = "SELECT SUM(income) as total FROM cashbook WHERE DATE(date) = '$today'";
 $revenue_res = $conn->query($revenue_sql);
-$revenue_row = $revenue_res->fetch_assoc();
-$revenue_today = $revenue_row['total'] ?? 0;
+$revenue_today = 0;
+if ($revenue_res) {
+    $revenue_row = $revenue_res->fetch_assoc();
+    $revenue_today = $revenue_row['total'] ?? 0;
+}
 ?>
 
 <!DOCTYPE html>
@@ -44,9 +47,7 @@ $revenue_today = $revenue_row['total'] ?? 0;
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background-color: #f0fdf4; padding-top: 120px;   /* 🔥 navbar height */
-    padding-left: 40px;
-    padding-right: 40px; }
+        body { background-color: #f0fdf4; padding-top: 120px; padding-left: 40px; padding-right: 40px; }
         h1 { color: #444; margin-bottom: 40px; font-weight: 400; }
         .dashboard-grid {
             display: grid;
@@ -65,11 +66,11 @@ $revenue_today = $revenue_row['total'] ?? 0;
             justify-content: space-between;
         }
         /* Dashboard Colors */
-        .bg-pending { background-color: #dcfce7; } /* Light Green */
-        .bg-progress { background-color: #fee2e2; } /* Light Red */
-        .bg-completed { background-color: #fef9c3; } /* Light Yellow */
-        .bg-customers { background-color: #e0f2fe; } /* Light Blue */
-        .bg-revenue { background-color: #ffedd5; } /* Light Orange */
+        .bg-pending { background-color: #dcfce7; }
+        .bg-progress { background-color: #fee2e2; }
+        .bg-completed { background-color: #fef9c3; }
+        .bg-customers { background-color: #e0f2fe; }
+        .bg-revenue { background-color: #ffedd5; }
 
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
         .card-title { font-weight: 600; font-size: 1.1rem; color: #374151; }
