@@ -99,7 +99,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <a href="cashbook_view.php">Payment</a>
         <a href="report.php">Report</a>
         <a href="stock.php">Stock</a>
-        <a href="distroy.php">Distroy Items</a>
+        <a href="destroyed_items_view.php">Distroy Items</a>
     </div>
 
     <div class="profile">V</div>
