@@ -1,6 +1,5 @@
 <?php 
 include 'db_config.php';
-include 'navbar.php';
 
 // ශ්‍රී ලංකා වේලාව නිවැරදිව ලබා ගැනීමට
 date_default_timezone_set('Asia/Colombo');
@@ -9,12 +8,12 @@ date_default_timezone_set('Asia/Colombo');
 $job_no_param = isset($_GET['job_no']) ? $conn->real_escape_string($_GET['job_no']) : '';
 
 if (!empty($job_no_param)) {
-    $query = "SELECT j.*, c.customer_name, c.email as customer_email
+    $query = "SELECT j.*, c.customer_name, c.email as customer_email, c.phone_number
               FROM job j
               INNER JOIN customer c ON j.phone_number = c.phone_number
               WHERE j.job_no = '$job_no_param' LIMIT 1"; 
 } else {
-    $query = "SELECT j.*, c.customer_name, c.email as customer_email
+    $query = "SELECT j.*, c.customer_name, c.email as customer_email, c.phone_number
               FROM job j
               INNER JOIN customer c ON j.phone_number = c.phone_number
               ORDER BY j.job_no DESC LIMIT 1";
@@ -37,18 +36,48 @@ $devices_res = $conn->query("SELECT * FROM job_device WHERE job_no = '$job_no'")
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jobsheet - <?= $job_no ?></title>
+<title>JobSheet_<?= $job_no ?></title>
 
 <style>
-/* ඔබේ දෙවන design එකේ styles එලෙසම මෙහි ඇත */
+/* මෙතැනින් Browser එකේ Headers සහ Footers ඉවත් කරයි */
+@page {
+    margin: 5mm; /* පිටුවේ මායිම */
+    size: auto;
+}
+
+/* මුද්‍රණයේදී ඉහළ ලිපිනයන් ඉවත් කිරීමට */
+@media print {
+    html, body {
+        height: 100%;
+        margin: 0 !important; 
+        padding: 0 !important;
+        overflow: hidden;
+    }
+}
+
 *{box-sizing:border-box;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif}
-body{margin:0;background:#f6f4ef;color:#083024;font-size:13px; padding-top: 120px; 
-    padding-left: 40px;
-    padding-right: 40px;}
+body{margin:0;background:#f6f4ef;color:#083024;font-size:13px; padding: 20px;}
 
 .no-print{display:block}
-.page{width:95%;max-width:1100px;margin:15px auto}
-.grid{display:grid;grid-template-columns:1fr 320px;gap:20px}
+.page{width:95%;max-width:1100px;margin:0 auto; background:#fff; padding:30px; border-radius:10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+.grid{display:grid;grid-template-columns:1fr 320px;gap:20px; margin-top: 20px;}
+
+/* Company Header Styles */
+.company-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #083024;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+}
+.left-info { display: flex; align-items: flex-start; gap: 15px; }
+.company-logo img { width: 90px; }
+.company-details { font-size: 13px; line-height: 1.5; color: #083024; }
+.company-details strong { font-size: 20px; color: #083024; display: block; margin-bottom: 4px; }
+.date-time-box { text-align: right; font-size: 14px; line-height: 1.8; }
+.dt-row { display: flex; justify-content: flex-end; gap: 10px; }
+.dt-label { font-weight: 700; }
 
 .card{background:#fdeff0;border:1.5px solid #7fd0b9;border-radius:10px;padding:15px}
 .compact-form .row{display:grid;grid-template-columns:130px 1fr;gap:8px;margin-bottom:6px}
@@ -69,58 +98,52 @@ body{margin:0;background:#f6f4ef;color:#083024;font-size:13px; padding-top: 120p
 .sign .head.received{background:#f7a8a8}
 .sign .head.issued{background:#06b48c;color:#fff}
 .sign .body{padding:12px;text-align:center;background:#fff}
-.line{letter-spacing:3px;color:#999;margin-bottom:3px}
+
+.sig-line {
+    border-bottom: 1px dotted #999;
+    width: 80%;
+    margin: 10px auto 8px auto;
+}
 
 .terms{background:#f1fff9;border:1px dashed #9fd9c6;padding:12px;margin-top:20px;border-radius:8px;font-size:12px; line-height:1.5}
 .bottom{display:flex;justify-content:flex-end;margin-top:15px}
 .print{padding:10px 25px;font-size:15px;font-weight:700;border:none;border-radius:8px;background:linear-gradient(#0aa37a,#056d52);color:#fff;cursor:pointer}
 
-.company-header { display: none; }
-
 @media(max-width:900px){ .grid{grid-template-columns:1fr} }
 
 @media print{
-   @page { margin: 8mm; size: A4; }
-   body { margin: 0; background: #fff; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-   .no-print, .print, nav{ display:none !important; }
-   
-   .company-header{
-       display: flex !important;
-       justify-content: space-between;
-       align-items: flex-start;
-       border-bottom: 2px solid #083024;
-       padding-bottom: 10px;
-       margin-bottom: 20px;
-   }
-
-   .left-info { display: flex; align-items: flex-start; gap: 12px; }
-   .company-details { font-size: 12px; line-height: 1.4; color: #083024; }
-   .company-details strong { font-size: 18px; display: block; margin-bottom: 2px; }
-
-   .date-time-box {
-       text-align: right;
-       font-size: 12px;
-       line-height: 1.6;
-       min-width: 150px;
-   }
-   
-   .page { width: 100%; margin: 0; }
+   body { background: #fff; }
+   .no-print, .print{ display:none !important; }
+   .page { width: 100%; margin: 0; box-shadow: none; border: none; padding: 0; }
    .card, .pill, .sign { border-width: 1px !important; }
 }
 </style>
 </head>
 <body>
+
 <div class="page">
     <div class="company-header">
         <div class="left-info">
+            <div class="company-logo">
+                <img src="uploads/devices/logo.png" alt="Logo">
+            </div>
             <div class="company-details">
-                <strong>MULTI9 COMPUTERS</strong>
-                <p>Address Line 1, City.<br>Tel: 011-XXXXXXX</p>
+                <strong>Multi9 Computer Systems</strong>
+                No. 97/8, Stanley Thilakarathne Mawatha, Nugegoda<br>
+                Tel: 0115 299 147 | 0772 022 701<br>
+                Email: workshop@multi9.lk
             </div>
         </div>
+        
         <div class="date-time-box">
-            <div>Date: <?= date('Y-m-d') ?></div>
-            <div>Time: <?= date('h:i A') ?></div>
+            <div class="dt-row">
+                <span class="dt-label">Date:</span>
+                <span class="dt-value"><?= date('Y-m-d') ?></span>
+            </div>
+            <div class="dt-row">
+                <span class="dt-label">Time:</span>
+                <span class="dt-value"><?= date('h:i A') ?></span>
+            </div>
         </div>
     </div>
 
@@ -148,11 +171,17 @@ body{margin:0;background:#f6f4ef;color:#083024;font-size:13px; padding-top: 120p
 
             <div class="sign">
                 <div class="head received">Received By</div>
-                <div class="body"><strong>Multi9 Computers</strong></div>
+                <div class="body">
+                    <div class="sig-line"></div>
+                    <strong>Multi9 Computers</strong>
+                </div>
             </div>
             <div class="sign">
                 <div class="head issued">Issued To</div>
-                <div class="body"><strong>Customer Signature</strong></div>
+                <div class="body">
+                    <div class="sig-line"></div>
+                    <strong>Customer Signature</strong>
+                </div>
             </div>
         </div>
     </div>
@@ -168,5 +197,6 @@ body{margin:0;background:#f6f4ef;color:#083024;font-size:13px; padding-top: 120p
         <button class="print" onclick="window.print()">Print Now</button>
     </div>
 </div>
+
 </body>
 </html>
