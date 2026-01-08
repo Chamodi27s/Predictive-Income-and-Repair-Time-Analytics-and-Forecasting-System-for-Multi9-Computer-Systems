@@ -68,7 +68,6 @@ $total_pages = ceil($total_records / $records_per_page);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer & Job Dashboard</title>
     <style>
-        /* ඔබගේ පවතින CSS මම කිසිදු වෙනසක් කර නැත */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; min-height: 100vh; padding-top: 120px; padding-left: 40px; padding-right: 40px; color: #2c3e50; }
         .container { max-width: 1400px; margin: 0 auto; margin-top: 25px; }
@@ -78,25 +77,236 @@ $total_pages = ceil($total_records / $records_per_page);
         .stat-card.pink { background: linear-gradient(135deg, #ffe8f0 0%, #ffc9dd 100%); border-color: rgba(233, 30, 99, 0.3); box-shadow: 0 8px 24px rgba(233, 30, 99, 0.2); }
         .stat-info .number { font-size: 36px; font-weight: 800; color: #2c3e50; }
         .add-btn { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; padding: 14px 35px; border-radius: 30px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 10px; }
-        .table-section { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); }
-        .customer-table { width: 100%; border-collapse: collapse; }
-        .customer-table th { text-align: left; padding: 12px 15px; background: #f8f9fa; color: #5a6c7d; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid #e8ecef; }
-        .customer-table td { padding: 14px 15px; font-size: 13px; color: #2c3e50; border-bottom: 1px solid #f0f2f5; }
-        .job-badge { background: #e3f2fd; color: #1976d2; padding: 4px 10px; border-radius: 4px; font-weight: 600; }
-        .device-badge { background: #f3e5f5; color: #7b1fa2; padding: 4px 10px; border-radius: 4px; font-weight: 500; }
         
-        /* Prediction Button එක සඳහා අවශ්‍ය Style එකක් පමණක් එක් කරන ලදී */
+        /* Table Section */
+        .table-section { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); }
+
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .table-controls h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .right-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* Professional Search Box */
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 12px 20px 12px 46px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            width: 320px;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #2ecc71;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
+        }
+
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        /* Professional Table Styles */
+        .customer-table { 
+            width: 100%; 
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .customer-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .customer-table th { 
+            text-align: left; 
+            padding: 16px 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #5a6c7d; 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .customer-table th:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        .customer-table th:last-child {
+            border-top-right-radius: 10px;
+        }
+
+        .customer-table tbody tr {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .customer-table tbody tr:hover {
+            background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%);
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .customer-table td { 
+            padding: 16px 15px; 
+            font-size: 13px; 
+            color: #2c3e50; 
+            border-bottom: 1px solid #f0f2f5; 
+        }
+
+        .date-text {
+            color: #6c757d;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .job-badge { 
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1976d2; 
+            padding: 6px 12px; 
+            border-radius: 8px; 
+            font-weight: 700; 
+            font-size: 12px;
+            display: inline-block;
+            box-shadow: 0 2px 6px rgba(25, 118, 210, 0.15);
+        }
+
+        .device-badge { 
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            color: #7b1fa2; 
+            padding: 6px 12px; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            font-size: 12px;
+            display: inline-block;
+            box-shadow: 0 2px 6px rgba(123, 31, 162, 0.15);
+        }
+
         .predict-btn {
-            background: #4361ee;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
             color: white !important;
-            padding: 5px 10px;
-            border-radius: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
             text-decoration: none;
             font-size: 12px;
-            font-weight: bold;
+            font-weight: 700;
             display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(99, 102, 241, 0.3);
         }
-        .predict-btn:hover { background: #3a56d4; }
+
+        .predict-btn:hover {
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Pagination */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .showing-text {
+            color: #6c757d;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 8px;
+        }
+
+        .pagination a {
+            padding: 10px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #6c757d;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border: 2px solid #e9ecef;
+            background: white;
+        }
+
+        .pagination a:hover {
+            background: #f8f9fa;
+            color: #2ecc71;
+            border-color: #2ecc71;
+            transform: translateY(-2px);
+        }
+
+        .pagination a.active {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 100px 20px 20px 20px;
+            }
+
+            .search-box input {
+                width: 100%;
+            }
+
+            .table-section {
+                padding: 20px;
+                overflow-x: auto;
+            }
+
+            .customer-table {
+                font-size: 12px;
+            }
+
+            .customer-table th,
+            .customer-table td {
+                padding: 12px 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -136,12 +346,14 @@ $total_pages = ceil($total_records / $records_per_page);
             <thead>
                 <tr>
                     <th>Date</th>
-                    <th>Job No</th> <th>Customer Name</th>
+                    <th>Job No</th>
+                    <th>Customer Name</th>
                     <th>Email</th>
                     <th>Phone NO</th>
                     <th>Device</th>
                     <th>Address</th>
-                    <th>Prediction</th> </tr>
+                    <th>Time dureation</th>
+                </tr>
             </thead>
             <tbody>
                 <?php if(mysqli_num_rows($customers_result) > 0): ?>
@@ -154,7 +366,8 @@ $total_pages = ceil($total_records / $records_per_page);
                             <td style="font-family: monospace; font-weight: 500;"><?= htmlspecialchars($row['phone_number']) ?></td>
                             <td><span class="device-badge"><?= htmlspecialchars($row['all_devices']) ?></span></td>
                             <td style="color: #7f8c8d; font-size: 12px;"><?= htmlspecialchars($row['address']) ?></td>
-                            <td onclick="event.stopPropagation();"> <a href="duration.php?job_no=<?= urlencode($row['job_no']) ?>" class="predict-btn">Predict Time</a>
+                            <td onclick="event.stopPropagation();">
+                                <a href="duration.php?job_no=<?= urlencode($row['job_no']) ?>" class="predict-btn">Time Duration</a>
                             </td>
                         </tr>
                     <?php endwhile; ?>

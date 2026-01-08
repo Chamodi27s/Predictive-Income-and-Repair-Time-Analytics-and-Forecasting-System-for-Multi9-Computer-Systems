@@ -46,17 +46,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 /* ===============================
     FETCH DATA
 ================================ */
-// පාරිභෝගිකයාගේ විස්තර ලබා ගැනීම
 $customer_res = mysqli_query($conn,"SELECT * FROM customer WHERE phone_number='$phone'");
 $customer = mysqli_fetch_assoc($customer_res);
 
-// 2. අලුත්ම ජොබ් අංකය ලබා ගැනීම (Action Bar එක සඳහා)
-// ORDER BY job_no DESC මගින් ලොකුම අංකය (අලුත්ම එක) මුලට එයි.
 $latest_job_res = mysqli_query($conn, "SELECT job_no FROM job WHERE phone_number='$phone' ORDER BY job_no DESC LIMIT 1");
 $latest_job_data = mysqli_fetch_assoc($latest_job_res);
 $current_job_no = isset($latest_job_data['job_no']) ? $latest_job_data['job_no'] : '';
 
-// සියලුම ජොබ් ලැයිස්තුව ලබා ගැනීම
 $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech 
                             FROM job 
                             LEFT JOIN technicians ON job.technician_id = technicians.technician_id 
@@ -89,6 +85,23 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
         .status-danger { background: #fee2e2; color: #991b1b; }
         .action-bar { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); padding: 16px 32px; border-radius: 100px; box-shadow: 0 10px 15px rgba(0,0,0,0.1); display: flex; gap: 12px; z-index: 1000; border: 1px solid var(--border); }
         .grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        
+        /* Prediction Link Style */
+        .predict-link {
+            background: #f1f5f9;
+            color: #4361ee;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+        .predict-link:hover {
+            background: #4361ee;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -109,7 +122,14 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <h3 style="margin:0;">📑 Job No: <?= $job['job_no'] ?></h3>
-                <span style="font-size: 12px; color: var(--text-muted);">📅 <?= date("M d, Y", strtotime($job['job_date'])) ?></span>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <?php if(!$is_edit): ?>
+                    <a href="duration.php?job_no=<?= urlencode($job['job_no']) ?>" class="predict-link">
+                        ⏱️ Predict Repair Duration
+                    </a>
+                    <?php endif; ?>
+                    <span style="font-size: 12px; color: var(--text-muted);">📅 <?= date("M d, Y", strtotime($job['job_date'])) ?></span>
+                </div>
             </div>
             <p><strong>Technician:</strong> <?= htmlspecialchars($job['tech'] ?? 'Not Assigned') ?></p>
 
