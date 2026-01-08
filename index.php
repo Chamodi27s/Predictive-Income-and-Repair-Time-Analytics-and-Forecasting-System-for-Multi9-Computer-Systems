@@ -88,7 +88,7 @@ $revenue_today = $revenue_row['total'] ?? 0;
 </head>
 <body>
 
-    <h1>Welcome back, Vibuddha</h1>
+    <h1>Welcome back, Multi9 Computer System</h1>
 
     <div class="dashboard-grid">
         <div class="card bg-pending">
