@@ -30,7 +30,9 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
             font-family: 'Segoe UI', Tahoma, sans-serif; 
             background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 50%, #ffffff 100%);
             min-height: 100vh;
-            padding: 30px 20px;
+            padding-top: 120px;   /* 🔥 navbar height */
+            padding-left: 40px;
+            padding-right: 40px;
             color: #2c3e50;
         }
         
