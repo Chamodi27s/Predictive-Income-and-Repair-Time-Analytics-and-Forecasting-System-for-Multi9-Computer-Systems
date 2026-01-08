@@ -1,6 +1,10 @@
 <?php
 session_start();
-
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
+?>
 $error = '';
 
 // නිවැරදි Login දත්ත මෙහි සඳහන් කර ඇත
