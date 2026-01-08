@@ -1,4 +1,12 @@
 <?php
+session_start();
+
+// 1. පරිශීලකයා Login වී නැතිනම් ඔහුව Login page එකට හරවා යවන්න
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
+
 include 'db_config.php';
 include 'navbar.php';
 
