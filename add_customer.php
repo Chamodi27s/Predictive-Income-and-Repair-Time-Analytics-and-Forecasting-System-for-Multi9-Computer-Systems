@@ -352,7 +352,7 @@ $total_pages = ceil($total_records / $records_per_page);
                     <th>Phone NO</th>
                     <th>Device</th>
                     <th>Address</th>
-                    <th>Prediction</th>
+                    <th>Time dureation</th>
                 </tr>
             </thead>
             <tbody>
@@ -367,7 +367,7 @@ $total_pages = ceil($total_records / $records_per_page);
                             <td><span class="device-badge"><?= htmlspecialchars($row['all_devices']) ?></span></td>
                             <td style="color: #7f8c8d; font-size: 12px;"><?= htmlspecialchars($row['address']) ?></td>
                             <td onclick="event.stopPropagation();">
-                                <a href="duration.php?job_no=<?= urlencode($row['job_no']) ?>" class="predict-btn">Predict Time</a>
+                                <a href="duration.php?job_no=<?= urlencode($row['job_no']) ?>" class="predict-btn">Time Duration</a>
                             </td>
                         </tr>
                     <?php endwhile; ?>

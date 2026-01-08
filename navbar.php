@@ -158,7 +158,7 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         <a href="index.php" class="<?= $current_page=='index.php'?'active':'' ?>">Dashboard</a>
         <a href="add_customer.php" class="<?= $current_page=='add_customer.php'?'active':'' ?>">Register</a>
         <a href="warranty_list.php" class="<?= $current_page=='warranty_list.php'?'active':'' ?>">Warranty</a>
-        <a href="duration.php" class="<?= $current_page=='duration.php'?'active':'' ?>">Duration</a>
+        
         <a href="collected.php" class="<?= $current_page=='collected.php'?'active':'' ?>">Collected</a>
         <a href="job_list.php" class="<?= $current_page=='job_list.php'?'active':'' ?>">Order</a>
         <a href="cashbook_view.php" class="<?= $current_page=='cashbook_view.php'?'active':'' ?>">Payment</a>
