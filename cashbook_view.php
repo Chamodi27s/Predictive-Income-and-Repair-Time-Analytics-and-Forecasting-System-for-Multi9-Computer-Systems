@@ -41,7 +41,7 @@ include_once 'navbar.php';
     <meta charset="UTF-8">
     <title>Cashbook Management</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding-top: 120px;   /* 🔥 navbar height */
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding-top: 110px;   /* 🔥 navbar height */
     padding-left: 40px;
     padding-right: 40px; }
         .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }

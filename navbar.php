@@ -2,14 +2,13 @@
 // දැනට සිටින පිටුවේ නම ලබා ගැනීම
 $current_page = basename($_SERVER['PHP_SELF']);
 
-// දැනට ලොග් වී සිටින පරිශීලකයාගේ නමේ මුල් අකුර ලබා ගැනීම
-// Session එකේ username එක නැතිනම් 'U' ලෙස පෙන්වයි
+// ලොග් වී සිටින පරිශීලක නම සහ මුල් අකුර ලබා ගැනීම
 $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : 'User';
 $user_initial = strtoupper(substr($user_name, 0, 1));
 ?>
 
 <style>
-    /* Main Topbar */
+    /* Navbar එකේ මහත සහ පසුබිම් වර්ණ */
     .topbar {
         position: fixed;
         top: 0;
@@ -18,146 +17,134 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         z-index: 9999;
         background: linear-gradient(90deg, #043f2e, #065f46);
         color: white;
-        padding: 12px 40px;
+        padding: 22px 45px; /* මහත (Height) වැඩි කරන ලදී */
         display: flex;
         align-items: center;
         justify-content: space-between;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    }
-
-    /* Brand Logo Section */
-    .brand {
-        display: flex;
-        flex-direction: column;
-        line-height: 1.2;
-        min-width: 150px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        box-sizing: border-box;
     }
 
     .brand strong {
-        font-size: 18px;
-        letter-spacing: 1px;
+        font-size: 24px; /* MULTI 9 අකුරු ලොකු කරන ලදී */
+        letter-spacing: 1.5px;
+        color: #ffffff;
     }
 
     .brand small {
-        font-size: 11px;
-        opacity: 0.85;
+        font-size: 12px;
+        opacity: 0.9;
+        color: #d1fae5;
     }
 
-    /* Menu Links */
+    /* මෙනු ලින්ක්ස් */
     .menu {
         display: flex;
-        gap: 25px;
+        gap: 22px;
     }
 
     .menu a {
         color: #d1fae5;
         text-decoration: none;
-        font-size: 14px;
-        padding: 6px 2px;
+        font-size: 15px;
+        font-weight: 500;
+        padding: 8px 5px;
         position: relative;
         transition: 0.3s;
     }
 
-    .menu a::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        bottom: -4px;
-        width: 0;
-        height: 2px;
-        background: #22c55e;
-        transition: 0.3s;
-    }
-
-    .menu a:hover::after,
-    .menu a.active::after {
-        width: 100%;
-    }
-
-    .menu a:hover,
+    /* දැනට සිටින පිටුව යටින් ඉරක් පෙන්වීම */
     .menu a.active {
         color: #ffffff;
     }
 
-    /* User Profile Section */
+    .menu a.active::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -5px;
+        width: 100%;
+        height: 3px;
+        background: #22c55e;
+    }
+
+    /* Profile කොටස */
     .user-section {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 15px;
         position: relative;
+        cursor: pointer;
+        padding: 8px 15px;
+        border-radius: 50px;
+        transition: 0.3s;
+        background: rgba(255, 255, 255, 0.05);
     }
 
-    .user-info {
-        text-align: right;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .user-info .welcome {
-        font-size: 10px;
-        opacity: 0.7;
-        text-transform: uppercase;
-    }
-
-    .user-info .name {
-        font-size: 13px;
-        font-weight: 500;
+    .user-section:hover {
+        background: rgba(255, 255, 255, 0.15);
     }
 
     .profile-card {
         background: #22c55e;
         color: #064e3b;
-        width: 38px;
-        height: 38px;
+        width: 46px;
+        height: 46px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: bold;
-        font-size: 16px;
-        cursor: pointer;
-        border: 2px solid rgba(255,255,255,0.2);
-        transition: 0.3s;
+        font-size: 18px;
+        border: 2px solid white;
     }
 
-    /* Dropdown Menu */
+    /* Dropdown මෙනු එක - Click කළ විට පෙන්වීමට */
     .profile-dropdown {
         position: absolute;
-        top: 50px;
+        top: 80px;
         right: 0;
         background: white;
-        min-width: 160px;
-        border-radius: 8px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        display: none;
+        min-width: 200px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        display: none; /* මුලින් සඟවා ඇත */
         overflow: hidden;
         z-index: 10000;
     }
 
+    /* මෙනුව පෙන්වීමට අවශ්‍ය Class එක */
+    .profile-dropdown.active {
+        display: block;
+        animation: slideDown 0.2s ease-out;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     .profile-dropdown a {
         display: block;
-        padding: 12px 18px;
+        padding: 15px 22px;
         color: #333;
         text-decoration: none;
-        font-size: 13px;
-        transition: 0.2s;
+        font-size: 14px;
         border-bottom: 1px solid #f1f1f1;
+        transition: 0.2s;
     }
 
     .profile-dropdown a:hover {
         background: #f0fdf4;
         color: #065f46;
+        padding-left: 28px;
     }
 
-    .user-section:hover .profile-dropdown {
-        display: block;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 1100px) {
-        .menu { gap: 15px; }
+    /* Screen එක කුඩා වූ විට Navbar එකේ ගැටළු මගහැරීමට */
+    @media (max-width: 1200px) {
+        .menu { gap: 12px; }
         .menu a { font-size: 13px; }
-        .topbar { padding: 12px 20px; }
+        .topbar { padding: 20px 20px; }
     }
 </style>
 
@@ -180,19 +167,42 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         <a href="destroyed_items_view.php" class="<?= $current_page=='destroyed_items_view.php'?'active':'' ?>">Destroy Items</a>
     </div>
 
-    <div class="user-section">
-        <div class="user-info">
-            <span class="welcome">Welcome</span>
-            <span class="name"><?= $user_name ?></span>
+    <div class="user-section" id="userMenuTrigger">
+        <div class="user-info" style="text-align: right;">
+            <span style="font-size: 10px; opacity: 0.8; display: block; text-transform: uppercase;">User Account</span>
+            <span style="font-size: 14px; font-weight: 600;"><?= $user_name ?></span>
         </div>
         <div class="profile-card">
             <?= $user_initial ?>
         </div>
         
-        <div class="profile-dropdown">
+        <div class="profile-dropdown" id="userDropdown">
             <a href="profile_settings.php">⚙️ System Settings</a>
             <a href="backup_db.php">💾 Database Backup</a>
-            <a href="logout.php" style="color: #dc2626; font-weight: 600;">🚪 Log Out</a>
+            <a href="logout.php" style="color: #dc2626; font-weight: 700;">🚪 Log Out</a>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var trigger = document.getElementById('userMenuTrigger');
+        var dropdown = document.getElementById('userDropdown');
+
+        // Profile එක click කළ විට පෙන්වන්න / හංගන්න
+        trigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdown.classList.toggle('active');
+        });
+
+        // වෙනත් ඕනෑම තැනක ක්ලික් කළොත් dropdown එක වසන්න
+        document.addEventListener('click', function() {
+            dropdown.classList.remove('active');
+        });
+        
+        // Dropdown එක ඇතුළේ ක්ලික් කළොත් එය වැසීම වැළැක්වීමට
+        dropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    });
+</script>

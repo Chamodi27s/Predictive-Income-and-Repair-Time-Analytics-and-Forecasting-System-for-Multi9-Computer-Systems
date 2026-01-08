@@ -27,7 +27,7 @@ $result = mysqli_query($conn, $sql);
     <meta charset="UTF-8">
     <title>Destroyed Items - Multi9</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding-top: 130px; padding-left: 30px; padding-right: 30px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding-top: 100px; }
         .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
         .header-title { color: #d32f2f; text-align: center; margin-bottom: 25px; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; }
         .report-table { width: 100%; border-collapse: collapse; margin-top: 10px; }

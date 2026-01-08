@@ -43,7 +43,9 @@ $result = mysqli_query($conn, $sql);
     <meta charset="UTF-8">
     <title>Job Management - Multi9</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding-top: 120px; padding-left: 40px; padding-right: 40px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding-top: 120px;   /* 🔥 navbar height */
+    padding-left: 40px;
+    padding-right: 40px; }
         .filter-container { display: flex; justify-content: center; gap: 10px; margin-top: 25px; flex-wrap: wrap; }
         .filter-tag { padding: 8px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 13px; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: white; }
         .tag-all { background: #2e7d32; }
