@@ -66,7 +66,9 @@ $cat_items = [
 <head>
     <title>Stock Register</title>
     <style>
-        body{font-family:Arial;background:#eef2f5;margin:0;padding:0;}
+        body{font-family:Arial;background:#eef2f5;margin:0; padding-top: 110px;   
+    padding-left: 40px;
+    padding-right: 40px;}
         .form-box{max-width:600px;margin:50px auto;background:#fff;padding:30px;border-radius:16px;box-shadow:0 15px 35px rgba(0,0,0,0.15);}
         h2{text-align:center;color:#166534;margin-bottom:25px;font-size:28px;}
         input,select{width:100%;padding:12px 15px;margin-bottom:18px;border-radius:10px;border:1px solid #cbd5e1;font-size:15px;}
