@@ -69,7 +69,7 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #4361ee; --primary-hover: #3a56d4; --success: #2ec4b6; --danger: #e63946; --secondary: #64748b; --bg: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b; --border: #e2e8f0; }
-        body { background-color: var(--bg); font-family: 'Inter', sans-serif; padding: 40px 20px; color: var(--text-main); line-height: 1.6; margin: 0; }
+        body { background-color: var(--bg); font-family: 'Inter', sans-serif; padding-top: 120px; padding-left: 40px; padding-right: 40px;  20px; color: var(--text-main); line-height: 1.6; margin: 0; }
         .container { max-width: 1000px; margin: auto; padding-bottom: 100px; }
         .card { background: var(--card-bg); padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); }
         h2, h3 { font-weight: 700; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }

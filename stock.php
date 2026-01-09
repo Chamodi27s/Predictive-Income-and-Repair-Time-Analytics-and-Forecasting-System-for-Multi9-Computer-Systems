@@ -16,6 +16,10 @@ $stocks = $conn->query("
 ");
 ?>
 
+<?php
+// ... (ඔබේ පැරණි PHP code එක එලෙසම තබා ගන්න)
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,208 +32,13 @@ body {
     font-family: 'Segoe UI', Arial, sans-serif;
     background: #f3f4f6;
     margin: 0;
-    padding-top: 120px;   
+    padding-top: 110px;   
     padding-left: 40px;
     padding-right: 40px;
-    color: #1f2937;
 }
-.container {
-    max-width: 1400px;
-    margin: auto;
-    padding: 25px;
-}
+.container { max-width: 1400px; margin: auto; padding: 20px; }
 
-/* ===== TOP BAR: SEARCH + ADD ===== */
-.search-add-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 15px 0 25px;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-.search-box {
-    padding: 12px 18px 12px 40px;
-    width: 280px;
-    border-radius: 30px;
-    border: 1px solid #ddd;
-    font-size: 14px;
-    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%23999" viewBox="0 0 24 24"><path d="M21.71 20.29l-3.388-3.387A8.948 8.948 0 0018 10a9 9 0 10-9 9 8.948 8.948 0 006.902-2.678l3.388 3.387a1 1 0 001.414-1.414zM4 10a6 6 0 1112 0 6 6 0 01-12 0z"/></svg>') no-repeat 12px center;
-    background-size: 18px;
-    transition: all 0.3s;
-}
-.search-box:focus {
-    border-color: #22c55e;
-    box-shadow: 0 0 8px rgba(34, 197, 94, 0.3);
-}
-
-/* ===== ADD BUTTON ===== */
-.add-btn { 
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
-    color: white; 
-    padding: 15px 50px;
-    border-radius: 35px;
-    font-weight: 700;
-    font-size: 17px;
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    border: 2px solid rgba(255,255,255,0.3);
-    box-shadow: 0 10px 28px rgba(46, 204, 113, 0.4);
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
-    text-decoration: none;
-}
-.add-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    transition: left 0.5s;
-}
-.add-btn:hover::before { left: 100%; }
-.add-btn:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 14px 36px rgba(46, 204, 113, 0.5);
-}
-.add-btn:active { transform: translateY(-2px); }
-
-/* ===== CARDS ===== */
-.cards {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin-bottom: 25px;
-}
-.card {
-    flex: 0 0 220px;
-    height: 150px;
-    padding: 20px 25px;
-    border-radius: 16px;
-    position: relative;
-    cursor: pointer;
-    box-shadow: 0 10px 28px rgba(0,0,0,.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    overflow: hidden;
-}
-.card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 150px;
-    height: 150px;
-    background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
-    border-radius: 50%;
-    transition: all 0.5s ease;
-}
-.card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 14px 36px rgba(0,0,0,.15);
-}
-.card h3 {
-    margin: 0;
-    font-size: 12px;
-    font-weight: 700;
-    color: #5a6c7d;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-.card h1 {
-    margin: 10px 0 0;
-    font-size: 32px;
-    font-weight: 800;
-    color: #2c3e50;
-}
-.card span {
-    font-size: 20px;
-    position: absolute;
-    top: 15px;
-    right: 15px;
-}
-
-/* Card colors */
-.total { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border: 2px solid rgba(34,197,94,.3);}
-.in    { background: linear-gradient(135deg, #dbeafe, #bfdbfe); border: 2px solid rgba(59,130,246,.3);}
-.out   { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid rgba(239,68,68,.3);}
-.low   { background: linear-gradient(135deg, #fff7ed, #fed7aa); border: 2px solid rgba(249,115,22,.3);}
-
-/* ===== TABLE ===== */
-.table-box {
-    background: #fff;
-    padding: 22px;
-    border-radius: 18px;
-    box-shadow: 0 12px 28px rgba(0,0,0,.08);
-    overflow-x: auto;
-}
-table { width: 100%; border-collapse: collapse; }
-th, td {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-    text-align: left;
-    font-size: 14px;
-}
-th {
-    background: #f3f4f6;
-    color: #555;
-    font-weight: 600;
-}
-tr:hover { background: #f1f5f9; }
-.qty-input {
-    width: 70px;
-    padding: 6px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    text-align: center;
-    pointer-events: none;
-}
-.edit-btn {
-    padding: 6px 14px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.3s;
-}
-.edit-btn:hover { opacity: 0.85; }
-/* Status badges */
-.status {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: bold;
-    text-align: center;
-}
-.in-stock {background: #dcfce7; color: #166534;}
-.low-stock {background: #ffedd5; color: #c2410c;}
-.out-stock {background: #fee2e2; color: #b91c1c;}
-
-/* ===== PAGINATION ===== */
-.pagination {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin: 20px 0 40px;
-}
-.pagination button {
-    padding: 8px 14px;
-    border: none;
-    border-radius: 6px;
-    background: #22c55e;
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-.pagination button.active { background: #16a34a; }
-.pagination button:hover { opacity: 0.85; }
-
-/* ===== LOW STOCK POPUP ===== */
+/* ===== ORANGE ALERT (LOOP LOGIC) ===== */
 .popup {
     position: fixed;
     top: 110px;
@@ -245,9 +54,10 @@ tr:hover { background: #f1f5f9; }
     min-width: 260px;
     transition: all 0.6s ease;
     opacity: 0;
+    pointer-events: none; /* සැඟවී ඇති විට click කළ නොහැක */
     z-index: 900;
 }
-.popup.show { opacity: 1; }
+.popup.show { opacity: 1; pointer-events: auto; }
 .popup h4 { margin: 0; font-size: 16px; font-weight: bold; }
 .popup p { margin: 0; font-size: 14px; }
 .popup button {
@@ -260,98 +70,130 @@ tr:hover { background: #f1f5f9; }
     cursor: pointer;
     font-weight: bold;
 }
-.popup button:hover { opacity: 0.85; }
+
+/* ===== CARDS (ඔබේ මුල් ස්ටයිල් එක) ===== */
+.cards { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; }
+.card {
+    flex: 0 0 180px; height: 110px; padding: 15px; border-radius: 16px;
+    cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,.08); transition: 0.3s;
+    display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+}
+.card:hover { transform: translateY(-5px); }
+.card span { font-size: 24px; margin-bottom: 5px; }
+.card h3 { margin: 0; font-size: 11px; font-weight: 700; color: #5a6c7d; text-transform: uppercase; }
+.card h1 { margin: 2px 0 0; font-size: 28px; font-weight: 800; color: #2c3e50; }
+
+/* Card Colors - Gradients ඇතුළත් කර ඇත */
+.total { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border: 1px solid rgba(34,197,94,.3);}
+.in    { background: linear-gradient(135deg, #dbeafe, #bfdbfe); border: 1px solid rgba(59,130,246,.3);}
+.out   { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid rgba(239,68,68,.3);}
+.low   { background: linear-gradient(135deg, #fff7ed, #fed7aa); border: 1px solid rgba(249,115,22,.3);}
+
+/* ===== SEARCH & TABLE ===== */
+.search-add-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.search-box { padding: 10px 15px 10px 35px; width: 250px; border-radius: 20px; border: 1px solid #ddd; background: #fff; }
+.add-btn { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; padding: 10px 30px; border-radius: 25px; text-decoration: none; font-weight: 700; font-size: 14px; }
+
+.table-box { background: #fff; padding: 20px; border-radius: 18px; box-shadow: 0 8px 20px rgba(0,0,0,.05); overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; font-size: 13px; }
+.status { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; }
+.in-stock {background: #dcfce7; color: #166534;}
+.low-stock {background: #ffedd5; color: #c2410c;}
+.out-stock {background: #fee2e2; color: #b91c1c;}
+
+.pagination { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
+.pagination button { padding: 6px 12px; border: none; border-radius: 6px; background: #e2e8f0; cursor: pointer; }
+.pagination button.active { background: #22c55e; color: #fff; }
 </style>
 </head>
 <body>
-<div class="container">
 
-<!-- LOW STOCK POPUP -->
 <div class="popup" id="lowPopup">
-    <h4>🔔 Low Stock Alert</h4>
-    <p id="lowCount"><?= $lowStock ?> items are running low!</p>
-    <button onclick="filterLow()">View Items</button>
+    <h4>⚠️ Stock Alert</h4>
+    <p><b><?= $lowStock ?> items</b> are running low.</p>
+    <button onclick="filterLow()">Review Now</button>
 </div>
 
-<!-- CARDS -->
-<div class="cards">
-    <div class="card total" onclick="showAll()">
-        <span>📦</span><h3>Total Items</h3><h1><?= $totalItems ?></h1>
+<div class="container">
+    <div class="cards">
+        <div class="card total" onclick="showAll()"><span>📦</span><h3>Total Items</h3><h1><?= $totalItems ?></h1></div>
+        <div class="card in" onclick="filterIn()"><span>✅</span><h3>In Stock</h3><h1><?= $inStock ?></h1></div>
+        <div class="card out" onclick="filterOut()"><span>❌</span><h3>Out Stock</h3><h1><?= $outStock ?></h1></div>
+        <div class="card low" onclick="filterLow()"><span>⚠️</span><h3>Low Stock</h3><h1><?= $lowStock ?></h1></div>
     </div>
-    <div class="card in" onclick="filterIn()">
-        <span>✅</span><h3>In Stock</h3><h1><?= $inStock ?></h1>
-    </div>
-    <div class="card out" onclick="filterOut()">
-        <span>❌</span><h3>Out Stock</h3><h1><?= $outStock ?></h1>
-    </div>
-    <div class="card low" onclick="filterLow()">
-        <span>⚠️</span><h3>Low Stock</h3><h1><?= $lowStock ?></h1>
-    </div>
-</div>
 
-<!-- SEARCH + ADD -->
-<div class="search-add-bar">
-    <input type="text" class="search-box" placeholder="🔍 Search item..." onkeyup="searchTable(this.value)">
-    <a href="stock_register.php" class="add-btn">+ Add Item</a>
-</div>
+    <div class="search-add-bar">
+        <input type="text" class="search-box" placeholder="Search item..." onkeyup="searchTable(this.value)">
+        <a href="stock_register.php" class="add-btn">+ Add Item</a>
+    </div>
 
-<!-- TABLE -->
-<div class="table-box">
-<table>
-<thead>
-<tr>
-    <th>Code</th>
-    <th>Name</th>
-    <th>Category</th>
-    <th>Qty</th>
-    <th>Price</th>
-    <th>Status</th>
-    <th>Action</th>
-</tr>
-</thead>
-<tbody id="tableBody">
-<?php while($r=$stocks->fetch_assoc()){
-    if($r['quantity']==0){$st="Out Stock";$cl="out-stock";}
-    elseif($r['quantity']<=5){$st="Low Stock";$cl="low-stock";}
-    else{$st="In Stock";$cl="in-stock";}
-?>
-<tr>
-<td><?= $r['item_code'] ?></td>
-<td><?= $r['item_name'] ?></td>
-<td><?= $r['category_name'] ?></td>
-<td><input type="number" class="qty-input" min="0" value="<?= $r['quantity'] ?>" disabled></td>
-<td>Rs.<?= number_format($r['unit_price'],2) ?></td>
-<td><span class="status <?= $cl ?>"><?= $st ?></span></td>
-<td><button class="edit-btn <?= $cl ?>" onclick="toggleEdit(this)">Edit</button></td>
-</tr>
-<?php } ?>
-</tbody>
-</table>
-</div>
-
-<!-- PAGINATION -->
-<div class="pagination" id="pagination"></div>
+    <div class="table-box">
+        <table>
+            <thead><tr><th>Code</th><th>Name</th><th>Category</th><th>Qty</th><th>Price</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="tableBody">
+                <?php 
+                $stocks->data_seek(0);
+                while($r=$stocks->fetch_assoc()){
+                    if($r['quantity']==0){$st="Out Stock";$cl="out-stock";}
+                    elseif($r['quantity']<=5){$st="Low Stock";$cl="low-stock";}
+                    else{$st="In Stock";$cl="in-stock";}
+                ?>
+                <tr>
+                    <td><?= $r['item_code'] ?></td>
+                    <td><?= $r['item_name'] ?></td>
+                    <td><?= $r['category_name'] ?></td>
+                    <td><input type="number" class="qty-input" value="<?= $r['quantity'] ?>" disabled style="width:45px; border:none; text-align:center; background:transparent; font-weight:bold;"></td>
+                    <td>Rs.<?= number_format($r['unit_price'],2) ?></td>
+                    <td><span class="status <?= $cl ?>"><?= $st ?></span></td>
+                    <td><button onclick="toggleEdit(this)" style="cursor:pointer; border:none; background:none; color:#f97316; font-weight:bold;">Edit</button></td>
+                </tr>
+                <?php } ?>
+            </tbody>
+        </table>
+        <div class="pagination" id="pagination"></div>
+    </div>
 </div>
 
 <script>
+// --- ALERT LOOP LOGIC (3s ON, 3s OFF) ---
+function startAlertLoop() {
+    const lCount = <?= $lowStock ?>;
+    const popup = document.getElementById("lowPopup");
+    if(lCount > 0){
+        // මුලින්ම එකපාරක් පෙන්වීමට
+        setTimeout(() => popup.classList.add("show"), 500);
+        setTimeout(() => popup.classList.remove("show"), 3500);
+
+        // සෑම තත්පර 6කට වරක්ම Loop එක ක්‍රියාත්මක වේ (3s show + 3s hide)
+        setInterval(() => {
+            popup.classList.add("show");
+            setTimeout(() => {
+                popup.classList.remove("show");
+            }, 3000); // තත්පර 3ක් පෙන්වා තබයි
+        }, 6000); // සම්පූර්ණ කාලය තත්පර 6කි
+    }
+}
+window.onload = startAlertLoop;
+
+// --- TABLE LOGIC ---
 const rows=[...document.querySelectorAll("#tableBody tr")];
-let rowsPerPage=8,page=1;
+let rowsPerPage=8, page=1;
 
 function showPage(p){
     page=p;
     rows.forEach((r,i)=>r.style.display=(i>=(p-1)*rowsPerPage && i<p*rowsPerPage)?"":"none");
     renderPagination();
 }
+
 function renderPagination(){
     let pages=Math.ceil(rows.length/rowsPerPage);
-    const pagination=document.getElementById("pagination");
-    pagination.innerHTML="";
+    const pagin=document.getElementById("pagination");
+    pagin.innerHTML="";
     for(let i=1;i<=pages;i++){
         let b=document.createElement("button");
-        b.textContent=i;
-        if(i===page)b.classList.add("active");
-        b.onclick=()=>showPage(i);
-        pagination.appendChild(b);
+        b.textContent=i; if(i===page) b.classList.add("active");
+        b.onclick=()=>showPage(i); pagin.appendChild(b);
     }
 }
 showPage(1);
@@ -360,68 +202,29 @@ function searchTable(v){
     v=v.toLowerCase();
     rows.forEach(r=>r.style.display=r.textContent.toLowerCase().includes(v)?"":"none");
 }
-function showAll(){location.reload()}
-function filterLow(){rows.forEach(r=>{let q=r.querySelector(".qty-input").value;r.style.display=(q>0&&q<=5)?"":"none"})}
-function filterIn(){rows.forEach(r=>{let q=r.querySelector(".qty-input").value;r.style.display=(q>5)?"":"none"})}
-function filterOut(){rows.forEach(r=>{let q=r.querySelector(".qty-input").value;r.style.display=(q==0)?"":"none"})}
 
-// Toggle Edit/Save
+function filterLow(){
+    document.getElementById("lowPopup").classList.remove("show");
+    rows.forEach(r=>{
+        let q=parseInt(r.querySelector("input").value);
+        r.style.display=(q>0 && q<=5)?"":"none";
+    });
+}
+function showAll(){ location.reload(); }
+
 function toggleEdit(btn){
     const tr = btn.closest("tr");
-    const input = tr.querySelector(".qty-input");
+    const input = tr.querySelector("input");
     if(btn.innerText==="Edit"){
-        input.disabled=false;
-        input.focus();
-        btn.innerText="Save";
+        input.disabled=false; input.focus(); btn.innerText="Save";
     } else {
         input.disabled=true;
-        let qty = parseInt(input.value);
-        if(isNaN(qty)||qty<0) qty=0;
-        input.value=qty;
-
         fetch("stock_update.php", {
             method: "POST",
             headers: {"Content-Type": "application/x-www-form-urlencoded"},
-            body: `item_code=${encodeURIComponent(tr.children[0].innerText)}&quantity=${qty}`
-        })
-        .then(res=>res.json())
-        .then(data=>{
-            if(data.status==="success"){
-                const statusSpan = tr.querySelector(".status");
-                let newStatus, cl;
-                if(qty===0){ newStatus="Out Stock"; cl="out-stock"; }
-                else if(qty<=5){ newStatus="Low Stock"; cl="low-stock"; }
-                else{ newStatus="In Stock"; cl="in-stock"; }
-                statusSpan.innerText=newStatus;
-                statusSpan.className="status "+cl;
-                btn.className="edit-btn "+cl;
-
-                // Update cards
-                let totalQty=0,inStock=0,outStock=0,lowStock=0;
-                rows.forEach(r=>{
-                    let q=parseInt(r.querySelector(".qty-input").value);
-                    totalQty+=q;
-                    if(q===0) outStock++;
-                    else if(q<=5) lowStock++;
-                    else inStock++;
-                });
-                document.querySelector(".card.total h1").innerText=totalQty;
-                document.querySelector(".card.in h1").innerText=inStock;
-                document.querySelector(".card.out h1").innerText=outStock;
-                document.querySelector(".card.low h1").innerText=lowStock;
-            } else alert("Error: "+data.message);
-        });
-
-        btn.innerText="Edit";
+            body: `item_code=${tr.children[0].innerText}&quantity=${input.value}`
+        }).then(()=>location.reload());
     }
-}
-
-// Low stock popup
-const lowPopup=document.getElementById("lowPopup");
-const lowCount=parseInt(document.getElementById("lowCount").innerText);
-if(lowCount>0){
-    setTimeout(()=>lowPopup.classList.add("show"),800);
-    setTimeout(()=>lowPopup.classList.remove("show"),5800);
 }
 </script>
 </body>
