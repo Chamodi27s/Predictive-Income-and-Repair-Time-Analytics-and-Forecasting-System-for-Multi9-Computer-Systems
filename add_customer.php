@@ -218,7 +218,7 @@ $total_pages = ceil($total_records / $records_per_page);
         }
 
         .predict-btn {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            background: linear-gradient(135deg, #059669 0%, #059669 100%);
             color: white !important;
             padding: 8px 16px;
             border-radius: 8px;
@@ -227,13 +227,13 @@ $total_pages = ceil($total_records / $records_per_page);
             font-weight: 700;
             display: inline-block;
             transition: all 0.3s ease;
-            box-shadow: 0 3px 10px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 3px 10px rgba(5, 150, 105, 0.3);
         }
 
         .predict-btn:hover {
-            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            background: linear-gradient(135deg, #047857 0%, #065f46 100%);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 5px 15px rgba(5, 150, 105, 0.4);
         }
 
         /* Pagination */

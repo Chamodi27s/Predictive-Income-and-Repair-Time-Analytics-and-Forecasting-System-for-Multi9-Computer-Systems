@@ -598,7 +598,7 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
                     📄 Print Job Sheet
                 </a>
                 <a href="duration.php?job_no=<?= urlencode($current_job_no) ?>" class="btn btn-secondary">
-                    ⏱️ Predict Duration
+                    ⏱️ Time Duration
                 </a>
             <?php endif; ?>
 
