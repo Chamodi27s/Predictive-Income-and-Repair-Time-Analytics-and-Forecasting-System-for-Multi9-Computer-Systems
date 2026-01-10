@@ -595,7 +595,7 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
         <div class="action-bar">
             <?php if(!empty($current_job_no)): ?>
                 <a href="jobsheet.php?job_no=<?= $current_job_no ?>" class="btn btn-outline" target="_blank">
-                    📄 Print current Job Sheet
+                    📄 Print Job Sheet
                 </a>
                 <a href="duration.php?job_no=<?= urlencode($current_job_no) ?>" class="btn btn-secondary">
                     ⏱️ Time Duration
