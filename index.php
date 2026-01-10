@@ -34,6 +34,9 @@ $inprogress_count = $conn->query("SELECT COUNT(*) as count FROM job_device WHERE
 $completed_count = $conn->query("SELECT COUNT(*) as count FROM job_device jd JOIN job j ON jd.job_no = j.job_no WHERE jd.device_status = 'Completed' AND j.job_date = '$today'")->fetch_assoc()['count'];
 $total_customers = $conn->query("SELECT COUNT(*) as count FROM customer")->fetch_assoc()['count'];
 $revenue_today = $conn->query("SELECT SUM(income) as total FROM cashbook WHERE DATE(date) = '$today'")->fetch_assoc()['total'] ?? 0;
+
+// 🔥 Quantity එක 1 ත් 5 ත් අතර පවතින අයිතම පමණක් ලබා ගැනීම
+$low_stock_count = $conn->query("SELECT COUNT(*) as count FROM stock WHERE quantity >= 1 AND quantity <= 5")->fetch_assoc()['count'];
 ?>
 
 <!DOCTYPE html>
@@ -71,7 +74,6 @@ $revenue_today = $conn->query("SELECT SUM(income) as total FROM cashbook WHERE D
             flex-shrink: 0;
         }
 
-        /* 🔥 Greeting එක ලස්සනට හැදුවා */
         h1 { 
             color: #1e293b; 
             font-weight: 700; 
@@ -80,7 +82,7 @@ $revenue_today = $conn->query("SELECT SUM(income) as total FROM cashbook WHERE D
             letter-spacing: -0.5px;
             display: flex;
             align-items: center;
-            gap: 10px; /* Text සහ Icon අතර පරතරය */
+            gap: 10px;
         }
 
         .sub-text { 
@@ -89,7 +91,6 @@ $revenue_today = $conn->query("SELECT SUM(income) as total FROM cashbook WHERE D
             font-weight: 500;
         }
 
-        /* Grid & Cards Styles (කලින් තිබූ ලෙසම) */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -119,6 +120,7 @@ $revenue_today = $conn->query("SELECT SUM(income) as total FROM cashbook WHERE D
         .bg-completed { background-color: #fef9c3; border: 1px solid #fde047; }
         .bg-customers { background-color: #e0f2fe; border: 1px solid #bae6fd; }
         .bg-revenue { background-color: #ffedd5; border: 1px solid #fed7aa; }
+        .bg-lowstock { background-color: #fef2f2; border: 1px solid #fecaca; }
 
         .card-header { display: flex; justify-content: space-between; align-items: center; }
         .card-title { font-size: 15px; font-weight: 600; color: #374151; }
@@ -195,7 +197,14 @@ $revenue_today = $conn->query("SELECT SUM(income) as total FROM cashbook WHERE D
                 <div class="card-footer">Today's total income</div>
             </div>
             
-            <div></div>
+            <div class="card bg-lowstock">
+                <div class="card-header">
+                    <span class="card-title" style="color: #b91c1c;">Low Stock Alert</span>
+                    <span class="icon-box">⚠️</span>
+                </div>
+                <div class="card-value" style="color: #b91c1c;"><?php echo $low_stock_count; ?></div>
+                <div class="card-footer">Items between Qty 1-5</div>
+            </div>
 
         </div>
 
