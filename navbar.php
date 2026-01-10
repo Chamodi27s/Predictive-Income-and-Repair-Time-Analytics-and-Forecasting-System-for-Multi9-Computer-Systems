@@ -17,7 +17,7 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         z-index: 9999;
         background: linear-gradient(90deg, #043f2e, #065f46);
         color: white;
-        padding: 22px 45px; /* මහත (Height) වැඩි කරන ලදී */
+        padding: 22px 45px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -25,8 +25,15 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         box-sizing: border-box;
     }
 
+    /* --- මුද්‍රණයේදී (Print) Navbar එක ඉවත් කිරීමට මෙම CSS එක එකතු කරන ලදී --- */
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+    }
+
     .brand strong {
-        font-size: 24px; /* MULTI 9 අකුරු ලොකු කරන ලදී */
+        font-size: 24px;
         letter-spacing: 1.5px;
         color: #ffffff;
     }
@@ -37,7 +44,6 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         color: #d1fae5;
     }
 
-    /* මෙනු ලින්ක්ස් */
     .menu {
         display: flex;
         gap: 22px;
@@ -53,7 +59,6 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         transition: 0.3s;
     }
 
-    /* දැනට සිටින පිටුව යටින් ඉරක් පෙන්වීම */
     .menu a.active {
         color: #ffffff;
     }
@@ -68,7 +73,6 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         background: #22c55e;
     }
 
-    /* Profile කොටස */
     .user-section {
         display: flex;
         align-items: center;
@@ -99,7 +103,6 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         border: 2px solid white;
     }
 
-    /* Dropdown මෙනු එක - Click කළ විට පෙන්වීමට */
     .profile-dropdown {
         position: absolute;
         top: 80px;
@@ -108,12 +111,11 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         min-width: 200px;
         border-radius: 12px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        display: none; /* මුලින් සඟවා ඇත */
+        display: none;
         overflow: hidden;
         z-index: 10000;
     }
 
-    /* මෙනුව පෙන්වීමට අවශ්‍ය Class එක */
     .profile-dropdown.active {
         display: block;
         animation: slideDown 0.2s ease-out;
@@ -140,7 +142,6 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         padding-left: 28px;
     }
 
-    /* Screen එක කුඩා වූ විට Navbar එකේ ගැටළු මගහැරීමට */
     @media (max-width: 1200px) {
         .menu { gap: 12px; }
         .menu a { font-size: 13px; }
@@ -148,7 +149,7 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
     }
 </style>
 
-<div class="topbar">
+<div class="topbar no-print">
     <div class="brand">
         <strong>MULTI 9</strong>
         <small>COMPUTER SYSTEM</small>
@@ -189,18 +190,15 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         var trigger = document.getElementById('userMenuTrigger');
         var dropdown = document.getElementById('userDropdown');
 
-        // Profile එක click කළ විට පෙන්වන්න / හංගන්න
         trigger.addEventListener('click', function(e) {
             e.stopPropagation();
             dropdown.classList.toggle('active');
         });
 
-        // වෙනත් ඕනෑම තැනක ක්ලික් කළොත් dropdown එක වසන්න
         document.addEventListener('click', function() {
             dropdown.classList.remove('active');
         });
         
-        // Dropdown එක ඇතුළේ ක්ලික් කළොත් එය වැසීම වැළැක්වීමට
         dropdown.addEventListener('click', function(e) {
             e.stopPropagation();
         });

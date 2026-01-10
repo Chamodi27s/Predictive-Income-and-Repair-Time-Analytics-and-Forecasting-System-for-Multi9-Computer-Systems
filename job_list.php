@@ -49,9 +49,9 @@ $result = mysqli_query($conn, $sql);
         .filter-container { display: flex; justify-content: center; gap: 10px; margin-top: 25px; flex-wrap: wrap; }
         .filter-tag { padding: 8px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 13px; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: white; }
         .tag-all { background: #2e7d32; }
-        .tag-pending { background: #f39c12; }
-        .tag-progress { background: #3498db; }
-        .tag-completed { background: #28a745; }
+        .tag-pending { background: #2e7d32; }
+        .tag-progress { background: #2e7d32; }
+        .tag-completed { background: #2e7d32; }
         .active-tag { border: 3px solid #333; transform: scale(1.05); }
         .search-container { text-align: center; margin: 25px; display: flex; justify-content: center; gap: 10px; align-items: center; }
         .search-box { padding: 12px 25px; width: 350px; border-radius: 30px; border: 1px solid #ddd; outline: none; font-size: 14px; }
@@ -77,9 +77,9 @@ $result = mysqli_query($conn, $sql);
 
 <div class="filter-container">
     <a href="?" class="filter-tag tag-all <?= $filter_status == '' ? 'active-tag' : '' ?>">All Active Jobs</a>
-    <a href="?status=Pending" class="filter-tag tag-pending <?= $filter_status == 'Pending' ? 'active-tag' : '' ?>">🕒 Pending</a>
-    <a href="?status=In Progress" class="filter-tag tag-progress <?= $filter_status == 'In Progress' ? 'active-tag' : '' ?>">⚙️ In Progress</a>
-    <a href="?status=Completed" class="filter-tag tag-completed <?= $filter_status == 'Completed' ? 'active-tag' : '' ?>">✅ Completed</a>
+    <a href="?status=Pending" class="filter-tag tag-pending <?= $filter_status == 'Pending' ? 'active-tag' : '' ?>">Pending</a>
+    <a href="?status=In Progress" class="filter-tag tag-progress <?= $filter_status == 'In Progress' ? 'active-tag' : '' ?>">In Progress</a>
+    <a href="?status=Completed" class="filter-tag tag-completed <?= $filter_status == 'Completed' ? 'active-tag' : '' ?>">Completed</a>
 </div>
 
 <div class="search-container">
