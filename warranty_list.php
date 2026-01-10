@@ -37,28 +37,40 @@ include 'navbar.php';
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
-            padding-top: 120px;
-            padding-left: 40px;
-            padding-right: 40px;
+            padding: 140px 20px 40px 20px;
             color: var(--text-main);
         }
 
-        /* Page Header */
+        .page-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Header Card */
         .page-header {
             background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-            padding: 32px 40px;
+            padding: 36px 40px;
             border-radius: 20px;
-            margin-bottom: 28px;
+            margin-bottom: 32px;
             box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
             color: white;
+            text-align: center;
         }
 
         .page-header h1 {
             font-size: 32px;
             font-weight: 800;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 12px;
+        }
+
+        .page-header p {
+            font-size: 16px;
+            opacity: 0.95;
+            font-weight: 500;
         }
 
         /* Container */
@@ -355,7 +367,15 @@ include 'navbar.php';
         /* Responsive Design */
         @media (max-width: 768px) {
             body {
-                padding: 100px 15px 30px 15px;
+                padding: 120px 15px 30px 15px;
+            }
+
+            .page-header {
+                padding: 24px 20px;
+            }
+
+            .page-header h1 {
+                font-size: 24px;
             }
 
             .container {
@@ -408,8 +428,11 @@ include 'navbar.php';
 </head>
 <body>
 
-<div class="page-header">
-    <h1> Warranty Management System</h1>
+<div class="page-container">
+    <div class="page-header">
+        <h1>🛡️ Warranty Management</h1>
+        <p>Track and manage warranty devices efficiently</p>
+    </div>
 </div>
 
 <div class="container">

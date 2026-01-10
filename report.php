@@ -11,7 +11,7 @@ $totalRepairsQuery = "SELECT COUNT(*) as total FROM job_device";
 $totalRepairsResult = $conn->query($totalRepairsQuery);
 $totalRepairs = $totalRepairsResult->fetch_assoc()['total'] ?? 0;
 
-// 2. Monthly Revenue ලබා ගැනීම (වත්මන් වසරේ සහ මාසයේ දත්ත නැතිනම් අවසාන දත්ත පෙන්වයි)
+// 2. Monthly Revenue ලබා ගැනීම
 $revenueQuery = "SELECT COALESCE(SUM(grand_total), 0) as total_rev 
                 FROM invoice 
                 WHERE (MONTH(invoice_date) = $currentMonth AND YEAR(invoice_date) = $currentYear)
@@ -36,7 +36,7 @@ while($row = $deviceResult->fetch_assoc()) {
     $totalDevices += $row['count'];
 }
 
-// 5. මාසික ආදායම් ප්‍රස්ථාරය (YEAR සීමාව ඉවත් කර ඇත)
+// 5. මාසික ආදායම් ප්‍රස්ථාරය
 $monthlyRevQuery = "SELECT MONTHNAME(invoice_date) as month, SUM(grand_total) as total 
                     FROM invoice 
                     GROUP BY YEAR(invoice_date), MONTH(invoice_date) 
@@ -79,11 +79,12 @@ if(empty($months)) {
             background-color: #f4f7f4; 
             margin: 0; padding: 0; 
             color: #263238;
-            padding-top: 100px;
+            padding-top: 100px; /* සාමාන්‍ය වෙලාවට Navbar එක සඳහා ඉඩ තැබීමට */
+              transition: transform 0.8s;
         }
 
         .container { 
-            max-width: 1200px; 
+            max-width: 1000px; 
             margin: 20px auto 40px auto; 
             background: var(--white); 
             padding: 30px; 
@@ -99,10 +100,11 @@ if(empty($months)) {
             padding-bottom: 15px;
         }
 
+        /* කාඩ්පත් 4 එක පෙළට තබා ගැනීම සඳහා මෙතැන වෙනස් කළා */
         .stats-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
-            gap: 20px; 
+            grid-template-columns: repeat(4, 1fr); /* තීරු 4ක් සැමවිටම පවතී */
+            gap: 15px; 
             margin-bottom: 30px; 
         }
         
@@ -115,11 +117,27 @@ if(empty($months)) {
             box-shadow: 0 4px 12px var(--shadow);
             transition: 0.3s;
         }
+        .card:hover { transform: translateY(5px); }
 
-        .card:hover { transform: translateY(-5px); }
         .card h3 { margin: 0; font-size: 12px; color: #78909c; text-transform: uppercase; }
         .card .value { font-size: 26px; font-weight: 800; color: var(--primary-green); margin-top: 8px; }
+/* --- Responsive Logic (මොබයිල් එකේදී වෙනස් වන ආකාරය) --- */
+        
+        /* ටැබ්ලට් සඳහා (තිරය 900px ට වඩා අඩු නම් පේළියට 2 බැගින්) */
+        @media (max-width: 900px) {
+            .stats-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+            }
+        }
 
+        /* මොබයිල් ෆෝන් සඳහා (තිරය 600px ට වඩා අඩු නම් එක යට එක) */
+        @media (max-width: 600px) {
+            .stats-grid { 
+                grid-template-columns: 1fr; /* එක තීරුවක් පමණි (පහළට පෙනේ) */
+            }
+            .container { padding: 10px; }
+            .card .value { font-size: 20px; }
+        }
         .charts-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 25px; margin-bottom: 25px; }
         .chart-wrapper { 
             background: var(--white); 
@@ -145,10 +163,33 @@ if(empty($months)) {
             box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 1000;
         }
 
+        /* --- PRINT SETTINGS: මුද්‍රණය සඳහා විශේෂිත CSS --- */
         @media print {
-            .float-download-btn, navbar { display: none !important; }
-            body { padding-top: 0; background: white; }
-            .container { box-shadow: none; border: none; width: 100%; }
+            /* 1. Navbar එක සහ බොත්තම් සම්පූර්ණයෙන් ඉවත් කිරීම */
+            nav, .navbar, header, .float-download-btn, .sidebar, aside, #nav-id { 
+                display: none !important; 
+            }
+            
+            /* 2. මුද්‍රණය වන පිටුවේ උඩ ඇති හිස් අවකාශය ඉවත් කිරීම */
+            body { 
+                padding-top: 0 !important; 
+                margin: 0 !important;
+                background: white !important; 
+            }
+            
+            /* 3. කන්ටේනර් එක පිටුවේ පිරෙන සේ සැකසීම */
+            .container { 
+                box-shadow: none !important; 
+                border: none !important; 
+                width: 100% !important; 
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .chart-wrapper {
+                page-break-inside: avoid; /* ප්‍රස්ථාර කැඩී යාම වැලැක්වීමට */
+            }
         }
     </style>
 </head>
@@ -261,17 +302,17 @@ if(empty($months)) {
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('revenueChart').getContext('2d');
     new Chart(ctx, {
-        type: 'bar', // ප්‍රස්ථාරය Bar Chart එකක් ලෙස වෙනස් කරන ලදි
+        type: 'bar',
         data: {
             labels: <?php echo json_encode($months); ?>, 
             datasets: [{
                 label: 'Revenue (Rs.)',
                 data: <?php echo json_encode($revenues); ?>,
-                backgroundColor: '#2e7d32', // බාර් වල වර්ණය
+                backgroundColor: '#2e7d32',
                 borderColor: '#1b5e20',
                 borderWidth: 1,
-                borderRadius: 5, // බාර් වල කොන් රවුම් කිරීමට
-                barPercentage: 0.5 // බාර් වල මහත පාලනය කිරීමට
+                borderRadius: 5,
+                barPercentage: 0.5
             }]
         },
         options: {
