@@ -79,18 +79,119 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
     <meta charset="UTF-8">
     <title>Invoice - Multi9 Repair</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; padding: 20px; padding-top:130px; }
-        .invoice-box { max-width: 800px; margin: auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .header { text-align: center; border-bottom: 3px solid #2ecc71; padding-bottom: 15px; margin-bottom: 25px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border-bottom: 1px solid #eee; padding: 12px; text-align: left; }
-        th { background: #2ecc71; color: white; }
-        .total-section { text-align: right; margin-top: 25px; padding: 15px; background: #f9f9f9; border-radius: 5px; }
-        .btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
-        .btn-save { background: #27ae60; color: white; }
+        /* මූලික සැකසුම් */
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: #f4f7f6; 
+            margin: 0;
+            padding: 0;
+            padding-top: 100px; /* Navbar එක සඳහා ඉඩ තැබීම */
+        }
+
+        .invoice-box { 
+            max-width: 900px; 
+            margin: 20px auto; 
+            background: #fff; 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            border: 1px solid #e1e8e5;
+        }
+
+        /* ශීර්ෂය */
+        .header { 
+            text-align: center; 
+            border-bottom: 3px solid #043f2e; 
+            padding-bottom: 20px; 
+            margin-bottom: 30px; 
+        }
+        .header h1 { margin: 0; color: #043f2e; letter-spacing: 2px; }
+        .header p { margin: 5px 0; color: #666; font-size: 14px; }
+
+        /* වගුව (Table) */
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; }
+        th { 
+            background: #065f46; 
+            color: white; 
+            padding: 15px; 
+            text-align: left; 
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        td { 
+            border-bottom: 1px solid #f1f1f1; 
+            padding: 15px; 
+            text-align: left; 
+            color: #333;
+        }
+        tr:nth-child(even) { background-color: #fcfdfc; }
+
+        /* එකතු කිරීමේ කොටස (Add Item Section) */
+        .add-item-box {
+            background: #e8f5e9; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 25px; 
+            display: flex; 
+            gap: 15px;
+            align-items: center;
+        }
+        .add-item-box select, .add-item-box input {
+            padding: 12px;
+            border: 1px solid #c8d6cf;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        /* මුළු ගණන (Totals) */
+        .total-section { 
+            text-align: right; 
+            margin-top: 30px; 
+            padding: 20px; 
+            background: #fdfdfd; 
+            border: 1px solid #eee;
+            border-radius: 8px; 
+        }
+        .total-section p { margin: 8px 0; font-size: 15px; color: #444; }
+        .grand-total-h2 { 
+            color: #065f46; 
+            font-size: 28px; 
+            margin-top: 15px;
+            border-top: 2px solid #065f46;
+            display: inline-block;
+            padding-top: 10px;
+        }
+
+        /* බොත්තම් (Buttons) */
+        .btn { 
+            padding: 15px 25px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            width: 100%; 
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        .btn-save { background: #065f46; color: white; margin-bottom: 10px; }
+        .btn-save:hover { background: #043f2e; }
         .btn-print { background: #3498db; color: white; }
-        .no-print { display: block; }
-        @media print { .no-print { display: none !important; } .invoice-box { box-shadow: none; border: none; } }
+        
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* Print Settings */
+        @media print { 
+            .no-print, .add-item-box { display: none !important; } 
+            body { padding-top: 0; background: white; }
+            .invoice-box { box-shadow: none; border: none; padding: 0; width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -98,9 +199,8 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
 <div class="invoice-box">
     <div class="header">
         <h1>MULTI9 COMPUTER REPAIR</h1>
-        <p>Invoice No: <strong>#<?= $invoice_saved ? $_POST['invoice_no'] : $next_invoice_no ?></strong> | 
-            Job No: <strong><?= htmlspecialchars($job_no_display) ?></strong></p>
-        <p>Date: <?= date("Y-m-d") ?></p>
+        <p>Invoice No: <strong>#<?= $invoice_saved ? $_POST['invoice_no'] : $next_invoice_no ?></strong></p>
+        <p>Job No: <strong><?= htmlspecialchars($job_no_display) ?></strong> | Date: <?= date("Y-m-d") ?></p>
     </div>
 
     <form method="POST" id="invoiceForm">
@@ -111,8 +211,8 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
         <input type="hidden" name="grand_total" id="g_total_val" value="<?= $invoice_saved ? $_POST['grand_total'] : '0' ?>">
 
         <?php if (!$invoice_saved): ?>
-        <div class="no-print" style="background:#e8f5e9; padding:15px; border-radius:5px; margin-bottom:20px; display:flex; gap:10px;">
-            <select id="itemSelect" style="flex:3; padding:10px;">
+        <div class="add-item-box no-print">
+            <select id="itemSelect" style="flex:3;">
                 <option value="">-- Select Parts --</option>
                 <?php foreach($stock_items as $i): ?>
                     <option value="<?= $i['item_code'] ?>" data-name="<?= $i['item_name'] ?>" data-price="<?= $i['unit_price'] ?>">
@@ -120,8 +220,8 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
                     </option>
                 <?php endforeach; ?>
             </select>
-            <input type="number" id="qty" value="1" min="1" style="flex:0.5; padding:10px;">
-            <button type="button" onclick="addItem()" style="flex:1; background:#2ecc71; color:white; border:none; border-radius:5px; cursor:pointer;">ADD ITEM</button>
+            <input type="number" id="qty" value="1" min="1" style="flex:0.5;">
+            <button type="button" onclick="addItem()" style="flex:1; background:#2ecc71; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; height:45px;">+ ADD ITEM</button>
         </div>
         <?php endif; ?>
 
@@ -149,11 +249,11 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
         </table>
 
         <div class="total-section">
-            <p>Parts Total: Rs. <span id="p_disp"><?= $invoice_saved ? number_format($_POST['parts_total'], 2) : '0.00' ?></span></p>
+            <p>Parts Total: <strong>Rs. <span id="p_disp"><?= $invoice_saved ? number_format($_POST['parts_total'], 2) : '0.00' ?></span></strong></p>
             
             <p>Service Charge: 
                 <?php if(!$invoice_saved): ?>
-                    <input type="number" name="service_charge" id="s_charge" value="0" step="0.01" oninput="calcTotal()" style="text-align: right; padding: 5px;">
+                    <input type="number" name="service_charge" id="s_charge" value="0" step="0.01" oninput="calcTotal()" style="text-align: right; padding: 8px; width: 120px; border: 1px solid #ddd; border-radius: 4px;">
                 <?php else: ?>
                     <strong id="s_charge_display">Rs. <?= number_format($_POST['service_charge'], 2) ?></strong>
                     <input type="hidden" id="s_charge" value="<?= $_POST['service_charge'] ?>">
@@ -161,27 +261,25 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
             </p>
 
             <?php if($delay_fee > 0): ?>
-            <p style="color: #d32f2f;">Late Collection Fee (Rent): <strong>Rs. <?= number_format($delay_fee, 2) ?></strong></p>
+            <p style="color: #d32f2f; font-weight: bold;">Late Collection Fee (Rent): Rs. <?= number_format($delay_fee, 2) ?></p>
             <?php endif; ?>
 
-            <hr>
-            <h2 style="color: #2ecc71;">Grand Total: Rs. <span id="g_disp"><?= $invoice_saved ? number_format($_POST['grand_total'], 2) : '0.00' ?></span></h2>
+            <div class="grand-total-h2">Grand Total: Rs. <span id="g_disp"><?= $invoice_saved ? number_format($_POST['grand_total'], 2) : '0.00' ?></span></div>
         </div>
 
-        <div style="margin-top:25px;">
+        <div style="margin-top:30px;">
             <?php if (!$invoice_saved): ?>
                 <button type="submit" name="save_invoice" class="btn btn-save no-print">💾 SAVE & COMPLETE INVOICE</button>
             <?php else: ?>
-                <button type="button" onclick="window.print()" class="btn btn-print no-print" style="margin-bottom:10px;">🖨️ PRINT INVOICE</button>
-                <div class="no-print" style="text-align:center;">
-                    <a href="job_list.php" style="display:inline-block; padding:10px 20px; background:#eee; color:#333; text-decoration:none; border-radius:5px; font-weight:bold; width:95%;">← Back to Order Page</a>
-                </div>
+                <button type="button" onclick="window.print()" class="btn btn-print no-print">🖨️ PRINT INVOICE</button>
+                <a href="job_list.php" class="back-link no-print">← Back to Order Page</a>
             <?php endif; ?>
         </div>
     </form>
 </div>
 
 <script>
+// කිසිදු Logic එකක් වෙනස් කර නැත
 window.onload = function() {
     calcTotal(); 
 };
@@ -220,7 +318,7 @@ function calcTotal() {
         if(!isNaN(rowTotal)) pTotal += rowTotal;
     });
     
-    document.getElementById('p_disp').innerText = pTotal.toFixed(2);
+    document.getElementById('p_disp').innerText = pTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
     document.getElementById('p_total_val').value = pTotal;
     
     const sChargeInput = document.getElementById('s_charge');
