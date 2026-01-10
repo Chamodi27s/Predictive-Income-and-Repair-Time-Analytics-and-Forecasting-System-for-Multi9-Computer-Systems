@@ -4,6 +4,7 @@ include 'navbar.php';
 
 /* COUNTS */
 $totalItems = $conn->query("SELECT COUNT(*) total FROM stock")->fetch_assoc()['total'];
+// Logic: In Stock (>5), Out Stock (=0), Low Stock (1-5)
 $inStock = $conn->query("SELECT COUNT(*) total FROM stock WHERE quantity > 5")->fetch_assoc()['total'];
 $outStock = $conn->query("SELECT COUNT(*) total FROM stock WHERE quantity = 0")->fetch_assoc()['total'];
 $lowStock = $conn->query("SELECT COUNT(*) total FROM stock WHERE quantity > 0 AND quantity <= 5")->fetch_assoc()['total'];
@@ -14,10 +15,6 @@ $stocks = $conn->query("
     FROM stock s
     LEFT JOIN category c ON s.category_id = c.category_id
 ");
-?>
-
-<?php
-// ... (ඔබේ පැරණි PHP code එක එලෙසම තබා ගන්න)
 ?>
 
 <!DOCTYPE html>
@@ -54,7 +51,7 @@ body {
     min-width: 260px;
     transition: all 0.6s ease;
     opacity: 0;
-    pointer-events: none; /* සැඟවී ඇති විට click කළ නොහැක */
+    pointer-events: none;
     z-index: 900;
 }
 .popup.show { opacity: 1; pointer-events: auto; }
@@ -71,7 +68,7 @@ body {
     font-weight: bold;
 }
 
-/* ===== CARDS (ඔබේ මුල් ස්ටයිල් එක) ===== */
+/* ===== CARDS ===== */
 .cards { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; }
 .card {
     flex: 0 0 180px; height: 110px; padding: 15px; border-radius: 16px;
@@ -83,7 +80,7 @@ body {
 .card h3 { margin: 0; font-size: 11px; font-weight: 700; color: #5a6c7d; text-transform: uppercase; }
 .card h1 { margin: 2px 0 0; font-size: 28px; font-weight: 800; color: #2c3e50; }
 
-/* Card Colors - Gradients ඇතුළත් කර ඇත */
+/* Card Colors */
 .total { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border: 1px solid rgba(34,197,94,.3);}
 .in    { background: linear-gradient(135deg, #dbeafe, #bfdbfe); border: 1px solid rgba(59,130,246,.3);}
 .out   { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid rgba(239,68,68,.3);}
@@ -161,69 +158,97 @@ function startAlertLoop() {
     const lCount = <?= $lowStock ?>;
     const popup = document.getElementById("lowPopup");
     if(lCount > 0){
-        // මුලින්ම එකපාරක් පෙන්වීමට
+        // Initial flash
         setTimeout(() => popup.classList.add("show"), 500);
         setTimeout(() => popup.classList.remove("show"), 3500);
 
-        // සෑම තත්පර 6කට වරක්ම Loop එක ක්‍රියාත්මක වේ (3s show + 3s hide)
+        // Continuous Loop
         setInterval(() => {
             popup.classList.add("show");
             setTimeout(() => {
                 popup.classList.remove("show");
-            }, 3000); // තත්පර 3ක් පෙන්වා තබයි
-        }, 6000); // සම්පූර්ණ කාලය තත්පර 6කි
+            }, 3000); 
+        }, 6000); 
     }
 }
 window.onload = startAlertLoop;
 
-// --- TABLE LOGIC ---
-const rows=[...document.querySelectorAll("#tableBody tr")];
-let rowsPerPage=8, page=1;
+// --- TABLE & PAGINATION LOGIC ---
+const rows = [...document.querySelectorAll("#tableBody tr")];
+let rowsPerPage = 8, page = 1;
 
 function showPage(p){
-    page=p;
-    rows.forEach((r,i)=>r.style.display=(i>=(p-1)*rowsPerPage && i<p*rowsPerPage)?"":"none");
+    page = p;
+    rows.forEach((r,i) => r.style.display = (i >= (p-1)*rowsPerPage && i < p*rowsPerPage) ? "" : "none");
     renderPagination();
 }
 
 function renderPagination(){
-    let pages=Math.ceil(rows.length/rowsPerPage);
-    const pagin=document.getElementById("pagination");
-    pagin.innerHTML="";
-    for(let i=1;i<=pages;i++){
-        let b=document.createElement("button");
-        b.textContent=i; if(i===page) b.classList.add("active");
-        b.onclick=()=>showPage(i); pagin.appendChild(b);
+    let pages = Math.ceil(rows.length / rowsPerPage);
+    const pagin = document.getElementById("pagination");
+    pagin.innerHTML = "";
+    // Only show pagination if no filter is active (checking if all rows are potentially visible)
+    // For simplicity, we just rebuild buttons. If filtered, buttons might not work as expected without complex logic,
+    // so usually we hide pagination on filter. But here is standard pagination:
+    for(let i=1; i<=pages; i++){
+        let b = document.createElement("button");
+        b.textContent = i; 
+        if(i === page) b.classList.add("active");
+        b.onclick = () => showPage(i); 
+        pagin.appendChild(b);
     }
 }
-showPage(1);
+showPage(1); // Initialize
 
+// --- SEARCH ---
 function searchTable(v){
-    v=v.toLowerCase();
-    rows.forEach(r=>r.style.display=r.textContent.toLowerCase().includes(v)?"":"none");
+    v = v.toLowerCase();
+    rows.forEach(r => r.style.display = r.textContent.toLowerCase().includes(v) ? "" : "none");
 }
 
-function filterLow(){
-    document.getElementById("lowPopup").classList.remove("show");
-    rows.forEach(r=>{
-        let q=parseInt(r.querySelector("input").value);
-        r.style.display=(q>0 && q<=5)?"":"none";
+// --- FILTERING LOGIC (UPDATED) ---
+
+// 1. Filter In Stock (Qty > 5)
+function filterIn(){
+    rows.forEach(r => {
+        let q = parseInt(r.querySelector("input").value);
+        r.style.display = (q > 5) ? "" : "none";
     });
 }
+
+// 2. Filter Out Stock (Qty == 0)
+function filterOut(){
+    rows.forEach(r => {
+        let q = parseInt(r.querySelector("input").value);
+        r.style.display = (q === 0) ? "" : "none";
+    });
+}
+
+// 3. Filter Low Stock (Qty 1 to 5)
+function filterLow(){
+    document.getElementById("lowPopup").classList.remove("show");
+    rows.forEach(r => {
+        let q = parseInt(r.querySelector("input").value);
+        r.style.display = (q > 0 && q <= 5) ? "" : "none";
+    });
+}
+
 function showAll(){ location.reload(); }
 
+// --- EDIT LOGIC ---
 function toggleEdit(btn){
     const tr = btn.closest("tr");
     const input = tr.querySelector("input");
-    if(btn.innerText==="Edit"){
-        input.disabled=false; input.focus(); btn.innerText="Save";
+    if(btn.innerText === "Edit"){
+        input.disabled = false; input.focus(); btn.innerText = "Save";
     } else {
-        input.disabled=true;
+        input.disabled = true;
+        // AJAX Update
         fetch("stock_update.php", {
             method: "POST",
             headers: {"Content-Type": "application/x-www-form-urlencoded"},
             body: `item_code=${tr.children[0].innerText}&quantity=${input.value}`
-        }).then(()=>location.reload());
+        }).then(() => location.reload());
     }
 }
 </script>
