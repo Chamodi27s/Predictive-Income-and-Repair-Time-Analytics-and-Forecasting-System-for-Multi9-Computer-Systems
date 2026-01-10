@@ -65,6 +65,9 @@ body{
     background:#f0fdf4;
     padding-top:100px;
     display:block !important;
+    padding-top: 110px;   
+    padding-left: 40px;
+    padding-right: 40px;
 }
 
 /* CONTAINER */
@@ -110,6 +113,7 @@ body{
     min-height:180px;
     box-shadow:0 4px 12px rgba(0,0,0,.06);
     border:1px solid rgba(0,0,0,.05);
+    transition: transform 0.8s;
     display:flex;
     flex-direction:column;
     justify-content:space-between;
@@ -141,6 +145,7 @@ body{
     font-size:38px;
     font-weight:700;
 }
+.card:hover { transform: translateY(5px); }
 
 .card-footer{
     font-size:13px;
@@ -148,15 +153,20 @@ body{
 }
 
 /* COLORS */
-.bg-pending{background:#dcfce7;border:1px solid #bbf7d0;}
-.bg-progress{background:#fee2e2;border:1px solid #fecaca;}
-.bg-completed{background:#fef9c3;border:1px solid #fde047;}
-.bg-customers{background:#e0f2fe;border:1px solid #bae6fd;}
-.bg-revenue{background:#ffedd5;border:1px solid #fed7aa;}
-.bg-lowstock{background:#fef2f2;border:1px solid #fecaca;}
+.bg-pending{background:#dcfce7;border:5px solid #bbf7d0;}
+.bg-progress{background:#fee2e2;border:5px solid #f58ad5;}
+.bg-completed{background:#fef9c3;border:5px solid #fde047;}
+.bg-customers{background:#e0f2fe;border:5px solid #bae6fd;}
+.bg-revenue{background:#ffedd5;border:5px solid #fed7aa;}
+.bg-lowstock{background:#fef2f2;border:5px solid #d31313;}
 
 /* TABLET */
 @media screen and (max-width:1100px){
+     body{
+        padding-top:150px;   
+    padding-left: 40px;
+    padding-right: 40px;
+    }
     .dashboard-grid{
         grid-template-columns:repeat(2,1fr) !important;
     }
@@ -166,7 +176,9 @@ body{
 @media screen and (max-width:768px){
 
     body{
-        padding-top:120px;
+        padding-top:150px;   
+    padding-left: 40px;
+    padding-right: 40px;
     }
 
     .dashboard-grid{

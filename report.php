@@ -80,10 +80,11 @@ if(empty($months)) {
             margin: 0; padding: 0; 
             color: #263238;
             padding-top: 100px; /* සාමාන්‍ය වෙලාවට Navbar එක සඳහා ඉඩ තැබීමට */
+              transition: transform 0.8s;
         }
 
         .container { 
-            max-width: 1200px; 
+            max-width: 1000px; 
             margin: 20px auto 40px auto; 
             background: var(--white); 
             padding: 30px; 
@@ -99,10 +100,11 @@ if(empty($months)) {
             padding-bottom: 15px;
         }
 
+        /* කාඩ්පත් 4 එක පෙළට තබා ගැනීම සඳහා මෙතැන වෙනස් කළා */
         .stats-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
-            gap: 20px; 
+            grid-template-columns: repeat(4, 1fr); /* තීරු 4ක් සැමවිටම පවතී */
+            gap: 15px; 
             margin-bottom: 30px; 
         }
         
@@ -115,10 +117,27 @@ if(empty($months)) {
             box-shadow: 0 4px 12px var(--shadow);
             transition: 0.3s;
         }
+        .card:hover { transform: translateY(5px); }
 
         .card h3 { margin: 0; font-size: 12px; color: #78909c; text-transform: uppercase; }
         .card .value { font-size: 26px; font-weight: 800; color: var(--primary-green); margin-top: 8px; }
+/* --- Responsive Logic (මොබයිල් එකේදී වෙනස් වන ආකාරය) --- */
+        
+        /* ටැබ්ලට් සඳහා (තිරය 900px ට වඩා අඩු නම් පේළියට 2 බැගින්) */
+        @media (max-width: 900px) {
+            .stats-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+            }
+        }
 
+        /* මොබයිල් ෆෝන් සඳහා (තිරය 600px ට වඩා අඩු නම් එක යට එක) */
+        @media (max-width: 600px) {
+            .stats-grid { 
+                grid-template-columns: 1fr; /* එක තීරුවක් පමණි (පහළට පෙනේ) */
+            }
+            .container { padding: 10px; }
+            .card .value { font-size: 20px; }
+        }
         .charts-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 25px; margin-bottom: 25px; }
         .chart-wrapper { 
             background: var(--white); 
