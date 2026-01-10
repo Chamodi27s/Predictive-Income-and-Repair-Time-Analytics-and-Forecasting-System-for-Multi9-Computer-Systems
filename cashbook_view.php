@@ -505,14 +505,14 @@ include_once 'navbar.php';
                 <div class="form-group">
                     <label>&nbsp;</label>
                     <button type="submit" name="add_manual_transaction" class="btn-primary">
-                        💾 ADD TRANSACTION
+                        ADD TRANSACTION
                     </button>
                 </div>
             </form>
         </div>
 
         <div class="section-header">
-            <h3>📊 Transaction History</h3>
+            <h3> Transaction History</h3>
             <div class="search-box">
                 <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search by Account or Reference..." onkeyup="filterTable()">
                 <button class="btn-secondary" onclick="clearSearch()">✕ Clear</button>
