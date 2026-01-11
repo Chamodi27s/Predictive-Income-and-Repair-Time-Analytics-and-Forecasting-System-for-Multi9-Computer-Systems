@@ -8,7 +8,7 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
 ?>
 
 <style>
-    /* Navbar එකේ මහත සහ පසුබිම් වර්ණ */
+    /* Navbar එකේ මූලික සැකසුම් */
     .topbar {
         position: fixed;
         top: 0;
@@ -17,7 +17,7 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         z-index: 9999;
         background: linear-gradient(90deg, #043f2e, #065f46);
         color: white;
-        padding: 22px 45px;
+        padding: 15px 45px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -25,43 +25,48 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         box-sizing: border-box;
     }
 
-    /* --- මුද්‍රණයේදී (Print) Navbar එක ඉවත් කිරීමට මෙම CSS එක එකතු කරන ලදී --- */
     @media print {
-        .no-print {
-            display: none !important;
-        }
+        .no-print { display: none !important; }
     }
 
-    .brand strong {
-        font-size: 24px;
-        letter-spacing: 1.5px;
-        color: #ffffff;
+    /* Logo සහ Brand කොටස */
+    .brand-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
     }
 
-    .brand small {
-        font-size: 12px;
-        opacity: 0.9;
-        color: #d1fae5;
+    .brand { display: flex; flex-direction: column; }
+    .brand strong { font-size: 22px; letter-spacing: 1.5px; color: #ffffff; line-height: 1.2; }
+    .brand small { font-size: 10px; opacity: 0.8; color: #d1fae5; }
+
+    /* Hamburger Menu Icon */
+    .mobile-menu-btn {
+        display: none; /* Desktop එකේදී සඟවයි */
+        font-size: 26px;
+        cursor: pointer;
+        color: white;
+        padding: 5px;
     }
 
+    /* Desktop Menu */
     .menu {
         display: flex;
-        gap: 22px;
+        gap: 15px;
     }
 
     .menu a {
         color: #d1fae5;
         text-decoration: none;
-        font-size: 15px;
+        font-size: 14px;
         font-weight: 500;
         padding: 8px 5px;
         position: relative;
         transition: 0.3s;
+        white-space: nowrap;
     }
 
-    .menu a.active {
-        color: #ffffff;
-    }
+    .menu a.active { color: #ffffff; }
 
     .menu a.active::after {
         content: "";
@@ -73,39 +78,38 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         background: #22c55e;
     }
 
+    /* User Profile Section */
     .user-section {
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 10px;
         position: relative;
         cursor: pointer;
-        padding: 8px 15px;
+        padding: 5px 12px;
         border-radius: 50px;
         transition: 0.3s;
         background: rgba(255, 255, 255, 0.05);
     }
 
-    .user-section:hover {
-        background: rgba(255, 255, 255, 0.15);
-    }
+    .user-section:hover { background: rgba(255, 255, 255, 0.15); }
 
     .profile-card {
         background: #22c55e;
         color: #064e3b;
-        width: 46px;
-        height: 46px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: bold;
-        font-size: 18px;
+        font-size: 15px;
         border: 2px solid white;
     }
 
     .profile-dropdown {
         position: absolute;
-        top: 80px;
+        top: 55px;
         right: 0;
         background: white;
         min-width: 200px;
@@ -116,10 +120,7 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         z-index: 10000;
     }
 
-    .profile-dropdown.active {
-        display: block;
-        animation: slideDown 0.2s ease-out;
-    }
+    .profile-dropdown.active { display: block; animation: slideDown 0.2s ease-out; }
 
     @keyframes slideDown {
         from { opacity: 0; transform: translateY(-10px); }
@@ -128,38 +129,63 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
 
     .profile-dropdown a {
         display: block;
-        padding: 15px 22px;
+        padding: 12px 20px;
         color: #333;
         text-decoration: none;
         font-size: 14px;
         border-bottom: 1px solid #f1f1f1;
-        transition: 0.2s;
     }
 
-    .profile-dropdown a:hover {
-        background: #f0fdf4;
-        color: #065f46;
-        padding-left: 28px;
-    }
+    .profile-dropdown a:hover { background: #f0fdf4; color: #065f46; }
 
-    @media (max-width: 1200px) {
-        .menu { gap: 12px; }
-        .menu a { font-size: 13px; }
-        .topbar { padding: 20px 20px; }
+    /* --- RESPONSIVE MOBILE CSS --- */
+    @media (max-width: 1050px) {
+        .topbar { padding: 15px 20px; }
+        
+        .mobile-menu-btn { 
+            display: block; /* ඉරි තුනේ Button එක පෙන්වයි */
+        }
+
+        .menu {
+            display: none; /* සාමාන්‍ය මෙනුව සඟවයි */
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: #043f2e;
+            flex-direction: column;
+            gap: 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .menu.show { display: flex; }
+
+        .menu a {
+            padding: 15px 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            width: 100%;
+        }
+
+        .menu a.active { background: rgba(34, 197, 94, 0.2); border-left: 4px solid #22c55e; }
+        .menu a.active::after { display: none; }
+
+        .user-info { display: none; } /* Mobile වලදී නම සඟවයි */
     }
 </style>
 
 <div class="topbar no-print">
-    <div class="brand">
-        <strong>MULTI 9</strong>
-        <small>COMPUTER SYSTEM</small>
+    <div class="brand-section">
+        <div class="mobile-menu-btn" id="mobileMenuBtn">☰</div>
+        <div class="brand">
+            <strong>MULTI 9</strong>
+            <small>COMPUTER SYSTEM</small>
+        </div>
     </div>
 
-    <div class="menu">
+    <div class="menu" id="navMenu">
         <a href="index.php" class="<?= $current_page=='index.php'?'active':'' ?>">Dashboard</a>
         <a href="add_customer.php" class="<?= $current_page=='add_customer.php'?'active':'' ?>">Register</a>
         <a href="warranty_list.php" class="<?= $current_page=='warranty_list.php'?'active':'' ?>">Warranty</a>
-        
         <a href="collected.php" class="<?= $current_page=='collected.php'?'active':'' ?>">Collected</a>
         <a href="job_list.php" class="<?= $current_page=='job_list.php'?'active':'' ?>">Order</a>
         <a href="cashbook_view.php" class="<?= $current_page=='cashbook_view.php'?'active':'' ?>">Payment</a>
@@ -170,8 +196,8 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
 
     <div class="user-section" id="userMenuTrigger">
         <div class="user-info" style="text-align: right;">
-            <span style="font-size: 10px; opacity: 0.8; display: block; text-transform: uppercase;">User Account</span>
-            <span style="font-size: 14px; font-weight: 600;"><?= $user_name ?></span>
+            <span style="font-size: 10px; opacity: 0.8; display: block; text-transform: uppercase;">Admin</span>
+            <span style="font-size: 13px; font-weight: 600;"><?= $user_name ?></span>
         </div>
         <div class="profile-card">
             <?= $user_initial ?>
@@ -187,20 +213,32 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var trigger = document.getElementById('userMenuTrigger');
-        var dropdown = document.getElementById('userDropdown');
+        var mobileBtn = document.getElementById('mobileMenuBtn');
+        var navMenu = document.getElementById('navMenu');
+        var userTrigger = document.getElementById('userMenuTrigger');
+        var userDropdown = document.getElementById('userDropdown');
 
-        trigger.addEventListener('click', function(e) {
+        // Mobile Menu Toggle
+        mobileBtn.addEventListener('click', function(e) {
             e.stopPropagation();
-            dropdown.classList.toggle('active');
+            navMenu.classList.toggle('show');
+            userDropdown.classList.remove('active'); 
         });
 
+        // User Dropdown Toggle
+        userTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('active');
+            navMenu.classList.remove('show');
+        });
+
+        // පිටත ක්ලික් කළ විට වසන්න
         document.addEventListener('click', function() {
-            dropdown.classList.remove('active');
+            navMenu.classList.remove('show');
+            userDropdown.classList.remove('active');
         });
-        
-        dropdown.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
+
+        navMenu.addEventListener('click', function(e) { e.stopPropagation(); });
+        userDropdown.addEventListener('click', function(e) { e.stopPropagation(); });
     });
 </script>
