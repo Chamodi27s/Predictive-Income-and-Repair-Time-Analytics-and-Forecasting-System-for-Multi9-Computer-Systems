@@ -60,6 +60,7 @@ $result = mysqli_query($conn, $sql);
             --warning: #f59e0b;
             --purple: #9b59b6;
             --orange: #e67e22;
+            --blue: #3b82f6;
             --secondary: #64748b;
             --bg-main: #f8fafc;
             --card-bg: #ffffff;
@@ -126,22 +127,77 @@ $result = mysqli_query($conn, $sql);
             font-weight: 700;
             font-size: 14px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.2);
             color: white;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
             border: 2px solid transparent;
         }
 
-        .filter-tag:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(46, 204, 113, 0.3);
+        /* Different colors for each filter tag */
+        .filter-tag.tag-all {
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+            box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
         }
 
-        .active-tag {
+        .filter-tag.tag-all:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(100, 116, 139, 0.4);
+        }
+
+        .filter-tag.tag-all.active-tag {
             border: 2px solid var(--text-dark);
-            background: linear-gradient(135deg, var(--primary-dark) 0%, #1e8449 100%);
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
             transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+            box-shadow: 0 6px 20px rgba(100, 116, 139, 0.5);
+        }
+
+        .filter-tag.tag-pending {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .filter-tag.tag-pending:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+        }
+
+        .filter-tag.tag-pending.active-tag {
+            border: 2px solid var(--text-dark);
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+        }
+
+        .filter-tag.tag-progress {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .filter-tag.tag-progress:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+        }
+
+        .filter-tag.tag-progress.active-tag {
+            border: 2px solid var(--text-dark);
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .filter-tag.tag-completed {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .filter-tag.tag-completed:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .filter-tag.tag-completed.active-tag {
+            border: 2px solid var(--text-dark);
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
         }
 
         /* Search Container */
@@ -482,10 +538,10 @@ $result = mysqli_query($conn, $sql);
 </div>
 
 <div class="filter-container">
-    <a href="?" class="filter-tag <?= $filter_status == '' ? 'active-tag' : '' ?>">📋 All Active Jobs</a>
-    <a href="?status=Pending" class="filter-tag <?= $filter_status == 'Pending' ? 'active-tag' : '' ?>">⏳ Pending</a>
-    <a href="?status=In Progress" class="filter-tag <?= $filter_status == 'In Progress' ? 'active-tag' : '' ?>">🔧 In Progress</a>
-    <a href="?status=Completed" class="filter-tag <?= $filter_status == 'Completed' ? 'active-tag' : '' ?>">✅ Completed</a>
+    <a href="?" class="filter-tag tag-all <?= $filter_status == '' ? 'active-tag' : '' ?>">📋 All Active Jobs</a>
+    <a href="?status=Pending" class="filter-tag tag-pending <?= $filter_status == 'Pending' ? 'active-tag' : '' ?>">⏳ Pending</a>
+    <a href="?status=In Progress" class="filter-tag tag-progress <?= $filter_status == 'In Progress' ? 'active-tag' : '' ?>">🔧 In Progress</a>
+    <a href="?status=Completed" class="filter-tag tag-completed <?= $filter_status == 'Completed' ? 'active-tag' : '' ?>">✅ Completed</a>
 </div>
 
 <div class="search-container">
