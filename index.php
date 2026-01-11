@@ -53,146 +53,203 @@ $low_stock_count = $conn->query("SELECT COUNT(*) c FROM stock WHERE quantity BET
 
 <style>
 /* RESET */
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Poppins',sans-serif;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
 }
 
-/* BODY – kill flex, fix navbar overlap */
-body{
-    background:#f0fdf4;
-    padding-top:100px;
-    display:block !important;
-    padding-top: 110px;   
-    padding-left: 40px;
-    padding-right: 40px;
+/* --- DESKTOP STYLES (Default) --- */
+html, body {
+    height: 100%;
+    /* Desktop වලදී Scroll නතර කරයි */
+    overflow: hidden; 
+}
+
+body {
+    /* 🔥 UPDATED BACKGROUND: Very Light/Soft Green */
+    /* Almost white to very pale green gradient */
+    background: linear-gradient(135deg, #fafffd 0%, #e2fce9 100%);
+    
+    padding-top: 135px;
+    display: flex;
+    flex-direction: column;
 }
 
 /* CONTAINER */
-.main-container{
-    width:94%;
-    max-width:1500px;
-    margin:auto;
-    padding-bottom:50px;
+.main-container {
+    max-width: 1400px;
+    width: 96%;
+    margin: 0 auto;
+    /* Desktop Height Calculation */
+    height: calc(100vh - 145px); 
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 20px;
 }
 
-/* WELCOME */
-.welcome-section{
-    margin-bottom:30px;
+/* WELCOME SECTION */
+.welcome-section {
+    flex: 0 0 auto;
+    margin-bottom: 25px;
 }
 
-.welcome-section h1{
-    font-size:34px;
-    font-weight:700;
-    color:#1e293b;
-    display:flex;
-    align-items:center;
-    gap:10px;
+.welcome-section h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #064e3b; 
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.sub-text{
-    font-size:15px;
-    color:#64748b;
+.sub-text {
+    font-size: 14px;
+    color: #065f46;
+    font-weight: 600;
 }
 
-/* GRID */
-.dashboard-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:30px;
-    width:100%;
+/* GRID SYSTEM */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    grid-template-rows: repeat(2, 1fr); 
+    gap: 25px;
+    flex: 1; 
+    min-height: 0; 
 }
 
-/* CARD */
-.card{
-    background:#fff;
-    border-radius:16px;
-    padding:25px;
-    min-height:180px;
-    box-shadow:0 4px 12px rgba(0,0,0,.06);
-    border:1px solid rgba(0,0,0,.05);
-    transition: transform 0.8s;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
+/* CARD DESIGN */
+.card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 35px; 
+    height: 100%; 
+    width: 100%;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(255,255,255,0.6); 
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-.card-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.05);
 }
 
-.card-title{
-    font-size:15px;
-    font-weight:600;
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.icon-box{
-    width:42px;
-    height:42px;
-    border-radius:10px;
-    background:rgba(255,255,255,.7);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:22px;
+.card-title {
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    opacity: 1;
 }
 
-.card-value{
-    font-size:38px;
-    font-weight:700;
+.icon-box {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;     
+    box-shadow: 0 4px 6px rgba(0,0,0,0.06);
 }
-.card:hover { transform: translateY(5px); }
 
-.card-footer{
-    font-size:13px;
-    color:#555;
+.card-value {
+    font-size: 42px; 
+    font-weight: 800;
+    margin-top: 10px;
 }
 
-/* COLORS */
-.bg-pending{background:#dcfce7;border:5px solid #bbf7d0;}
-.bg-progress{background:#fee2e2;border:5px solid #f58ad5;}
-.bg-completed{background:#fef9c3;border:5px solid #fde047;}
-.bg-customers{background:#e0f2fe;border:5px solid #bae6fd;}
-.bg-revenue{background:#ffedd5;border:5px solid #fed7aa;}
-.bg-lowstock{background:#fef2f2;border:5px solid #d31313;}
+.card-footer {
+    font-size: 13px;
+    color: #475569;
+    font-weight: 600;
+    background: rgba(255,255,255,0.6);
+    padding: 6px 12px;
+    border-radius: 10px;
+    align-self: flex-start;
+}
 
-/* TABLET */
-@media screen and (max-width:1100px){
-     body{
-        padding-top:150px;   
-    padding-left: 40px;
-    padding-right: 40px;
+/* --- COLORS --- */
+.bg-pending { background: linear-gradient(145deg, #fff0e0 0%, #ffffff 100%); border-left: 8px solid #f97316; }
+.bg-pending .card-title, .bg-pending .card-value { color: #c2410c; }
+.bg-pending .icon-box { color: #ea580c; background: rgba(255,247,237,0.9); }
+
+.bg-progress { background: linear-gradient(145deg, #e0f0ff 0%, #ffffff 100%); border-left: 8px solid #3b82f6; }
+.bg-progress .card-title, .bg-progress .card-value { color: #1d4ed8; }
+.bg-progress .icon-box { color: #2563eb; background: rgba(239,246,255,0.9); }
+
+.bg-completed { background: linear-gradient(145deg, #dcfce7 0%, #ffffff 100%); border-left: 8px solid #22c55e; }
+.bg-completed .card-title, .bg-completed .card-value { color: #15803d; }
+.bg-completed .icon-box { color: #16a34a; background: rgba(240,253,244,0.9); }
+
+.bg-customers { background: linear-gradient(145deg, #ede9fe 0%, #ffffff 100%); border-left: 8px solid #8b5cf6; }
+.bg-customers .card-title, .bg-customers .card-value { color: #6d28d9; }
+.bg-customers .icon-box { color: #7c3aed; background: rgba(245,243,255,0.9); }
+
+.bg-revenue { background: linear-gradient(145deg, #cffafe 0%, #ffffff 100%); border-left: 8px solid #06b6d4; }
+.bg-revenue .card-title, .bg-revenue .card-value { color: #0e7490; }
+.bg-revenue .icon-box { color: #0891b2; background: rgba(236,253,255,0.9); }
+
+.bg-lowstock { background: linear-gradient(145deg, #fee2e2 0%, #ffffff 100%); border-left: 8px solid #f43f5e; }
+.bg-lowstock .card-title, .bg-lowstock .card-value { color: #be123c; }
+.bg-lowstock .icon-box { color: #e11d48; background: rgba(255,241,242,0.9); }
+
+
+/* 🔥 MOBILE RESPONSIVE CSS */
+@media screen and (max-width: 1024px) {
+    /* Mobile වලදී Scroll කරන්න දෙනවා */
+    html, body {
+        height: auto; 
+        overflow-y: auto; 
     }
-    .dashboard-grid{
-        grid-template-columns:repeat(2,1fr) !important;
+
+    body {
+        padding-top: 110px; /* Mobile වලදී උඩ ඉඩ පොඩ්ඩක් අඩු කරනවා */
+        padding-bottom: 30px;
+    }
+
+    .main-container {
+        height: auto; 
+        display: block; /* Flex අයින් කරලා Block කරනවා */
+    }
+
+    /* Grid එක 2 Columns කරනවා Tablet වලට */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: auto;
+        gap: 20px;
+    }
+
+    .card {
+        min-height: 220px; /* Card එකේ අවම උසක් දෙනවා */
     }
 }
 
-/* 🔥 MOBILE – FORCE STACK */
-@media screen and (max-width:768px){
-
-    body{
-        padding-top:150px;   
-    padding-left: 40px;
-    padding-right: 40px;
+@media screen and (max-width: 768px) {
+    /* Mobile Phone (1 Column) */
+    .dashboard-grid {
+        grid-template-columns: 1fr; /* එක පේළියට එක කාඩ් එකයි */
     }
 
-    .dashboard-grid{
-        grid-template-columns:1fr !important;
-        gap:20px !important;
+    .welcome-section h1 {
+        font-size: 24px;
     }
-
-    .card{
-        width:100% !important;
-        min-height:auto !important;
-    }
-
-    .welcome-section h1{
-        font-size:26px !important;
+    
+    .card-value {
+        font-size: 36px;
     }
 }
 </style>
@@ -205,11 +262,11 @@ body{
     <div class="welcome-section">
         <h1>
             <?php echo $greeting; ?>, Multi9
-            <span style="font-size:28px;"><?php echo $icon; ?></span>
+            <span style="font-size:32px;"><?php echo $icon; ?></span>
         </h1>
         <div class="sub-text">
-            Overview for
-            <strong style="color:#059669;">
+            Business Overview for 
+            <strong style="color:#064e3b;">
                 <?php echo date('l, F j, Y'); ?>
             </strong>
         </div>
@@ -223,7 +280,7 @@ body{
                 <span class="icon-box">⏳</span>
             </div>
             <div class="card-value"><?php echo $pending_count; ?></div>
-            <div class="card-footer">Current status</div>
+            <div class="card-footer">Waiting for action</div>
         </div>
 
         <div class="card bg-progress">
@@ -232,7 +289,7 @@ body{
                 <span class="icon-box">⌛</span>
             </div>
             <div class="card-value"><?php echo $inprogress_count; ?></div>
-            <div class="card-footer">Working</div>
+            <div class="card-footer">Currently working</div>
         </div>
 
         <div class="card bg-completed">
@@ -241,7 +298,7 @@ body{
                 <span class="icon-box">✅</span>
             </div>
             <div class="card-value"><?php echo $completed_count; ?></div>
-            <div class="card-footer">Finished</div>
+            <div class="card-footer">Successfully done</div>
         </div>
 
         <div class="card bg-customers">
@@ -250,7 +307,7 @@ body{
                 <span class="icon-box">👥</span>
             </div>
             <div class="card-value"><?php echo $total_customers; ?></div>
-            <div class="card-footer">Registered</div>
+            <div class="card-footer">Total Registered</div>
         </div>
 
         <div class="card bg-revenue">
@@ -258,17 +315,17 @@ body{
                 <span class="card-title">Revenue Today</span>
                 <span class="icon-box">💰</span>
             </div>
-            <div class="card-value">Rs.<?php echo number_format($revenue_today,2); ?></div>
-            <div class="card-footer">Income</div>
+            <div class="card-value">Rs.<?php echo number_format($revenue_today, 2); ?></div>
+            <div class="card-footer">Daily Income</div>
         </div>
 
         <div class="card bg-lowstock">
             <div class="card-header">
-                <span class="card-title" style="color:#b91c1c;">Low Stock</span>
+                <span class="card-title">Low Stock</span>
                 <span class="icon-box">⚠️</span>
             </div>
-            <div class="card-value" style="color:#b91c1c;"><?php echo $low_stock_count; ?></div>
-            <div class="card-footer">Qty 1–5</div>
+            <div class="card-value"><?php echo $low_stock_count; ?></div>
+            <div class="card-footer">Items needing attention</div>
         </div>
 
     </div>
