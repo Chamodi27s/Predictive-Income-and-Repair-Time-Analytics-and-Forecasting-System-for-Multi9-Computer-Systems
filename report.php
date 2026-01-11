@@ -2,6 +2,9 @@
 include 'db_config.php';
 include 'navbar.php';
 
+// ශ්‍රී ලංකාවේ වේලාව සැකසීම
+date_default_timezone_set("Asia/Colombo");
+
 // වත්මන් දිනය සහ වේලාව අනුව පරාමිතීන් සැකසීම
 $currentMonth = date('n'); 
 $currentYear = date('Y');
@@ -11,11 +14,12 @@ $totalRepairsQuery = "SELECT COUNT(*) as total FROM job_device";
 $totalRepairsResult = $conn->query($totalRepairsQuery);
 $totalRepairs = $totalRepairsResult->fetch_assoc()['total'] ?? 0;
 
-// 2. Monthly Revenue ලබා ගැනීම
+// 2. Monthly Revenue ලබා ගැනීම (වත්මන් මාසයට අදාළව - 0000 දින මගහරිමින්)
 $revenueQuery = "SELECT COALESCE(SUM(grand_total), 0) as total_rev 
                 FROM invoice 
-                WHERE (MONTH(invoice_date) = $currentMonth AND YEAR(invoice_date) = $currentYear)
-                OR invoice_date = (SELECT MAX(invoice_date) FROM invoice)";
+                WHERE MONTH(invoice_date) = $currentMonth 
+                AND YEAR(invoice_date) = $currentYear
+                AND invoice_date != '0000-00-00'";
 $revenueResult = $conn->query($revenueQuery);
 $monthlyRevenue = $revenueResult->fetch_assoc()['total_rev'] ?? 0;
 
@@ -36,9 +40,13 @@ while($row = $deviceResult->fetch_assoc()) {
     $totalDevices += $row['count'];
 }
 
-// 5. මාසික ආදායම් ප්‍රස්ථාරය
-$monthlyRevQuery = "SELECT MONTHNAME(invoice_date) as month, SUM(grand_total) as total 
+// 5. මාසික ආදායම් ප්‍රස්ථාරය (නිවැරදි කරන ලද SQL Logic එක)
+// DATE_FORMAT භාවිතා කර මාසය ලබා ගැනීම සහ 0000-00-00 දින ඉවත් කිරීම මෙහි සිදු කර ඇත
+$monthlyRevQuery = "SELECT 
+                        DATE_FORMAT(invoice_date, '%M') as month_name, 
+                        SUM(grand_total) as total 
                     FROM invoice 
+                    WHERE invoice_date != '0000-00-00' AND invoice_date IS NOT NULL
                     GROUP BY YEAR(invoice_date), MONTH(invoice_date) 
                     ORDER BY YEAR(invoice_date) ASC, MONTH(invoice_date) ASC";
 $monthlyRevResult = $conn->query($monthlyRevQuery);
@@ -46,11 +54,14 @@ $monthlyRevResult = $conn->query($monthlyRevQuery);
 $months = [];
 $revenues = [];
 
-while($row = $monthlyRevResult->fetch_assoc()) {
-    $months[] = $row['month'];
-    $revenues[] = (float)$row['total'];
+if($monthlyRevResult && $monthlyRevResult->num_rows > 0) {
+    while($row = $monthlyRevResult->fetch_assoc()) {
+        $months[] = $row['month_name'];
+        $revenues[] = (float)$row['total'];
+    }
 }
 
+// දත්ත කිසිවක් නොමැති නම් පමණක් වත්මන් මාසය පෙන්වීමට
 if(empty($months)) {
     $months = [date('F')];
     $revenues = [0];
@@ -79,8 +90,8 @@ if(empty($months)) {
             background-color: #f4f7f4; 
             margin: 0; padding: 0; 
             color: #263238;
-            padding-top: 100px; /* සාමාන්‍ය වෙලාවට Navbar එක සඳහා ඉඩ තැබීමට */
-              transition: transform 0.8s;
+            padding-top: 100px;
+            transition: transform 0.8s;
         }
 
         .container { 
@@ -100,10 +111,9 @@ if(empty($months)) {
             padding-bottom: 15px;
         }
 
-        /* කාඩ්පත් 4 එක පෙළට තබා ගැනීම සඳහා මෙතැන වෙනස් කළා */
         .stats-grid { 
             display: grid; 
-            grid-template-columns: repeat(4, 1fr); /* තීරු 4ක් සැමවිටම පවතී */
+            grid-template-columns: repeat(4, 1fr); 
             gap: 15px; 
             margin-bottom: 30px; 
         }
@@ -121,23 +131,17 @@ if(empty($months)) {
 
         .card h3 { margin: 0; font-size: 12px; color: #78909c; text-transform: uppercase; }
         .card .value { font-size: 26px; font-weight: 800; color: var(--primary-green); margin-top: 8px; }
-/* --- Responsive Logic (මොබයිල් එකේදී වෙනස් වන ආකාරය) --- */
-        
-        /* ටැබ්ලට් සඳහා (තිරය 900px ට වඩා අඩු නම් පේළියට 2 බැගින්) */
+
         @media (max-width: 900px) {
-            .stats-grid { 
-                grid-template-columns: repeat(2, 1fr); 
-            }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
-        /* මොබයිල් ෆෝන් සඳහා (තිරය 600px ට වඩා අඩු නම් එක යට එක) */
         @media (max-width: 600px) {
-            .stats-grid { 
-                grid-template-columns: 1fr; /* එක තීරුවක් පමණි (පහළට පෙනේ) */
-            }
+            .stats-grid { grid-template-columns: 1fr; }
             .container { padding: 10px; }
             .card .value { font-size: 20px; }
         }
+
         .charts-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 25px; margin-bottom: 25px; }
         .chart-wrapper { 
             background: var(--white); 
@@ -148,14 +152,12 @@ if(empty($months)) {
         }
         
         .section-title { font-size: 16px; font-weight: 700; color: var(--primary-green); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-
         .data-table { width: 100%; border-collapse: collapse; }
         .data-table th { text-align: left; padding: 10px; background: var(--light-green); color: var(--primary-green); font-size: 12px; }
         .data-table td { padding: 10px; border-bottom: 1px solid #edf2ed; font-size: 13px; }
-
         .progress-bar { height: 6px; background: #eee; border-radius: 10px; overflow: hidden; margin-top: 5px; }
         .progress-fill { height: 100%; border-radius: 10px; }
-
+        
         .float-download-btn {
             position: fixed; bottom: 30px; right: 30px;
             background: #1b5e20; color: white; padding: 15px 25px; 
@@ -163,39 +165,17 @@ if(empty($months)) {
             box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 1000;
         }
 
-        /* --- PRINT SETTINGS: මුද්‍රණය සඳහා විශේෂිත CSS --- */
         @media print {
-            /* 1. Navbar එක සහ බොත්තම් සම්පූර්ණයෙන් ඉවත් කිරීම */
-            nav, .navbar, header, .float-download-btn, .sidebar, aside, #nav-id { 
-                display: none !important; 
-            }
-            
-            /* 2. මුද්‍රණය වන පිටුවේ උඩ ඇති හිස් අවකාශය ඉවත් කිරීම */
-            body { 
-                padding-top: 0 !important; 
-                margin: 0 !important;
-                background: white !important; 
-            }
-            
-            /* 3. කන්ටේනර් එක පිටුවේ පිරෙන සේ සැකසීම */
-            .container { 
-                box-shadow: none !important; 
-                border: none !important; 
-                width: 100% !important; 
-                max-width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-
-            .chart-wrapper {
-                page-break-inside: avoid; /* ප්‍රස්ථාර කැඩී යාම වැලැක්වීමට */
-            }
+            nav, .navbar, header, .float-download-btn, .sidebar, aside, #nav-id { display: none !important; }
+            body { padding-top: 0 !important; margin: 0 !important; background: white !important; }
+            .container { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .chart-wrapper { page-break-inside: avoid; }
         }
     </style>
 </head>
 <body>
 
-<button onclick="window.print()" class="float-download-btn">
+<button onclick="window.print()" class="float-download-btn no-print">
     🖨️ SAVE AS PDF
 </button>
 
@@ -208,7 +188,7 @@ if(empty($months)) {
             <div class="value"><?php echo number_format($totalRepairs); ?></div>
         </div>
         <div class="card">
-            <h3>Revenue (Last Active Month)</h3>
+            <h3>Revenue (Current Month)</h3>
             <div class="value">Rs. <?php echo number_format($monthlyRevenue, 2); ?></div>
         </div>
         <div class="card">
@@ -277,9 +257,10 @@ if(empty($months)) {
                 <?php 
                 $stockTableQuery = "SELECT item_name, quantity, unit_price FROM stock ORDER BY quantity ASC LIMIT 10";
                 $stockTableResult = $conn->query($stockTableQuery);
-                while($item = $stockTableResult->fetch_assoc()): 
-                    $subtotal = $item['quantity'] * $item['unit_price'];
-                    $lowStock = ($item['quantity'] <= 5);
+                if($stockTableResult) {
+                    while($item = $stockTableResult->fetch_assoc()): 
+                        $subtotal = $item['quantity'] * $item['unit_price'];
+                        $lowStock = ($item['quantity'] <= 5);
                 ?>
                 <tr>
                     <td><?php echo htmlspecialchars($item['item_name']); ?></td>
@@ -292,7 +273,7 @@ if(empty($months)) {
                         <?php echo $lowStock ? '<span style="color:red">⚠️ LOW</span>' : '<span style="color:green">✓ OK</span>'; ?>
                     </td>
                 </tr>
-                <?php endwhile; ?>
+                <?php endwhile; } ?>
             </tbody>
         </table>
     </div>
@@ -318,9 +299,26 @@ document.addEventListener('DOMContentLoaded', function() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Revenue: Rs. ' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            },
             scales: {
-                y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+                y: { 
+                    beginAtZero: true, 
+                    grid: { color: '#f0f0f0' },
+                    ticks: {
+                        callback: function(value) {
+                            return 'Rs. ' + value.toLocaleString();
+                        }
+                    }
+                },
                 x: { grid: { display: false } }
             }
         }

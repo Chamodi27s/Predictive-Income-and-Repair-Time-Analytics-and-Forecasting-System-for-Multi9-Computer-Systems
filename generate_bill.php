@@ -2,6 +2,9 @@
 include 'db_config.php';
 include 'navbar.php';
 
+// ශ්‍රී ලංකාවේ වේලාව නිවැරදිව ලබා ගැනීමට (වේලාව සම්බන්ධ ගැටළු මගහරවා ගැනීමට)
+date_default_timezone_set("Asia/Colombo");
+
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $invoice_saved = false;
@@ -13,7 +16,10 @@ $delay_fee = isset($_GET['fee']) ? floatval($_GET['fee']) : (isset($_POST['delay
 if (isset($_POST['save_invoice'])) {
     $inv_no = $_POST['invoice_no'];
     $job_no = $_POST['job_no'];
-    $inv_date = date("Y-m-d");
+    
+    // දිනය ලබා ගන්නා ආකාරය වඩාත් සුරක්ෂිත කර ඇත
+    $inv_date = date("Y-m-d"); 
+    
     $s_charge = floatval($_POST['service_charge']);
     $p_total = floatval($_POST['parts_total']);
     $g_total = floatval($_POST['grand_total']);
@@ -34,14 +40,17 @@ if (isset($_POST['save_invoice'])) {
 
     $conn->begin_transaction();
     try {
+        // SQL 1: Invoice table එකට දත්ත ඇතුළත් කිරීම (ssdddds -> sssddds ලෙස වෙනස් කර ඇත string දිනය සඳහා)
         $sql1 = "INSERT INTO invoice (invoice_no, job_no, invoice_date, service_charge, parts_total, grand_total, items_json) 
                  VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt1 = $conn->prepare($sql1);
-        $stmt1->bind_param("ssdddds", $inv_no, $job_no, $inv_date, $s_charge, $p_total, $g_total, $items_json);
+        $stmt1->bind_param("sssddds", $inv_no, $job_no, $inv_date, $s_charge, $p_total, $g_total, $items_json);
         $stmt1->execute();
 
+        // SQL 2: Job status එක වෙනස් කිරීම
         $conn->query("UPDATE job_device SET device_status = 'billed' WHERE job_no = '$job_no'");
 
+        // SQL 3: Stock අඩු කිරීම
         if (!empty($temp_items)) {
             foreach ($temp_items as $item) {
                 $code = $item['code'];
@@ -50,11 +59,16 @@ if (isset($_POST['save_invoice'])) {
             }
         }
 
+        // SQL 4: Cashbook එකට දත්ත ඇතුළත් කිරීම
         $balance_res = $conn->query("SELECT balance FROM cashbook ORDER BY cashid DESC LIMIT 1");
         $last_balance = ($balance_res->num_rows > 0) ? floatval($balance_res->fetch_assoc()['balance']) : 0;
         $new_balance = $last_balance + $g_total;
-        $conn->query("INSERT INTO cashbook (date, invoice_no, income, balance) 
-                     VALUES ('$inv_date', '$inv_no', '$g_total', '$new_balance')");
+        
+        // Prepared statement එකක් භාවිතා කර cashbook එකට දින ඇතුළත් කිරීම වඩාත් සුරක්ෂිතයි
+        $sql_cash = "INSERT INTO cashbook (date, invoice_no, income, balance) VALUES (?, ?, ?, ?)";
+        $stmt_cash = $conn->prepare($sql_cash);
+        $stmt_cash->bind_param("ssdd", $inv_date, $inv_no, $g_total, $new_balance);
+        $stmt_cash->execute();
 
         $conn->commit();
         $invoice_saved = true;
@@ -98,7 +112,6 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
             border: 1px solid #e1e8e5;
         }
 
-        /* ශීර්ෂය */
         .header { 
             text-align: center; 
             border-bottom: 3px solid #043f2e; 
@@ -108,7 +121,6 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
         .header h1 { margin: 0; color: #043f2e; letter-spacing: 2px; }
         .header p { margin: 5px 0; color: #666; font-size: 14px; }
 
-        /* වගුව (Table) */
         table { width: 100%; border-collapse: collapse; margin-top: 25px; }
         th { 
             background: #065f46; 
@@ -126,7 +138,6 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
         }
         tr:nth-child(even) { background-color: #fcfdfc; }
 
-        /* එකතු කිරීමේ කොටස (Add Item Section) */
         .add-item-box {
             background: #e8f5e9; 
             padding: 20px; 
@@ -143,7 +154,6 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
             outline: none;
         }
 
-        /* මුළු ගණන (Totals) */
         .total-section { 
             text-align: right; 
             margin-top: 30px; 
@@ -162,7 +172,6 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
             padding-top: 10px;
         }
 
-        /* බොත්තම් (Buttons) */
         .btn { 
             padding: 15px 25px; 
             border: none; 
@@ -186,7 +195,6 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
             font-weight: 500;
         }
 
-        /* Print Settings */
         @media print { 
             .no-print, .add-item-box { display: none !important; } 
             body { padding-top: 0; background: white; }
@@ -279,7 +287,6 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
 </div>
 
 <script>
-// කිසිදු Logic එකක් වෙනස් කර නැත
 window.onload = function() {
     calcTotal(); 
 };
