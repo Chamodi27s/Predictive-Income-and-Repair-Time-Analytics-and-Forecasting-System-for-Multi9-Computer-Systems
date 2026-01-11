@@ -159,7 +159,7 @@ include 'navbar.php';
         }
 
         th {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
             color: var(--text-dark);
             padding: 16px 18px;
             text-align: left;

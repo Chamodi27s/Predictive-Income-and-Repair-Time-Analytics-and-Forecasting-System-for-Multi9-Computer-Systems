@@ -149,7 +149,7 @@ $result = mysqli_query($conn, $sql);
         }
 
         .report-table th {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
             color: white;
             padding: 16px 18px;
             font-size: 13px;
