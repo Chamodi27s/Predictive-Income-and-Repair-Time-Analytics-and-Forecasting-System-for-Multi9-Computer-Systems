@@ -24,41 +24,21 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Service Registration | Smart Repair</title>
     <style>
+        /* මෙහි ඔයාගේ පරණ CSS සියල්ල එලෙසම තිබේ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body { 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
             background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 50%, #ffffff 100%);
             min-height: 100vh;
-            padding-top: 120px;   /* 🔥 navbar height */
+            padding-top: 120px;
             padding-left: 40px;
             padding-right: 40px;
             color: #2c3e50;
         }
-        
-        .container { 
-            max-width: 1000px; 
-            margin: 0 auto;
-            margin-top: 25px;
-        }
-        
-        .page-title {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .page-title h1 {
-            font-size: 32px;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 8px;
-        }
-        
-        .page-title p {
-            color: #7f8c8d;
-            font-size: 15px;
-        }
-        
+        .container { max-width: 1000px; margin: 0 auto; margin-top: 25px; }
+        .page-title { text-align: center; margin-bottom: 30px; }
+        .page-title h1 { font-size: 32px; font-weight: 700; color: #2c3e50; margin-bottom: 8px; }
+        .page-title p { color: #7f8c8d; font-size: 15px; }
         .form-card { 
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -67,228 +47,24 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
             box-shadow: 0 8px 32px rgba(46, 125, 50, 0.12);
             border: 1px solid rgba(255, 255, 255, 0.5);
         }
-        
-        .section { 
-            margin-bottom: 35px;
-            padding-bottom: 25px;
-            border-bottom: 2px solid #f0f2f5;
-        }
-        
-        .section:last-of-type {
-            border-bottom: none;
-        }
-        
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 3px solid #2ecc71;
-        }
-        
-        .section-header h3 {
-            font-size: 18px;
-            font-weight: 700;
-            color: #2c3e50;
-        }
-        
-        .section-icon {
-            font-size: 24px;
-        }
-        
-        .form-grid { 
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .form-group { 
-            display: flex;
-            flex-direction: column;
-        }
-        
-        label { 
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 13px;
-            color: #5a6c7d;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        input, select, textarea { 
-            padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            outline: none;
-            font-family: inherit;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            background: white;
-        }
-        
-        input:focus, select:focus, textarea:focus {
-            border-color: #2ecc71;
-            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
-        }
-        
-        input[readonly] {
-            background: #f8f9fa;
-            color: #7f8c8d;
-            cursor: not-allowed;
-        }
-        
-        .job-no-badge {
-            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-            border: 2px solid #2ecc71;
-            padding: 15px 20px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        
-        .job-no-badge label {
-            font-size: 11px;
-            color: #27ae60;
-            margin-bottom: 5px;
-        }
-        
-        .job-no-badge .job-number {
-            font-size: 24px;
-            font-weight: 800;
-            color: #2c3e50;
-            letter-spacing: 1px;
-        }
-        
-        .device-card { 
-            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-            border: 2px solid #e8ecef;
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            position: relative;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-        }
-        
-        .device-card:hover {
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-            transform: translateY(-2px);
-        }
-        
-        .device-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f2f5;
-        }
-        
-        .device-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #2c3e50;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-primary { 
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 12px;
-            width: 100%;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.3);
-            margin-top: 20px;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(46, 204, 113, 0.4);
-        }
-        
-        .btn-add { 
-            background: white;
-            border: 2px solid #2ecc71;
-            color: #2ecc71;
-            padding: 12px 24px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 14px;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-add:hover {
-            background: #2ecc71;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
-        }
-        
-        .remove-btn { 
-            color: #e74c3c;
-            cursor: pointer;
-            font-size: 14px;
-            border: 2px solid #e74c3c;
-            background: white;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .remove-btn:hover {
-            background: #e74c3c;
-            color: white;
-        }
-        
-        .loading-text { 
-            font-size: 11px;
-            color: #2ecc71;
-            display: none;
-            margin-left: 8px;
-            font-weight: 600;
-        }
-        
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-        
-        input[type="file"] {
-            padding: 10px;
-            font-size: 13px;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            body {
-                padding: 20px 15px;
-            }
-            
-            .form-card {
-                padding: 25px 20px;
-            }
-            
-            .page-title h1 {
-                font-size: 26px;
-            }
-            
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        .section { margin-bottom: 35px; padding-bottom: 25px; border-bottom: 2px solid #f0f2f5; }
+        .section:last-of-type { border-bottom: none; }
+        .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid #2ecc71; }
+        .section-header h3 { font-size: 18px; font-weight: 700; color: #2c3e50; }
+        .section-icon { font-size: 24px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-weight: 600; margin-bottom: 8px; font-size: 13px; color: #5a6c7d; text-transform: uppercase; letter-spacing: 0.5px; }
+        input, select, textarea { padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 10px; outline: none; font-family: inherit; font-size: 14px; transition: all 0.3s ease; background: white; }
+        input:focus, select:focus, textarea:focus { border-color: #2ecc71; box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1); }
+        .job-no-badge { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 2px solid #2ecc71; padding: 15px 20px; border-radius: 12px; text-align: center; margin-bottom: 25px; }
+        .job-no-badge label { font-size: 11px; color: #27ae60; margin-bottom: 5px; }
+        .job-no-badge .job-number { font-size: 24px; font-weight: 800; color: #2c3e50; letter-spacing: 1px; }
+        .device-card { background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 2px solid #e8ecef; padding: 25px; border-radius: 15px; margin-bottom: 20px; position: relative; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); transition: all 0.3s ease; }
+        .btn-primary { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; border: none; padding: 16px 32px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 700; font-size: 15px; box-shadow: 0 6px 20px rgba(46, 204, 113, 0.3); margin-top: 20px; }
+        .btn-add { background: white; border: 2px solid #2ecc71; color: #2ecc71; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; width: 100%; margin-bottom: 10px; }
+        .remove-btn { color: #e74c3c; cursor: pointer; font-size: 14px; border: 2px solid #e74c3c; background: white; padding: 6px 14px; border-radius: 8px; font-weight: 600; }
+        .loading-text { font-size: 11px; color: #2ecc71; display: none; margin-left: 8px; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -302,7 +78,6 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
     <div class="form-card">
         <form action="save_jobs.php" method="POST" enctype="multipart/form-data">
             
-            <!-- Customer Information Section -->
             <div class="section">
                 <div class="section-header">
                     <span class="section-icon">👤</span>
@@ -328,7 +103,6 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
                 </div>
             </div>
 
-            <!-- Job Assignment Section -->
             <div class="section">
                 <div class="section-header">
                     <span class="section-icon">📋</span>
@@ -356,7 +130,6 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
                 </div>
             </div>
 
-            <!-- Devices Section -->
             <div class="section">
                 <div class="section-header">
                     <span class="section-icon">📱</span>
@@ -372,7 +145,17 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
 </div>
 
 <script>
-    // 1. Auto-fill Customer Data by Phone Number
+    // 1. Phone Number එකට ඉලක්කම් සහ + පමණක් ලබා ගැනීම (අලුතින් එකතු කළා)
+    document.getElementById('customer_phone').addEventListener('input', function (e) {
+        this.value = this.value.replace(/[^0-9+]/g, '');
+    });
+
+    // 2. Customer Name එකට අකුරු සහ Space පමණක් ලබා ගැනීම (අලුතින් එකතු කළා)
+    document.getElementById('customer_name').addEventListener('input', function (e) {
+        this.value = this.value.replace(/[^a-zA-Z\s.]/g, '');
+    });
+
+    // 3. Auto-fill Customer Data by Phone Number
     document.getElementById('customer_phone').addEventListener('input', function() {
         let phone = this.value;
         if(phone.length >= 10) {
@@ -393,13 +176,13 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
         }
     });
 
-    // 2. Add New Technician Input Toggle
+    // 4. Add New Technician Input Toggle
     document.getElementById('techSelect').addEventListener('change', function() {
         document.getElementById('newTechInput').style.display = (this.value === 'new') ? 'block' : 'none';
         if(this.value === 'new') document.getElementById('newTechInput').focus();
     });
 
-    // 3. Dynamic Device Adding
+    // 5. Dynamic Device Adding
     let deviceCount = 0;
     function addDevice() {
         deviceCount++;

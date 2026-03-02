@@ -40,7 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     
-    // Redirect without 'edit' parameter and show success message
     echo "<script>
         alert('Changes saved successfully!');
         window.location.href='customer_details.php?phone=" . urlencode($phone) . "';
@@ -73,423 +72,45 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
     <title>Customer Details - <?= htmlspecialchars($phone) ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* Ube thiyena okkoma CSS styles methana thiyenna arinna */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary: #2ecc71;
-            --primary-hover: #27ae60;
-            --primary-dark: #229954;
-            --success: #10b981;
-            --success-hover: #059669;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --secondary: #64748b;
-            --bg-main: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1a202c;
-            --text-dark: #0f172a;
-            --text-muted: #475569;
-            --border: #e2e8f0;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --primary: #2ecc71; --primary-hover: #27ae60; --primary-dark: #229954;
+            --success: #10b981; --success-hover: #059669; --danger: #ef4444;
+            --warning: #f59e0b; --secondary: #64748b; --bg-main: #f8fafc;
+            --card-bg: #ffffff; --text-main: #1a202c; --text-dark: #0f172a;
+            --text-muted: #475569; --border: #e2e8f0; --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08); --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-
-        body {
-            background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
-            font-family: 'Inter', sans-serif;
-            padding: 120px 40px 40px 40px;
-            color: var(--text-main);
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding-bottom: 120px;
-        }
-
-        /* Header Section */
-        .page-header {
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-            padding: 36px 40px;
-            border-radius: 20px;
-            margin-bottom: 32px;
-            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
-            color: white;
-        }
-
-        .page-header h1 {
-            font-size: 34px;
-            font-weight: 800;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: white;
-        }
-
-        .page-header p {
-            font-size: 17px;
-            opacity: 0.95;
-            font-weight: 500;
-        }
-
-        /* Card Styles */
-        .card {
-            background: var(--card-bg);
-            padding: 36px;
-            border-radius: 20px;
-            margin-bottom: 28px;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border);
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 28px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--border);
-        }
-
-        h2 {
-            font-weight: 800;
-            font-size: 26px;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 0;
-        }
-
-        h3 {
-            font-weight: 800;
-            font-size: 22px;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 0;
-        }
-
-        /* Form Elements */
-        .form-group {
-            margin-bottom: 24px;
-        }
-
-        label {
-            font-weight: 700;
-            font-size: 13px;
-            text-transform: uppercase;
-            color: var(--text-dark);
-            margin-bottom: 10px;
-            display: block;
-            letter-spacing: 0.5px;
-        }
-
-        input, textarea, select {
-            width: 100%;
-            padding: 14px 18px;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-size: 15px;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.3s ease;
-            background: white;
-            color: var(--text-dark);
-            font-weight: 500;
-        }
-
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.15);
-        }
-
-        input[readonly] {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            cursor: not-allowed;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 90px;
-        }
-
-        /* Grid Layout */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 24px;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-        }
-
-        .grid-4 {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 24px;
-        }
-
-        /* Device Box */
-        .device-box {
-            background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
-            padding: 28px;
-            border-radius: 16px;
-            margin-top: 20px;
-            border: 2px solid var(--border);
-            transition: all 0.3s ease;
-        }
-
-        .device-box:hover {
-            border-color: var(--primary);
-            box-shadow: 0 4px 16px rgba(46, 204, 113, 0.2);
-        }
-
-        .device-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 20px;
-        }
-
-        .device-info {
-            flex: 1;
-        }
-
-        .device-name {
-            font-size: 19px;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .device-issue {
-            font-size: 15px;
-            color: var(--text-main);
-            font-weight: 600;
-        }
-
-        .device-issue strong {
-            color: var(--text-dark);
-        }
-
-        /* Status Badges */
-        .status-badge {
-            padding: 10px 18px;
-            border-radius: 10px;
-            font-weight: 800;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .status-warranty {
-            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-            color: #14532d;
-            border: 2px solid #86efac;
-        }
-
-        .status-no-warranty {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-            color: #7f1d1d;
-            border: 2px solid #fca5a5;
-        }
-
-        /* Buttons */
-        .btn {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
-            color: white;
-            padding: 14px 28px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
-        }
-
-        .btn:hover {
-            background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary-dark) 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--success) 0%, var(--success-hover) 100%);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-success:hover {
-            background: linear-gradient(135deg, var(--success-hover) 0%, #047857 100%);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-            box-shadow: none;
-        }
-
-        .btn-outline:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #e2e8f0;
-            color: var(--text-dark);
-            box-shadow: none;
-            font-weight: 700;
-        }
-
-        .btn-secondary:hover {
-            background: #cbd5e1;
-        }
-
-        /* Job Meta Info */
-        .job-meta {
-            display: flex;
-            gap: 24px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-top: 12px;
-        }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 15px;
-            color: var(--text-main);
-            font-weight: 600;
-        }
-
-        .meta-item strong {
-            color: var(--text-dark);
-            font-weight: 800;
-        }
-
-        /* Action Bar */
-        .action-bar {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
-            padding: 20px 36px;
-            border-radius: 100px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            display: flex;
-            gap: 16px;
-            z-index: 1000;
-            border: 2px solid var(--border);
-        }
-
-        /* File Upload Styling */
-        input[type="file"] {
-            padding: 10px;
-            font-size: 13px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        input[type="file"]::file-selector-button {
-            background: var(--primary);
-            color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-right: 12px;
-        }
-
-        input[type="file"]::file-selector-button:hover {
-            background: var(--primary-hover);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            body {
-                padding: 100px 20px 20px 20px;
-            }
-
-            .page-header {
-                padding: 24px 28px;
-            }
-
-            .page-header h1 {
-                font-size: 24px;
-            }
-
-            .card {
-                padding: 24px;
-            }
-
-            .grid-2, .grid-3, .grid-4 {
-                grid-template-columns: 1fr;
-            }
-
-            .action-bar {
-                flex-direction: column;
-                width: calc(100% - 40px);
-                border-radius: 20px;
-                padding: 16px;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-
-        /* Animation */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card {
-            animation: fadeIn 0.5s ease-out;
-        }
+        body { background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); font-family: 'Inter', sans-serif; padding: 120px 40px 40px 40px; color: var(--text-main); line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding-bottom: 120px; }
+        .page-header { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); padding: 36px 40px; border-radius: 20px; margin-bottom: 32px; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4); color: white; }
+        .page-header h1 { font-size: 34px; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
+        .card { background: var(--card-bg); padding: 36px; border-radius: 20px; margin-bottom: 28px; box-shadow: var(--shadow-md); border: 1px solid var(--border); transition: all 0.3s ease; animation: fadeIn 0.5s ease-out; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 2px solid var(--border); }
+        h2, h3 { font-weight: 800; color: var(--text-dark); display: flex; align-items: center; gap: 12px; }
+        .form-group { margin-bottom: 24px; }
+        label { font-weight: 700; font-size: 13px; text-transform: uppercase; color: var(--text-dark); margin-bottom: 10px; display: block; }
+        input, textarea, select { width: 100%; padding: 14px 18px; border: 2px solid var(--border); border-radius: 12px; font-size: 15px; font-family: 'Inter', sans-serif; background: white; }
+        input[readonly], textarea[readonly] { background: #f1f5f9; cursor: not-allowed; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        .device-box { background: #fafafa; padding: 28px; border-radius: 16px; margin-top: 20px; border: 2px solid var(--border); }
+        .device-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px; }
+        .device-name { font-size: 19px; font-weight: 800; }
+        .status-badge { padding: 10px 18px; border-radius: 10px; font-weight: 800; font-size: 13px; text-transform: uppercase; }
+        .status-warranty { background: #dcfce7; color: #14532d; border: 2px solid #86efac; }
+        .status-no-warranty { background: #fee2e2; color: #7f1d1d; border: 2px solid #fca5a5; }
+        .btn { padding: 14px 28px; border-radius: 12px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; border: none; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-outline { border: 2px solid var(--primary); color: var(--primary); background: transparent; }
+        .btn-secondary { background: #e2e8f0; color: var(--text-dark); }
+        .action-bar { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: white; padding: 20px 36px; border-radius: 100px; box-shadow: var(--shadow-lg); display: flex; gap: 16px; z-index: 1000; border: 2px solid var(--border); }
+        
+        /* New Styles for Image Preview */
+        .img-preview-container { margin-bottom: 20px; }
+        .device-img { width: 150px; height: 150px; object-fit: cover; border-radius: 12px; border: 2px solid var(--border); cursor: pointer; transition: 0.3s; }
+        .device-img:hover { transform: scale(1.05); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -501,7 +122,6 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
     </div>
 
     <form method="POST" enctype="multipart/form-data">
-        <!-- Customer Information Card -->
         <div class="card">
             <div class="card-header">
                 <h2>📋 Personal Information</h2>
@@ -526,21 +146,14 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
             </div>
         </div>
 
-        <!-- Job History Cards -->
         <?php while($job = mysqli_fetch_assoc($jobs)): ?>
         <div class="card">
             <div class="card-header">
                 <div>
                     <h3>📑 Job #<?= $job['job_no'] ?></h3>
-                    <div class="job-meta">
-                        <div class="meta-item">
-                            <span>📅</span>
-                            <span><strong><?= date("M d, Y", strtotime($job['job_date'])) ?></strong></span>
-                        </div>
-                        <div class="meta-item">
-                            <span>👨‍🔧 Technician:</span>
-                            <strong><?= htmlspecialchars($job['tech'] ?? 'Not Assigned') ?></strong>
-                        </div>
+                    <div style="display: flex; gap: 20px; margin-top: 10px;">
+                        <span>📅 <strong><?= date("M d, Y", strtotime($job['job_date'])) ?></strong></span>
+                        <span>👨‍🔧 Technician: <strong><?= htmlspecialchars($job['tech'] ?? 'Not Assigned') ?></strong></span>
                     </div>
                 </div>
             </div>
@@ -549,22 +162,27 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
             $jno = $job['job_no'];
             $devices_res = mysqli_query($conn,"SELECT * FROM job_device WHERE job_no='$jno'");
             while($d = mysqli_fetch_assoc($devices_res)):
-                $is_warranty = (strtolower($d['warranty_status']) == 'warranty');
+                $is_warranty = (strtolower($d['warranty_status'] ?? '') == 'warranty');
             ?>
             <div class="device-box">
                 <div class="device-header">
                     <div class="device-info">
-                        <div class="device-name">
-                            📱 <?= htmlspecialchars($d['device_name']) ?>
-                        </div>
-                        <div class="device-issue">
-                            <strong>Issue:</strong> <?= htmlspecialchars($d['issue_name']) ?>
-                        </div>
+                        <div class="device-name">📱 <?= htmlspecialchars($d['device_name']) ?></div>
+                        <div style="font-weight: 600;"><strong>Issue:</strong> <?= htmlspecialchars($d['issue_name']) ?></div>
                     </div>
                     <span class="status-badge <?= $is_warranty ? 'status-warranty' : 'status-no-warranty' ?>">
                         <?= $is_warranty ? '✓' : '✗' ?> <?= htmlspecialchars($d['warranty_status']) ?>
                     </span>
                 </div>
+
+                <?php if(!empty($d['device_image'])): ?>
+                <div class="img-preview-container">
+                    <label>Device Photo</label>
+                    <a href="uploads/devices/<?= $d['device_image'] ?>" target="_blank">
+                        <img src="uploads/devices/<?= $d['device_image'] ?>" class="device-img" alt="Device Image">
+                    </a>
+                </div>
+                <?php endif; ?>
                 
                 <div class="form-group">
                     <label>Service Notes</label>
@@ -576,12 +194,12 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
                         <div class="form-group">
                             <label>Warranty Status</label>
                             <select name="warranty_status[<?= $d['job_device_id'] ?>]">
-                                <option value="Warranty" <?= $d['warranty_status']=='Warranty'?'selected':'' ?>>✓ Warranty</option>
-                                <option value="No Warranty" <?= $d['warranty_status']=='No Warranty'?'selected':'' ?>>✗ No Warranty</option>
+                                <option value="Warranty" <?= ($d['warranty_status']=='Warranty')?'selected':'' ?>>✓ Warranty</option>
+                                <option value="No Warranty" <?= ($d['warranty_status']=='No Warranty')?'selected':'' ?>>✗ No Warranty</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Upload Device Image</label>
+                            <label><?= !empty($d['device_image']) ? 'Update' : 'Upload' ?> Device Image</label>
                             <input type="file" name="device_image[<?= $d['job_device_id'] ?>]" accept="image/*">
                         </div>
                     </div>
@@ -591,19 +209,14 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
         </div>
         <?php endwhile; ?>
 
-        <!-- Fixed Action Bar -->
         <div class="action-bar">
             <?php if(!empty($current_job_no)): ?>
-                <a href="jobsheet.php?job_no=<?= $current_job_no ?>" class="btn btn-outline" target="_blank">
-                    📄 Print Job Sheet
-                </a>
-                <a href="duration.php?job_no=<?= urlencode($current_job_no) ?>" class="btn btn-secondary">
-                    ⏱️ Time Duration
-                </a>
+                <a href="jobsheet.php?job_no=<?= $current_job_no ?>" class="btn btn-outline" target="_blank">📄 Print Job Sheet</a>
+                <a href="duration.php?job_no=<?= urlencode($current_job_no) ?>" class="btn btn-secondary">⏱️ Time Duration</a>
             <?php endif; ?>
 
             <?php if(!$is_edit): ?>
-                <a href="?phone=<?= $phone ?>&edit=1" class="btn">✏️ Edit Details</a>
+                <a href="?phone=<?= $phone ?>&edit=1" class="btn" style="background: var(--primary); color: white;">✏️ Edit Details</a>
             <?php else: ?>
                 <button type="submit" class="btn btn-success">💾 Save Changes</button>
                 <a href="?phone=<?= $phone ?>" class="btn btn-secondary">✕ Cancel</a>
