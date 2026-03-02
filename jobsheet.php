@@ -198,5 +198,12 @@ body{margin:0;background:#f6f4ef;color:#083024;font-size:13px; padding: 20px;}
     </div>
 </div>
 
+<script>
+// ප්‍රින්ට් ඩයලොග් එක වැසුණු පසු රීඩිරෙක්ට් කිරීම සඳහා
+window.onafterprint = function() {
+    window.location.href = "customer_details.php?phone=<?= urlencode($job_main['phone_number']) ?>";
+};
+</script>
+
 </body>
 </html>
