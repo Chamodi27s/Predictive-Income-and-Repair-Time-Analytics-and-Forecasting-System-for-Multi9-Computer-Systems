@@ -14,7 +14,11 @@ if ($last_job) {
     $new_number = 5000;
 }
 $job_no = "ORD-" . $new_number;
+
+// Technicians සහ Issues Database එකෙන් ලබා ගැනීම
 $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
+// මෙහිදී අපි Database එකේ ඇති වෙනත් issues ඇත්නම් ඒවාද ලබා ගනිමු
+$issue_result = mysqli_query($conn, "SELECT * FROM issue"); 
 ?>
 
 <!DOCTYPE html>
@@ -24,7 +28,7 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Service Registration | Smart Repair</title>
     <style>
-        /* මෙහි ඔයාගේ පරණ CSS සියල්ල එලෙසම තිබේ */
+        /* ඔබේ මුල් CSS එලෙසම පවතී */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
@@ -61,6 +65,7 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
         .job-no-badge label { font-size: 11px; color: #27ae60; margin-bottom: 5px; }
         .job-no-badge .job-number { font-size: 24px; font-weight: 800; color: #2c3e50; letter-spacing: 1px; }
         .device-card { background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 2px solid #e8ecef; padding: 25px; border-radius: 15px; margin-bottom: 20px; position: relative; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); transition: all 0.3s ease; }
+        .device-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .btn-primary { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; border: none; padding: 16px 32px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 700; font-size: 15px; box-shadow: 0 6px 20px rgba(46, 204, 113, 0.3); margin-top: 20px; }
         .btn-add { background: white; border: 2px solid #2ecc71; color: #2ecc71; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; width: 100%; margin-bottom: 10px; }
         .remove-btn { color: #e74c3c; cursor: pointer; font-size: 14px; border: 2px solid #e74c3c; background: white; padding: 6px 14px; border-radius: 8px; font-weight: 600; }
@@ -86,7 +91,7 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Phone Number <span id="searching" class="loading-text">(Searching...)</span></label>
-                        <input type="text" name="phone_number" id="customer_phone" placeholder="07xxxxxxxx" required autocomplete="off">
+                        <input type="text" name="phone_number" id="customer_phone" placeholder="07xxxxxxxx" required autocomplete="off" pattern="[0-9+]{10,15}">
                     </div>
                     <div class="form-group">
                         <label>Customer Name</label>
@@ -145,17 +150,17 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
 </div>
 
 <script>
-    // 1. Phone Number එකට ඉලක්කම් සහ + පමණක් ලබා ගැනීම (අලුතින් එකතු කළා)
+    // Phone Number එකට ඉලක්කම් සහ + පමණක් ලබා ගැනීම
     document.getElementById('customer_phone').addEventListener('input', function (e) {
         this.value = this.value.replace(/[^0-9+]/g, '');
     });
 
-    // 2. Customer Name එකට අකුරු සහ Space පමණක් ලබා ගැනීම (අලුතින් එකතු කළා)
+    // Customer Name එකට අකුරු පමණක් ලබා ගැනීම
     document.getElementById('customer_name').addEventListener('input', function (e) {
         this.value = this.value.replace(/[^a-zA-Z\s.]/g, '');
     });
 
-    // 3. Auto-fill Customer Data by Phone Number
+    // Auto-fill Customer Data
     document.getElementById('customer_phone').addEventListener('input', function() {
         let phone = this.value;
         if(phone.length >= 10) {
@@ -176,24 +181,44 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
         }
     });
 
-    // 4. Add New Technician Input Toggle
+    // Technician Toggle logic
     document.getElementById('techSelect').addEventListener('change', function() {
-        document.getElementById('newTechInput').style.display = (this.value === 'new') ? 'block' : 'none';
-        if(this.value === 'new') document.getElementById('newTechInput').focus();
+        const newTechInput = document.getElementById('newTechInput');
+        if(this.value === 'new') {
+            newTechInput.style.display = 'block';
+            newTechInput.required = true;
+            newTechInput.focus();
+        } else {
+            newTechInput.style.display = 'none';
+            newTechInput.required = false;
+        }
     });
 
-    // 5. Dynamic Device Adding
+    // Database එකේ ඇති වෙනත් Issue list එක JavaScript එකට ගැනීම
+    const dbIssueList = [
+        <?php 
+        mysqli_data_seek($issue_result, 0);
+        while($issue = mysqli_fetch_assoc($issue_result)) {
+            // Display Damage, No Power, Service යන ඒවා මෙහි ඇත්නම් ඒවා මඟ හැරීමට හෝ සියල්ල පෙන්වීමට හැකිය
+            echo "{id: '".addslashes($issue['issue_name'])."', name: '".addslashes($issue['issue_name'])."'},";
+        }
+        ?>
+    ];
+
     let deviceCount = 0;
     function addDevice() {
         deviceCount++;
         const container = document.getElementById('devicesContainer');
         const div = document.createElement('div');
         div.className = 'device-card';
+
+        // අමතර issues තිබේ නම් ඒවා map කිරීම
+        let dbOptions = dbIssueList.map(opt => `<option value="${opt.id}">${opt.name}</option>`).join('');
+
         div.innerHTML = `
             <div class="device-header">
                 <div class="device-title">
-                    <span>📱</span>
-                    <span>Device #${deviceCount}</span>
+                    <span style="font-size: 18px; font-weight: bold;">📱 Device #${deviceCount}</span>
                 </div>
                 ${deviceCount > 1 ? `<button type="button" class="remove-btn" onclick="this.parentElement.parentElement.remove()">✕ Remove</button>` : ''}
             </div>
@@ -203,7 +228,7 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
                     <label>Device Type</label>
                     <select name="devices[]" required>
                         <option value="">-- Select Device --</option>
-                        <option value="Mobile">Mobile Phone</option>
+                        
                         <option value="Printer">Printer</option>
                         <option value="Laptop">Laptop</option>
                         <option value="Desktop">Desktop PC</option>
@@ -211,14 +236,15 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
                 </div>
                 <div class="form-group">
                     <label>Issue Type</label>
-                    <select name="issues[]" required>
+                    <select name="issues[]" class="issue-select" onchange="toggleNewIssue(this)" required>
                         <option value="">-- Select Issue --</option>
-                        <option value="Display">Display Damage</option>
-                        <option value="Power">Power Issue</option>
-                        <option value="Software">Software Issue</option>
-                        <option value="Charging">Charging Port</option>
-                        <option value="Service">Full Service</option>
+                        <option value="Display Damage">Display Damage</option>
+                        <option value="No Power">No Power</option>
+                        <option value="Service">Service</option>
+                        ${dbOptions}
+                        <option value="new" style="color:#2ecc71; font-weight:bold;">+ Add New Issue</option>
                     </select>
+                    <input type="text" name="new_issues[]" class="new-issue-input" placeholder="Enter New Issue Name" style="display:none; margin-top:10px; border-color: #2ecc71;">
                 </div>
                 <div class="form-group">
                     <label>Warranty Status</label>
@@ -231,8 +257,8 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
 
             <div class="form-grid" style="margin-top:20px;">
                 <div class="form-group" style="grid-column: span 2;">
-                    <label>Description / Conditions / Note</label>
-                    <textarea name="descriptions[]" placeholder="e.g. Back cover broken, No SIM tray, Battery swollen..."></textarea>
+                    <label>Description / Note</label>
+                    <textarea name="descriptions[]" placeholder="e.g. Screen cracked, Back cover broken..."></textarea>
                 </div>
                 <div class="form-group">
                     <label>Device Image (Optional)</label>
@@ -243,7 +269,20 @@ $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
         container.appendChild(div);
     }
 
-    addDevice(); // Initial device call
+    // "Add New Issue" තේරූ විට පමණක් input එක පෙන්වීමට
+    function toggleNewIssue(selectElement) {
+        const inputElement = selectElement.nextElementSibling;
+        if(selectElement.value === 'new') {
+            inputElement.style.display = 'block';
+            inputElement.required = true;
+            inputElement.focus();
+        } else {
+            inputElement.style.display = 'none';
+            inputElement.required = false;
+        }
+    }
+
+    addDevice(); 
 </script>
 </body>
 </html>
