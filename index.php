@@ -60,18 +60,15 @@ $low_stock_count = $conn->query("SELECT COUNT(*) c FROM stock WHERE quantity BET
     font-family: 'Poppins', sans-serif;
 }
 
-/* --- DESKTOP STYLES (Default) --- */
+/* --- FIX: SCROLL ENABLED --- */
 html, body {
-    height: 100%;
-    /* Desktop වලදී Scroll නතර කරයි */
-    overflow: hidden; 
+    height: auto; 
+    min-height: 100%;
+    overflow-y: auto; /* Scroll කිරීමට ඉඩ දෙයි */
 }
 
 body {
-    /* 🔥 UPDATED BACKGROUND: Very Light/Soft Green */
-    /* Almost white to very pale green gradient */
     background: linear-gradient(135deg, #fafffd 0%, #e2fce9 100%);
-    
     padding-top: 135px;
     display: flex;
     flex-direction: column;
@@ -82,11 +79,10 @@ body {
     max-width: 1400px;
     width: 96%;
     margin: 0 auto;
-    /* Desktop Height Calculation */
-    height: calc(100vh - 145px); 
+    height: auto; /* Fixed height එක ඉවත් කළා */
     display: flex;
     flex-direction: column;
-    padding-bottom: 20px;
+    padding-bottom: 40px; /* යටින් ඉඩ තැබුවා */
 }
 
 /* WELCOME SECTION */
@@ -114,10 +110,9 @@ body {
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr); 
-    grid-template-rows: repeat(2, 1fr); 
+    grid-template-rows: auto; /* Content එක අනුව උස හැදේ */
     gap: 25px;
     flex: 1; 
-    min-height: 0; 
 }
 
 /* CARD DESIGN */
@@ -125,7 +120,7 @@ body {
     background: #fff;
     border-radius: 24px;
     padding: 35px; 
-    height: 100%; 
+    min-height: 220px; /* අවම උසක් ලබා දුන්නා */
     width: 100%;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
     border: 1px solid rgba(255,255,255,0.6); 
@@ -181,7 +176,7 @@ body {
     align-self: flex-start;
 }
 
-/* --- COLORS --- */
+/* COLORS */
 .bg-pending { background: linear-gradient(145deg, #fff0e0 0%, #ffffff 100%); border-left: 8px solid #f97316; }
 .bg-pending .card-title, .bg-pending .card-value { color: #c2410c; }
 .bg-pending .icon-box { color: #ea580c; background: rgba(255,247,237,0.9); }
@@ -206,59 +201,22 @@ body {
 .bg-lowstock .card-title, .bg-lowstock .card-value { color: #be123c; }
 .bg-lowstock .icon-box { color: #e11d48; background: rgba(255,241,242,0.9); }
 
-
-/* 🔥 MOBILE RESPONSIVE CSS */
+/* MOBILE RESPONSIVE */
 @media screen and (max-width: 1024px) {
-    /* Mobile වලදී Scroll කරන්න දෙනවා */
-    html, body {
-        height: auto; 
-        overflow-y: auto; 
-    }
-
-    body {
-        padding-top: 110px; /* Mobile වලදී උඩ ඉඩ පොඩ්ඩක් අඩු කරනවා */
-        padding-bottom: 30px;
-    }
-
-    .main-container {
-        height: auto; 
-        display: block; /* Flex අයින් කරලා Block කරනවා */
-    }
-
-    /* Grid එක 2 Columns කරනවා Tablet වලට */
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: auto;
-        gap: 20px;
-    }
-
-    .card {
-        min-height: 220px; /* Card එකේ අවම උසක් දෙනවා */
-    }
+    body { padding-top: 110px; }
+    .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
 }
 
 @media screen and (max-width: 768px) {
-    /* Mobile Phone (1 Column) */
-    .dashboard-grid {
-        grid-template-columns: 1fr; /* එක පේළියට එක කාඩ් එකයි */
-    }
-
-    .welcome-section h1 {
-        font-size: 24px;
-    }
-    
-    .card-value {
-        font-size: 36px;
-    }
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .welcome-section h1 { font-size: 24px; }
+    .card-value { font-size: 36px; }
 }
 </style>
 </head>
-
 <body>
 
 <div class="main-container">
-
     <div class="welcome-section">
         <h1>
             <?php echo $greeting; ?>, Multi9
@@ -273,7 +231,6 @@ body {
     </div>
 
     <div class="dashboard-grid">
-
         <div class="card bg-pending">
             <div class="card-header">
                 <span class="card-title">Pending Repairs</span>
@@ -327,7 +284,6 @@ body {
             <div class="card-value"><?php echo $low_stock_count; ?></div>
             <div class="card-footer">Items needing attention</div>
         </div>
-
     </div>
 </div>
 
