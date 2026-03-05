@@ -21,6 +21,7 @@ if(isset($_GET['range'])) {
     <title>Jobs Management | Smart Repair</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* උඹේ පරණ ඔක්කොම CSS ටික මෙතන තියෙනවා */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #2ecc71; --primary-hover: #27ae60; --primary-dark: #229954;
@@ -54,6 +55,9 @@ if(isset($_GET['range'])) {
         .filter-btn { padding: 8px 15px; border-radius: 8px; border: 1px solid var(--border); background: white; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.3s; }
         .filter-btn:hover { background: #f0f0f0; }
         .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        /* අලුතින් එක්කළ මෝස්තරය */
+        .est-input { width: 100px; padding: 5px; border: 1px solid var(--border); border-radius: 5px; font-weight: bold; color: var(--primary-dark); }
     </style>
 </head>
 <body>
@@ -87,7 +91,7 @@ if(isset($_GET['range'])) {
                         <th>Job No</th>
                         <th>Customer</th>
                         <th>Issue</th>
-                        <th>Diagnosis Category</th>
+                        <th>Estimate (Rs.)</th> <th>Diagnosis Category</th>
                         <th>Phone</th>
                         <th>Status</th>
                         <th>Action</th>
@@ -95,7 +99,8 @@ if(isset($_GET['range'])) {
                 </thead>
                 <tbody>
                     <?php
-                    $sql = "SELECT j.job_no, j.job_status, c.customer_name, c.email, c.phone_number, jd.issue_name, jd.warranty_status, jd.issue_category 
+                    // SQL එකට j.estimated_cost එකතු කළා
+                    $sql = "SELECT j.job_no, j.job_status, j.estimated_cost, c.customer_name, c.email, c.phone_number, jd.issue_name, jd.warranty_status, jd.issue_category 
                             FROM job j
                             LEFT JOIN customer c ON j.phone_number = c.phone_number
                             LEFT JOIN job_device jd ON j.job_no = jd.job_no
@@ -108,12 +113,18 @@ if(isset($_GET['range'])) {
                             $id = $row['job_no'];
                             $status_val = $row['job_status'] ?? 'Pending';
                             $cat_val = $row['issue_category'] ?? 'Hardware';
+                            $est_cost = $row['estimated_cost'] ?? '0.00';
                             $status_class = ($status_val == 'Approved') ? 'status-approved' : 'status-pending';
                     ?>
                     <tr id="row-<?php echo $id; ?>">
                         <td><strong>#<?php echo $id; ?></strong></td>
                         <td><input type="text" id="name-<?php echo $id; ?>" class="table-input" value="<?php echo htmlspecialchars($row['customer_name']); ?>" readonly></td>
                         <td><input type="text" id="issue-<?php echo $id; ?>" class="table-input" value="<?php echo htmlspecialchars($row['issue_name']); ?>" readonly></td>
+                        
+                        <td>
+                            <input type="number" id="est-<?php echo $id; ?>" class="est-input" value="<?php echo $est_cost; ?>" onchange="saveToDB('<?php echo $id; ?>')">
+                        </td>
+
                         <td>
                             <select id="cat-<?php echo $id; ?>" class="status-select" onchange="saveToDB('<?php echo $id; ?>')">
                                 <option value="Hardware" <?php if($cat_val == 'Hardware') echo 'selected'; ?>>⚙️ Hardware</option>
@@ -136,7 +147,7 @@ if(isset($_GET['range'])) {
                     <?php 
                         }
                     } else {
-                        echo "<tr><td colspan='7' style='text-align:center; padding:50px;'>No records found</td></tr>";
+                        echo "<tr><td colspan='8' style='text-align:center; padding:50px;'>No records found</td></tr>";
                     }
                     ?>
                 </tbody>
@@ -146,30 +157,61 @@ if(isset($_GET['range'])) {
 </div>
 
 <script>
-function filterTable() {
-    const filter = document.getElementById("searchInput").value.toUpperCase();
-    const tr = document.getElementById("jobsTable").getElementsByTagName("tr");
+// Filter Table function එකේ වෙනසක් නැත
+
+function updateStatusOnly(id) {
+    const statSelect = document.getElementById('stat-' + id);
+    const currentStatus = statSelect.value;
     
-    for (let i = 1; i < tr.length; i++) {
-        let combinedText = tr[i].innerText.toUpperCase();
-
-        // 1. Input fields වල ඇති දත්ත එකතු කිරීම (Issue, Name සෙවීමට)
-        const inputs = tr[i].getElementsByTagName('input');
-        for (let input of inputs) {
-            combinedText += " " + input.value.toUpperCase();
+    // වැදගත්: Status එක Approved කරනකොට ගාණ ඇතුළත් කරලා නැත්නම් ඒක අහනවා
+    if (currentStatus === 'Approved') {
+        let currentEst = document.getElementById('est-' + id).value;
+        let newEst = prompt("කරුණාකර ඇස්තමේන්තුගත මුදල (Estimate Cost) තහවුරු කරන්න:", currentEst);
+        
+        if (newEst !== null) {
+            document.getElementById('est-' + id).value = newEst;
+        } else {
+            // Cancel කළොත් ආපහු Pending වලට හරවනවා
+            statSelect.value = 'Pending';
+            return;
         }
-
-        // 2. Select boxes වල තෝරා ඇති දත්ත එකතු කිරීම (Hardware/Software සෙවීමට)
-        const selects = tr[i].getElementsByTagName('select');
-        for (let select of selects) {
-            let selectedText = select.options[select.selectedIndex].text.toUpperCase();
-            combinedText += " " + selectedText;
-        }
-
-        tr[i].style.display = combinedText.includes(filter) ? "" : "none";
     }
+
+    statSelect.className = 'status-select ' + (statSelect.value === 'Approved' ? 'status-approved' : 'status-pending');
+    saveToDB(id);
 }
 
+function saveToDB(id, callback = null) {
+    const data = {
+        job_no: id,
+        customer_name: document.getElementById('name-' + id).value,
+        email: document.getElementById('email-' + id).value,
+        issue_name: document.getElementById('issue-' + id).value,
+        phone_number: document.getElementById('phone-' + id).value,
+        job_status: document.getElementById('stat-' + id).value,
+        issue_category: document.getElementById('cat-' + id).value,
+        estimated_cost: document.getElementById('est-' + id).value // අලුතින් එක්කළ දත්තය
+    };
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "update_engine.php", true);
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhr.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            if (this.responseText.trim() === "success") {
+                let msg = document.getElementById('msg-' + id);
+                msg.style.display = 'inline';
+                setTimeout(() => { msg.style.display = 'none'; }, 2000);
+                if (callback) callback();
+            } else {
+                alert("Error saving data: " + this.responseText);
+            }
+        }
+    };
+    xhr.send("id=" + encodeURIComponent(id) + "&data=" + encodeURIComponent(JSON.stringify(data)));
+}
+
+// toggleEdit සහ filterTable functions වල වෙනසක් නැත
 function toggleEdit(id) {
     const fields = ['name', 'issue', 'phone'];
     const btn = document.getElementById('btn-edit-' + id);
@@ -194,37 +236,20 @@ function toggleEdit(id) {
     }
 }
 
-function updateStatusOnly(id) {
-    const statSelect = document.getElementById('stat-' + id);
-    statSelect.className = 'status-select ' + (statSelect.value === 'Approved' ? 'status-approved' : 'status-pending');
-    saveToDB(id);
-}
-
-function saveToDB(id, callback = null) {
-    const data = {
-        job_no: id,
-        customer_name: document.getElementById('name-' + id).value,
-        email: document.getElementById('email-' + id).value,
-        issue_name: document.getElementById('issue-' + id).value,
-        phone_number: document.getElementById('phone-' + id).value,
-        job_status: document.getElementById('stat-' + id).value,
-        issue_category: document.getElementById('cat-' + id).value
-    };
-
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "update_engine.php", true);
-    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhr.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            if (this.responseText.trim() === "success") {
-                let msg = document.getElementById('msg-' + id);
-                msg.style.display = 'inline';
-                setTimeout(() => { msg.style.display = 'none'; }, 2000);
-                if (callback) callback();
-            }
+function filterTable() {
+    const filter = document.getElementById("searchInput").value.toUpperCase();
+    const tr = document.getElementById("jobsTable").getElementsByTagName("tr");
+    for (let i = 1; i < tr.length; i++) {
+        let combinedText = tr[i].innerText.toUpperCase();
+        const inputs = tr[i].getElementsByTagName('input');
+        for (let input of inputs) { combinedText += " " + input.value.toUpperCase(); }
+        const selects = tr[i].getElementsByTagName('select');
+        for (let select of selects) {
+            let selectedText = select.options[select.selectedIndex].text.toUpperCase();
+            combinedText += " " + selectedText;
         }
-    };
-    xhr.send("id=" + encodeURIComponent(id) + "&data=" + encodeURIComponent(JSON.stringify(data)));
+        tr[i].style.display = combinedText.includes(filter) ? "" : "none";
+    }
 }
 </script>
 </body>

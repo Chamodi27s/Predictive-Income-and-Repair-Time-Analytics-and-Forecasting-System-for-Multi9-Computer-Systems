@@ -2,15 +2,29 @@
 include 'db_config.php';
 include 'navbar.php';
 
-// ශ්‍රී ලංකාවේ වේලාව නිවැරදිව ලබා ගැනීමට
 date_default_timezone_set("Asia/Colombo");
-
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $invoice_saved = false;
 $saved_items = [];
 
-// URL එකෙන් එන Rent Fee එක ලබා ගැනීම
+// --- නව එකතු කිරීම: View Only Mode (ලිස්ට් එකෙන් එන දත්ත බැලීමට) ---
+if (isset($_GET['view_only']) && $_GET['view_only'] == 'true' && isset($_GET['job_no'])) {
+    $v_job_no = $_GET['job_no'];
+    $check_inv = $conn->query("SELECT * FROM invoice WHERE job_no = '$v_job_no'");
+    if ($check_inv->num_rows > 0) {
+        $inv_data = $check_inv->fetch_assoc();
+        $_POST['invoice_no'] = $inv_data['invoice_no'];
+        $_POST['service_charge'] = $inv_data['service_charge'];
+        $_POST['parts_total'] = $inv_data['parts_total'];
+        $_POST['grand_total'] = $inv_data['grand_total'];
+        $_POST['payment_status'] = $inv_data['payment_status'];
+        $saved_items = json_decode($inv_data['items_json'], true);
+        $invoice_saved = true;
+    }
+}
+// ------------------------------------------------------------
+
 $delay_fee = isset($_GET['fee']) ? floatval($_GET['fee']) : (isset($_POST['delay_fee']) ? floatval($_POST['delay_fee']) : 0);
 
 if (isset($_POST['save_invoice'])) {
@@ -21,10 +35,10 @@ if (isset($_POST['save_invoice'])) {
     $s_charge = floatval($_POST['service_charge']);
     $p_total = floatval($_POST['parts_total']);
     $g_total = floatval($_POST['grand_total']);
+    $pay_status = $_POST['payment_status']; 
 
     $temp_items = [];
-    $item_names_list = []; // SMS එක සඳහා බඩු නම් ටික වෙනම තබා ගැනීමට
-    
+    $item_names_list = [];
     if (isset($_POST['item_codes'])) {
         foreach ($_POST['item_codes'] as $key => $code) {
             $name = $_POST['item_names'][$key];
@@ -35,24 +49,21 @@ if (isset($_POST['save_invoice'])) {
                 'qty'   => $_POST['item_qtys'][$key],
                 'sub'   => floatval($_POST['item_prices'][$key]) * intval($_POST['item_qtys'][$key])
             ];
-            $item_names_list[] = $name; // SMS එකට නම එකතු කරයි
+            $item_names_list[] = $name;
         }
     }
     $items_json = json_encode($temp_items);
 
     $conn->begin_transaction();
     try {
-        // SQL 1: Invoice table
-        $sql1 = "INSERT INTO invoice (invoice_no, job_no, invoice_date, service_charge, parts_total, grand_total, items_json) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $sql1 = "INSERT INTO invoice (invoice_no, job_no, invoice_date, service_charge, parts_total, grand_total, items_json, payment_status) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt1 = $conn->prepare($sql1);
-        $stmt1->bind_param("sssddds", $inv_no, $job_no, $inv_date, $s_charge, $p_total, $g_total, $items_json);
+        $stmt1->bind_param("sssdddss", $inv_no, $job_no, $inv_date, $s_charge, $p_total, $g_total, $items_json, $pay_status);
         $stmt1->execute();
 
-        // SQL 2: Job status update
         $conn->query("UPDATE job_device SET device_status = 'billed' WHERE job_no = '$job_no'");
 
-        // SQL 3: Stock update
         if (!empty($temp_items)) {
             foreach ($temp_items as $item) {
                 $code = $item['code'];
@@ -61,66 +72,42 @@ if (isset($_POST['save_invoice'])) {
             }
         }
 
-        // SQL 4: Cashbook update
-        $balance_res = $conn->query("SELECT balance FROM cashbook ORDER BY cashid DESC LIMIT 1");
-        $last_balance = ($balance_res->num_rows > 0) ? floatval($balance_res->fetch_assoc()['balance']) : 0;
-        $new_balance = $last_balance + $g_total;
-        
-        $sql_cash = "INSERT INTO cashbook (date, invoice_no, income, balance) VALUES (?, ?, ?, ?)";
-        $stmt_cash = $conn->prepare($sql_cash);
-        $stmt_cash->bind_param("ssdd", $inv_date, $inv_no, $g_total, $new_balance);
-        $stmt_cash->execute();
+        if ($pay_status == 'Paid') {
+            $balance_res = $conn->query("SELECT balance FROM cashbook ORDER BY cashid DESC LIMIT 1");
+            $last_balance = ($balance_res->num_rows > 0) ? floatval($balance_res->fetch_assoc()['balance']) : 0;
+            $new_balance = $last_balance + $g_total;
+            
+            $sql_cash = "INSERT INTO cashbook (date, invoice_no, income, balance) VALUES (?, ?, ?, ?)";
+            $stmt_cash = $conn->prepare($sql_cash);
+            $stmt_cash->bind_param("ssdd", $inv_date, $inv_no, $g_total, $new_balance);
+            $stmt_cash->execute();
+        }
 
         $conn->commit();
         $invoice_saved = true;
         $saved_items = $temp_items;
 
-        // ==========================================
-        // AUTO SMS LOGIC (මෙතනයි අලුත් කොටස)
-        // ==========================================
-        
-        // 1. Customer ගේ ෆෝන් නම්බර් එක Database එකෙන් ලබා ගැනීම
         $phone_query = "SELECT phone_number FROM job WHERE job_no = '$job_no'";
         $phone_res = $conn->query($phone_query);
         if ($phone_row = $phone_res->fetch_assoc()) {
-            
-            $raw_phone = $phone_row['phone_number'];
-            $phone = "94" . ltrim(ltrim($raw_phone, '94'), '0');
-            
-            // 2. මැසේජ් එකට බඩු ලිස්ට් එක සැකසීම
+            $phone = "94" . ltrim(ltrim($phone_row['phone_number'], '94'), '0');
             $items_txt = !empty($item_names_list) ? implode(', ', $item_names_list) : "Service Charge Only";
-            
-            $sms_msg = "Multi9 Invoice: #" . $inv_no . "\n" .
-                       "Items: " . $items_txt . "\n" .
-                       "Total: Rs." . number_format($g_total, 2) . "\n" .
-                       "Thank you!";
+            $sms_msg = "Multi9 Invoice: #" . $inv_no . "\nItems: " . $items_txt . "\nTotal: Rs." . number_format($g_total, 2) . "\nStatus: " . $pay_status . "\nThank you!";
 
-            // 3. API හරහා SMS එක යැවීම
             $api_key = "378|Ny4YLhCMaTosGeaTZhiaWt3v7kMSd4woZZdTefLq";
-            $sender_id = "SMSAPI Demo"; 
+            $sender_id = "SMSAPI"; 
             $url = "https://dashboard.smsapi.lk/api/v3/sms/send";
-
-            $data = array(
-                'recipient' => $phone,
-                'sender_id' => $sender_id,
-                'message'   => $sms_msg
-            );
+            $data = array('recipient' => $phone, 'sender_id' => $sender_id, 'message' => $sms_msg);
 
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                "Authorization: Bearer " . $api_key,
-                "Content-Type: application/json",
-                "Accept: application/json"
-            ));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: Bearer " . $api_key, "Content-Type: application/json"));
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-            curl_exec($ch); // මැසේජ් එක යනවා
+            curl_exec($ch);
             curl_close($ch);
         }
-        // ==========================================
-
     } catch (Exception $e) {
         $conn->rollback();
         die("Error: " . $e->getMessage());
@@ -129,7 +116,6 @@ if (isset($_POST['save_invoice'])) {
 
 $stock_res = $conn->query("SELECT item_code, item_name, unit_price FROM stock WHERE quantity > 0");
 $stock_items = $stock_res->fetch_all(MYSQLI_ASSOC);
-
 $job_no_display = $_GET['job_no'] ?? ($_POST['job_no'] ?? 'N/A');
 $inv_res = $conn->query("SELECT MAX(invoice_no) AS last_id FROM invoice");
 $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id']) ? $inv_row['last_id'] + 1 : 1;
@@ -141,21 +127,19 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
     <meta charset="UTF-8">
     <title>Invoice - Multi9 Repair</title>
     <style>
-        /* CSS styles මෙතැන තබා ගන්න... */
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 0; padding-top: 100px; }
-        .invoice-box { max-width: 900px; margin: 20px auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e1e8e5; }
-        .header { text-align: center; border-bottom: 3px solid #043f2e; padding-bottom: 20px; margin-bottom: 30px; }
-        .header h1 { margin: 0; color: #043f2e; letter-spacing: 2px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 100px 0; }
+        .invoice-box { max-width: 900px; margin: 20px auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .header { text-align: center; border-bottom: 3px solid #043f2e; padding-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; margin-top: 25px; }
-        th { background: #065f46; color: white; padding: 15px; text-align: left; font-size: 14px; text-transform: uppercase; }
-        td { border-bottom: 1px solid #f1f1f1; padding: 15px; text-align: left; color: #333; }
-        .add-item-box { background: #e8f5e9; padding: 20px; border-radius: 8px; margin-bottom: 25px; display: flex; gap: 15px; align-items: center; }
-        .total-section { text-align: right; margin-top: 30px; padding: 20px; background: #fdfdfd; border: 1px solid #eee; border-radius: 8px; }
-        .grand-total-h2 { color: #065f46; font-size: 28px; margin-top: 15px; border-top: 2px solid #065f46; display: inline-block; padding-top: 10px; }
-        .btn { padding: 15px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; transition: 0.3s; }
-        .btn-save { background: #065f46; color: white; margin-bottom: 10px; }
+        th { background: #065f46; color: white; padding: 15px; }
+        td { border-bottom: 1px solid #f1f1f1; padding: 15px; }
+        .total-section { text-align: right; margin-top: 30px; padding: 20px; background: #fdfdfd; border-radius: 8px; border: 1px solid #eee; }
+        .btn { padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 10px; }
+        .btn-save { background: #065f46; color: white; }
         .btn-print { background: #3498db; color: white; }
-        @media print { .no-print, .add-item-box { display: none !important; } body { padding-top: 0; background: white; } .invoice-box { box-shadow: none; border: none; padding: 0; width: 100%; } }
+        .btn-pay { background: #e67e22; color: white; }
+        .add-item-box { background: #e8f5e9; padding: 20px; border-radius: 8px; display: flex; gap: 10px; }
+        @media print { .no-print { display: none !important; } }
     </style>
 </head>
 <body>
@@ -167,7 +151,7 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
         <p>Job No: <strong><?= htmlspecialchars($job_no_display) ?></strong> | Date: <?= date("Y-m-d") ?></p>
     </div>
 
-    <form method="POST" id="invoiceForm">
+    <form method="POST">
         <input type="hidden" name="invoice_no" value="<?= $invoice_saved ? $_POST['invoice_no'] : $next_invoice_no ?>">
         <input type="hidden" name="job_no" value="<?= $job_no_display ?>">
         <input type="hidden" name="parts_total" id="p_total_val" value="<?= $invoice_saved ? $_POST['parts_total'] : '0' ?>">
@@ -176,7 +160,7 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
 
         <?php if (!$invoice_saved): ?>
         <div class="add-item-box no-print">
-            <select id="itemSelect" style="flex:3;">
+            <select id="itemSelect" style="flex:3; padding:10px;">
                 <option value="">-- Select Parts --</option>
                 <?php foreach($stock_items as $i): ?>
                     <option value="<?= $i['item_code'] ?>" data-name="<?= $i['item_name'] ?>" data-price="<?= $i['unit_price'] ?>">
@@ -184,8 +168,8 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
                     </option>
                 <?php endforeach; ?>
             </select>
-            <input type="number" id="qty" value="1" min="1" style="flex:0.5;">
-            <button type="button" onclick="addItem()" style="flex:1; background:#2ecc71; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; height:45px;">+ ADD ITEM</button>
+            <input type="number" id="qty" value="1" min="1" style="width:60px; padding:10px;">
+            <button type="button" onclick="addItem()" style="flex:1; background:#2ecc71; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">+ ADD</button>
         </div>
         <?php endif; ?>
 
@@ -214,29 +198,43 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
 
         <div class="total-section">
             <p>Parts Total: <strong>Rs. <span id="p_disp"><?= $invoice_saved ? number_format($_POST['parts_total'], 2) : '0.00' ?></span></strong></p>
-            
             <p>Service Charge: 
                 <?php if(!$invoice_saved): ?>
-                    <input type="number" name="service_charge" id="s_charge" value="0" step="0.01" oninput="calcTotal()" style="text-align: right; padding: 8px; width: 120px; border: 1px solid #ddd; border-radius: 4px;">
+                    <input type="number" name="service_charge" id="s_charge" value="0" step="0.01" oninput="calcTotal()" style="text-align: right; padding: 5px; width: 100px;">
                 <?php else: ?>
-                    <strong id="s_charge_display">Rs. <?= number_format($_POST['service_charge'], 2) ?></strong>
-                    <input type="hidden" id="s_charge" value="<?= $_POST['service_charge'] ?>">
+                    <strong>Rs. <?= number_format($_POST['service_charge'], 2) ?></strong>
+                <?php endif; ?>
+            </p>
+            <?php if($delay_fee > 0): ?>
+                <p style="color: red;">Late Collection Fee (Rent): Rs. <?= number_format($delay_fee, 2) ?></p>
+            <?php endif; ?>
+
+            <p>Payment Status: 
+                <?php if(!$invoice_saved): ?>
+                    <select name="payment_status" style="padding: 5px;">
+                        <option value="Paid">Paid (Cash Received)</option>
+                        <option value="Pending">Pending (Not Paid)</option>
+                    </select>
+                <?php else: ?>
+                    <strong id="currentStatus" style="color: <?= $_POST['payment_status'] == 'Paid' ? 'green' : 'orange' ?>;"><?= $_POST['payment_status'] ?></strong>
                 <?php endif; ?>
             </p>
 
-            <?php if($delay_fee > 0): ?>
-            <p style="color: #d32f2f; font-weight: bold;">Late Collection Fee (Rent): Rs. <?= number_format($delay_fee, 2) ?></p>
-            <?php endif; ?>
-
-            <div class="grand-total-h2">Grand Total: Rs. <span id="g_disp"><?= $invoice_saved ? number_format($_POST['grand_total'], 2) : '0.00' ?></span></div>
+            <div class="grand-total-h2" style="font-size:24px; color:#065f46; border-top:2px solid #065f46; margin-top:10px;">
+                Grand Total: Rs. <span id="g_disp"><?= $invoice_saved ? number_format($_POST['grand_total'], 2) : '0.00' ?></span>
+            </div>
         </div>
 
-        <div style="margin-top:30px;">
+        <div class="no-print">
             <?php if (!$invoice_saved): ?>
-                <button type="submit" name="save_invoice" class="btn btn-save no-print">💾 SAVE & COMPLETE INVOICE</button>
+                <button type="submit" name="save_invoice" class="btn btn-save">💾 SAVE INVOICE</button>
             <?php else: ?>
-                <button type="button" onclick="window.print()" class="btn btn-print no-print">🖨️ PRINT INVOICE</button>
-                <a href="job_list.php" class="back-link no-print">← Back to Order Page</a>
+                <?php if ($_POST['payment_status'] == 'Pending'): ?>
+                    <button type="button" onclick="markAsPaidAndPrint('<?= $_POST['invoice_no'] ?>')" class="btn btn-pay">💰 PAY & PRINT</button>
+                <?php else: ?>
+                    <button type="button" onclick="window.print()" class="btn btn-print">🖨️ PRINT INVOICE</button>
+                <?php endif; ?>
+                <a href="invoice_list.php" style="display:block; text-align:center; margin-top:10px; color:#666;">← Back to List</a>
             <?php endif; ?>
         </div>
     </form>
@@ -245,50 +243,52 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
 <script>
 window.onload = function() { calcTotal(); };
 
+// --- නව එකතු කිරීම: AJAX මගින් Status එක Update කිරීමේ Function එක ---
+function markAsPaidAndPrint(invNo) {
+    if (confirm("ඔබට මෙම බිල Paid ලෙස සටහන් කර Print කිරීමට අවශ්‍යද?")) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "update_payment_status.php", true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                if (this.responseText.trim() === "success") {
+                    document.getElementById('currentStatus').innerText = "Paid";
+                    document.getElementById('currentStatus').style.color = "green";
+                    window.print();
+                } else {
+                    alert("Error: " + this.responseText);
+                }
+            }
+        };
+        xhr.send("invoice_no=" + invNo + "&status=Paid");
+    }
+}
+// ------------------------------------------------------------------
+
 function addItem() {
     const sel = document.getElementById('itemSelect');
     const opt = sel.options[sel.selectedIndex];
-    if(!opt.value) return alert('කරුණාකර භාණ්ඩයක් තෝරන්න!');
-    
+    if(!opt.value) return alert('Select an item!');
     const qty = document.getElementById('qty').value;
     const price = parseFloat(opt.dataset.price);
     const sub = price * qty;
-    
-    const row = `<tr>
-        <td>${opt.dataset.name} 
-            <input type="hidden" name="item_names[]" value="${opt.dataset.name}">
-            <input type="hidden" name="item_codes[]" value="${opt.value}">
-            <input type="hidden" name="item_prices[]" value="${price}">
-            <input type="hidden" name="item_qtys[]" value="${qty}">
-        </td>
-        <td>${price.toFixed(2)}</td>
-        <td>${qty}</td>
-        <td style="text-align: right;">${sub.toFixed(2)}</td>
-    </tr>`;
-    
+    const row = `<tr><td>${opt.dataset.name}<input type="hidden" name="item_names[]" value="${opt.dataset.name}"><input type="hidden" name="item_codes[]" value="${opt.value}"><input type="hidden" name="item_prices[]" value="${price}"><input type="hidden" name="item_qtys[]" value="${qty}"></td><td>${price.toFixed(2)}</td><td>${qty}</td><td style="text-align:right;">${sub.toFixed(2)}</td></tr>`;
     document.querySelector('#billTable tbody').innerHTML += row;
     calcTotal();
     sel.selectedIndex = 0;
 }
-
 function calcTotal() {
     let pTotal = 0;
     document.querySelectorAll('#billTable tbody tr').forEach(row => {
-        const rowTotalText = row.cells[3].innerText.replace(/,/g, '');
-        const rowTotal = parseFloat(rowTotalText);
+        const rowTotal = parseFloat(row.cells[3].innerText.replace(/,/g, ''));
         if(!isNaN(rowTotal)) pTotal += rowTotal;
     });
-    
     document.getElementById('p_disp').innerText = pTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
     document.getElementById('p_total_val').value = pTotal;
-    
-    const sChargeInput = document.getElementById('s_charge');
-    const sCharge = sChargeInput ? parseFloat(sChargeInput.value || 0) : 0;
+    const sCharge = parseFloat(document.getElementById('s_charge')?.value || 0);
     const dFee = parseFloat(document.getElementById('delay_fee_val').value || 0);
-    
     const gTotal = pTotal + sCharge + dFee;
-    
-    document.getElementById('g_disp').innerText = gTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('g_disp').innerText = gTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
     document.getElementById('g_total_val').value = gTotal;
 }
 </script>
