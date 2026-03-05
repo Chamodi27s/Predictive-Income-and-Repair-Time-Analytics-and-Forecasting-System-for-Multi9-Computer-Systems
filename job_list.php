@@ -26,25 +26,16 @@ $sql = "SELECT j.job_no, j.job_date, t.name as technician_name, c.customer_name,
         AND jd.device_status != 'Destroyed'"; 
 
 // Status Filter
-if ($filter_status != '') {
-    $sql .= " AND jd.device_status = '$filter_status'";
-}
+if ($filter_status != '') { $sql .= " AND jd.device_status = '$filter_status'"; }
 
 // --- කාලය අනුව Filter කිරීමේ Logic එක ---
-if ($date_filter == 'today') {
-    $sql .= " AND DATE(j.job_date) = CURDATE()";
-} elseif ($date_filter == '2weeks') {
-    $sql .= " AND j.job_date >= DATE_SUB(NOW(), INTERVAL 14 DAY)";
-} elseif ($date_filter == 'monthly') {
-    $sql .= " AND MONTH(j.job_date) = MONTH(NOW()) AND YEAR(j.job_date) = YEAR(NOW())";
-} elseif ($date_filter == 'yearly') {
-    $sql .= " AND YEAR(j.job_date) = YEAR(NOW())";
-}
+if ($date_filter == 'today') { $sql .= " AND DATE(j.job_date) = CURDATE()"; } 
+elseif ($date_filter == '2weeks') { $sql .= " AND j.job_date >= DATE_SUB(NOW(), INTERVAL 14 DAY)"; } 
+elseif ($date_filter == 'monthly') { $sql .= " AND MONTH(j.job_date) = MONTH(NOW()) AND YEAR(j.job_date) = YEAR(NOW())"; } 
+elseif ($date_filter == 'yearly') { $sql .= " AND YEAR(j.job_date) = YEAR(NOW())"; }
 
 // Search Logic
-if ($search != '') {
-    $sql .= " AND (j.job_no LIKE '%$search%' OR j.phone_number LIKE '%$search%' OR jd.issue_name LIKE '%$search%' OR c.customer_name LIKE '%$search%')";
-}
+if ($search != '') { $sql .= " AND (j.job_no LIKE '%$search%' OR j.phone_number LIKE '%$search%' OR jd.issue_name LIKE '%$search%' OR c.customer_name LIKE '%$search%')"; }
 
 $sql .= " ORDER BY jd.job_device_id DESC";
 $result = mysqli_query($conn, $sql);
@@ -58,7 +49,7 @@ $result = mysqli_query($conn, $sql);
     <title>Job Management - Multi9</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* Existing base styles kept for consistency */
+        /* All your original styles kept exactly as they were */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #2ecc71; --primary-hover: #27ae60; --primary-dark: #229954;
@@ -69,38 +60,18 @@ $result = mysqli_query($conn, $sql);
             --border: #e2e8f0; --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
             --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
-            padding: 120px 20px 40px 20px;
-            color: var(--text-main);
-        }
-
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); padding: 120px 20px 40px 20px; color: var(--text-main); }
         .page-container { max-width: 1200px; margin: 0 auto; }
-
-        .page-header {
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-            padding: 30px; border-radius: 20px; margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3);
-            color: white; text-align: center;
-            animation: fadeIn 0.8s ease-out;
-        }
-
+        .page-header { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); padding: 30px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3); color: white; text-align: center; animation: fadeIn 0.8s ease-out; }
         .badge { padding: 5px 12px; border-radius: 50px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .filter-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
         .filter-tag { padding: 10px 20px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 13px; transition: all 0.2s; color: white; }
         .active-tag { transform: scale(1.05); outline: 3px solid rgba(0,0,0,0.1); }
-
         .table-container { background: white; border-radius: 15px; box-shadow: var(--shadow-lg); overflow: hidden; }
         .status-table { width: 100%; border-collapse: collapse; }
         .status-table th { background: #f1f5f9; color: var(--text-muted); padding: 15px; font-size: 12px; text-align: center; }
         .status-table td { padding: 15px; border-bottom: 1px solid var(--border); text-align: center; }
-        
-        .inline-input {
-            width: 100%; border: 1px solid transparent; background: #f8fafc;
-            padding: 8px; border-radius: 6px; text-align: center; font-size: 14px;
-        }
+        .inline-input { width: 100%; border: 1px solid transparent; background: #f8fafc; padding: 8px; border-radius: 6px; text-align: center; font-size: 14px; }
         .inline-input.editing { border-color: var(--primary); background: white; box-shadow: 0 0 5px rgba(46,204,113,0.3); }
         .btn-loading { opacity: 0.5; pointer-events: none; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -187,33 +158,33 @@ $result = mysqli_query($conn, $sql);
                                 <option value="Cancel" <?= $row['device_status'] == 'Cancel' ? 'selected' : '' ?>>Cancel</option>
                             </select>
                             <?php if($delay_fee > 0): ?>
-                                <div class="rent-fee">💰 Rs. <?= $delay_fee ?></div>
+                                <div class="rent-fee" style="font-size:11px; color:var(--danger); font-weight:bold;">💰 Rs. <?= $delay_fee ?></div>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <div class="action-gap" style="display: flex; gap: 5px; justify-content: center;">
+                            <div style="display: flex; gap: 5px; justify-content: center;">
                                 <?php if($needs_sms_warning): ?>
-                                    <button onclick="sendDestroyWarning(<?= $id ?>)" class="btn-sms" style="background: var(--danger); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;">⚠️ WARNING</button>
+                                    <button onclick="sendDestroyWarning(<?= $id ?>)" style="background: var(--danger); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;">⚠️ WARNING</button>
                                 <?php else: ?>
-                                    <button onclick="manualSMS(<?= $id ?>)" class="btn-sms" style="background: var(--purple); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;">📱 SMS</button>
+                                    <button onclick="manualSMS(<?= $id ?>)" style="background: var(--purple); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;">📱 SMS</button>
                                 <?php endif; ?>
 
                                 <?php if($row['device_status'] == 'Completed'): ?>
                                     <?php if($is_destroy_ready): ?>
-                                        <a href="destroy_page.php?id=<?= $id ?>" class="btn-destroy" style="background: #000; color:white; padding:8px; border-radius:5px; text-decoration:none;">🗑️ Destroy</a>
+                                        <a href="destroy_page.php?id=<?= $id ?>" style="background: #000; color:white; padding:8px; border-radius:5px; text-decoration:none;">🗑️ Destroy</a>
                                     <?php else: ?>
-                                        <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&fee=<?= $delay_fee ?>" class="btn-bill" style="background: var(--orange); color:white; padding:8px; border-radius:5px; text-decoration:none;">📄 Bill</a>
+                                        <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&fee=<?= $delay_fee ?>" style="background: var(--orange); color:white; padding:8px; border-radius:5px; text-decoration:none;">📄 Bill</a>
                                     <?php endif; ?>
                                 <?php endif; ?>
 
-                                <button id="btn-edit-<?= $id ?>" onclick="toggleEdit(<?= $id ?>)" class="btn-edit" style="background: var(--blue); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;">✏️</button>
-                                <button onclick="deleteItem(<?= $id ?>)" class="btn-delete" style="background: #f8d7da; color: #721c24; border:none; padding:8px; border-radius:5px; cursor:pointer;">🗑️</button>
+                                <button id="btn-edit-<?= $id ?>" onclick="toggleEdit(<?= $id ?>)" style="background: var(--blue); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;">✏️</button>
+                                <button onclick="deleteItem(<?= $id ?>)" style="background: #f8d7da; color: #721c24; border:none; padding:8px; border-radius:5px; cursor:pointer;">🗑️</button>
                             </div>
                         </td>
                     </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="6" class="empty-state" style="padding: 50px; text-align: center;">No jobs found for the selected period.</td></tr>
+                    <tr><td colspan="6" style="padding: 50px; text-align: center;">No jobs found for the selected period.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -221,7 +192,8 @@ $result = mysqli_query($conn, $sql);
 </div>
 
 <script>
-// Logic Functions (Same as before)
+// --- මෙතන තිබුණු Path වැරදි මම හරිගැස්සුවා ---
+
 function updateStatusOnly(id) {
     const btn = document.getElementById('stat-' + id);
     btn.classList.add('btn-loading');
@@ -243,7 +215,9 @@ function toggleEdit(id) {
 
 function sendUpdate(id, dev, iss, stat, isStatusChange) {
     let params = `id=${id}&device_name=${encodeURIComponent(dev)}&issue_name=${encodeURIComponent(iss)}&device_status=${encodeURIComponent(stat)}`;
-    fetch('inline_update_api.php', {
+    
+    // වැදගත්: path එක නිවැරදි කළා
+    fetch('./inline_update_api.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: params
@@ -259,24 +233,34 @@ function sendUpdate(id, dev, iss, stat, isStatusChange) {
                 btn.innerHTML = "✏️"; btn.style.background = "var(--blue)";
                 document.getElementById('stat-' + id).classList.remove('btn-loading');
             }
-        } else { alert("Error updating record."); }
+        } else { alert("Error: " + data); }
     });
 }
 
 function manualSMS(id) {
     let statVal = document.getElementById('stat-' + id).value;
-    if(confirm("Send SMS notification to customer?")) {
-        fetch('send_sms_api.php', {
+    if(confirm("Send SMS notification?")) {
+        
+        // කිසිම ඉස්සරහ slash එකක් නැතුව file name එක විතරක් දෙන්න
+        let url = 'send_sms_api.php'; 
+        
+        fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `id=${id}&status=${statVal}`
-        }).then(res => res.text()).then(data => alert("Result: " + data));
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("File එක හම්බවුණේ නැහැ (404)");
+            return res.text();
+        })
+        .then(data => alert("Result: " + data))
+        .catch(err => alert("ERROR: " + err.message));
     }
 }
 
 function deleteItem(id) {
-    if(confirm("Are you sure you want to delete this device record?")) {
-        fetch('delete_device.php', {
+    if(confirm("Are you sure?")) {
+        fetch('./delete_device.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: "device_id=" + id
@@ -291,7 +275,7 @@ function deleteItem(id) {
 
 function sendDestroyWarning(id) {
     if(confirm("Device is over 1 year old. Send final disposal warning?")) {
-        fetch('send_destroy_sms_api.php', {
+        fetch('./send_destroy_sms_api.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `id=${id}`

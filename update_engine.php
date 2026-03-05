@@ -3,34 +3,61 @@ include 'db_config.php';
 
 if (isset($_POST['id']) && isset($_POST['data'])) {
     $id = $_POST['id'];
-    // JSON data එක array එකක් විදිහට decode කරගන්නවා
     $data = json_decode($_POST['data'], true);
 
     if (!$data) {
         die("Invalid JSON format");
     }
 
-    // Database updates පියවරෙන් පියවර සිදු කරමු
-
-    // 1. Customer table එක update කිරීම (customer_name සහ email)
+    // 1. Customer table එක update කිරීම
     $sql1 = "UPDATE customer SET customer_name = ?, email = ? WHERE phone_number = ?";
     $stmt1 = $conn->prepare($sql1);
     $stmt1->bind_param("sss", $data['customer_name'], $data['email'], $data['phone_number']);
     $stmt1->execute();
 
-    // 2. Job table එකේ status එක update කිරීම
-    $sql2 = "UPDATE job SET job_status = ? WHERE job_no = ?";
+    // 2. Job table එක update කිරීම (මෙහිදී estimated_cost එකද update වේ)
+    $sql2 = "UPDATE job SET job_status = ?, estimated_cost = ? WHERE job_no = ?";
     $stmt2 = $conn->prepare($sql2);
-    $stmt2->bind_param("ss", $data['job_status'], $id);
+    $stmt2->bind_param("sds", $data['job_status'], $data['estimated_cost'], $id);
     $stmt2->execute();
 
-    // 3. Job Device table එකේ issue එක සහ Diagnosis Category එක update කිරීම
-    // මෙහිදී අලුතින් issue_category එක update වීමට කේතය සකස් කර ඇත
+    // 3. Job Device table එක update කිරීම
     $sql3 = "UPDATE job_device SET issue_name = ?, issue_category = ? WHERE job_no = ?";
     $stmt3 = $conn->prepare($sql3);
     $stmt3->bind_param("sss", $data['issue_name'], $data['issue_category'], $id);
     
     if ($stmt3->execute()) {
+        // --- SMS Logic ආරම්භය ---
+        // Status එක 'Approved' නම් පමණක් SMS එක යවමු
+        if ($data['job_status'] === 'Approved') {
+            $api_key = "378|Ny4YLhCMaTosGeaTZhiaWt3v7kMSd4woZZdTefLq";
+            $phone = "94" . ltrim(ltrim($data['phone_number'], '94'), '0');
+            $cost = number_format($data['estimated_cost'], 2);
+            $issue = $data['issue_name'];
+            
+            $message = "Multi9 Repair: Your job #$id ($issue) is APPROVED. Estimated Cost: Rs.$cost. We will start the repair shortly. Thank you!";
+
+            $url = "https://dashboard.smsapi.lk/api/v3/sms/send";
+            $sms_data = array(
+                'recipient' => $phone,
+                'sender_id' => "SMSAPI ", // ඔයාගේ Sender ID එක මෙතනට දාන්න
+                'message' => $message
+            );
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                "Authorization: Bearer " . $api_key,
+                "Content-Type: application/json"
+            ));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($sms_data));
+            curl_exec($ch);
+            curl_close($ch);
+        }
+        // --- SMS Logic අවසානය ---
+
         echo "success";
     } else {
         echo "Error: " . $conn->error;
