@@ -2,7 +2,7 @@
 include 'db_config.php';
 include 'navbar.php';
 
-// ශ්‍රී ලංකාවේ වේලාව නිවැරදිව ලබා ගැනීමට (වේලාව සම්බන්ධ ගැටළු මගහරවා ගැනීමට)
+// ශ්‍රී ලංකාවේ වේලාව නිවැරදිව ලබා ගැනීමට
 date_default_timezone_set("Asia/Colombo");
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -16,8 +16,6 @@ $delay_fee = isset($_GET['fee']) ? floatval($_GET['fee']) : (isset($_POST['delay
 if (isset($_POST['save_invoice'])) {
     $inv_no = $_POST['invoice_no'];
     $job_no = $_POST['job_no'];
-    
-    // දිනය ලබා ගන්නා ආකාරය වඩාත් සුරක්ෂිත කර ඇත
     $inv_date = date("Y-m-d"); 
     
     $s_charge = floatval($_POST['service_charge']);
@@ -25,32 +23,36 @@ if (isset($_POST['save_invoice'])) {
     $g_total = floatval($_POST['grand_total']);
 
     $temp_items = [];
+    $item_names_list = []; // SMS එක සඳහා බඩු නම් ටික වෙනම තබා ගැනීමට
+    
     if (isset($_POST['item_codes'])) {
         foreach ($_POST['item_codes'] as $key => $code) {
+            $name = $_POST['item_names'][$key];
             $temp_items[] = [
                 'code'  => $code,
-                'name'  => $_POST['item_names'][$key],
+                'name'  => $name,
                 'price' => $_POST['item_prices'][$key],
                 'qty'   => $_POST['item_qtys'][$key],
                 'sub'   => floatval($_POST['item_prices'][$key]) * intval($_POST['item_qtys'][$key])
             ];
+            $item_names_list[] = $name; // SMS එකට නම එකතු කරයි
         }
     }
     $items_json = json_encode($temp_items);
 
     $conn->begin_transaction();
     try {
-        // SQL 1: Invoice table එකට දත්ත ඇතුළත් කිරීම (ssdddds -> sssddds ලෙස වෙනස් කර ඇත string දිනය සඳහා)
+        // SQL 1: Invoice table
         $sql1 = "INSERT INTO invoice (invoice_no, job_no, invoice_date, service_charge, parts_total, grand_total, items_json) 
                  VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt1 = $conn->prepare($sql1);
         $stmt1->bind_param("sssddds", $inv_no, $job_no, $inv_date, $s_charge, $p_total, $g_total, $items_json);
         $stmt1->execute();
 
-        // SQL 2: Job status එක වෙනස් කිරීම
+        // SQL 2: Job status update
         $conn->query("UPDATE job_device SET device_status = 'billed' WHERE job_no = '$job_no'");
 
-        // SQL 3: Stock අඩු කිරීම
+        // SQL 3: Stock update
         if (!empty($temp_items)) {
             foreach ($temp_items as $item) {
                 $code = $item['code'];
@@ -59,12 +61,11 @@ if (isset($_POST['save_invoice'])) {
             }
         }
 
-        // SQL 4: Cashbook එකට දත්ත ඇතුළත් කිරීම
+        // SQL 4: Cashbook update
         $balance_res = $conn->query("SELECT balance FROM cashbook ORDER BY cashid DESC LIMIT 1");
         $last_balance = ($balance_res->num_rows > 0) ? floatval($balance_res->fetch_assoc()['balance']) : 0;
         $new_balance = $last_balance + $g_total;
         
-        // Prepared statement එකක් භාවිතා කර cashbook එකට දින ඇතුළත් කිරීම වඩාත් සුරක්ෂිතයි
         $sql_cash = "INSERT INTO cashbook (date, invoice_no, income, balance) VALUES (?, ?, ?, ?)";
         $stmt_cash = $conn->prepare($sql_cash);
         $stmt_cash->bind_param("ssdd", $inv_date, $inv_no, $g_total, $new_balance);
@@ -73,6 +74,53 @@ if (isset($_POST['save_invoice'])) {
         $conn->commit();
         $invoice_saved = true;
         $saved_items = $temp_items;
+
+        // ==========================================
+        // AUTO SMS LOGIC (මෙතනයි අලුත් කොටස)
+        // ==========================================
+        
+        // 1. Customer ගේ ෆෝන් නම්බර් එක Database එකෙන් ලබා ගැනීම
+        $phone_query = "SELECT phone_number FROM job WHERE job_no = '$job_no'";
+        $phone_res = $conn->query($phone_query);
+        if ($phone_row = $phone_res->fetch_assoc()) {
+            
+            $raw_phone = $phone_row['phone_number'];
+            $phone = "94" . ltrim(ltrim($raw_phone, '94'), '0');
+            
+            // 2. මැසේජ් එකට බඩු ලිස්ට් එක සැකසීම
+            $items_txt = !empty($item_names_list) ? implode(', ', $item_names_list) : "Service Charge Only";
+            
+            $sms_msg = "Multi9 Invoice: #" . $inv_no . "\n" .
+                       "Items: " . $items_txt . "\n" .
+                       "Total: Rs." . number_format($g_total, 2) . "\n" .
+                       "Thank you!";
+
+            // 3. API හරහා SMS එක යැවීම
+            $api_key = "378|Ny4YLhCMaTosGeaTZhiaWt3v7kMSd4woZZdTefLq";
+            $sender_id = "SMSAPI Demo"; 
+            $url = "https://dashboard.smsapi.lk/api/v3/sms/send";
+
+            $data = array(
+                'recipient' => $phone,
+                'sender_id' => $sender_id,
+                'message'   => $sms_msg
+            );
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                "Authorization: Bearer " . $api_key,
+                "Content-Type: application/json",
+                "Accept: application/json"
+            ));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            curl_exec($ch); // මැසේජ් එක යනවා
+            curl_close($ch);
+        }
+        // ==========================================
+
     } catch (Exception $e) {
         $conn->rollback();
         die("Error: " . $e->getMessage());
@@ -93,113 +141,21 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
     <meta charset="UTF-8">
     <title>Invoice - Multi9 Repair</title>
     <style>
-        /* මූලික සැකසුම් */
-        body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            background: #f4f7f6; 
-            margin: 0;
-            padding: 0;
-            padding-top: 100px; /* Navbar එක සඳහා ඉඩ තැබීම */
-        }
-
-        .invoice-box { 
-            max-width: 900px; 
-            margin: 20px auto; 
-            background: #fff; 
-            padding: 40px; 
-            border-radius: 12px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-            border: 1px solid #e1e8e5;
-        }
-
-        .header { 
-            text-align: center; 
-            border-bottom: 3px solid #043f2e; 
-            padding-bottom: 20px; 
-            margin-bottom: 30px; 
-        }
+        /* CSS styles මෙතැන තබා ගන්න... */
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 0; padding-top: 100px; }
+        .invoice-box { max-width: 900px; margin: 20px auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e1e8e5; }
+        .header { text-align: center; border-bottom: 3px solid #043f2e; padding-bottom: 20px; margin-bottom: 30px; }
         .header h1 { margin: 0; color: #043f2e; letter-spacing: 2px; }
-        .header p { margin: 5px 0; color: #666; font-size: 14px; }
-
         table { width: 100%; border-collapse: collapse; margin-top: 25px; }
-        th { 
-            background: #065f46; 
-            color: white; 
-            padding: 15px; 
-            text-align: left; 
-            font-size: 14px;
-            text-transform: uppercase;
-        }
-        td { 
-            border-bottom: 1px solid #f1f1f1; 
-            padding: 15px; 
-            text-align: left; 
-            color: #333;
-        }
-        tr:nth-child(even) { background-color: #fcfdfc; }
-
-        .add-item-box {
-            background: #e8f5e9; 
-            padding: 20px; 
-            border-radius: 8px; 
-            margin-bottom: 25px; 
-            display: flex; 
-            gap: 15px;
-            align-items: center;
-        }
-        .add-item-box select, .add-item-box input {
-            padding: 12px;
-            border: 1px solid #c8d6cf;
-            border-radius: 6px;
-            outline: none;
-        }
-
-        .total-section { 
-            text-align: right; 
-            margin-top: 30px; 
-            padding: 20px; 
-            background: #fdfdfd; 
-            border: 1px solid #eee;
-            border-radius: 8px; 
-        }
-        .total-section p { margin: 8px 0; font-size: 15px; color: #444; }
-        .grand-total-h2 { 
-            color: #065f46; 
-            font-size: 28px; 
-            margin-top: 15px;
-            border-top: 2px solid #065f46;
-            display: inline-block;
-            padding-top: 10px;
-        }
-
-        .btn { 
-            padding: 15px 25px; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            width: 100%; 
-            font-size: 16px;
-            transition: 0.3s;
-        }
+        th { background: #065f46; color: white; padding: 15px; text-align: left; font-size: 14px; text-transform: uppercase; }
+        td { border-bottom: 1px solid #f1f1f1; padding: 15px; text-align: left; color: #333; }
+        .add-item-box { background: #e8f5e9; padding: 20px; border-radius: 8px; margin-bottom: 25px; display: flex; gap: 15px; align-items: center; }
+        .total-section { text-align: right; margin-top: 30px; padding: 20px; background: #fdfdfd; border: 1px solid #eee; border-radius: 8px; }
+        .grand-total-h2 { color: #065f46; font-size: 28px; margin-top: 15px; border-top: 2px solid #065f46; display: inline-block; padding-top: 10px; }
+        .btn { padding: 15px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; transition: 0.3s; }
         .btn-save { background: #065f46; color: white; margin-bottom: 10px; }
-        .btn-save:hover { background: #043f2e; }
         .btn-print { background: #3498db; color: white; }
-        
-        .back-link {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        @media print { 
-            .no-print, .add-item-box { display: none !important; } 
-            body { padding-top: 0; background: white; }
-            .invoice-box { box-shadow: none; border: none; padding: 0; width: 100%; }
-        }
+        @media print { .no-print, .add-item-box { display: none !important; } body { padding-top: 0; background: white; } .invoice-box { box-shadow: none; border: none; padding: 0; width: 100%; } }
     </style>
 </head>
 <body>
@@ -287,9 +243,7 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
 </div>
 
 <script>
-window.onload = function() {
-    calcTotal(); 
-};
+window.onload = function() { calcTotal(); };
 
 function addItem() {
     const sel = document.getElementById('itemSelect');

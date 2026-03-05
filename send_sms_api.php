@@ -3,7 +3,7 @@ include 'db_config.php';
 
 // මේ විස්තර දෙක ඔයාගේ SMSAPI Dashboard එකේ තියෙන විදිහටම තියෙන්න ඕනේ
 $api_key = "378|Ny4YLhCMaTosGeaTZhiaWt3v7kMSd4woZZdTefLq";
-$sender_id = "SMSAPI Demo"; // Dashboard එකේ Approved නම "SMSAPI Demo" නම් ඒකම දාන්න
+$sender_id = "SMSAPI Demo"; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id = isset($_POST['id']) ? mysqli_real_escape_string($conn, $_POST['id']) : '';
@@ -20,7 +20,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $job_data = mysqli_fetch_assoc($res);
         
         if ($job_data) {
-            // Phone number එක 947XXXXXXXX විදිහට හැදීම
             $phone = "94" . ltrim(ltrim($job_data['phone_number'], '94'), '0');
             $msg = "Multi9 Update: Your device " . $job_data['device_name'] . " (#" . $job_data['job_no'] . ") is now " . $status . ".";
 
@@ -35,10 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            
-            // --- මේ පේළිය අනිවාර්යයි (Localhost එකේ SSL අවුල් මගහරින්න) ---
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
-            
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
                 "Authorization: Bearer " . $api_key,
                 "Content-Type: application/json",
@@ -47,17 +43,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
             $response = curl_exec($ch);
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE); // HTTP Status එක ලබා ගැනීම
             $err = curl_error($ch);
             curl_close($ch);
 
+            // --- මෙතනයි වෙනස තියෙන්නේ ---
             if ($err) {
-                echo "CURL Error: " . $err;
+                echo "❌ Connection Error: " . $err;
             } else {
-                // API එකෙන් එන නියම Response එක පෙන්වනවා
-                echo $response; 
+                // HTTP Code එක 200 නම් සාර්ථකයි
+                if ($http_code == 200) {
+                    echo "✅ SMS Sent Successfully!";
+                } else {
+                    echo "⚠️ SMS Failed. Status Code: " . $http_code;
+                }
             }
         } else {
-            echo "Error: Job data not found in database.";
+            echo "Error: Job data not found.";
         }
     } else {
         echo "Error: Missing ID.";
