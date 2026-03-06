@@ -96,4 +96,5 @@ $sql = "SELECT j.job_no, c.customer_name, jd.device_name, jd.issue_name, j.job_d
 </div>
 
 </body>
+<?php include 'chatbot.php'; ?>
 </html>

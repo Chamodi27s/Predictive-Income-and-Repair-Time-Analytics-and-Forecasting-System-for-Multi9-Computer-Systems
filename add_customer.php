@@ -389,4 +389,5 @@ $total_pages = ceil($total_records / $records_per_page);
 </div>
 
 </body>
+<?php include 'chatbot.php'; ?>
 </html>

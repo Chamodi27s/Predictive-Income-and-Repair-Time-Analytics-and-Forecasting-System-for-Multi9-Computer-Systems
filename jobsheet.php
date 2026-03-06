@@ -206,4 +206,5 @@ window.onafterprint = function() {
 </script>
 
 </body>
+<?php include 'chatbot.php'; ?>
 </html>

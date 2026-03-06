@@ -225,4 +225,5 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
     </form>
 </div>
 </body>
+<?php include 'chatbot.php'; ?>
 </html>

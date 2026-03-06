@@ -193,4 +193,5 @@ function showToast(text) {
 }
 </script>
 </body>
+<?php include 'chatbot.php'; ?>
 </html>

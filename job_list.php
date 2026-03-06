@@ -296,4 +296,5 @@ function deleteItem(id) {
 }
 </script>
 </body>
+<?php include 'chatbot.php'; ?>
 </html>

@@ -120,4 +120,5 @@ input[type="submit"]:hover {
 </div>
 
 </body>
+<?php include 'chatbot.php'; ?>
 </html>

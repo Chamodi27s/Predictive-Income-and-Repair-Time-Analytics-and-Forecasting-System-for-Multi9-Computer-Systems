@@ -332,4 +332,5 @@ function markAsPaidAndPrint(invNo) {
 window.onload = function() { calcTotal(); };
 </script>
 </body>
+<?php include 'chatbot.php'; ?>
 </html>
