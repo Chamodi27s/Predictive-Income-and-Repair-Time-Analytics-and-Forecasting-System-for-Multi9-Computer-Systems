@@ -8,7 +8,96 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
 ?>
 
 <style>
-    /* Navbar එකේ මූලික සැකසුම් */
+    /* --- CHATBOT CSS START --- */
+    .chat-trigger {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        background: #0f766e;
+        color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(15, 118, 110, 0.4);
+        z-index: 10000;
+        transition: transform 0.3s ease;
+        font-family: sans-serif;
+    }
+    .chat-trigger:hover { transform: scale(1.1); }
+
+    .chat-box {
+        display: none;
+        width: 360px;
+        height: 520px;
+        position: fixed;
+        bottom: 100px; 
+        right: 25px;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        flex-direction: column;
+        z-index: 10001; /* Navbar ekata wada uda */
+        overflow: hidden;
+        font-family: 'Poppins', sans-serif;
+        border: 1px solid #e5e7eb;
+    }
+
+    .chat-header {
+        background: #0f766e;
+        color: #fff;
+        padding: 16px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .chat-body {
+        flex: 1;
+        padding: 12px;
+        overflow-y: auto;
+        background: #f9fafb;
+    }
+    .msg {
+        padding: 10px 14px;
+        border-radius: 14px;
+        margin-bottom: 8px;
+        font-size: 14px;
+        max-width: 80%;
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
+    .msg.user { background: #dcfce7; margin-left: auto; color: #064e3b; }
+    .msg.bot { background: #e5e7eb; color: #1f2937; }
+
+    .chat-input {
+        display: flex;
+        border-top: 1px solid #eee;
+        padding: 10px;
+        background: #fff;
+    }
+    .chat-input input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        outline: none;
+    }
+    .chat-input button {
+        background: #0f766e;
+        color: #fff;
+        border: none;
+        padding: 0 15px;
+        margin-left: 8px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    /* --- NAVBAR CSS START --- */
     .topbar {
         position: fixed;
         top: 0;
@@ -27,9 +116,9 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
 
     @media print {
         .no-print { display: none !important; }
+        .chat-trigger, .chat-box { display: none !important; } /* Print karaddi bot hide wenna */
     }
 
-    /* Logo සහ Brand කොටස */
     .brand-section {
         display: flex;
         align-items: center;
@@ -40,16 +129,14 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
     .brand strong { font-size: 22px; letter-spacing: 1.5px; color: #ffffff; line-height: 1.2; }
     .brand small { font-size: 10px; opacity: 0.8; color: #d1fae5; }
 
-    /* Hamburger Menu Icon */
     .mobile-menu-btn {
-        display: none; /* Desktop එකේදී සඟවයි */
+        display: none;
         font-size: 26px;
         cursor: pointer;
         color: white;
         padding: 5px;
     }
 
-    /* Desktop Menu */
     .menu {
         display: flex;
         gap: 12px; /* මෙනු අයිතම වැඩි නිසා පොඩ්ඩක් පරතරය අඩු කළා */
@@ -67,7 +154,6 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
     }
 
     .menu a.active { color: #ffffff; }
-
     .menu a.active::after {
         content: "";
         position: absolute;
@@ -78,7 +164,6 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         background: #22c55e;
     }
 
-    /* User Profile Section */
     .user-section {
         display: flex;
         align-items: center;
@@ -90,7 +175,6 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         transition: 0.3s;
         background: rgba(255, 255, 255, 0.05);
     }
-
     .user-section:hover { background: rgba(255, 255, 255, 0.15); }
 
     .profile-card {
@@ -119,7 +203,6 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         overflow: hidden;
         z-index: 10000;
     }
-
     .profile-dropdown.active { display: block; animation: slideDown 0.2s ease-out; }
 
     @keyframes slideDown {
@@ -135,7 +218,6 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         font-size: 14px;
         border-bottom: 1px solid #f1f1f1;
     }
-
     .profile-dropdown a:hover { background: #f0fdf4; color: #065f46; }
 
     /* --- RESPONSIVE MOBILE CSS --- */
@@ -157,15 +239,12 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
             gap: 0;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
-
         .menu.show { display: flex; }
-
         .menu a {
             padding: 15px 25px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
             width: 100%;
         }
-
         .menu a.active { background: rgba(34, 197, 94, 0.2); border-left: 4px solid #22c55e; }
         .menu a.active::after { display: none; }
 
@@ -212,7 +291,64 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
     </div>
 </div>
 
+<div class="chat-trigger" onclick="toggleChat()" title="Open Assistant">🤖</div>
+
+<div class="chat-box" id="globalChatBox">
+    <div class="chat-header">
+        <span>🤖 System Assistant</span>
+        <span style="cursor:pointer; font-size: 20px;" onclick="toggleChat()">×</span>
+    </div>
+
+    <div class="chat-body" id="chatBody">
+        <div class="msg bot">
+            Hello 👋 I can help you with system tasks.
+        </div>
+    </div>
+
+    <div class="chat-input">
+        <input type="text" id="chatMsg" placeholder="Type here..." onkeypress="if(event.key === 'Enter') sendChat()">
+        <button onclick="sendChat()">Send</button>
+    </div>
+</div>
+
 <script>
+    // --- CHATBOT FUNCTIONS ---
+    function toggleChat() {
+        const chat = document.getElementById("globalChatBox");
+        if (chat.style.display === "none" || chat.style.display === "") {
+            chat.style.display = "flex";
+        } else {
+            chat.style.display = "none";
+        }
+    }
+
+    function sendChat(){
+        let msgInput = document.getElementById("chatMsg");
+        let msg = msgInput.value.trim();
+        if(msg === "") return;
+
+        let chatBody = document.getElementById("chatBody");
+        
+        // Show User Message
+        chatBody.innerHTML += `<div class="msg user">${msg}</div>`;
+        msgInput.value = "";
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        // Send to PHP API
+        fetch("chatbot_api.php", {
+            method: "POST",
+            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+            body: "message=" + encodeURIComponent(msg)
+        })
+        .then(res => res.text())
+        .then(reply => {
+            chatBody.innerHTML += `<div class="msg bot">${reply}</div>`;
+            chatBody.scrollTop = chatBody.scrollHeight;
+        })
+        .catch(err => console.error(err));
+    }
+
+    // --- NAVBAR FUNCTIONS ---
     document.addEventListener('DOMContentLoaded', function() {
         var mobileBtn = document.getElementById('mobileMenuBtn');
         var navMenu = document.getElementById('navMenu');
@@ -233,7 +369,7 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
             navMenu.classList.remove('show');
         });
 
-        // පිටත ක්ලික් කළ විට වසන්න
+        // Close on click outside
         document.addEventListener('click', function() {
             navMenu.classList.remove('show');
             userDropdown.classList.remove('active');
