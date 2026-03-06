@@ -1,82 +1,26 @@
 <?php
-// 1. Errors පෙන්වන්න (Development කාලය තුළ පමණක් තබන්න)
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 include 'db_config.php';
 include 'navbar.php';
 
-// 2. Live Server එකේ GROUP BY ප්‍රශ්න විසඳීමට මෙය එක් කරන්න
-$conn->query("SET sql_mode=''"); 
-
-// ශ්‍රී ලංකාවේ වේලාව
 date_default_timezone_set("Asia/Colombo");
-
-// ... මෙතැනින් පහළට ඔයාගේ ඉතුරු කෝඩ් එක දිගටම යන්න ...
 $currentMonth = date('n'); 
 $currentYear = date('Y');
-// ...
 
-
-
-
-// 1. Total Repairs ලබා ගැනීම
-$totalRepairsQuery = "SELECT COUNT(*) as total FROM job_device";
-$totalRepairsResult = $conn->query($totalRepairsQuery);
-$totalRepairs = $totalRepairsResult->fetch_assoc()['total'] ?? 0;
-
-// 2. Monthly Revenue ලබා ගැනීම (වත්මන් මාසයට අදාළව - 0000 දින මගහරිමින්)
-$revenueQuery = "SELECT COALESCE(SUM(grand_total), 0) as total_rev 
-                FROM invoice 
-                WHERE MONTH(invoice_date) = $currentMonth 
-                AND YEAR(invoice_date) = $currentYear
-                AND invoice_date != '0000-00-00'";
-$revenueResult = $conn->query($revenueQuery);
-$monthlyRevenue = $revenueResult->fetch_assoc()['total_rev'] ?? 0;
-
-// 3. Stock Analytics
-$stockSummaryQuery = "SELECT SUM(quantity) as total_qty, SUM(quantity * unit_price) as total_value FROM stock";
-$stockSummaryResult = $conn->query($stockSummaryQuery);
-$stockDataSummary = $stockSummaryResult->fetch_assoc();
+// Queries & Logics
+$totalRepairs = $conn->query("SELECT COUNT(*) as total FROM job_device")->fetch_assoc()['total'] ?? 0;
+$monthlyRevenue = $conn->query("SELECT COALESCE(SUM(grand_total), 0) as total_rev FROM invoice WHERE MONTH(invoice_date) = $currentMonth AND YEAR(invoice_date) = $currentYear AND invoice_date != '0000-00-00'")->fetch_assoc()['total_rev'] ?? 0;
+$stockDataSummary = $conn->query("SELECT SUM(quantity) as total_qty, SUM(quantity * unit_price) as total_value FROM stock")->fetch_assoc();
 $totalStockQty = $stockDataSummary['total_qty'] ?? 0;
 $totalStockValue = $stockDataSummary['total_value'] ?? 0;
 
-// 4. Device Types Breakdown
-$deviceQuery = "SELECT device_name as item_category, COUNT(*) as count FROM job_device GROUP BY device_name ORDER BY count DESC LIMIT 5";
-$deviceResult = $conn->query($deviceQuery);
-$deviceData = [];
-$totalDevices = 0;
-while($row = $deviceResult->fetch_assoc()) {
-    $deviceData[] = $row;
-    $totalDevices += $row['count'];
-}
+$deviceResult = $conn->query("SELECT device_name as item_category, COUNT(*) as count FROM job_device GROUP BY device_name ORDER BY count DESC LIMIT 5");
+$deviceData = []; $totalDevices = 0;
+while($row = $deviceResult->fetch_assoc()) { $deviceData[] = $row; $totalDevices += $row['count']; }
 
-// 5. මාසික ආදායම් ප්‍රස්ථාරය (නිවැරදි කරන ලද SQL Logic එක)
-// DATE_FORMAT භාවිතා කර මාසය ලබා ගැනීම සහ 0000-00-00 දින ඉවත් කිරීම මෙහි සිදු කර ඇත
-$monthlyRevQuery = "SELECT 
-                        DATE_FORMAT(invoice_date, '%M') as month_name, 
-                        SUM(grand_total) as total 
-                    FROM invoice 
-                    WHERE invoice_date != '0000-00-00' AND invoice_date IS NOT NULL
-                    GROUP BY YEAR(invoice_date), MONTH(invoice_date) 
-                    ORDER BY YEAR(invoice_date) ASC, MONTH(invoice_date) ASC";
-$monthlyRevResult = $conn->query($monthlyRevQuery);
-
-$months = [];
-$revenues = [];
-
-if($monthlyRevResult && $monthlyRevResult->num_rows > 0) {
-    while($row = $monthlyRevResult->fetch_assoc()) {
-        $months[] = $row['month_name'];
-        $revenues[] = (float)$row['total'];
-    }
-}
-
-// දත්ත කිසිවක් නොමැති නම් පමණක් වත්මන් මාසය පෙන්වීමට
-if(empty($months)) {
-    $months = [date('F')];
-    $revenues = [0];
-}
+$monthlyRevResult = $conn->query("SELECT DATE_FORMAT(invoice_date, '%M') as month_name, SUM(grand_total) as total FROM invoice WHERE invoice_date != '0000-00-00' AND invoice_date IS NOT NULL GROUP BY YEAR(invoice_date), MONTH(invoice_date) ORDER BY YEAR(invoice_date) ASC, MONTH(invoice_date) ASC");
+$months = []; $revenues = [];
+while($row = $monthlyRevResult->fetch_assoc()) { $months[] = $row['month_name']; $revenues[] = (float)$row['total']; }
+if(empty($months)) { $months = [date('F')]; $revenues = [0]; }
 ?>
 
 <!DOCTYPE html>
@@ -84,257 +28,290 @@ if(empty($months)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business Report - Executive Edition</title>
+    <title>Business Report | Smart Repair</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary-green: #1b5e20;
-            --accent-green: #2e7d32;
-            --light-green: #f1f8e9;
-            --white: #ffffff;
-            --border: #c8e6c9;
-            --shadow: rgba(0, 0, 0, 0.1);
+            --primary: #2ecc71;
+            --primary-dark: #27ae60;
+            --danger: #ef4444;
+            --bg-main: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
-        body { 
-            font-family: 'Inter', 'Segoe UI', sans-serif; 
-            background-color: #f4f7f4; 
-            margin: 0; padding: 0; 
-            color: #263238;
-            padding-top: 100px;
-            transition: transform 0.8s;
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
+            padding: 140px 20px 40px 20px;
+            color: var(--text-dark);
         }
 
-        .container { 
-            max-width: 1000px; 
-            margin: 20px auto 40px auto; 
-            background: var(--white); 
+        .page-container { max-width: 1200px; margin: 0 auto; }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 40px; border-radius: 24px; margin-bottom: 40px;
+            box-shadow: 0 15px 35px rgba(46, 204, 113, 0.3); color: white; text-align: center;
+        }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        
+        .stat-card {
+            background: var(--card-bg); 
             padding: 30px; 
-            border-radius: 12px;
-            box-shadow: 0 10px 30px var(--shadow);
+            border-radius: 20px;
+            border: 2px solid var(--border-color); 
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-sm);
         }
 
-        .header-title {
-            text-align: center; color: var(--primary-green);
-            margin-bottom: 30px; font-weight: 800;
-            text-transform: uppercase; letter-spacing: 1px;
-            border-bottom: 2px solid var(--light-green);
-            padding-bottom: 15px;
+        .stat-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-lg);
         }
 
-        .stats-grid { 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 15px; 
-            margin-bottom: 30px; 
+        .stat-card h3 { font-size: 13px; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; }
+        .stat-value { font-size: 28px; font-weight: 800; color: var(--text-dark); }
+
+        .main-card {
+            background: var(--card-bg); 
+            padding: 30px; 
+            border-radius: 24px;
+            border: 2px solid var(--border-color); 
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 30px;
+            transition: all 0.4s ease;
+        }
+
+        .main-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            font-size: 22px; font-weight: 800; color: var(--text-dark); margin-bottom: 25px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-title::before {
+            content: ''; display: block; width: 6px; height: 24px; background: var(--primary); border-radius: 10px;
+        }
+
+        .table-container { border-radius: 16px; border: 1px solid var(--border-color); overflow: hidden; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        
+        th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white; 
+            padding: 18px; 
+            font-size: 13px; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            text-align: left;
+            letter-spacing: 0.5px;
         }
         
-        .card { 
-            background: var(--white); 
-            padding: 20px; 
-            border-radius: 12px; 
-            text-align: center; 
-            border-left: 5px solid var(--accent-green);
-            box-shadow: 0 4px 12px var(--shadow);
-            transition: 0.3s;
+        td { padding: 18px; font-size: 14px; border-bottom: 1px solid #f1f5f9; font-weight: 600; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #f0fff4; transition: 0.2s; }
+
+        .share-badge { background: #e8f5e9; color: #2e7d32; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; border: 1px solid #c8e6c9; }
+        .badge-low { background: #fef2f2; color: #dc2626; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; border: 1px solid #fee2e2; }
+        .badge-ok { background: #f0fdf4; color: #166534; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; border: 1px solid #dcfce7; }
+
+        .btn-export {
+            position: fixed; bottom: 40px; right: 40px; 
+            background: #1e293b; color: white; 
+            border: none; padding: 18px 30px; border-radius: 15px; 
+            font-weight: 800; cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1000;
+            transition: 0.3s; display: flex; align-items: center; gap: 10px;
         }
-        .card:hover { transform: translateY(5px); }
+        .btn-export:hover { transform: scale(1.05); background: #000; }
 
-        .card h3 { margin: 0; font-size: 12px; color: #78909c; text-transform: uppercase; }
-        .card .value { font-size: 26px; font-weight: 800; color: var(--primary-green); margin-top: 8px; }
-
-        @media (max-width: 900px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        @media (max-width: 600px) {
-            .stats-grid { grid-template-columns: 1fr; }
-            .container { padding: 10px; }
-            .card .value { font-size: 20px; }
+        @media (max-width: 992px) {
+            .charts-grid { grid-template-columns: 1fr !important; }
         }
 
-        .charts-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 25px; margin-bottom: 25px; }
-        .chart-wrapper { 
-            background: var(--white); 
-            border: 1px solid var(--border); 
-            padding: 20px; 
-            border-radius: 12px; 
-            box-shadow: 0 2px 10px var(--shadow);
-        }
-        
-        .section-title { font-size: 16px; font-weight: 700; color: var(--primary-green); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th { text-align: left; padding: 10px; background: var(--light-green); color: var(--primary-green); font-size: 12px; }
-        .data-table td { padding: 10px; border-bottom: 1px solid #edf2ed; font-size: 13px; }
-        .progress-bar { height: 6px; background: #eee; border-radius: 10px; overflow: hidden; margin-top: 5px; }
-        .progress-fill { height: 100%; border-radius: 10px; }
-        
-        .float-download-btn {
-            position: fixed; bottom: 30px; right: 30px;
-            background: #1b5e20; color: white; padding: 15px 25px; 
-            border-radius: 30px; border: none; cursor: pointer; font-weight: 600;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 1000;
-        }
-
+        /* --- PROFESSIONAL PDF/PRINT STYLES --- */
         @media print {
-            nav, .navbar, header, .float-download-btn, .sidebar, aside, #nav-id { display: none !important; }
-            body { padding-top: 0 !important; margin: 0 !important; background: white !important; }
-            .container { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
-            .chart-wrapper { page-break-inside: avoid; }
+            body { background: white !important; padding: 0 !important; color: black !important; }
+            .btn-export, nav, .navbar { display: none !important; } /* Hide UI elements */
+            .page-container { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 10mm !important; }
+            
+            .page-header { 
+                background: #f8fafc !important; color: black !important; 
+                border: 1px solid #000 !important; box-shadow: none !important; 
+                border-radius: 10px !important; margin-bottom: 20px !important;
+            }
+            
+            .stat-card, .main-card { 
+                box-shadow: none !important; border: 1px solid #ddd !important; 
+                border-radius: 10px !important; transform: none !important;
+                page-break-inside: avoid;
+            }
+
+            th { 
+                background: #e2e8f0 !important; color: black !important; 
+                border-bottom: 2px solid #000 !important; 
+            }
+
+            .section-title::before { background: #000 !important; }
+            canvas { max-width: 100% !important; height: auto !important; }
+            
+            /* Professional Header for Print */
+            .page-header h1 { color: black !important; }
+            .page-header p { color: #555 !important; }
         }
     </style>
 </head>
 <body>
 
-<button onclick="window.print()" class="float-download-btn no-print">
-    🖨️ SAVE AS PDF
+<button onclick="window.print()" class="btn-export" style="background: var(--primary-dark);">
+    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+    SAVE AS PDF
 </button>
 
-<div class="container">
-    <h2 class="header-title">Business Intelligence Report</h2>
-    
+<div class="page-container">
+    <div class="page-header">
+        <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 10px;">📊 Business Intelligence Report</h1>
+        <p style="opacity: 0.9; font-weight: 500;">Comprehensive Store Performance & Analytics - Generated on <?php echo date('Y-m-d'); ?></p>
+    </div>
+
     <div class="stats-grid">
-        <div class="card">
+        <div class="stat-card">
             <h3>Total Repairs</h3>
-            <div class="value"><?php echo number_format($totalRepairs); ?></div>
+            <div class="stat-value"><?php echo number_format($totalRepairs); ?></div>
         </div>
-        <div class="card">
-            <h3>Revenue (Current Month)</h3>
-            <div class="value">Rs. <?php echo number_format($monthlyRevenue, 2); ?></div>
+        <div class="stat-card">
+            <h3>Monthly Revenue</h3>
+            <div class="stat-value">Rs. <?php echo number_format($monthlyRevenue, 0); ?></div>
         </div>
-        <div class="card">
-            <h3>Stock Quantity</h3>
-            <div class="value"><?php echo number_format($totalStockQty); ?> Items</div>
+        <div class="stat-card">
+            <h3>Stock Items</h3>
+            <div class="stat-value"><?php echo number_format($totalStockQty); ?></div>
         </div>
-        <div class="card">
-            <h3>Total Stock Value</h3>
-            <div class="value">Rs. <?php echo number_format($totalStockValue, 0); ?></div>
+        <div class="stat-card">
+            <h3>Inventory Value</h3>
+            <div class="stat-value">Rs. <?php echo number_format($totalStockValue, 0); ?></div>
         </div>
     </div>
 
-    <div class="charts-grid">
-        <div class="chart-wrapper">
-            <div class="section-title">Revenue Growth Trend (Monthly)</div>
-            <div style="height: 300px;">
+    <div class="charts-grid" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; margin-bottom: 30px;">
+        <div class="main-card" style="margin-bottom: 0;">
+            <h2 class="section-title">Revenue Trend</h2>
+            <div style="height: 320px; margin-top: 10px;">
                 <canvas id="revenueChart"></canvas>
             </div>
         </div>
 
-        <div class="chart-wrapper">
-            <div class="section-title">Device Breakdown</div>
-            <table class="data-table">
+        <div class="main-card" style="margin-bottom: 0;">
+            <h2 class="section-title">Top Devices</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Jobs</th>
+                            <th>Share</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach($deviceData as $device): 
+                            $percentage = ($totalDevices > 0) ? ($device['count'] / $totalDevices) * 100 : 0; ?>
+                        <tr>
+                            <td><strong><?php echo htmlspecialchars($device['item_category']); ?></strong></td>
+                            <td><?php echo $device['count']; ?></td>
+                            <td><span class="share-badge"><?php echo round($percentage); ?>%</span></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-card">
+        <h2 class="section-title">Critical Inventory Status</h2>
+        <div class="table-container">
+            <table>
                 <thead>
                     <tr>
-                        <th>CATEGORY</th>
-                        <th>VOL</th>
-                        <th>SHARE</th>
+                        <th>Item Name</th>
+                        <th>Unit Price</th>
+                        <th>Qty</th>
+                        <th>Total Value</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php 
-                    $colors = ['#2e7d32', '#1565c0', '#f9a825', '#6a1b9a', '#c62828']; 
-                    foreach($deviceData as $index => $device): 
-                        $percentage = ($totalDevices > 0) ? ($device['count'] / $totalDevices) * 100 : 0;
+                    $stockTableQuery = "SELECT item_name, quantity, unit_price FROM stock ORDER BY quantity ASC LIMIT 10";
+                    $stockTableResult = $conn->query($stockTableQuery);
+                    if($stockTableResult && $stockTableResult->num_rows > 0) {
+                        while($item = $stockTableResult->fetch_assoc()): 
+                            $subtotal = $item['quantity'] * $item['unit_price'];
+                            $isLow = ($item['quantity'] <= 5);
                     ?>
                     <tr>
-                        <td><strong><?php echo htmlspecialchars($device['item_category']); ?></strong></td>
-                        <td><?php echo $device['count']; ?></td>
+                        <td style="color: var(--text-dark);"><strong><?php echo htmlspecialchars($item['item_name']); ?></strong></td>
+                        <td>Rs. <?php echo number_format($item['unit_price'], 2); ?></td>
+                        <td style="<?php echo $isLow ? 'color: var(--danger); font-weight: 800;' : ''; ?>">
+                            <?php echo $item['quantity']; ?>
+                        </td>
+                        <td>Rs. <?php echo number_format($subtotal, 2); ?></td>
                         <td>
-                            <div style="font-size: 10px; font-weight: bold;"><?php echo round($percentage); ?>%</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: <?php echo $percentage; ?>%; background: <?php echo $colors[$index % 5]; ?>;"></div>
-                            </div>
+                            <?php if($isLow): ?>
+                                <span class="badge-low">⚠️ LOW STOCK</span>
+                            <?php else: ?>
+                                <span class="badge-ok">✓ STABLE</span>
+                            <?php endif; ?>
                         </td>
                     </tr>
-                    <?php endforeach; ?>
+                    <?php endwhile; } ?>
                 </tbody>
             </table>
         </div>
     </div>
-
-    <div class="chart-wrapper">
-        <div class="section-title">Critical Inventory Status</div>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>ITEM NAME</th>
-                    <th>UNIT PRICE</th>
-                    <th>QTY</th>
-                    <th>STOCK VALUE</th>
-                    <th>STATUS</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php 
-                $stockTableQuery = "SELECT item_name, quantity, unit_price FROM stock ORDER BY quantity ASC LIMIT 10";
-                $stockTableResult = $conn->query($stockTableQuery);
-                if($stockTableResult) {
-                    while($item = $stockTableResult->fetch_assoc()): 
-                        $subtotal = $item['quantity'] * $item['unit_price'];
-                        $lowStock = ($item['quantity'] <= 5);
-                ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($item['item_name']); ?></td>
-                    <td>Rs. <?php echo number_format($item['unit_price'], 2); ?></td>
-                    <td style="<?php echo $lowStock ? 'color:red; font-weight:bold;' : ''; ?>">
-                        <?php echo $item['quantity']; ?>
-                    </td>
-                    <td>Rs. <?php echo number_format($subtotal, 2); ?></td>
-                    <td>
-                        <?php echo $lowStock ? '<span style="color:red">⚠️ LOW</span>' : '<span style="color:green">✓ OK</span>'; ?>
-                    </td>
-                </tr>
-                <?php endwhile; } ?>
-            </tbody>
-        </table>
-    </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('revenueChart').getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, '#2ecc71');
+    gradient.addColorStop(1, '#27ae60');
+
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: <?php echo json_encode($months); ?>, 
+            labels: <?php echo json_encode($months); ?>,
             datasets: [{
                 label: 'Revenue (Rs.)',
                 data: <?php echo json_encode($revenues); ?>,
-                backgroundColor: '#2e7d32',
-                borderColor: '#1b5e20',
-                borderWidth: 1,
-                borderRadius: 5,
-                barPercentage: 0.5
+                backgroundColor: gradient,
+                borderRadius: 8,
+                hoverBackgroundColor: '#1abc9c'
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { 
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return 'Revenue: Rs. ' + context.parsed.y.toLocaleString();
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: { 
-                    beginAtZero: true, 
-                    grid: { color: '#f0f0f0' },
-                    ticks: {
-                        callback: function(value) {
-                            return 'Rs. ' + value.toLocaleString();
-                        }
-                    }
-                },
-                x: { grid: { display: false } }
+            animation: false, // Disabling animation for clean PDF output
+            plugins: { legend: { display: false } },
+            scales: { 
+                y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, 
+                x: { grid: { display: false } } 
             }
         }
     });
-});
 </script>
 </body>
 </html>
