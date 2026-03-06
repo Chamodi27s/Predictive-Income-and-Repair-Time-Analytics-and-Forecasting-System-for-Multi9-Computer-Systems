@@ -34,7 +34,7 @@ if (isset($_POST['save_invoice'])) {
     $s_charge = floatval($_POST['service_charge']);
     $p_total = floatval($_POST['parts_total']);
     $g_total = floatval($_POST['grand_total']);
-    $pay_status = $_POST['payment_status']; 
+    $pay_status = $_POST['device_status'] ?? 'completed'; 
 
     $temp_items = [];
     $item_names_list = [];
