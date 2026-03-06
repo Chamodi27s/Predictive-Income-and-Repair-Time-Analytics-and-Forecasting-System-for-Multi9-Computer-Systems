@@ -31,31 +31,46 @@ if(isset($_GET['range'])) {
             --border: #e2e8f0; --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
             --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); padding: 140px 20px 40px 20px; color: var(--text-main); }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); padding: 140px 20px 40px 20px; color: var(--text-main); transition: background 0.3s ease; }
         .page-container { max-width: 1200px; margin: 0 auto; }
         .page-header { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); padding: 36px 40px; border-radius: 20px; margin-bottom: 32px; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4); color: white; text-align: center; }
         .page-header h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 12px; }
-        .container { background: var(--card-bg); padding: 36px; border-radius: 20px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); animation: fadeIn 0.5s ease-out; }
+        .container { background: var(--card-bg); padding: 36px; border-radius: 20px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); animation: fadeIn 0.5s ease-out; transition: background 0.3s ease, border-color 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 2px solid var(--border); flex-wrap: wrap; gap: 20px; }
         .search-box { display: flex; gap: 12px; align-items: center; }
-        .search-input { padding: 12px 20px; border: 2px solid var(--border); border-radius: 12px; width: 320px; outline: none; background: #f8fafc; }
+        .search-input { padding: 12px 20px; border: 2px solid var(--border); border-radius: 12px; width: 320px; outline: none; background: #f8fafc; transition: all 0.3s ease; }
         .filter-buttons { display: flex; gap: 8px; margin-bottom: 15px; }
         .filter-btn { padding: 8px 15px; border-radius: 8px; border: 1px solid var(--border); background: white; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.3s; }
         .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .table-container { overflow-x: auto; }
         table { width: 100%; border-collapse: separate; border-spacing: 0; }
         th { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; padding: 16px 18px; text-align: left; font-size: 12px; font-weight: 800; text-transform: uppercase; }
-        td { padding: 16px 18px; border-bottom: 1px solid #f0f2f5; font-size: 14px; }
-        .status-select { padding: 8px 12px; border-radius: 10px; border: 2px solid var(--border); font-weight: 700; font-size: 13px; }
-        .supplier-input { padding: 10px 14px; border-radius: 10px; border: 2px solid var(--border); width: 150px; background: #f8fafc; font-weight: 600; }
+        td { padding: 16px 18px; border-bottom: 1px solid #f0f2f5; font-size: 14px; transition: border-bottom 0.3s ease; }
+        .status-select { padding: 8px 12px; border-radius: 10px; border: 2px solid var(--border); font-weight: 700; font-size: 13px; background: white; transition: all 0.3s ease; }
+        .supplier-input { padding: 10px 14px; border-radius: 10px; border: 2px solid var(--border); width: 150px; background: #f8fafc; font-weight: 600; transition: all 0.3s ease; }
         .supplier-input.editing { background: white; border-color: var(--primary); }
         .btn-edit { background: var(--primary); color: white; border: none; padding: 10px 18px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 13px; }
         .job-badge { background: #e3f2fd; color: #1976d2; padding: 6px 12px; border-radius: 8px; font-weight: 800; }
         .save-toast { position: fixed; bottom: 30px; right: 30px; background: #1e293b; color: white; padding: 16px 28px; border-radius: 12px; display: none; z-index: 1000; box-shadow: var(--shadow-lg); }
+
+        /* --- Dark Mode CSS --- */
+        body.dark-mode { background: #0f172a; color: #f8fafc; }
+        body.dark-mode .container { background: #1e293b; border-color: #334155; }
+        body.dark-mode h2 { color: #f8fafc; }
+        body.dark-mode .header-flex { border-bottom-color: #334155; }
+        body.dark-mode td { border-bottom-color: #334155; color: #cbd5e1; }
+        body.dark-mode .search-input { background: #0f172a; border-color: #334155; color: white; }
+        body.dark-mode .filter-btn { background: #1e293b; border-color: #334155; color: #cbd5e1; }
+        body.dark-mode .status-select { background: #0f172a; border-color: #334155; color: white; }
+        body.dark-mode .supplier-input { background: #0f172a; border-color: #334155; color: white; }
+        body.dark-mode .supplier-input.editing { background: #1e293b; border-color: var(--primary); }
+        body.dark-mode .job-badge { background: #1e293b; color: #60a5fa; border: 1px solid #334155; }
+        body.dark-mode strong { color: #f8fafc; }
+        body.dark-mode .filter-btn.active { background: var(--primary); color: white; }
     </style>
 </head>
-<body>
+<body id="warrantyBody">
 
 <div class="page-container">
     <div class="page-header">
@@ -143,6 +158,20 @@ if(isset($_GET['range'])) {
 <div id="saveMsg" class="save-toast">✅ Saved!</div>
 
 <script>
+// Dark Mode Sync Script
+function syncWarrantyTheme() {
+    const body = document.getElementById('warrantyBody');
+    const isDark = localStorage.getItem("darkMode") === "enabled";
+    if (isDark) {
+        body.classList.add("dark-mode");
+    } else {
+        body.classList.remove("dark-mode");
+    }
+}
+syncWarrantyTheme();
+window.addEventListener('storage', syncWarrantyTheme);
+setInterval(syncWarrantyTheme, 500);
+
 function filterWarranty() {
     let input = document.getElementById("warrantySearch").value.toUpperCase();
     let tr = document.getElementById("warrantyTable").getElementsByTagName("tr");
@@ -165,7 +194,6 @@ function saveAll(id) {
             showToast("Updated!");
         }
     };
-    // මෙහි category එකත් යවනවා update_warranty_list.php එකට
     xhr.send("id=" + id + "&supplier=" + encodeURIComponent(supplier) + "&status=" + encodeURIComponent(status) + "&category=" + encodeURIComponent(category));
 }
 

@@ -1,4 +1,7 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 include 'db_config.php';
 include 'navbar.php';
 
@@ -15,9 +18,7 @@ if ($last_job) {
 }
 $job_no = "ORD-" . $new_number;
 
-// Technicians සහ Issues Database එකෙන් ලබා ගැනීම
 $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
-// මෙහිදී අපි Database එකේ ඇති වෙනත් issues ඇත්නම් ඒවාද ලබා ගනිමු
 $issue_result = mysqli_query($conn, "SELECT * FROM issue"); 
 ?>
 
@@ -28,139 +29,193 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Service Registration | Smart Repair</title>
     <style>
-        /* ඔබේ මුල් CSS එලෙසම පවතී */
+        /* Base Styles */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 50%, #ffffff 100%);
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
             min-height: 100vh;
-            padding-top: 120px;
-            padding-left: 40px;
-            padding-right: 40px;
+            padding-top: 100px;
+            padding-bottom: 50px;
             color: #2c3e50;
+            transition: all 0.3s ease;
         }
-        .container { max-width: 1000px; margin: 0 auto; margin-top: 25px; }
+
+        /* ================= DARK MODE GLASS CORE ================= */
+        body.dark-mode {
+            background: linear-gradient(135deg, #020617 0%, #0f172a 100%) !important;
+            color: #e2e8f0 !important;
+        }
+
+        body.dark-mode .form-card, 
+        body.dark-mode .device-card,
+        body.dark-mode .job-no-badge {
+            background: rgba(30, 41, 59, 0.6) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        body.dark-mode input, 
+        body.dark-mode select, 
+        body.dark-mode textarea {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border: 1px solid #334155 !important;
+            color: #f1f5f9 !important;
+        }
+
+        body.dark-mode .section-header {
+            border-bottom-color: #2ecc71 !important;
+        }
+
+        body.dark-mode h1, body.dark-mode h3, body.dark-mode .job-number {
+            color: #ffffff !important;
+        }
+
+        body.dark-mode label {
+            color: #94a3b8 !important;
+        }
+
+        /* ================= Page Elements ================= */
+        .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
         .page-title { text-align: center; margin-bottom: 30px; }
-        .page-title h1 { font-size: 32px; font-weight: 700; color: #2c3e50; margin-bottom: 8px; }
-        .page-title p { color: #7f8c8d; font-size: 15px; }
+        
         .form-card { 
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(46, 125, 50, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: white;
+            padding: 35px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         }
-        .section { margin-bottom: 35px; padding-bottom: 25px; border-bottom: 2px solid #f0f2f5; }
-        .section:last-of-type { border-bottom: none; }
-        .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid #2ecc71; }
-        .section-header h3 { font-size: 18px; font-weight: 700; color: #2c3e50; }
-        .section-icon { font-size: 24px; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 20px; }
-        .form-group { display: flex; flex-direction: column; }
-        label { font-weight: 600; margin-bottom: 8px; font-size: 13px; color: #5a6c7d; text-transform: uppercase; letter-spacing: 0.5px; }
-        input, select, textarea { padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 10px; outline: none; font-family: inherit; font-size: 14px; transition: all 0.3s ease; background: white; }
-        input:focus, select:focus, textarea:focus { border-color: #2ecc71; box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1); }
-        .job-no-badge { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 2px solid #2ecc71; padding: 15px 20px; border-radius: 12px; text-align: center; margin-bottom: 25px; }
-        .job-no-badge label { font-size: 11px; color: #27ae60; margin-bottom: 5px; }
-        .job-no-badge .job-number { font-size: 24px; font-weight: 800; color: #2c3e50; letter-spacing: 1px; }
-        .device-card { background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 2px solid #e8ecef; padding: 25px; border-radius: 15px; margin-bottom: 20px; position: relative; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); transition: all 0.3s ease; }
-        .device-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .btn-primary { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; border: none; padding: 16px 32px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 700; font-size: 15px; box-shadow: 0 6px 20px rgba(46, 204, 113, 0.3); margin-top: 20px; }
-        .btn-add { background: white; border: 2px solid #2ecc71; color: #2ecc71; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; width: 100%; margin-bottom: 10px; }
-        .remove-btn { color: #e74c3c; cursor: pointer; font-size: 14px; border: 2px solid #e74c3c; background: white; padding: 6px 14px; border-radius: 8px; font-weight: 600; }
-        .loading-text { font-size: 11px; color: #2ecc71; display: none; margin-left: 8px; font-weight: 600; }
+
+        .section { margin-bottom: 30px; }
+        .section-header { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            margin-bottom: 20px; 
+            padding-bottom: 10px; 
+            border-bottom: 3px solid #2ecc71; 
+        }
+
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 15px; 
+        }
+
+        .form-group { display: flex; flex-direction: column; margin-bottom: 15px; }
+        label { font-weight: 700; font-size: 11px; color: #64748b; text-transform: uppercase; margin-bottom: 6px; }
+
+        input, select, textarea { 
+            padding: 12px; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 12px; 
+            font-size: 14px;
+        }
+
+        .job-no-badge { 
+            background: #f8fafc; 
+            padding: 20px; 
+            border-radius: 16px; 
+            text-align: center; 
+            margin-bottom: 25px; 
+            border: 2px dashed #2ecc71;
+        }
+
+        .device-card { 
+            background: #fdfdfd; 
+            border: 1px solid #edf2f7; 
+            padding: 20px; 
+            border-radius: 18px; 
+            margin-bottom: 15px; 
+        }
+
+        .btn-primary { 
+            background: #2ecc71; 
+            color: white; 
+            border: none; 
+            padding: 18px; 
+            border-radius: 14px; 
+            width: 100%; 
+            font-weight: 700; 
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .btn-add { 
+            background: transparent; 
+            border: 2px solid #2ecc71; 
+            color: #2ecc71; 
+            padding: 10px; 
+            border-radius: 12px; 
+            width: 100%; 
+            cursor: pointer; 
+            font-weight: 600;
+        }
+
+        .loading-text { color: #2ecc71; font-size: 10px; display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="page-title">
-        <h1>🔧 Customer Registration Form</h1>
-        <p>Register new customer and service details</p>
+        <h1>🔧 Service Registration</h1>
+        <p>Create a new repair job sheet</p>
     </div>
     
     <div class="form-card">
         <form action="save_jobs.php" method="POST" enctype="multipart/form-data">
             
             <div class="section">
-                <div class="section-header">
-                    <span class="section-icon">👤</span>
-                    <h3>Customer Information</h3>
-                </div>
+                <div class="section-header"><h3>👤 Customer Details</h3></div>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Phone Number <span id="searching" class="loading-text">(Searching...)</span></label>
-                        <input type="text" name="phone_number" id="customer_phone" placeholder="07xxxxxxxx" required autocomplete="off" pattern="[0-9+]{10,15}">
+                        <label>Phone <span id="searching" class="loading-text">Searching...</span></label>
+                        <input type="text" name="phone_number" id="customer_phone" required>
                     </div>
                     <div class="form-group">
-                        <label>Customer Name</label>
+                        <label>Name</label>
                         <input type="text" name="customer_name" id="customer_name" required>
                     </div>
-                    <div class="form-group">
-                        <label>Email Address</label>
-                        <input type="email" name="email" id="customer_email" placeholder="example@mail.com">
-                    </div>
-                    <div class="form-group">
-                        <label>Address</label>
-                        <input type="text" name="address" id="customer_address" placeholder="City / Street">
-                    </div>
                 </div>
             </div>
 
-            <div class="section">
-                <div class="section-header">
-                    <span class="section-icon">📋</span>
-                    <h3>Job Assignment</h3>
-                </div>
-                
-                <div class="job-no-badge">
-                    <label>Job Number (Auto-Generated)</label>
-                    <div class="job-number"><?= $job_no ?></div>
-                    <input type="hidden" name="job_no" value="<?= $job_no ?>">
-                </div>
-                
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Assign Technician</label>
-                        <select name="technician_id" id="techSelect" required>
-                            <option value="">-- Select Technician --</option>
-                            <?php mysqli_data_seek($tech_result, 0); while($t = mysqli_fetch_assoc($tech_result)) { ?>
-                                <option value="<?= $t['technician_id'] ?>"><?= $t['name'] ?></option>
-                            <?php } ?>
-                            <option value="new" style="color:#2ecc71; font-weight:bold;">+ Add New Technician</option>
-                        </select>
-                        <input type="text" name="new_technician" id="newTechInput" placeholder="Enter Technician Name" style="display:none; margin-top:12px; border-color: #2ecc71;">
-                    </div>
-                </div>
+            <div class="job-no-badge">
+                <label>Assigned Job Number</label>
+                <div class="job-number" style="font-size: 28px; font-weight: 800;"><?= $job_no ?></div>
+                <input type="hidden" name="job_no" value="<?= $job_no ?>">
+            </div>
+
+            <div class="form-group">
+                <label>Assign Technician</label>
+                <select name="technician_id" id="techSelect" required>
+                    <option value="">-- Select --</option>
+                    <?php mysqli_data_seek($tech_result, 0); while($t = mysqli_fetch_assoc($tech_result)) { ?>
+                        <option value="<?= $t['technician_id'] ?>"><?= $t['name'] ?></option>
+                    <?php } ?>
+                    <option value="new">+ Add New</option>
+                </select>
+                <input type="text" name="new_technician" id="newTechInput" style="display:none; margin-top:10px;" placeholder="Name">
             </div>
 
             <div class="section">
-                <div class="section-header">
-                    <span class="section-icon">📱</span>
-                    <h3>Device Details</h3>
-                </div>
+                <div class="section-header"><h3>📱 Device List</h3></div>
                 <div id="devicesContainer"></div>
-                <button type="button" class="btn-add" onclick="addDevice()">+ Add Another Device</button>
+                <button type="button" class="btn-add" onclick="addDevice()">+ Add Device</button>
             </div>
 
-            <button type="submit" class="btn-primary">✓ Complete Registration</button>
+            <button type="submit" class="btn-primary">✓ Save & Print Jobsheet</button>
         </form>
     </div>
 </div>
 
 <script>
-    // Phone Number එකට ඉලක්කම් සහ + පමණක් ලබා ගැනීම
-    document.getElementById('customer_phone').addEventListener('input', function (e) {
-        this.value = this.value.replace(/[^0-9+]/g, '');
-    });
+    // Dark Mode එක toggle කරන කොට පරීක්ෂා කිරීමට (Optional)
+    // navbar.php එකේ ඇති function එක මගින් මෙය පාලනය වේ.
 
-    // Customer Name එකට අකුරු පමණක් ලබා ගැනීම
-    document.getElementById('customer_name').addEventListener('input', function (e) {
-        this.value = this.value.replace(/[^a-zA-Z\s.]/g, '');
-    });
-
-    // Auto-fill Customer Data
+    // Phone Auto-fill
     document.getElementById('customer_phone').addEventListener('input', function() {
         let phone = this.value;
         if(phone.length >= 10) {
@@ -171,118 +226,55 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
                 document.getElementById('searching').style.display = 'none';
                 if(data.found) {
                     document.getElementById('customer_name').value = data.name;
-                    document.getElementById('customer_email').value = data.email;
-                    document.getElementById('customer_address').value = data.address;
                 }
-            })
-            .catch(err => {
-                document.getElementById('searching').style.display = 'none';
             });
         }
     });
 
-    // Technician Toggle logic
-    document.getElementById('techSelect').addEventListener('change', function() {
-        const newTechInput = document.getElementById('newTechInput');
-        if(this.value === 'new') {
-            newTechInput.style.display = 'block';
-            newTechInput.required = true;
-            newTechInput.focus();
-        } else {
-            newTechInput.style.display = 'none';
-            newTechInput.required = false;
-        }
-    });
-
-    // Database එකේ ඇති වෙනත් Issue list එක JavaScript එකට ගැනීම
-    const dbIssueList = [
-        <?php 
-        mysqli_data_seek($issue_result, 0);
-        while($issue = mysqli_fetch_assoc($issue_result)) {
-            // Display Damage, No Power, Service යන ඒවා මෙහි ඇත්නම් ඒවා මඟ හැරීමට හෝ සියල්ල පෙන්වීමට හැකිය
-            echo "{id: '".addslashes($issue['issue_name'])."', name: '".addslashes($issue['issue_name'])."'},";
-        }
-        ?>
-    ];
-
     let deviceCount = 0;
+    const dbIssueList = [<?php mysqli_data_seek($issue_result, 0); while($i = mysqli_fetch_assoc($issue_result)) { echo "{name:'".addslashes($i['issue_name'])."'},"; } ?>];
+
     function addDevice() {
         deviceCount++;
         const container = document.getElementById('devicesContainer');
         const div = document.createElement('div');
         div.className = 'device-card';
-
-        // අමතර issues තිබේ නම් ඒවා map කිරීම
-        let dbOptions = dbIssueList.map(opt => `<option value="${opt.id}">${opt.name}</option>`).join('');
+        
+        let issues = dbIssueList.map(i => `<option value="${i.name}">${i.name}</option>`).join('');
 
         div.innerHTML = `
-            <div class="device-header">
-                <div class="device-title">
-                    <span style="font-size: 18px; font-weight: bold;">📱 Device #${deviceCount}</span>
-                </div>
-                ${deviceCount > 1 ? `<button type="button" class="remove-btn" onclick="this.parentElement.parentElement.remove()">✕ Remove</button>` : ''}
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <strong>Device #${deviceCount}</strong>
+                ${deviceCount > 1 ? '<span style="color:red; cursor:pointer;" onclick="this.parentElement.parentElement.remove()">Remove</span>' : ''}
             </div>
-            
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Device Type</label>
+                    <label>Type</label>
                     <select name="devices[]" required>
-                        <option value="">-- Select Device --</option>
-                        
-                        <option value="Printer">Printer</option>
                         <option value="Laptop">Laptop</option>
-                        <option value="Desktop">Desktop PC</option>
+                        <option value="Desktop">Desktop</option>
+                        <option value="Printer">Printer</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Issue Type</label>
-                    <select name="issues[]" class="issue-select" onchange="toggleNewIssue(this)" required>
-                        <option value="">-- Select Issue --</option>
-                        <option value="Display Damage">Display Damage</option>
-                        <option value="No Power">No Power</option>
-                        <option value="Service">Service</option>
-                        ${dbOptions}
-                        <option value="new" style="color:#2ecc71; font-weight:bold;">+ Add New Issue</option>
+                    <label>Issue</label>
+                    <select name="issues[]" onchange="if(this.value=='new'){this.nextElementSibling.style.display='block'}">
+                        <option value="">-- Select --</option>
+                        ${issues}
+                        <option value="new">+ Add New</option>
                     </select>
-                    <input type="text" name="new_issues[]" class="new-issue-input" placeholder="Enter New Issue Name" style="display:none; margin-top:10px; border-color: #2ecc71;">
-                </div>
-                <div class="form-group">
-                    <label>Warranty Status</label>
-                    <select name="warranty_status[]" required>
-                        <option value="No Warranty">No Warranty</option>
-                        <option value="Warranty"> Warranty</option>
-                    </select>
+                    <input type="text" name="new_issues[]" style="display:none; margin-top:5px;">
                 </div>
             </div>
-
-            <div class="form-grid" style="margin-top:20px;">
-                <div class="form-group" style="grid-column: span 2;">
-                    <label>Description / Note</label>
-                    <textarea name="descriptions[]" placeholder="e.g. Screen cracked, Back cover broken..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Device Image (Optional)</label>
-                    <input type="file" name="device_images[]" accept="image/*">
-                </div>
-            </div>
+            <textarea name="descriptions[]" style="width:100%; margin-top:10px;" placeholder="Notes..."></textarea>
         `;
         container.appendChild(div);
     }
+    addDevice();
 
-    // "Add New Issue" තේරූ විට පමණක් input එක පෙන්වීමට
-    function toggleNewIssue(selectElement) {
-        const inputElement = selectElement.nextElementSibling;
-        if(selectElement.value === 'new') {
-            inputElement.style.display = 'block';
-            inputElement.required = true;
-            inputElement.focus();
-        } else {
-            inputElement.style.display = 'none';
-            inputElement.required = false;
-        }
-    }
-
-    addDevice(); 
+    document.getElementById('techSelect').addEventListener('change', function() {
+        document.getElementById('newTechInput').style.display = (this.value === 'new') ? 'block' : 'none';
+    });
 </script>
 </body>
 <?php include 'chatbot.php'; ?>

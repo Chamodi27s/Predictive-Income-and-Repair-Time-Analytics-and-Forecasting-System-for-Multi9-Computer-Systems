@@ -1,5 +1,8 @@
 <?php
-session_start();
+// Session එක දැනටමත් active ද කියා පරීක්ෂා කර පසුව start කරයි
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
@@ -64,7 +67,7 @@ $low_stock_count = $conn->query("SELECT COUNT(*) c FROM stock WHERE quantity BET
 html, body {
     height: auto; 
     min-height: 100%;
-    overflow-y: auto; /* Scroll කිරීමට ඉඩ දෙයි */
+    overflow-y: auto; 
 }
 
 body {
@@ -72,20 +75,52 @@ body {
     padding-top: 135px;
     display: flex;
     flex-direction: column;
+    transition: background 0.3s ease;
 }
 
-/* CONTAINER */
+/* ---------------- DASHBOARD DARK MODE FIX ---------------- */
+body.dark-mode {
+    background: linear-gradient(135deg, #020617, #0f172a) !important;
+    color: #e2e8f0 !important;
+}
+
+/* Dark Mode එකේදී Card එකට Glass Effect ලබා දීම */
+body.dark-mode .card {
+    background: rgba(30, 41, 59, 0.4) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Dark Mode එකේදී Card එක ඇතුළත අකුරු සුදු පැහැ ගැන්වීම */
+body.dark-mode .card-title,
+body.dark-mode .card-value,
+body.dark-mode .card-footer,
+body.dark-mode .welcome-section h1 {
+    color: #ffffff !important;
+}
+
+body.dark-mode .sub-text, body.dark-mode .sub-text strong {
+    color: #94a3b8 !important;
+}
+
+/* Icon Box සදහා Dark Mode වර්ණ */
+body.dark-mode .icon-box {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ---------------- DEFAULT DASHBOARD STYLES ---------------- */
 .main-container {
     max-width: 1400px;
     width: 96%;
     margin: 0 auto;
-    height: auto; /* Fixed height එක ඉවත් කළා */
+    height: auto; 
     display: flex;
     flex-direction: column;
-    padding-bottom: 40px; /* යටින් ඉඩ තැබුවා */
+    padding-bottom: 40px; 
 }
 
-/* WELCOME SECTION */
 .welcome-section {
     flex: 0 0 auto;
     margin-bottom: 25px;
@@ -106,25 +141,23 @@ body {
     font-weight: 600;
 }
 
-/* GRID SYSTEM */
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr); 
-    grid-template-rows: auto; /* Content එක අනුව උස හැදේ */
+    grid-template-rows: auto; 
     gap: 25px;
     flex: 1; 
 }
 
-/* CARD DESIGN */
 .card {
     background: #fff;
     border-radius: 24px;
     padding: 35px; 
-    min-height: 220px; /* අවම උසක් ලබා දුන්නා */
+    min-height: 220px; 
     width: 100%;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
     border: 1px solid rgba(255,255,255,0.6); 
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -142,64 +175,59 @@ body {
 }
 
 .card-title {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    opacity: 1;
 }
 
 .icon-box {
-    width: 64px;
-    height: 64px;
+    width: 60px;
+    height: 60px;
     border-radius: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 30px;     
-    box-shadow: 0 4px 6px rgba(0,0,0,0.06);
+    font-size: 28px;     
 }
 
 .card-value {
-    font-size: 42px; 
+    font-size: 40px; 
     font-weight: 800;
     margin-top: 10px;
 }
 
 .card-footer {
-    font-size: 13px;
-    color: #475569;
+    font-size: 12px;
+    opacity: 0.8;
     font-weight: 600;
-    background: rgba(255,255,255,0.6);
-    padding: 6px 12px;
-    border-radius: 10px;
-    align-self: flex-start;
+    padding-top: 10px;
 }
 
-/* COLORS */
-.bg-pending { background: linear-gradient(145deg, #fff0e0 0%, #ffffff 100%); border-left: 8px solid #f97316; }
+/* LIGHT MODE COLORS */
+.bg-pending { border-left: 8px solid #f97316; }
 .bg-pending .card-title, .bg-pending .card-value { color: #c2410c; }
-.bg-pending .icon-box { color: #ea580c; background: rgba(255,247,237,0.9); }
+.bg-pending .icon-box { color: #ea580c; background: #fff7ed; }
 
-.bg-progress { background: linear-gradient(145deg, #e0f0ff 0%, #ffffff 100%); border-left: 8px solid #3b82f6; }
+.bg-progress { border-left: 8px solid #3b82f6; }
 .bg-progress .card-title, .bg-progress .card-value { color: #1d4ed8; }
-.bg-progress .icon-box { color: #2563eb; background: rgba(239,246,255,0.9); }
+.bg-progress .icon-box { color: #2563eb; background: #eff6ff; }
 
-.bg-completed { background: linear-gradient(145deg, #dcfce7 0%, #ffffff 100%); border-left: 8px solid #22c55e; }
+.bg-completed { border-left: 8px solid #22c55e; }
 .bg-completed .card-title, .bg-completed .card-value { color: #15803d; }
-.bg-completed .icon-box { color: #16a34a; background: rgba(240,253,244,0.9); }
+.bg-completed .icon-box { color: #16a34a; background: #f0fdf4; }
 
-.bg-customers { background: linear-gradient(145deg, #ede9fe 0%, #ffffff 100%); border-left: 8px solid #8b5cf6; }
+.bg-customers { border-left: 8px solid #8b5cf6; }
 .bg-customers .card-title, .bg-customers .card-value { color: #6d28d9; }
-.bg-customers .icon-box { color: #7c3aed; background: rgba(245,243,255,0.9); }
+.bg-customers .icon-box { color: #7c3aed; background: #f5f3ff; }
 
-.bg-revenue { background: linear-gradient(145deg, #cffafe 0%, #ffffff 100%); border-left: 8px solid #06b6d4; }
+.bg-revenue { border-left: 8px solid #06b6d4; }
 .bg-revenue .card-title, .bg-revenue .card-value { color: #0e7490; }
-.bg-revenue .icon-box { color: #0891b2; background: rgba(236,253,255,0.9); }
+.bg-revenue .icon-box { color: #0891b2; background: #ecfeff; }
 
-.bg-lowstock { background: linear-gradient(145deg, #fee2e2 0%, #ffffff 100%); border-left: 8px solid #f43f5e; }
+.bg-lowstock { border-left: 8px solid #f43f5e; }
 .bg-lowstock .card-title, .bg-lowstock .card-value { color: #be123c; }
-.bg-lowstock .icon-box { color: #e11d48; background: rgba(255,241,242,0.9); }
+.bg-lowstock .icon-box { color: #e11d48; background: #fff1f2; }
 
 /* MOBILE RESPONSIVE */
 @media screen and (max-width: 1024px) {
@@ -260,7 +288,7 @@ body {
 
         <div class="card bg-customers">
             <div class="card-header">
-                <span class="card-title">Customers</span>
+                <span class="card-title">Total Customers</span>
                 <span class="icon-box">👥</span>
             </div>
             <div class="card-value"><?php echo $total_customers; ?></div>
@@ -286,6 +314,22 @@ body {
         </div>
     </div>
 </div>
+
+<script>
+    // Theme එක Real-time check කිරීමට
+    function syncDashboardTheme() {
+        const theme = localStorage.getItem("darkMode");
+        if (theme === "enabled") {
+            document.body.classList.add("dark-mode");
+        } else {
+            document.body.classList.remove("dark-mode");
+        }
+    }
+    
+    // පිටුව load වන විට සහ theme වෙනස් වන විට ක්‍රියාත්මක කිරීම
+    syncDashboardTheme();
+    window.addEventListener('storage', syncDashboardTheme);
+</script>
 
 </body>
 <?php include 'chatbot.php'; ?>
