@@ -2,13 +2,13 @@
 include 'db_config.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // 1. මූලික දත්ත ලබා ගැනීම (Sanitize)
-    $job_no = mysqli_real_escape_string($conn, $_POST['job_no']);
-    $phone = mysqli_real_escape_string($conn, $_POST['phone_number']);
-    $cust_name = mysqli_real_escape_string($conn, $_POST['customer_name']);
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $address = mysqli_real_escape_string($conn, $_POST['address']);
-    $tech_id = $_POST['technician_id'];
+    // 1. මූලික දත්ත ලබා ගැනීම (Sanitize) - දත්ත නොමැති නම් Empty String ලබා දේ
+    $job_no = mysqli_real_escape_string($conn, $_POST['job_no'] ?? '');
+    $phone = mysqli_real_escape_string($conn, $_POST['phone_number'] ?? '');
+    $cust_name = mysqli_real_escape_string($conn, $_POST['customer_name'] ?? '');
+    $email = mysqli_real_escape_string($conn, $_POST['email'] ?? ''); // Warning Fix
+    $address = mysqli_real_escape_string($conn, $_POST['address'] ?? ''); // Warning Fix
+    $tech_id = $_POST['technician_id'] ?? '';
     $job_date = date('Y-m-d');
 
     // 2. අලුත් Technician කෙනෙක් නම් ඇතුළත් කිරීම
@@ -31,33 +31,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (mysqli_query($conn, $sql_job)) {
         
         // 5. Multiple Devices Loop එක
-        if (isset($_POST['devices'])) {
+        if (isset($_POST['devices']) && is_array($_POST['devices'])) {
             foreach ($_POST['devices'] as $key => $device) {
                 $device_name = mysqli_real_escape_string($conn, $device);
                 
-                // ⭐ Issue Logic එක මෙතනින් ආරම්භ වේ
-                $issue_val = $_POST['issues'][$key];
+                // ⭐ Issue Logic එක
+                $issue_val = $_POST['issues'][$key] ?? '';
                 $final_issue_name = "";
 
                 if ($issue_val == 'new' && !empty($_POST['new_issues'][$key])) {
-                    // අලුත් Issue එකක් නම් නම ලබාගෙන Database එකට ඇතුළත් කරන්න
                     $new_issue_text = mysqli_real_escape_string($conn, $_POST['new_issues'][$key]);
                     
-                    // දැනටමත් මේ නම table එකේ තිබේදැයි පරීක්ෂාව (Duplicate වැළැක්වීමට)
                     $check_issue = mysqli_query($conn, "SELECT issue_name FROM issue WHERE issue_name = '$new_issue_text'");
                     if (mysqli_num_rows($check_issue) == 0) {
                         mysqli_query($conn, "INSERT INTO issue (issue_name) VALUES ('$new_issue_text')");
                     }
                     $final_issue_name = $new_issue_text;
                 } else {
-                    // පවතින Issue එකක් නම් ID එක හරහා නම සොයාගන්න
                     $res = mysqli_query($conn, "SELECT issue_name FROM issue WHERE issue_id = '$issue_val'");
                     $row = mysqli_fetch_assoc($res);
                     $final_issue_name = $row ? $row['issue_name'] : $issue_val;
                 }
                 
-                $warranty = mysqli_real_escape_string($conn, $_POST['warranty_status'][$key]);
-                $description = mysqli_real_escape_string($conn, $_POST['descriptions'][$key]);
+                // Warranty Status පරීක්ෂාව - Warning Fix
+                $warranty = isset($_POST['warranty_status'][$key]) ? mysqli_real_escape_string($conn, $_POST['warranty_status'][$key]) : 'No Warranty';
+                $description = isset($_POST['descriptions'][$key]) ? mysqli_real_escape_string($conn, $_POST['descriptions'][$key]) : '';
                 
                 $img_name = ""; 
 
@@ -73,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     move_uploaded_file($_FILES['device_images']['tmp_name'][$key], $target_file);
                 }
 
-                // දැන් final_issue_name එක job_device table එකට ඇතුළත් කරයි
+                // job_device table එකට ඇතුළත් කිරීම
                 $sql_device = "INSERT INTO job_device (job_no, device_name, issue_name, device_status, warranty_status, description, device_image) 
                                VALUES ('$job_no', '$device_name', '$final_issue_name', 'Pending', '$warranty', '$description', '$img_name')";
                 
@@ -81,15 +79,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
-        // 6. සාර්ථක පණිවිඩය
+        // 6. සාර්ථක පණිවිඩය (SweetAlert2)
         echo "
         <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
         <body style='font-family:sans-serif;'>
         <script>
             Swal.fire({
                 icon: 'success',
+                iconColor: '#28a745',
                 title: 'Job Registered Successfully!',
-                text: 'Job No: $job_no | Customer: $cust_name',
+                html: '<b>Job No:</b> $job_no <br> <b>Customer:</b> $cust_name',
                 confirmButtonColor: '#28a745',
                 confirmButtonText: 'View Full Details',
                 allowOutsideClick: false

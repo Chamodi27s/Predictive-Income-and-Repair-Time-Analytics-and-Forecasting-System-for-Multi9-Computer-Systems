@@ -58,14 +58,55 @@ $result = mysqli_query($conn, $sql);
             background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
             padding: 140px 20px 40px 20px;
             color: var(--text-main);
+            transition: background 0.3s ease;
         }
 
+        /* ===== DARK MODE CSS ===== */
+        body.dark-mode {
+            background: #0f172a !important;
+            color: #f1f5f9 !important;
+        }
+
+        body.dark-mode .container {
+            background: #1e293b !important;
+            border-color: #334155 !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        body.dark-mode .header-title {
+            color: #ffffff !important;
+            border-bottom-color: #334155 !important;
+        }
+
+        body.dark-mode .report-table td {
+            border-bottom-color: #334155 !important;
+            color: #cbd5e1 !important;
+            background: #1e293b !important;
+        }
+
+        body.dark-mode .report-table tbody tr:hover {
+            background: #334155 !important;
+        }
+
+        body.dark-mode .report-table td b, 
+        body.dark-mode .device-name {
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .table-container {
+            border-color: #334155 !important;
+        }
+
+        body.dark-mode .empty-msg {
+            color: #94a3b8 !important;
+        }
+
+        /* ===== LIGHT MODE STYLES (ORIGINAL) ===== */
         .page-container {
             max-width: 900px;
             margin: 0 auto;
         }
 
-        /* Header Card */
         .page-header {
             background: linear-gradient(135deg, #2ecc71 0%, #2ecc71 100%);
             padding: 36px 40px;
@@ -92,7 +133,6 @@ $result = mysqli_query($conn, $sql);
             font-weight: 500;
         }
 
-        /* Container */
         .container {
             background: var(--card-bg);
             padding: 36px;
@@ -127,25 +167,17 @@ $result = mysqli_query($conn, $sql);
             gap: 12px;
         }
 
-        /* Table Container */
         .table-container {
             overflow-x: auto;
             border-radius: 12px;
             border: 1px solid var(--border);
         }
 
-        /* Table Styling */
         .report-table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
             min-width: 800px;
-        }
-
-        .report-table thead {
-            position: sticky;
-            top: 0;
-            z-index: 10;
         }
 
         .report-table th {
@@ -159,25 +191,6 @@ $result = mysqli_query($conn, $sql);
             letter-spacing: 0.8px;
         }
 
-        .report-table th:first-child {
-            border-top-left-radius: 12px;
-        }
-
-        .report-table th:last-child {
-            border-top-right-radius: 12px;
-        }
-
-        .report-table tbody tr {
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .report-table tbody tr:hover {
-            background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%);
-            transform: translateX(4px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
         .report-table td {
             padding: 16px 18px;
             border-bottom: 1px solid #f0f2f5;
@@ -187,12 +200,6 @@ $result = mysqli_query($conn, $sql);
             font-weight: 500;
         }
 
-        .report-table td b {
-            color: var(--text-dark);
-            font-weight: 800;
-        }
-
-        /* Job Badge */
         .job-badge {
             background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
             color: #1976d2;
@@ -201,10 +208,8 @@ $result = mysqli_query($conn, $sql);
             font-weight: 800;
             font-size: 13px;
             display: inline-block;
-            box-shadow: 0 2px 6px rgba(25, 118, 210, 0.15);
         }
 
-        /* Date Badge */
         .badge-date {
             background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
             color: #e65100;
@@ -214,30 +219,8 @@ $result = mysqli_query($conn, $sql);
             font-size: 13px;
             display: inline-block;
             border: 2px solid #ffcc80;
-            letter-spacing: 0.3px;
         }
 
-        /* Device Info */
-        .device-info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            align-items: center;
-        }
-
-        .device-name {
-            font-weight: 700;
-            color: var(--text-dark);
-            font-size: 14px;
-        }
-
-        .device-issue {
-            color: var(--text-muted);
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        /* Delete Button */
         .btn-delete-perm {
             background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
             color: white;
@@ -250,57 +233,22 @@ $result = mysqli_query($conn, $sql);
             align-items: center;
             gap: 8px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
         }
 
         .btn-delete-perm:hover {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
         }
 
-        /* Empty State */
         .empty-msg {
             padding: 60px 20px;
             text-align: center;
-            color: var(--text-muted);
-            font-style: normal;
             font-weight: 600;
         }
 
-        .empty-state-icon {
-            font-size: 64px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-            display: block;
-        }
-
-        /* Responsive Design */
         @media (max-width: 768px) {
-            body {
-                padding: 120px 15px 30px 15px;
-            }
-
-            .page-header {
-                padding: 24px 28px;
-            }
-
-            .page-header h1 {
-                font-size: 24px;
-            }
-
-            .container {
-                padding: 24px;
-            }
-
-            .report-table {
-                font-size: 12px;
-            }
-
-            .report-table th,
-            .report-table td {
-                padding: 12px 10px;
-            }
+            body { padding-top: 120px; }
+            .report-table { font-size: 12px; }
         }
     </style>
 </head>
@@ -328,7 +276,7 @@ $result = mysqli_query($conn, $sql);
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="tableBody">
                 <?php if(mysqli_num_rows($result) > 0): ?>
                     <?php while($row = mysqli_fetch_assoc($result)): ?>
                     <tr>
@@ -340,8 +288,8 @@ $result = mysqli_query($conn, $sql);
                         </td>
                         <td>
                             <div class="device-info">
-                                <span class="device-name">📱 <?= htmlspecialchars($row['device_name']) ?></span>
-                                <span class="device-issue"><?= htmlspecialchars($row['issue_name']) ?></span>
+                                <span class="device-name">📱 <?= htmlspecialchars($row['device_name']) ?></span><br>
+                                <span class="device-issue" style="font-size: 12px; opacity: 0.8;"><?= htmlspecialchars($row['issue_name']) ?></span>
                             </div>
                         </td>
                         <td>
@@ -362,7 +310,7 @@ $result = mysqli_query($conn, $sql);
                 <?php else: ?>
                     <tr>
                         <td colspan="6" class="empty-msg">
-                            <span class="empty-state-icon">📋</span>
+                            <span style="font-size: 40px; display: block; margin-bottom: 10px;">📋</span>
                             <strong>No destroyed items found in the records.</strong>
                         </td>
                     </tr>
@@ -371,6 +319,20 @@ $result = mysqli_query($conn, $sql);
         </table>
     </div>
 </div>
+
+<script>
+// --- AUTO REFRESH ON MODE CHANGE ---
+// Navbar එකේ ඇති Dark Mode toggle එක අනුව පිටුව refresh වීමට මෙම කොටස භාවිතා වේ.
+let lastMode = document.body.classList.contains('dark-mode');
+const observer = new MutationObserver(() => {
+    let currentMode = document.body.classList.contains('dark-mode');
+    if (currentMode !== lastMode) {
+        lastMode = currentMode;
+        location.reload(); 
+    }
+});
+observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+</script>
 
 </body>
 <?php include 'chatbot.php'; ?>
