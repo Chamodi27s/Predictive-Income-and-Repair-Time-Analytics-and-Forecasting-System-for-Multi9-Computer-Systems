@@ -74,6 +74,7 @@ if (isset($_POST['predict']) && $job_no) {
             padding: 140px 20px 40px 20px;
             color: var(--text-main);
             min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         .container {
@@ -302,12 +303,6 @@ if (isset($_POST['predict']) && $job_no) {
             box-shadow: 0 8px 25px rgba(46, 204, 113, 0.5);
         }
 
-        .btn-predict:disabled {
-            background: #cbd5e1;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
         /* Result Container */
         .result-container {
             display: grid;
@@ -338,27 +333,9 @@ if (isset($_POST['predict']) && $job_no) {
             overflow: hidden;
         }
 
-        .result-box::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 6px;
-        }
-
-        .result-box:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-
         .warranty-box {
             background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
             border-color: var(--primary);
-        }
-
-        .warranty-box::before {
-            background: var(--primary);
         }
 
         .non-warranty-box {
@@ -366,99 +343,77 @@ if (isset($_POST['predict']) && $job_no) {
             border-color: var(--danger);
         }
 
-        .non-warranty-box::before {
-            background: var(--danger);
+        /* ===============================
+           DARK MODE STYLES
+        ================================ */
+        body.dark-mode {
+            background: #0f172a !important;
+            color: #f1f5f9 !important;
         }
 
-        .result-box small {
-            display: block;
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-            opacity: 0.8;
+        body.dark-mode .predict-card {
+            background: #1e293b !important;
+            border-color: #334155 !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
         }
 
-        .warranty-box small {
-            color: #14532d;
+        body.dark-mode .section-title,
+        body.dark-mode .info-item p,
+        body.dark-mode .device-list-title,
+        body.dark-mode label,
+        body.dark-mode .device-item {
+            color: #f1f5f9 !important;
         }
 
-        .non-warranty-box small {
-            color: #7f1d1d;
+        body.dark-mode .info-grid {
+            background: #111827 !important;
+            border-color: #334155 !important;
         }
 
-        .result-box h3 {
-            font-size: 28px;
-            font-weight: 900;
-            margin: 0;
+        body.dark-mode .device-list {
+            background: rgba(46, 204, 113, 0.1) !important;
+            box-shadow: none !important;
         }
 
-        .warranty-box h3 {
-            color: #14532d;
+        body.dark-mode .device-item {
+            background: #111827 !important;
+            border-color: #334155 !important;
         }
 
-        .non-warranty-box h3 {
-            color: #7f1d1d;
+        body.dark-mode select, 
+        body.dark-mode input {
+            background: #0f172a !important;
+            border-color: #334155 !important;
+            color: #f1f5f9 !important;
         }
 
-        .result-icon {
-            font-size: 36px;
-            margin-bottom: 8px;
-            display: block;
+        body.dark-mode .warranty-box {
+            background: rgba(46, 204, 113, 0.15) !important;
         }
 
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-muted);
+        body.dark-mode .non-warranty-box {
+            background: rgba(239, 68, 68, 0.15) !important;
         }
 
-        .empty-state-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-            opacity: 0.5;
+        body.dark-mode .warranty-box h3,
+        body.dark-mode .warranty-box small {
+            color: #4ade80 !important;
         }
 
-        .empty-state p {
-            font-size: 16px;
-            font-weight: 600;
-            line-height: 1.6;
+        body.dark-mode .non-warranty-box h3,
+        body.dark-mode .non-warranty-box small {
+            color: #f87171 !important;
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            body {
-                padding: 120px 15px 30px 15px;
-            }
-
-            .page-header {
-                padding: 24px 20px;
-            }
-
-            .page-header h1 {
-                font-size: 24px;
-            }
-
-            .predict-card {
-                padding: 24px;
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-
-            .result-container {
-                grid-template-columns: 1fr;
-            }
-
-            .device-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
+            body { padding: 120px 15px 30px 15px; }
+            .page-header { padding: 24px 20px; }
+            .page-header h1 { font-size: 24px; }
+            .predict-card { padding: 24px; }
+            .info-grid { grid-template-columns: 1fr; gap: 16px; }
+            .result-container { grid-template-columns: 1fr; }
+            .device-item { flex-direction: column; align-items: flex-start; gap: 8px; }
         }
     </style>
 </head>
@@ -556,6 +511,19 @@ if (isset($_POST['predict']) && $job_no) {
         <?php endif; ?>
     </div>
 </div>
+
+<script>
+    // System Theme Apply (Dark Mode Check)
+    function applySystemTheme() {
+        const isDark = localStorage.getItem('darkMode') === 'enabled';
+        if (isDark) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+    }
+    applySystemTheme();
+</script>
 
 </body>
 <?php include 'chatbot.php'; ?>
