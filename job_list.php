@@ -13,28 +13,26 @@ $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['searc
 $filter_status = isset($_GET['status']) ? mysqli_real_escape_string($conn, $_GET['status']) : '';
 $date_filter = isset($_GET['date_filter']) ? $_GET['date_filter'] : '';
 
-// 2. SQL Query - Optimized for speed
+// Invoice එකක් නැති හෝ Invoice එකක් තිබුණත් එය 'Paid' නොවූ ඒව පමණක් පෙන්වයි
 $sql = "SELECT j.job_no, j.job_date, t.name as technician_name, c.customer_name, j.phone_number, 
                jd.job_device_id, jd.device_name, jd.issue_name, jd.device_status,
-               jd.completed_date, jd.destroy_notice_sent_date 
+               jd.completed_date, jd.destroy_notice_sent_date, jd.rent_warning_sent 
         FROM job j
         INNER JOIN customer c ON j.phone_number = c.phone_number
         INNER JOIN job_device jd ON j.job_no = jd.job_no 
         LEFT JOIN technicians t ON j.technician_id = t.technician_id
+        LEFT JOIN invoice inv ON jd.job_no = inv.job_no 
         WHERE j.job_status = 'Approved' 
-        AND jd.device_status != 'billed'
-        AND jd.device_status != 'Destroyed'"; 
+        AND jd.device_status != 'Destroyed'
+        AND (inv.job_no IS NULL OR inv.payment_status != 'Paid')";
 
-// Status Filter
 if ($filter_status != '') { $sql .= " AND jd.device_status = '$filter_status'"; }
 
-// --- කාලය අනුව Filter කිරීමේ Logic එක ---
 if ($date_filter == 'today') { $sql .= " AND DATE(j.job_date) = CURDATE()"; } 
 elseif ($date_filter == '2weeks') { $sql .= " AND j.job_date >= DATE_SUB(NOW(), INTERVAL 14 DAY)"; } 
 elseif ($date_filter == 'monthly') { $sql .= " AND MONTH(j.job_date) = MONTH(NOW()) AND YEAR(j.job_date) = YEAR(NOW())"; } 
 elseif ($date_filter == 'yearly') { $sql .= " AND YEAR(j.job_date) = YEAR(NOW())"; }
 
-// Search Logic
 if ($search != '') { $sql .= " AND (j.job_no LIKE '%$search%' OR j.phone_number LIKE '%$search%' OR jd.issue_name LIKE '%$search%' OR c.customer_name LIKE '%$search%')"; }
 
 $sql .= " ORDER BY jd.job_device_id DESC";
@@ -49,7 +47,6 @@ $result = mysqli_query($conn, $sql);
     <title>Job Management - Multi9</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* All your original styles kept exactly as they were */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #2ecc71; --primary-hover: #27ae60; --primary-dark: #229954;
@@ -86,10 +83,10 @@ $result = mysqli_query($conn, $sql);
     </div>
 
     <div class="filter-container">
-        <a href="?date_filter=<?= $date_filter ?>" class="filter-tag tag-all <?= $filter_status == '' ? 'active-tag' : '' ?>" style="background: var(--secondary)">📋 All Jobs</a>
-        <a href="?status=Pending&date_filter=<?= $date_filter ?>" class="filter-tag tag-pending <?= $filter_status == 'Pending' ? 'active-tag' : '' ?>" style="background: var(--warning)">⏳ Pending</a>
-        <a href="?status=In Progress&date_filter=<?= $date_filter ?>" class="filter-tag tag-progress <?= $filter_status == 'In Progress' ? 'active-tag' : '' ?>" style="background: var(--blue)">🔧 In Progress</a>
-        <a href="?status=Completed&date_filter=<?= $date_filter ?>" class="filter-tag tag-completed <?= $filter_status == 'Completed' ? 'active-tag' : '' ?>" style="background: var(--success)">✅ Completed</a>
+        <a href="?date_filter=<?= $date_filter ?>" class="filter-tag <?= $filter_status == '' ? 'active-tag' : '' ?>" style="background: var(--secondary)">📋 All Jobs</a>
+        <a href="?status=Pending&date_filter=<?= $date_filter ?>" class="filter-tag <?= $filter_status == 'Pending' ? 'active-tag' : '' ?>" style="background: var(--warning)">⏳ Pending</a>
+        <a href="?status=In Progress&date_filter=<?= $date_filter ?>" class="filter-tag <?= $filter_status == 'In Progress' ? 'active-tag' : '' ?>" style="background: var(--blue)">🔧 In Progress</a>
+        <a href="?status=Completed&date_filter=<?= $date_filter ?>" class="filter-tag <?= $filter_status == 'Completed' ? 'active-tag' : '' ?>" style="background: var(--success)">✅ Completed</a>
     </div>
 
     <div style="text-align: center; margin-bottom: 15px; font-size: 13px;">
@@ -105,8 +102,8 @@ $result = mysqli_query($conn, $sql);
         <form action="" method="GET" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 25px;">
             <input type="hidden" name="status" value="<?= htmlspecialchars($filter_status) ?>">
             <input type="hidden" name="date_filter" value="<?= htmlspecialchars($date_filter) ?>">
-            <input type="text" name="search" class="search-box" style="padding: 12px; width: 350px; border-radius: 10px; border: 1px solid #ddd;" placeholder="Search Job, Name or Phone..." value="<?= htmlspecialchars($search) ?>">
-            <button type="submit" class="btn-search" style="padding: 10px 25px; border-radius: 10px; border: none; background: var(--primary); color: white; cursor: pointer; font-weight: bold;">Search</button>
+            <input type="text" name="search" style="padding: 12px; width: 350px; border-radius: 10px; border: 1px solid #ddd;" placeholder="Search Job, Name or Phone..." value="<?= htmlspecialchars($search) ?>">
+            <button type="submit" style="padding: 10px 25px; border-radius: 10px; border: none; background: var(--primary); color: white; cursor: pointer; font-weight: bold;">Search</button>
             <?php if($search != '' || $date_filter != ''): ?>
                 <a href="?" style="padding: 10px; color: var(--danger); text-decoration: none; font-size: 14px; align-self: center;">✕ Clear</a>
             <?php endif; ?>
@@ -131,10 +128,16 @@ $result = mysqli_query($conn, $sql);
                         $id = $row['job_device_id'];
                         $days_passed = 0; $delay_fee = 0;
                         $is_destroy_ready = false; $needs_sms_warning = false;
+                        $needs_rent_warning = false;
 
                         if($row['device_status'] == 'Completed' && $row['completed_date'] != null) {
                             $days_passed = floor((time() - strtotime($row['completed_date'])) / 86400);
+                            
+                            // Rent calculation - Rs 100 for every 30 days after first 90 days
                             if($days_passed > 90) { $delay_fee = ceil(($days_passed - 90) / 30) * 100; }
+                            
+                            // Logic for warnings
+                            if($days_passed >= 90 && $days_passed < 365 && $row['rent_warning_sent'] == 0) $needs_rent_warning = true;
                             if($days_passed >= 365 && empty($row['destroy_notice_sent_date'])) $needs_sms_warning = true;
                             if($days_passed >= 372 && !empty($row['destroy_notice_sent_date'])) $is_destroy_ready = true;
                         }
@@ -162,18 +165,22 @@ $result = mysqli_query($conn, $sql);
                             <?php endif; ?>
                         </td>
                         <td>
-                            <div style="display: flex; gap: 5px; justify-content: center;">
-                                <?php if($needs_sms_warning): ?>
-                                    <button onclick="sendDestroyWarning(<?= $id ?>)" style="background: var(--danger); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;">⚠️ WARNING</button>
-                                <?php else: ?>
-                                    <button onclick="manualSMS(<?= $id ?>)" style="background: var(--purple); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;">📱 SMS</button>
-                                <?php endif; ?>
+                            <div style="display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">
+                                <button onclick="manualSMS(<?= $id ?>)" style="background: var(--purple); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;" title="Send SMS">📱</button>
 
                                 <?php if($row['device_status'] == 'Completed'): ?>
                                     <?php if($is_destroy_ready): ?>
                                         <a href="destroy_page.php?id=<?= $id ?>" style="background: #000; color:white; padding:8px; border-radius:5px; text-decoration:none;">🗑️ Destroy</a>
                                     <?php else: ?>
                                         <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&fee=<?= $delay_fee ?>" style="background: var(--orange); color:white; padding:8px; border-radius:5px; text-decoration:none;">📄 Bill</a>
+                                    <?php endif; ?>
+
+                                    <?php if($needs_rent_warning): ?>
+                                        <button onclick="sendRentWarning(<?= $id ?>)" style="background: var(--warning); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;" title="Rent Warning">🔔 RENT</button>
+                                    <?php endif; ?>
+                                    
+                                    <?php if($needs_sms_warning): ?>
+                                        <button onclick="sendDestroyWarning(<?= $id ?>)" style="background: var(--danger); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;" title="Final Warning">⚠️ DESTROY</button>
                                     <?php endif; ?>
                                 <?php endif; ?>
 
@@ -192,7 +199,31 @@ $result = mysqli_query($conn, $sql);
 </div>
 
 <script>
-// --- මෙතන තිබුණු Path වැරදි මම හරිගැස්සුවා ---
+function sendRentWarning(id) {
+    if(confirm("මාස 3 පිරී ඇති බැවින් Rent එක ගැන පාරිභෝගිකයා දැනුවත් කරන්නද?")) {
+        fetch('send_rent_sms_api.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${id}`
+        }).then(res => res.text()).then(data => {
+            alert(data);
+            location.reload();
+        });
+    }
+}
+
+function sendDestroyWarning(id) {
+    if(confirm("Device is over 1 year old. Send final disposal warning?")) {
+        fetch('./send_destroy_sms_api.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${id}`
+        }).then(res => res.text()).then(data => {
+            alert(data);
+            location.reload();
+        });
+    }
+}
 
 function updateStatusOnly(id) {
     const btn = document.getElementById('stat-' + id);
@@ -215,8 +246,6 @@ function toggleEdit(id) {
 
 function sendUpdate(id, dev, iss, stat, isStatusChange) {
     let params = `id=${id}&device_name=${encodeURIComponent(dev)}&issue_name=${encodeURIComponent(iss)}&device_status=${encodeURIComponent(stat)}`;
-    
-    // වැදගත්: path එක නිවැරදි කළා
     fetch('./inline_update_api.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -240,19 +269,12 @@ function sendUpdate(id, dev, iss, stat, isStatusChange) {
 function manualSMS(id) {
     let statVal = document.getElementById('stat-' + id).value;
     if(confirm("Send SMS notification?")) {
-        
-        // කිසිම ඉස්සරහ slash එකක් නැතුව file name එක විතරක් දෙන්න
-        let url = 'send_sms_api.php'; 
-        
-        fetch(url, {
+        fetch('send_sms_api.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `id=${id}&status=${statVal}`
         })
-        .then(res => {
-            if (!res.ok) throw new Error("File එක හම්බවුණේ නැහැ (404)");
-            return res.text();
-        })
+        .then(res => res.text())
         .then(data => alert("Result: " + data))
         .catch(err => alert("ERROR: " + err.message));
     }
@@ -269,19 +291,6 @@ function deleteItem(id) {
                 document.getElementById('row-' + id).style.opacity = '0';
                 setTimeout(() => document.getElementById('row-' + id).remove(), 300);
             }
-        });
-    }
-}
-
-function sendDestroyWarning(id) {
-    if(confirm("Device is over 1 year old. Send final disposal warning?")) {
-        fetch('./send_destroy_sms_api.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${id}`
-        }).then(res => res.text()).then(data => {
-            alert(data);
-            location.reload();
         });
     }
 }
