@@ -253,4 +253,5 @@ function toggleEdit(btn){
 }
 </script>
 </body>
+<?php include 'chatbot.php'; ?>
 </html>

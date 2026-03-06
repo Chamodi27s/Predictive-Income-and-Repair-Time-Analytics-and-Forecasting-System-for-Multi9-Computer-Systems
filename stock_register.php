@@ -369,4 +369,5 @@ document.getElementById('category_name').addEventListener('input',function(){
 });
 </script>
 </body>
+<?php include 'chatbot.php'; ?>
 </html>

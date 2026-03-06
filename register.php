@@ -285,4 +285,5 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
     addDevice(); 
 </script>
 </body>
+<?php include 'chatbot.php'; ?>
 </html>

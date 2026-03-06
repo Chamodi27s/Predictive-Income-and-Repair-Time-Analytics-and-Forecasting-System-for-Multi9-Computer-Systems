@@ -148,4 +148,5 @@ if (isset($_POST['confirm_destroy'])) {
 </div>
 
 </body>
+<?php include 'chatbot.php'; ?>
 </html>

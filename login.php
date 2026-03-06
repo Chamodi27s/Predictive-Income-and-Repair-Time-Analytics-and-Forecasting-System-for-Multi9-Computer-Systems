@@ -89,4 +89,5 @@ if (isset($_POST['login'])) {
 </div>
 
 </body>
+<?php include 'chatbot.php'; ?>
 </html>

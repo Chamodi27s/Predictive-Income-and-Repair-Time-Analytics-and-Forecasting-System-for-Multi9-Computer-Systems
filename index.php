@@ -288,4 +288,5 @@ body {
 </div>
 
 </body>
+<?php include 'chatbot.php'; ?>
 </html>

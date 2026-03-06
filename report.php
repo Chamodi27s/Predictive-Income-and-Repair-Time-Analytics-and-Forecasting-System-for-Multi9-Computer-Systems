@@ -314,4 +314,5 @@ if(empty($months)) { $months = [date('F')]; $revenues = [0]; }
     });
 </script>
 </body>
+<?php include 'chatbot.php'; ?>
 </html>

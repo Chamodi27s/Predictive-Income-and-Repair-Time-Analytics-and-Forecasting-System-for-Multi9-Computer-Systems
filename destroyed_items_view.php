@@ -373,4 +373,5 @@ $result = mysqli_query($conn, $sql);
 </div>
 
 </body>
+<?php include 'chatbot.php'; ?>
 </html>
