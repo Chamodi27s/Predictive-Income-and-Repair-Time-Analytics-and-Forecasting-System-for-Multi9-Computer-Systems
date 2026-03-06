@@ -46,11 +46,45 @@ if(empty($months)) { $months = [date('F')]; $revenues = [0]; }
             --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
+        /* --- DARK MODE OVERRIDES --- */
+        body.dark-mode {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+            color: #f1f5f9 !important;
+        }
+
+        body.dark-mode .stat-card, 
+        body.dark-mode .main-card,
+        body.dark-mode .table-container {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+        }
+
+        body.dark-mode .stat-value,
+        body.dark-mode .section-title,
+        body.dark-mode td strong {
+            color: #f8fafc !important;
+        }
+
+        body.dark-mode td {
+            color: #cbd5e1 !important;
+            border-bottom-color: #334155 !important;
+        }
+
+        body.dark-mode tbody tr:hover {
+            background: #172554 !important;
+        }
+
+        body.dark-mode .stat-card h3 {
+            color: #94a3b8 !important;
+        }
+
+        /* --- EXISTING STYLES --- */
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
             padding: 140px 20px 40px 20px;
             color: var(--text-dark);
+            transition: background 0.3s ease;
         }
 
         .page-container { max-width: 1200px; margin: 0 auto; }
@@ -141,33 +175,16 @@ if(empty($months)) { $months = [date('F')]; $revenues = [0]; }
             .charts-grid { grid-template-columns: 1fr !important; }
         }
 
-        /* --- PROFESSIONAL PDF/PRINT STYLES --- */
+        /* --- PRINT STYLES --- */
         @media print {
             body { background: white !important; padding: 0 !important; color: black !important; }
-            .btn-export, nav, .navbar { display: none !important; } /* Hide UI elements */
+            .btn-export, nav, .navbar { display: none !important; }
             .page-container { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 10mm !important; }
-            
-            .page-header { 
-                background: #f8fafc !important; color: black !important; 
-                border: 1px solid #000 !important; box-shadow: none !important; 
-                border-radius: 10px !important; margin-bottom: 20px !important;
-            }
-            
-            .stat-card, .main-card { 
-                box-shadow: none !important; border: 1px solid #ddd !important; 
-                border-radius: 10px !important; transform: none !important;
-                page-break-inside: avoid;
-            }
-
-            th { 
-                background: #e2e8f0 !important; color: black !important; 
-                border-bottom: 2px solid #000 !important; 
-            }
-
+            .page-header { background: #f8fafc !important; color: black !important; border: 1px solid #000 !important; box-shadow: none !important; border-radius: 10px !important; margin-bottom: 20px !important; }
+            .stat-card, .main-card { box-shadow: none !important; border: 1px solid #ddd !important; border-radius: 10px !important; transform: none !important; page-break-inside: avoid; }
+            th { background: #e2e8f0 !important; color: black !important; border-bottom: 2px solid #000 !important; }
             .section-title::before { background: #000 !important; }
             canvas { max-width: 100% !important; height: auto !important; }
-            
-            /* Professional Header for Print */
             .page-header h1 { color: black !important; }
             .page-header p { color: #555 !important; }
         }
@@ -285,6 +302,8 @@ if(empty($months)) { $months = [date('F')]; $revenues = [0]; }
 
 <script>
     const ctx = document.getElementById('revenueChart').getContext('2d');
+    
+    // Gradient logic will also adapt to Dark Mode visually via chart options
     const gradient = ctx.createLinearGradient(0, 0, 0, 400);
     gradient.addColorStop(0, '#2ecc71');
     gradient.addColorStop(1, '#27ae60');
@@ -304,11 +323,20 @@ if(empty($months)) { $months = [date('F')]; $revenues = [0]; }
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            animation: false, // Disabling animation for clean PDF output
-            plugins: { legend: { display: false } },
+            animation: false,
+            plugins: { 
+                legend: { display: false } 
+            },
             scales: { 
-                y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, 
-                x: { grid: { display: false } } 
+                y: { 
+                    beginAtZero: true, 
+                    grid: { color: document.body.classList.contains('dark-mode') ? '#334155' : '#f1f5f9' },
+                    ticks: { color: document.body.classList.contains('dark-mode') ? '#94a3b8' : '#64748b' }
+                }, 
+                x: { 
+                    grid: { display: false },
+                    ticks: { color: document.body.classList.contains('dark-mode') ? '#94a3b8' : '#64748b' }
+                } 
             }
         }
     });
