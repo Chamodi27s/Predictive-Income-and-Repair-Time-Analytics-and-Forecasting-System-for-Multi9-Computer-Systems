@@ -30,7 +30,7 @@ if (isset($_POST['id']) && isset($_POST['data'])) {
         // --- SMS Logic ආරම්භය ---
         // Status එක 'Approved' නම් පමණක් SMS එක යවමු
         if ($data['job_status'] === 'Approved') {
-            $api_key = "379|OCV7ch8N7DpdjC5x5YMjg39tuko9SBft5FG4TAr9";
+            $api_key = "380|ulpebaPoK21nbP|TNCjeTP9Saij7R2Y19oxluWWf";
             $phone = "94" . ltrim(ltrim($data['phone_number'], '94'), '0');
             $cost = number_format($data['estimated_cost'], 2);
             $issue = $data['issue_name'];
