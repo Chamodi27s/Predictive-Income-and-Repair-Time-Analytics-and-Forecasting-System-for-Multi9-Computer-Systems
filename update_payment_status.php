@@ -1,46 +1,45 @@
 <?php
 include 'db_config.php';
 
-if (isset($_POST['payment_id']) && isset($_POST['acc_id'])) {
-    $payment_id = $conn->real_escape_string($_POST['payment_id']);
-    $acc_id = $conn->real_escape_string($_POST['acc_id']);
-    $amount = floatval($_POST['amount']);
-    $ref_no = $conn->real_escape_string($_POST['ref_no']); // Invoice No or Loan ID
+// POST එක හරහා දත්ත ලැබෙනවාදැයි පරීක්ෂා කිරීම
+if (isset($_POST['invoice_no']) && isset($_POST['status'])) {
+    $inv_no = $conn->real_escape_string($_POST['invoice_no']);
+    $status = $conn->real_escape_string($_POST['status']); // AJAX එකෙන් එන status එක (Paid/Complete)
     $date = date('Y-m-d');
 
-    // Database වැඩ ටික ආරම්භ කිරීම
     $conn->begin_transaction();
-
     try {
-        // 1. Payment එකේ status එක 'Paid' ලෙස update කිරීම
-        $update_pay_sql = "UPDATE payments SET status = 'Paid', paid_date = '$date' WHERE pay_id = '$payment_id'";
-        $conn->query($update_pay_sql);
+        // 1. Invoice එකේ මුදල ලබාගැනීම
+        $inv_res = $conn->query("SELECT grand_total FROM invoice WHERE invoice_no = '$inv_no'");
+        if ($inv_res->num_rows == 0) {
+            throw new Exception("Invoice not found!");
+        }
+        $inv_data = $inv_res->fetch_assoc();
+        $amount = floatval($inv_data['grand_total']);
 
-        // 2. අන්තිම Cashbook balance එක ලබා ගැනීම
+        // 2. Invoice Status එක Update කිරීම (ඔයා එවන Status එක මෙතනට වැටේ)
+        $conn->query("UPDATE invoice SET payment_status = '$status' WHERE invoice_no = '$inv_no'");
+
+        // 3. Cashbook එකේ අන්තිම balance එක අරන් අලුත් balance එක හදන්න
         $res = $conn->query("SELECT balance FROM cashbook ORDER BY cashid DESC LIMIT 1");
-        $row = $res->fetch_assoc();
-        $last_balance = ($row) ? floatval($row['balance']) : 0;
+        $last_balance = 0;
+        if ($res && $row = $res->fetch_assoc()) {
+            $last_balance = floatval($row['balance']);
+        }
         $new_balance = $last_balance + $amount;
 
-        // 3. Cashbook එකට record එක ඇතුළත් කිරීම
-        $insert_cash_sql = "INSERT INTO cashbook (date, invoice_no, income, balance, acc_id) 
-                            VALUES ('$date', 'PAY-$ref_no', '$amount', '$new_balance', '$acc_id')";
-        $conn->query($insert_cash_sql);
+        // 4. Cashbook එකට දත්ත ඇතුළත් කිරීම
+        $sql_cash = "INSERT INTO cashbook (date, invoice_no, income, balance) VALUES ('$date', '$inv_no', '$amount', '$new_balance')";
+        $conn->query($sql_cash);
 
-        // 4. තෝරාගත් බැංකු ගිණුමේ (Account) balance එක update කිරීම
-        $update_acc_sql = "UPDATE accounts SET balance = balance + $amount WHERE acc_id = '$acc_id'";
-        $conn->query($update_acc_sql);
-
-        // සියල්ල සාර්ථක නම් Commit කරන්න
         $conn->commit();
-        echo json_encode(['status' => 'success', 'message' => 'Payment processed successfully!']);
-
+        echo "success"; // සාර්ථක නම් මේක පිට කරයි
     } catch (Exception $e) {
-        // වැරැද්දක් වුනොත් ඔක්කොම cancel කරන්න
         $conn->rollback();
-        echo json_encode(['status' => 'error', 'message' => 'Transaction failed!']);
+        echo "Error: " . $e->getMessage();
     }
 } else {
-    echo json_encode(['status' => 'error', 'message' => 'Invalid Request!']);
+    // දත්ත ලැබුණේ නැත්නම් මේ error එක පෙන්වයි
+    echo '{"status":"error","message":"Invalid Request!"}';
 }
 ?>

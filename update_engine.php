@@ -40,7 +40,7 @@ if (isset($_POST['id']) && isset($_POST['data'])) {
             $url = "https://dashboard.smsapi.lk/api/v3/sms/send";
             $sms_data = array(
                 'recipient' => $phone,
-                'sender_id' => "SMSAPI Demo", // ඔයාගේ Sender ID එක මෙතනට දාන්න
+                'sender_id' => "SMSAPI ", // ඔයාගේ Sender ID එක මෙතනට දාන්න
                 'message' => $message
             );
 

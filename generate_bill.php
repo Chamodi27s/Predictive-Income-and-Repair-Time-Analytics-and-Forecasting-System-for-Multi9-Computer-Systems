@@ -1,6 +1,5 @@
 <?php
 include 'db_config.php';
-include 'navbar.php';
 
 date_default_timezone_set("Asia/Colombo");
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -8,7 +7,7 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 $invoice_saved = false;
 $saved_items = [];
 
-// --- නව එකතු කිරීම: View Only Mode (ලිස්ට් එකෙන් එන දත්ත බැලීමට) ---
+// --- View Only Mode (Redirection එකෙන් පස්සේ දත්ත පෙන්වීමට) ---
 if (isset($_GET['view_only']) && $_GET['view_only'] == 'true' && isset($_GET['job_no'])) {
     $v_job_no = $_GET['job_no'];
     $check_inv = $conn->query("SELECT * FROM invoice WHERE job_no = '$v_job_no'");
@@ -18,12 +17,12 @@ if (isset($_GET['view_only']) && $_GET['view_only'] == 'true' && isset($_GET['jo
         $_POST['service_charge'] = $inv_data['service_charge'];
         $_POST['parts_total'] = $inv_data['parts_total'];
         $_POST['grand_total'] = $inv_data['grand_total'];
-        $_POST['payment_status'] = $inv_data['payment_status'];
+        // Paid නම් Complete ලෙස පෙන්වමු
+        $_POST['payment_status'] = ($inv_data['payment_status'] == 'Paid') ? 'Complete' : 'Pending';
         $saved_items = json_decode($inv_data['items_json'], true);
         $invoice_saved = true;
     }
 }
-// ------------------------------------------------------------
 
 $delay_fee = isset($_GET['fee']) ? floatval($_GET['fee']) : (isset($_POST['delay_fee']) ? floatval($_POST['delay_fee']) : 0);
 
@@ -84,18 +83,17 @@ if (isset($_POST['save_invoice'])) {
         }
 
         $conn->commit();
-        $invoice_saved = true;
-        $saved_items = $temp_items;
-
+        
+        // --- SMS Logic (උඹේ code එකමයි) ---
         $phone_query = "SELECT phone_number FROM job WHERE job_no = '$job_no'";
         $phone_res = $conn->query($phone_query);
         if ($phone_row = $phone_res->fetch_assoc()) {
             $phone = "94" . ltrim(ltrim($phone_row['phone_number'], '94'), '0');
             $items_txt = !empty($item_names_list) ? implode(', ', $item_names_list) : "Service Charge Only";
-            $sms_msg = "Multi9 Invoice: #" . $inv_no . "\nItems: " . $items_txt . "\nTotal: Rs." . number_format($g_total, 2) . "\nStatus: " . $pay_status . "\nThank you!";
+            $sms_msg = "Multi9 Invoice: #" . $inv_no . "\nItems: " . $items_txt . "\nTotal: Rs." . number_format($g_total, 2) . "\nStatus: " . ($pay_status == 'Paid' ? 'Complete' : $pay_status) . "\nThank you!";
 
             $api_key = "378|Ny4YLhCMaTosGeaTZhiaWt3v7kMSd4woZZdTefLq";
-            $sender_id = "SMSAPI"; 
+            $sender_id = "SMSAPI Demo"; 
             $url = "https://dashboard.smsapi.lk/api/v3/sms/send";
             $data = array('recipient' => $phone, 'sender_id' => $sender_id, 'message' => $sms_msg);
 
@@ -108,11 +106,19 @@ if (isset($_POST['save_invoice'])) {
             curl_exec($ch);
             curl_close($ch);
         }
+
+        // --- වැදගත්ම දේ: සුදු තිරය මඟහැරීමට Redirect කිරීම ---
+        header("Location: generate_bill.php?view_only=true&job_no=" . urlencode($job_no));
+        exit();
+
     } catch (Exception $e) {
         $conn->rollback();
         die("Error: " . $e->getMessage());
     }
 }
+
+// Redirect logic එකට පස්සේ Navbar එක include කරන්න
+include 'navbar.php';
 
 $stock_res = $conn->query("SELECT item_code, item_name, unit_price FROM stock WHERE quantity > 0");
 $stock_items = $stock_res->fetch_all(MYSQLI_ASSOC);
@@ -212,11 +218,11 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
             <p>Payment Status: 
                 <?php if(!$invoice_saved): ?>
                     <select name="payment_status" style="padding: 5px;">
-                        <option value="Paid">Paid (Cash Received)</option>
+                        <option value="Paid">Complete (Cash Received)</option>
                         <option value="Pending">Pending (Not Paid)</option>
                     </select>
                 <?php else: ?>
-                    <strong id="currentStatus" style="color: <?= $_POST['payment_status'] == 'Paid' ? 'green' : 'orange' ?>;"><?= $_POST['payment_status'] ?></strong>
+                    <strong id="currentStatus" style="color: <?= $_POST['payment_status'] == 'Complete' ? 'green' : 'orange' ?>;"><?= $_POST['payment_status'] ?></strong>
                 <?php endif; ?>
             </p>
 
@@ -243,16 +249,15 @@ $next_invoice_no = (($inv_row = $inv_res->fetch_assoc()) && $inv_row['last_id'])
 <script>
 window.onload = function() { calcTotal(); };
 
-// --- නව එකතු කිරීම: AJAX මගින් Status එක Update කිරීමේ Function එක ---
 function markAsPaidAndPrint(invNo) {
-    if (confirm("ඔබට මෙම බිල Paid ලෙස සටහන් කර Print කිරීමට අවශ්‍යද?")) {
+    if (confirm("ඔබට මෙම බිල Complete ලෙස සටහන් කර Cashbook එකට ඇතුළත් කිරීමට අවශ්‍යද?")) {
         const xhr = new XMLHttpRequest();
         xhr.open("POST", "update_payment_status.php", true);
         xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhr.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 if (this.responseText.trim() === "success") {
-                    document.getElementById('currentStatus').innerText = "Paid";
+                    document.getElementById('currentStatus').innerText = "Complete";
                     document.getElementById('currentStatus').style.color = "green";
                     window.print();
                 } else {
@@ -263,7 +268,6 @@ function markAsPaidAndPrint(invNo) {
         xhr.send("invoice_no=" + invNo + "&status=Paid");
     }
 }
-// ------------------------------------------------------------------
 
 function addItem() {
     const sel = document.getElementById('itemSelect');
