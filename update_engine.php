@@ -30,7 +30,7 @@ if (isset($_POST['id']) && isset($_POST['data'])) {
         // --- SMS Logic ආරම්භය ---
         // Status එක 'Approved' නම් පමණක් SMS එක යවමු
         if ($data['job_status'] === 'Approved') {
-            $api_key = "378|Ny4YLhCMaTosGeaTZhiaWt3v7kMSd4woZZdTefLq";
+            $api_key = "379|OCV7ch8N7DpdjC5x5YMjg39tuko9SBft5FG4TAr9";
             $phone = "94" . ltrim(ltrim($data['phone_number'], '94'), '0');
             $cost = number_format($data['estimated_cost'], 2);
             $issue = $data['issue_name'];
@@ -40,7 +40,7 @@ if (isset($_POST['id']) && isset($_POST['data'])) {
             $url = "https://dashboard.smsapi.lk/api/v3/sms/send";
             $sms_data = array(
                 'recipient' => $phone,
-                'sender_id' => "SMSAPI ", // ඔයාගේ Sender ID එක මෙතනට දාන්න
+                'sender_id' => "SMSAPI Demo", // ඔයාගේ Sender ID එක මෙතනට දාන්න
                 'message' => $message
             );
 

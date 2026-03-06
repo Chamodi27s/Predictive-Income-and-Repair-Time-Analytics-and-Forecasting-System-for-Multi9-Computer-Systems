@@ -139,7 +139,7 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
 
     .menu {
         display: flex;
-        gap: 15px;
+        gap: 12px; /* මෙනු අයිතම වැඩි නිසා පොඩ්ඩක් පරතරය අඩු කළා */
     }
 
     .menu a {
@@ -220,11 +220,16 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
     }
     .profile-dropdown a:hover { background: #f0fdf4; color: #065f46; }
 
-    @media (max-width: 1050px) {
+    /* --- RESPONSIVE MOBILE CSS --- */
+    @media (max-width: 1150px) { /* Responsive වෙන සීමාව පොඩ්ඩක් වැඩි කළා මෙනු එක වැඩි නිසා */
         .topbar { padding: 15px 20px; }
-        .mobile-menu-btn { display: block; }
+        
+        .mobile-menu-btn { 
+            display: block; 
+        }
+
         .menu {
-            display: none;
+            display: none; 
             position: absolute;
             top: 100%;
             left: 0;
@@ -242,8 +247,8 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         }
         .menu a.active { background: rgba(34, 197, 94, 0.2); border-left: 4px solid #22c55e; }
         .menu a.active::after { display: none; }
-        .user-info { display: none; }
-        .chat-box { width: 90%; right: 5%; bottom: 90px; }
+
+        .user-info { display: none; } 
     }
 </style>
 
@@ -262,6 +267,7 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         <a href="warranty_list.php" class="<?= $current_page=='warranty_list.php'?'active':'' ?>">Warranty</a>
         <a href="collected.php" class="<?= $current_page=='collected.php'?'active':'' ?>">Collected</a>
         <a href="job_list.php" class="<?= $current_page=='job_list.php'?'active':'' ?>">Order</a>
+        <a href="invoice_list.php" class="<?= $current_page=='invoice_list.php'?'active':'' ?>">Invoice</a>
         <a href="cashbook_view.php" class="<?= $current_page=='cashbook_view.php'?'active':'' ?>">Payment</a>
         <a href="report.php" class="<?= $current_page=='report.php'?'active':'' ?>">Report</a>
         <a href="stock.php" class="<?= $current_page=='stock.php'?'active':'' ?>">Stock</a>
