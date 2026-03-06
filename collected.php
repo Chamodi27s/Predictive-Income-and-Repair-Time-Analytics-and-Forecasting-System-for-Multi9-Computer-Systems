@@ -21,7 +21,6 @@ if(isset($_GET['range'])) {
     <title>Jobs Management | Smart Repair</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* උඹේ පරණ ඔක්කොම CSS ටික මෙතන තියෙනවා */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #2ecc71; --primary-hover: #27ae60; --primary-dark: #229954;
@@ -31,22 +30,22 @@ if(isset($_GET['range'])) {
             --border: #e2e8f0; --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
             --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); padding: 140px 20px 40px 20px; color: var(--text-main); }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); padding: 140px 20px 40px 20px; color: var(--text-main); transition: background 0.3s ease, color 0.3s ease; }
         .page-container { max-width: 1200px; margin: 0 auto; }
         .page-header { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); padding: 36px 40px; border-radius: 20px; margin-bottom: 32px; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4); color: white; text-align: center; }
         .page-header h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 12px; }
-        .container { background: var(--card-bg); padding: 36px; border-radius: 20px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); animation: fadeIn 0.5s ease-out; }
+        .container { background: var(--card-bg); padding: 36px; border-radius: 20px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); animation: fadeIn 0.5s ease-out; transition: all 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 2px solid var(--border); flex-wrap: wrap; gap: 20px; }
         .search-box { display: flex; gap: 12px; align-items: center; }
-        .search-input { padding: 12px 20px; border: 2px solid var(--border); border-radius: 12px; width: 320px; outline: none; background: #f8fafc; }
+        .search-input { padding: 12px 20px; border: 2px solid var(--border); border-radius: 12px; width: 320px; outline: none; background: #f8fafc; transition: all 0.3s ease; }
         .table-container { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
         table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1100px; }
         th { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); text-align: left; padding: 16px 18px; font-size: 13px; color: white; font-weight: 800; text-transform: uppercase; }
-        td { padding: 16px 18px; font-size: 14px; border-bottom: 1px solid #f0f2f5; }
-        .table-input { width: 100%; border: 2px solid transparent; background: transparent; padding: 8px; border-radius: 8px; font-weight: 600; }
-        .editing-active { background: white !important; border: 2px solid var(--primary) !important; }
-        .status-select { padding: 10px 14px; border-radius: 10px; border: 2px solid var(--border); font-weight: 700; cursor: pointer; }
+        td { padding: 16px 18px; font-size: 14px; border-bottom: 1px solid #f0f2f5; transition: all 0.3s ease; }
+        .table-input { width: 100%; border: 2px solid transparent; background: transparent; padding: 8px; border-radius: 8px; font-weight: 600; color: inherit; }
+        .editing-active { background: white !important; border: 2px solid var(--primary) !important; color: #1a202c !important; }
+        .status-select { padding: 10px 14px; border-radius: 10px; border: 2px solid var(--border); font-weight: 700; cursor: pointer; background: white; transition: all 0.3s ease; }
         .status-pending { background: #e0e7ff; color: #3730a3; }
         .status-approved { background: #dcfce7; color: #166534; }
         .btn-edit { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 700; white-space: nowrap; }
@@ -55,12 +54,58 @@ if(isset($_GET['range'])) {
         .filter-btn { padding: 8px 15px; border-radius: 8px; border: 1px solid var(--border); background: white; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.3s; }
         .filter-btn:hover { background: #f0f0f0; }
         .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        
-        /* අලුතින් එක්කළ මෝස්තරය */
-        .est-input { width: 100px; padding: 5px; border: 1px solid var(--border); border-radius: 5px; font-weight: bold; color: var(--primary-dark); }
+        .est-input { width: 100px; padding: 5px; border: 1px solid var(--border); border-radius: 5px; font-weight: bold; color: var(--primary-dark); background: white; }
+
+        /* ============================================================
+           DARK MODE GLASS DASHBOARD STYLES (ONLY FOR DARK MODE)
+           ============================================================ */
+        body.dark-mode {
+            background: linear-gradient(135deg, #020617 0%, #0f172a 100%) !important;
+            color: #e2e8f0 !important;
+        }
+
+        body.dark-mode .container {
+            background: rgba(30, 41, 59, 0.6) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        body.dark-mode h2 { color: #ffffff !important; }
+        body.dark-mode .header-section { border-bottom-color: rgba(255, 255, 255, 0.1) !important; }
+
+        body.dark-mode td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+            color: #cbd5e1 !important;
+        }
+
+        body.dark-mode .table-container { border-color: rgba(255, 255, 255, 0.1) !important; }
+
+        body.dark-mode .search-input,
+        body.dark-mode .status-select,
+        body.dark-mode .est-input,
+        body.dark-mode .filter-btn {
+            background: rgba(15, 23, 42, 0.9) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+        }
+
+        body.dark-mode .editing-active {
+            background: #ffffff !important;
+            color: #0f172a !important;
+        }
+
+        body.dark-mode .filter-btn.active {
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+
+        body.dark-mode .status-pending { background: rgba(99, 102, 241, 0.2) !important; color: #a5b4fc !important; }
+        body.dark-mode .status-approved { background: rgba(34, 197, 94, 0.2) !important; color: #86efac !important; }
     </style>
 </head>
-<body>
+<body id="jobsBody">
 
 <div class="page-container">
     <div class="page-header">
@@ -99,7 +144,6 @@ if(isset($_GET['range'])) {
                 </thead>
                 <tbody>
                     <?php
-                    // SQL එකට j.estimated_cost එකතු කළා
                     $sql = "SELECT j.job_no, j.job_status, j.estimated_cost, c.customer_name, c.email, c.phone_number, jd.issue_name, jd.warranty_status, jd.issue_category 
                             FROM job j
                             LEFT JOIN customer c ON j.phone_number = c.phone_number
@@ -157,13 +201,22 @@ if(isset($_GET['range'])) {
 </div>
 
 <script>
-// Filter Table function එකේ වෙනසක් නැත
+function syncTheme() {
+    const body = document.getElementById('jobsBody');
+    const isDark = localStorage.getItem("darkMode") === "enabled";
+    if (isDark) {
+        body.classList.add("dark-mode");
+    } else {
+        body.classList.remove("dark-mode");
+    }
+}
+syncTheme();
+setInterval(syncTheme, 500);
 
 function updateStatusOnly(id) {
     const statSelect = document.getElementById('stat-' + id);
     const currentStatus = statSelect.value;
     
-    // වැදගත්: Status එක Approved කරනකොට ගාණ ඇතුළත් කරලා නැත්නම් ඒක අහනවා
     if (currentStatus === 'Approved') {
         let currentEst = document.getElementById('est-' + id).value;
         let newEst = prompt("කරුණාකර ඇස්තමේන්තුගත මුදල (Estimate Cost) තහවුරු කරන්න:", currentEst);
@@ -171,7 +224,6 @@ function updateStatusOnly(id) {
         if (newEst !== null) {
             document.getElementById('est-' + id).value = newEst;
         } else {
-            // Cancel කළොත් ආපහු Pending වලට හරවනවා
             statSelect.value = 'Pending';
             return;
         }
@@ -190,7 +242,7 @@ function saveToDB(id, callback = null) {
         phone_number: document.getElementById('phone-' + id).value,
         job_status: document.getElementById('stat-' + id).value,
         issue_category: document.getElementById('cat-' + id).value,
-        estimated_cost: document.getElementById('est-' + id).value // අලුතින් එක්කළ දත්තය
+        estimated_cost: document.getElementById('est-' + id).value 
     };
 
     const xhr = new XMLHttpRequest();
@@ -211,7 +263,6 @@ function saveToDB(id, callback = null) {
     xhr.send("id=" + encodeURIComponent(id) + "&data=" + encodeURIComponent(JSON.stringify(data)));
 }
 
-// toggleEdit සහ filterTable functions වල වෙනසක් නැත
 function toggleEdit(id) {
     const fields = ['name', 'issue', 'phone'];
     const btn = document.getElementById('btn-edit-' + id);

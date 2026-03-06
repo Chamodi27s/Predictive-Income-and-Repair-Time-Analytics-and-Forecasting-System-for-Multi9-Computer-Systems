@@ -15,8 +15,8 @@ $date_filter = isset($_GET['date_filter']) ? $_GET['date_filter'] : '';
 
 // Invoice එකක් නැති හෝ Invoice එකක් තිබුණත් එය 'Paid' නොවූ ඒව පමණක් පෙන්වයි
 $sql = "SELECT j.job_no, j.job_date, t.name as technician_name, c.customer_name, j.phone_number, 
-               jd.job_device_id, jd.device_name, jd.issue_name, jd.device_status,
-               jd.completed_date, jd.destroy_notice_sent_date, jd.rent_warning_sent 
+                jd.job_device_id, jd.device_name, jd.issue_name, jd.device_status,
+                jd.completed_date, jd.destroy_notice_sent_date, jd.rent_warning_sent 
         FROM job j
         INNER JOIN customer c ON j.phone_number = c.phone_number
         INNER JOIN job_device jd ON j.job_no = jd.job_no 
@@ -57,24 +57,81 @@ $result = mysqli_query($conn, $sql);
             --border: #e2e8f0; --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
             --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); padding: 120px 20px 40px 20px; color: var(--text-main); }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); padding: 120px 20px 40px 20px; color: var(--text-main); transition: background 0.3s ease, color 0.3s ease; }
         .page-container { max-width: 1200px; margin: 0 auto; }
         .page-header { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); padding: 30px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3); color: white; text-align: center; animation: fadeIn 0.8s ease-out; }
         .badge { padding: 5px 12px; border-radius: 50px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .filter-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
         .filter-tag { padding: 10px 20px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 13px; transition: all 0.2s; color: white; }
         .active-tag { transform: scale(1.05); outline: 3px solid rgba(0,0,0,0.1); }
-        .table-container { background: white; border-radius: 15px; box-shadow: var(--shadow-lg); overflow: hidden; }
+        .table-container { background: white; border-radius: 15px; box-shadow: var(--shadow-lg); overflow: hidden; transition: all 0.3s ease; }
         .status-table { width: 100%; border-collapse: collapse; }
-        .status-table th { background: #f1f5f9; color: var(--text-muted); padding: 15px; font-size: 12px; text-align: center; }
-        .status-table td { padding: 15px; border-bottom: 1px solid var(--border); text-align: center; }
-        .inline-input { width: 100%; border: 1px solid transparent; background: #f8fafc; padding: 8px; border-radius: 6px; text-align: center; font-size: 14px; }
+        .status-table th { background: #f1f5f9; color: var(--text-muted); padding: 15px; font-size: 12px; text-align: center; transition: background 0.3s ease; }
+        .status-table td { padding: 15px; border-bottom: 1px solid var(--border); text-align: center; transition: all 0.3s ease; }
+        .inline-input { width: 100%; border: 1px solid transparent; background: #f8fafc; padding: 8px; border-radius: 6px; text-align: center; font-size: 14px; transition: all 0.3s ease; }
         .inline-input.editing { border-color: var(--primary); background: white; box-shadow: 0 0 5px rgba(46,204,113,0.3); }
         .btn-loading { opacity: 0.5; pointer-events: none; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ============================================================
+            DARK MODE GLASS DASHBOARD STYLES (ONLY FOR DARK MODE)
+           ============================================================ */
+        body.dark-mode {
+            background: linear-gradient(135deg, #020617 0%, #0f172a 100%) !important;
+            color: #e2e8f0 !important;
+        }
+
+        body.dark-mode .table-container {
+            background: rgba(30, 41, 59, 0.6) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        body.dark-mode .status-table th {
+            background: rgba(15, 23, 42, 0.8) !important;
+            color: #94a3b8 !important;
+        }
+
+        body.dark-mode .status-table td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+            color: #cbd5e1 !important;
+        }
+
+        body.dark-mode .inline-input {
+            background: rgba(15, 23, 42, 0.5) !important;
+            color: #f1f5f9 !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        }
+
+        body.dark-mode .inline-input.editing {
+            background: rgba(30, 41, 59, 0.9) !important;
+            border-color: var(--primary) !important;
+            color: white !important;
+        }
+
+        body.dark-mode select {
+            background: #1e293b !important;
+            color: white !important;
+            border: 1px solid #334155 !important;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        body.dark-mode input[name="search"] {
+            background: rgba(30, 41, 59, 0.8) !important;
+            color: white !important;
+            border: 1px solid #334155 !important;
+        }
+
+        body.dark-mode .badge {
+            background: #1e293b !important;
+            color: #94a3b8 !important;
+        }
     </style>
 </head>
-<body>
+<body id="jobBody">
 
 <div class="page-container">
     <div class="page-header">
@@ -133,10 +190,8 @@ $result = mysqli_query($conn, $sql);
                         if($row['device_status'] == 'Completed' && $row['completed_date'] != null) {
                             $days_passed = floor((time() - strtotime($row['completed_date'])) / 86400);
                             
-                            // Rent calculation - Rs 100 for every 30 days after first 90 days
                             if($days_passed > 90) { $delay_fee = ceil(($days_passed - 90) / 30) * 100; }
                             
-                            // Logic for warnings
                             if($days_passed >= 90 && $days_passed < 365 && $row['rent_warning_sent'] == 0) $needs_rent_warning = true;
                             if($days_passed >= 365 && empty($row['destroy_notice_sent_date'])) $needs_sms_warning = true;
                             if($days_passed >= 372 && !empty($row['destroy_notice_sent_date'])) $is_destroy_ready = true;
@@ -144,7 +199,7 @@ $result = mysqli_query($conn, $sql);
                     ?>
                     <tr id="row-<?= $id ?>">
                         <td>
-                            <span class="badge" style="background: #edf2f7; color: #2d3748;">#<?= $row['job_no'] ?></span><br>
+                            <span class="badge">#<?= $row['job_no'] ?></span><br>
                             <small style="font-size: 9px; color: #94a3b8;"><?= date('Y-m-d', strtotime($row['job_date'])) ?></small>
                         </td>
                         <td style="text-align: left;">
@@ -199,6 +254,39 @@ $result = mysqli_query($conn, $sql);
 </div>
 
 <script>
+// --- Theme Handling & Auto Refresh ---
+let currentTheme = localStorage.getItem("darkMode");
+
+function applySavedTheme() {
+    const body = document.getElementById('jobBody');
+    const isDark = localStorage.getItem("darkMode") === "enabled";
+    if (isDark) {
+        body.classList.add("dark-mode");
+    } else {
+        body.classList.remove("dark-mode");
+    }
+}
+
+// පිටුව Load වන විට තීම් එක යෙදීම
+applySavedTheme();
+
+// localStorage වෙනස් වන විට (Chatbot එකෙන් මාරු කරන විට) පිටුව Refresh කිරීම
+window.addEventListener('storage', (e) => {
+    if (e.key === 'darkMode') {
+        location.reload();
+    }
+});
+
+// ඉතා වේගවත් පරීක්ෂාවක් (Internal page changes සඳහා)
+setInterval(() => {
+    const newTheme = localStorage.getItem("darkMode");
+    if (newTheme !== currentTheme) {
+        currentTheme = newTheme;
+        location.reload();
+    }
+}, 500);
+
+// --- Functions ---
 function sendRentWarning(id) {
     if(confirm("මාස 3 පිරී ඇති බැවින් Rent එක ගැන පාරිභෝගිකයා දැනුවත් කරන්නද?")) {
         fetch('send_rent_sms_api.php', {
