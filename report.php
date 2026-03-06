@@ -1,13 +1,24 @@
 <?php
+// 1. Errors පෙන්වන්න (Development කාලය තුළ පමණක් තබන්න)
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 include 'db_config.php';
 include 'navbar.php';
 
-// ශ්‍රී ලංකාවේ වේලාව සැකසීම
+// 2. Live Server එකේ GROUP BY ප්‍රශ්න විසඳීමට මෙය එක් කරන්න
+$conn->query("SET sql_mode=''"); 
+
+// ශ්‍රී ලංකාවේ වේලාව
 date_default_timezone_set("Asia/Colombo");
 
-// වත්මන් දිනය සහ වේලාව අනුව පරාමිතීන් සැකසීම
+// ... මෙතැනින් පහළට ඔයාගේ ඉතුරු කෝඩ් එක දිගටම යන්න ...
 $currentMonth = date('n'); 
 $currentYear = date('Y');
+// ...
+
+
+
 
 // 1. Total Repairs ලබා ගැනීම
 $totalRepairsQuery = "SELECT COUNT(*) as total FROM job_device";
