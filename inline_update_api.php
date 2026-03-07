@@ -2,7 +2,7 @@
 include 'db_config.php';
 
 // --- SMSAPI.lk Settings ---
-$api_key = "378|Ny4YLhCMaTosGeaTZhiaWt3v7kMSd4woZZdTefLq"; // ඔයාගේ නිවැරදි Token එක
+$api_key = "380|ulpebaPoK21nbPlTNCjeTP9Saij7R2Y19ox1uWWf"; // ඔයාගේ නිවැරදි Token එක
 $sender_id = "SMSAPI Demo"; // Dashboard එකේ පෙන්වන විදියටම
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
