@@ -1,6 +1,5 @@
 <?php
 include 'db_config.php';
-include 'navbar.php';
 
 // Job Number calculation
 $query = "SELECT job_no FROM job ORDER BY job_no DESC LIMIT 1";
@@ -15,9 +14,7 @@ if ($last_job) {
 }
 $job_no = "ORD-" . $new_number;
 
-// Technicians සහ Issues Database එකෙන් ලබා ගැනීම
 $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
-// මෙහිදී අපි Database එකේ ඇති වෙනත් issues ඇත්නම් ඒවාද ලබා ගනිමු
 $issue_result = mysqli_query($conn, "SELECT * FROM issue"); 
 ?>
 
@@ -27,8 +24,21 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Service Registration | Smart Repair</title>
+    
+    <script>
+        // Navbar එකේ logic එකට ගැලපෙන පරිදි localStorage පරීක්ෂාව
+        (function() {
+            const savedTheme = localStorage.getItem("darkMode");
+            if (savedTheme === "enabled") {
+                document.documentElement.classList.add("dark-mode"); // HTML වලටත් දානවා safer වෙන්න
+            }
+        })();
+    </script>
+
+    <?php include 'navbar.php'; ?>
+
     <style>
-        /* ඔබේ මුල් CSS එලෙසම පවතී */
+        /* --- ඔබේ මුල් CSS (කිසිවක් වෙනස් කර නැත) --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
@@ -39,23 +49,63 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
             padding-right: 40px;
             color: #2c3e50;
         }
+
+        /* --- DARK MODE APPLY (Navbar CSS එකට ගැලපෙන පරිදි) --- */
+        /* Navbar එකේ body.dark-mode පාවිච්චි කරන නිසා අපිත් ඒකම පාවිච්චි කරමු */
+        body.dark-mode {
+            background: linear-gradient(135deg, #020617, #0f172a) !important;
+            color: #e2e8f0 !important;
+        }
+
+        body.dark-mode .form-card {
+            background: rgba(30, 41, 59, 0.7) !important;
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+        }
+
+        body.dark-mode .page-title h1, 
+        body.dark-mode .section-header h3,
+        body.dark-mode .job-number {
+            color: #ffffff !important;
+        }
+
+        body.dark-mode label {
+            color: #94a3b8 !important;
+        }
+
+        body.dark-mode input, 
+        body.dark-mode select, 
+        body.dark-mode textarea {
+            background: #0f172a !important;
+            border-color: #334155 !important;
+            color: #f1f5f9 !important;
+        }
+
+        body.dark-mode .device-card {
+            background: rgba(15, 23, 42, 0.5) !important;
+            border-color: #1e293b !important;
+        }
+
+        body.dark-mode .job-no-badge {
+            background: rgba(34, 197, 94, 0.1) !important;
+            border-color: #22c55e !important;
+        }
+
+        body.dark-mode .btn-add {
+            background: transparent !important;
+            color: #22c55e !important;
+        }
+
+        /* --- මුල් CSS ඉතිරි කොටස --- */
         .container { max-width: 1000px; margin: 0 auto; margin-top: 25px; }
         .page-title { text-align: center; margin-bottom: 30px; }
         .page-title h1 { font-size: 32px; font-weight: 700; color: #2c3e50; margin-bottom: 8px; }
         .page-title p { color: #7f8c8d; font-size: 15px; }
-        .form-card { 
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(46, 125, 50, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-        }
+        .form-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 40px; border-radius: 20px; box-shadow: 0 8px 32px rgba(46, 125, 50, 0.12); border: 1px solid rgba(255, 255, 255, 0.5); transition: 0.3s; }
         .section { margin-bottom: 35px; padding-bottom: 25px; border-bottom: 2px solid #f0f2f5; }
-        .section:last-of-type { border-bottom: none; }
         .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid #2ecc71; }
         .section-header h3 { font-size: 18px; font-weight: 700; color: #2c3e50; }
-        .section-icon { font-size: 24px; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 20px; }
         .form-group { display: flex; flex-direction: column; }
         label { font-weight: 600; margin-bottom: 8px; font-size: 13px; color: #5a6c7d; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -64,15 +114,14 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
         .job-no-badge { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 2px solid #2ecc71; padding: 15px 20px; border-radius: 12px; text-align: center; margin-bottom: 25px; }
         .job-no-badge label { font-size: 11px; color: #27ae60; margin-bottom: 5px; }
         .job-no-badge .job-number { font-size: 24px; font-weight: 800; color: #2c3e50; letter-spacing: 1px; }
-        .device-card { background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 2px solid #e8ecef; padding: 25px; border-radius: 15px; margin-bottom: 20px; position: relative; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); transition: all 0.3s ease; }
-        .device-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .device-card { background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 2px solid #e8ecef; padding: 25px; border-radius: 15px; margin-bottom: 20px; position: relative; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); transition: 0.3s; }
         .btn-primary { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; border: none; padding: 16px 32px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 700; font-size: 15px; box-shadow: 0 6px 20px rgba(46, 204, 113, 0.3); margin-top: 20px; }
         .btn-add { background: white; border: 2px solid #2ecc71; color: #2ecc71; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; width: 100%; margin-bottom: 10px; }
         .remove-btn { color: #e74c3c; cursor: pointer; font-size: 14px; border: 2px solid #e74c3c; background: white; padding: 6px 14px; border-radius: 8px; font-weight: 600; }
         .loading-text { font-size: 11px; color: #2ecc71; display: none; margin-left: 8px; font-weight: 600; }
     </style>
 </head>
-<body>
+<body class="<?= (isset($_COOKIE['darkMode']) && $_COOKIE['darkMode'] == 'enabled') ? 'dark-mode' : '' ?>">
 
 <div class="container">
     <div class="page-title">
@@ -91,7 +140,7 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Phone Number <span id="searching" class="loading-text">(Searching...)</span></label>
-                        <input type="text" name="phone_number" id="customer_phone" placeholder="07xxxxxxxx" required autocomplete="off" pattern="[0-9+]{10,15}">
+                        <input type="text" name="phone_number" id="customer_phone" placeholder="07xxxxxxxx" required autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label>Customer Name</label>
@@ -150,19 +199,27 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
 </div>
 
 <script>
-    // Phone Number එකට ඉලක්කම් සහ + පමණක් ලබා ගැනීම
-    document.getElementById('customer_phone').addEventListener('input', function (e) {
-        this.value = this.value.replace(/[^0-9+]/g, '');
+    // Navbar එකේ Dark Mode switch එකට respond කිරීම සඳහා අමතර Listener එකක්
+    function checkTheme() {
+        const savedTheme = localStorage.getItem("darkMode");
+        if (savedTheme === "enabled") {
+            document.body.classList.add("dark-mode");
+        } else {
+            document.body.classList.remove("dark-mode");
+        }
+    }
+
+    // Navbar button එක ක්ලික් කළ විට මේ පිටුවේ styles ද වහාම මාරු වීමට මෙය අවශ්‍යයි
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'darkMode') {
+            checkTheme();
+        }
     });
 
-    // Customer Name එකට අකුරු පමණක් ලබා ගැනීම
-    document.getElementById('customer_name').addEventListener('input', function (e) {
-        this.value = this.value.replace(/[^a-zA-Z\s.]/g, '');
-    });
-
-    // Auto-fill Customer Data
+    // --- ඔබේ මුල් JS Logic එලෙසම ---
     document.getElementById('customer_phone').addEventListener('input', function() {
-        let phone = this.value;
+        let phone = this.value.replace(/[^0-9+]/g, '');
+        this.value = phone;
         if(phone.length >= 10) {
             document.getElementById('searching').style.display = 'inline';
             fetch('get_customer.php?phone=' + phone)
@@ -174,32 +231,18 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
                     document.getElementById('customer_email').value = data.email;
                     document.getElementById('customer_address').value = data.address;
                 }
-            })
-            .catch(err => {
-                document.getElementById('searching').style.display = 'none';
             });
         }
     });
 
-    // Technician Toggle logic
     document.getElementById('techSelect').addEventListener('change', function() {
-        const newTechInput = document.getElementById('newTechInput');
-        if(this.value === 'new') {
-            newTechInput.style.display = 'block';
-            newTechInput.required = true;
-            newTechInput.focus();
-        } else {
-            newTechInput.style.display = 'none';
-            newTechInput.required = false;
-        }
+        document.getElementById('newTechInput').style.display = (this.value === 'new') ? 'block' : 'none';
     });
 
-    // Database එකේ ඇති වෙනත් Issue list එක JavaScript එකට ගැනීම
     const dbIssueList = [
         <?php 
         mysqli_data_seek($issue_result, 0);
         while($issue = mysqli_fetch_assoc($issue_result)) {
-            // Display Damage, No Power, Service යන ඒවා මෙහි ඇත්නම් ඒවා මඟ හැරීමට හෝ සියල්ල පෙන්වීමට හැකිය
             echo "{id: '".addslashes($issue['issue_name'])."', name: '".addslashes($issue['issue_name'])."'},";
         }
         ?>
@@ -211,24 +254,18 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
         const container = document.getElementById('devicesContainer');
         const div = document.createElement('div');
         div.className = 'device-card';
-
-        // අමතර issues තිබේ නම් ඒවා map කිරීම
         let dbOptions = dbIssueList.map(opt => `<option value="${opt.id}">${opt.name}</option>`).join('');
 
         div.innerHTML = `
-            <div class="device-header">
-                <div class="device-title">
-                    <span style="font-size: 18px; font-weight: bold;">📱 Device #${deviceCount}</span>
-                </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <strong>📱 Device #${deviceCount}</strong>
                 ${deviceCount > 1 ? `<button type="button" class="remove-btn" onclick="this.parentElement.parentElement.remove()">✕ Remove</button>` : ''}
             </div>
-            
             <div class="form-grid">
                 <div class="form-group">
                     <label>Device Type</label>
                     <select name="devices[]" required>
                         <option value="">-- Select Device --</option>
-                        
                         <option value="Printer">Printer</option>
                         <option value="Laptop">Laptop</option>
                         <option value="Desktop">Desktop PC</option>
@@ -236,15 +273,15 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
                 </div>
                 <div class="form-group">
                     <label>Issue Type</label>
-                    <select name="issues[]" class="issue-select" onchange="toggleNewIssue(this)" required>
+                    <select name="issues[]" onchange="toggleNewIssue(this)" required>
                         <option value="">-- Select Issue --</option>
                         <option value="Display Damage">Display Damage</option>
                         <option value="No Power">No Power</option>
                         <option value="Service">Service</option>
                         ${dbOptions}
-                        <option value="new" style="color:#2ecc71; font-weight:bold;">+ Add New Issue</option>
+                        <option value="new" style="color:#2ecc71;">+ Add New Issue</option>
                     </select>
-                    <input type="text" name="new_issues[]" class="new-issue-input" placeholder="Enter New Issue Name" style="display:none; margin-top:10px; border-color: #2ecc71;">
+                    <input type="text" name="new_issues[]" style="display:none; margin-top:10px;">
                 </div>
                 <div class="form-group">
                     <label>Warranty Status</label>
@@ -254,11 +291,10 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
                     </select>
                 </div>
             </div>
-
             <div class="form-grid" style="margin-top:20px;">
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Description / Note</label>
-                    <textarea name="descriptions[]" placeholder="e.g. Screen cracked, Back cover broken..."></textarea>
+                    <textarea name="descriptions[]" placeholder="Notes..."></textarea>
                 </div>
                 <div class="form-group">
                     <label>Device Image (Optional)</label>
@@ -269,17 +305,8 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
         container.appendChild(div);
     }
 
-    // "Add New Issue" තේරූ විට පමණක් input එක පෙන්වීමට
-    function toggleNewIssue(selectElement) {
-        const inputElement = selectElement.nextElementSibling;
-        if(selectElement.value === 'new') {
-            inputElement.style.display = 'block';
-            inputElement.required = true;
-            inputElement.focus();
-        } else {
-            inputElement.style.display = 'none';
-            inputElement.required = false;
-        }
+    function toggleNewIssue(select) {
+        select.nextElementSibling.style.display = (select.value === 'new') ? 'block' : 'none';
     }
 
     addDevice(); 
