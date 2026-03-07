@@ -86,14 +86,54 @@ $cat_items = [
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #f0fdf4 0%, #f3f4f6 100%);
             margin: 0;
-            padding-top: 120px;
-            padding-left: 40px;
-            padding-right: 40px;
+            /* Navbar එකේ පෙනුම අනුව padding සකස් කිරීම */
+            padding-top: 100px; 
+            padding-left: 20px;
+            padding-right: 20px;
             min-height: 100vh;
             color: var(--text-dark);
+            transition: all 0.3s ease;
         }
 
-        /* Animated Form Entrance */
+        /* --- NAVBAR ALIGNMENT FIX --- */
+        /* මෙය navbar.php එකේ ඇති topbar class එකට බලපායි */
+        .topbar {
+            height: 70px !important;
+            padding: 0 50px !important;
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* --- DARK MODE CSS --- */
+        body.dark-mode {
+            background: linear-gradient(135deg, #020617, #0f172a) !important;
+            color: #e2e8f0 !important;
+        }
+
+        body.dark-mode .form-box {
+            background: rgba(30, 41, 59, 0.9) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5) !important;
+            backdrop-filter: blur(10px);
+        }
+
+        body.dark-mode .header h2, body.dark-mode label {
+            color: #ffffff !important;
+        }
+
+        body.dark-mode input, body.dark-mode select {
+            background: #0f172a !important;
+            border-color: #334155 !important;
+            color: #ffffff !important;
+        }
+
+        /* --- FORM DESIGN --- */
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
@@ -103,7 +143,7 @@ $cat_items = [
             max-width: 750px;
             margin: 0 auto 50px;
             background: #ffffff;
-            padding: 45px;
+            padding: 40px;
             border-radius: 24px;
             box-shadow: 0 20px 60px -10px rgba(16, 185, 129, 0.15);
             animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -112,7 +152,6 @@ $cat_items = [
             overflow: hidden;
         }
 
-        /* Decorative top bar */
         .form-box::before {
             content: '';
             position: absolute;
@@ -123,158 +162,56 @@ $cat_items = [
             background: linear-gradient(90deg, var(--primary), #34d399);
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h2 { font-size: 26px; font-weight: 800; margin: 0 0 5px 0; }
+        .header p { color: var(--text-gray); font-size: 14px; margin: 0; }
 
-        .header h2 {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin: 0 0 8px 0;
-            letter-spacing: -0.5px;
-        }
-        
-        .header p {
-            color: var(--text-gray);
-            font-size: 15px;
-            margin: 0;
-        }
-
-        /* Message Box */
-        .msg {
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
+        .msg { padding: 12px; border-radius: 10px; margin-bottom: 20px; text-align: center; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .msg.success { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
         .msg.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 
-        /* Inputs */
-        .input-group {
-            margin-bottom: 24px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 10px;
-            color: #374151;
-            font-weight: 600;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .input-wrapper {
-            position: relative;
-        }
-
-        .input-wrapper i {
-            position: absolute;
-            left: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9ca3af;
-            font-size: 18px;
-            transition: all 0.3s ease;
-            pointer-events: none;
-        }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; color: #374151; font-weight: 600; font-size: 12px; text-transform: uppercase; }
+        .input-wrapper { position: relative; }
+        .input-wrapper i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 16px; pointer-events: none; }
 
         input, select {
             width: 100%;
-            padding: 16px 16px 16px 50px;
-            border-radius: 14px;
+            padding: 14px 14px 14px 50px;
+            border-radius: 12px;
             border: 2px solid #e5e7eb;
-            font-size: 15px;
-            font-weight: 500;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
+            font-size: 14px;
             background: #f9fafb;
-            color: var(--text-dark);
             font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            box-sizing: border-box;
         }
 
-        /* Input Focus Effects */
-        input:focus, select:focus {
-            border-color: var(--primary);
-            background: #fff;
-            outline: none;
-            box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.1);
-        }
+        input:focus, select:focus { border-color: var(--primary); outline: none; background: #fff; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
 
-        .input-wrapper input:focus ~ i, 
-        .input-wrapper select:focus ~ i {
-            color: var(--primary);
-            transform: translateY(-50%) scale(1.1);
-        }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-        /* Two Column Layout */
-        .row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-        }
-
-        /* Button */
         button {
             width: 100%;
-            padding: 18px;
+            padding: 16px;
             border: none;
-            border-radius: 14px;
+            border-radius: 12px;
             font-size: 16px;
-            font-family: 'Inter', sans-serif;
             cursor: pointer;
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: #fff;
             font-weight: 700;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.25);
-            margin-top: 15px;
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+            transition: 0.3s;
+            margin-top: 10px;
         }
 
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.35);
-        }
-        
-        button:active {
-            transform: translateY(-1px);
-        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(16, 185, 129, 0.3); }
 
-        /* Button Shine Effect */
-        button::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: 0.5s;
-        }
-        
-        button:hover::after {
-            left: 100%;
-        }
-
-        @media (max-width: 650px) {
-            .row { grid-template-columns: 1fr; gap: 0; }
-            .form-box { padding: 30px 20px; }
-        }
+        @media (max-width: 650px) { .row { grid-template-columns: 1fr; gap: 0; } body { padding-top: 90px; } }
     </style>
 </head>
-<body>
+<body class="<?php echo isset($_COOKIE['darkMode']) && $_COOKIE['darkMode'] == 'enabled' ? 'dark-mode' : ''; ?>">
 
 <div class="form-box">
     <div class="header">
@@ -343,6 +280,7 @@ $cat_items = [
                 <select name="status" required>
                     <option value="In Stock">In Stock</option>
                     <option value="Out Stock">Out Stock</option>
+                    <option value="Low Stock">Low Stock</option>
                 </select>
                 <i class="fa-solid fa-circle-check"></i>
             </div>
