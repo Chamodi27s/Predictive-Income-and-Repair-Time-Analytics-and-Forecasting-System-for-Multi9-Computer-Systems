@@ -83,6 +83,7 @@ include_once 'navbar.php';
             background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
             padding: 140px 20px 40px 20px;
             color: var(--text-main);
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         .page-container {
@@ -118,6 +119,7 @@ include_once 'navbar.php';
             border: 1px solid var(--border);
             margin-bottom: 32px;
             animation: fadeIn 0.5s ease-out;
+            transition: all 0.3s ease;
         }
 
         @keyframes fadeIn {
@@ -247,6 +249,58 @@ include_once 'navbar.php';
             font-weight: 800;
         }
 
+        /* --- Dark Mode Fixing Styles --- */
+        body.dark-mode {
+            background: linear-gradient(135deg, #020617 0%, #0f172a 100%) !important;
+            color: #e2e8f0 !important;
+        }
+
+        body.dark-mode .container {
+            background: rgba(30, 41, 59, 0.7) !important;
+            backdrop-filter: blur(12px);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .form-section {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-color: #2e7d32;
+        }
+        
+        body.dark-mode .form-section h3 {
+            color: #2ecc71;
+        }
+
+        body.dark-mode .form-control, body.dark-mode .search-input {
+            background: rgba(15, 23, 42, 0.8) !important;
+            color: white !important;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Hover fix in Dark Mode */
+        body.dark-mode tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: white !important;
+        }
+
+        body.dark-mode td { 
+            border-bottom-color: rgba(255, 255, 255, 0.05);
+            color: #cbd5e1; /* Default text color in table */
+        }
+        
+        body.dark-mode td strong {
+            color: white;
+        }
+
+        body.dark-mode .balance-bold { 
+            background: rgba(15, 23, 42, 0.6); 
+            color: #2ecc71; 
+        }
+
+        body.dark-mode .account-badge {
+            background: rgba(25, 118, 210, 0.2);
+            color: #90caf9;
+        }
+
         @media (max-width: 768px) {
             body { padding-top: 100px; }
             .grid-form { grid-template-columns: 1fr; }
@@ -254,7 +308,7 @@ include_once 'navbar.php';
         }
     </style>
 </head>
-<body>
+<body id="cashbookBody">
 
 <div class="page-container">
     <div class="page-header">
@@ -342,7 +396,7 @@ include_once 'navbar.php';
 
                     if ($result && $result->num_rows > 0) {
                         while($row = $result->fetch_assoc()) {
-                            $accName = $row['acc_name'] ? $row['acc_name'] : "<span style='color:red'>cash</span>";
+                            $accName = $row['acc_name'] ? $row['acc_name'] : "cash";
                             echo "<tr>
                                     <td><strong>{$row['date']}</strong></td>
                                     <td><span class='account-badge'>{$accName}</span></td>
@@ -362,6 +416,36 @@ include_once 'navbar.php';
 </div>
 
 <script>
+// --- Theme Handling & Auto Refresh ---
+function applySavedTheme() {
+    const body = document.getElementById('cashbookBody');
+    const isDark = localStorage.getItem("darkMode") === "enabled";
+    if (isDark) {
+        body.classList.add("dark-mode");
+    } else {
+        body.classList.remove("dark-mode");
+    }
+}
+
+applySavedTheme();
+
+// Listen for storage changes to sync theme across tabs
+window.addEventListener('storage', (e) => {
+    if (e.key === 'darkMode') {
+        applySavedTheme();
+    }
+});
+
+// Periodic check for local theme changes
+let lastThemeState = localStorage.getItem("darkMode");
+setInterval(() => {
+    let currentThemeState = localStorage.getItem("darkMode");
+    if (currentThemeState !== lastThemeState) {
+        lastThemeState = currentThemeState;
+        applySavedTheme();
+    }
+}, 500);
+
 // Account No Display Logic
 function showAccNo() {
     var select = document.getElementById("acc_select");

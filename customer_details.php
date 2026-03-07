@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($_POST['warranty_status'])) {
         foreach ($_POST['warranty_status'] as $id => $status) {
-            $id = mysqli_real_escape_string($conn, $id);
+            $id = mysqli_real_escape_string($id);
             $status = mysqli_real_escape_string($conn, $status);
             $desc = mysqli_real_escape_string($conn, $_POST['device_desc'][$id]);
             
@@ -72,7 +72,6 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
     <title>Customer Details - <?= htmlspecialchars($phone) ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* Ube thiyena okkoma CSS styles methana thiyenna arinna */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #2ecc71; --primary-hover: #27ae60; --primary-dark: #229954;
@@ -82,7 +81,56 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
             --text-muted: #475569; --border: #e2e8f0; --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08); --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        body { background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); font-family: 'Inter', sans-serif; padding: 120px 40px 40px 40px; color: var(--text-main); line-height: 1.6; }
+
+        body { background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); font-family: 'Inter', sans-serif; padding: 120px 40px 40px 40px; color: var(--text-main); line-height: 1.6; transition: background 0.3s ease; }
+
+        /* ===== DARK MODE CSS ===== */
+        body.dark-mode {
+            background: #0f172a !important;
+            color: #f1f5f9 !important;
+        }
+
+        body.dark-mode .card {
+            background: #1e293b !important;
+            border-color: #334155 !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        body.dark-mode .card-header {
+            border-bottom-color: #334155 !important;
+        }
+
+        body.dark-mode h2, body.dark-mode h3, body.dark-mode .device-name, body.dark-mode label {
+            color: #ffffff !important;
+        }
+
+        body.dark-mode input, body.dark-mode textarea, body.dark-mode select {
+            background: #0f172a !important;
+            border-color: #334155 !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-mode input[readonly], body.dark-mode textarea[readonly] {
+            background: #1e293b !important;
+            opacity: 0.8;
+        }
+
+        body.dark-mode .device-box {
+            background: #1e293b !important;
+            border-color: #334155 !important;
+        }
+
+        body.dark-mode .action-bar {
+            background: #1e293b !important;
+            border-color: #334155 !important;
+        }
+
+        body.dark-mode .btn-secondary {
+            background: #334155 !important;
+            color: #ffffff !important;
+        }
+
+        /* ===== LIGHT MODE STYLES (ORIGINAL) ===== */
         .container { max-width: 1200px; margin: 0 auto; padding-bottom: 120px; }
         .page-header { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); padding: 36px 40px; border-radius: 20px; margin-bottom: 32px; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4); color: white; }
         .page-header h1 { font-size: 34px; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
@@ -105,8 +153,6 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
         .btn-outline { border: 2px solid var(--primary); color: var(--primary); background: transparent; }
         .btn-secondary { background: #e2e8f0; color: var(--text-dark); }
         .action-bar { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: white; padding: 20px 36px; border-radius: 100px; box-shadow: var(--shadow-lg); display: flex; gap: 16px; z-index: 1000; border: 2px solid var(--border); }
-        
-        /* New Styles for Image Preview */
         .img-preview-container { margin-bottom: 20px; }
         .device-img { width: 150px; height: 150px; object-fit: cover; border-radius: 12px; border: 2px solid var(--border); cursor: pointer; transition: 0.3s; }
         .device-img:hover { transform: scale(1.05); }
@@ -224,6 +270,20 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
         </div>
     </form>
 </div>
+
+<script>
+// --- AUTO REFRESH ON MODE CHANGE ---
+let lastMode = document.body.classList.contains('dark-mode');
+const observer = new MutationObserver(() => {
+    let currentMode = document.body.classList.contains('dark-mode');
+    if (currentMode !== lastMode) {
+        lastMode = currentMode;
+        location.reload(); 
+    }
+});
+observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+</script>
+
 </body>
 <?php include 'chatbot.php'; ?>
 </html>

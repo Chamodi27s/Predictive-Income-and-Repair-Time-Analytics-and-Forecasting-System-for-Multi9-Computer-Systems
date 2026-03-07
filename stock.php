@@ -22,6 +22,7 @@ $stocks = $conn->query("
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="refresh" content="30">
 <title>Stock Management</title>
 <style>
 /* ===== BODY & CONTAINER ===== */
@@ -34,6 +35,49 @@ body {
     padding-right: 40px;
 }
 .container { max-width: 1400px; margin: auto; padding: 20px; }
+
+/* ===== DARK MODE CSS (UPDATED FOR BETTER VISIBILITY) ===== */
+body.dark-mode {
+    background: #0f172a !important;
+    color: #f1f5f9 !important;
+}
+
+body.dark-mode .table-box {
+    background: #1e293b !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,.3) !important;
+}
+
+body.dark-mode table, 
+body.dark-mode th, 
+body.dark-mode td {
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+
+body.dark-mode th {
+    background: #1e293b !important;
+    color: #94a3b8 !important;
+}
+
+/* Card visibility fix in Dark Mode */
+body.dark-mode .card h3 {
+    color: #f1f5f9 !important;
+}
+
+body.dark-mode .card h1 {
+    color: #ffffff !important; 
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+body.dark-mode .search-box {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: white !important;
+}
+
+body.dark-mode .qty-input {
+    color: #cbd5e1 !important;
+}
 
 /* ===== ORANGE ALERT (LOOP LOGIC) ===== */
 .popup {
@@ -80,11 +124,11 @@ body {
 .card h3 { margin: 0; font-size: 11px; font-weight: 700; color: #5a6c7d; text-transform: uppercase; }
 .card h1 { margin: 2px 0 0; font-size: 28px; font-weight: 800; color: #2c3e50; }
 
-/* Card Colors */
-.total { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border: 1px solid rgba(34,197,94,.3);}
-.in    { background: linear-gradient(135deg, #dbeafe, #bfdbfe); border: 1px solid rgba(59,130,246,.3);}
-.out   { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid rgba(239,68,68,.3);}
-.low   { background: linear-gradient(135deg, #fff7ed, #fed7aa); border: 1px solid rgba(249,115,22,.3);}
+/* Card Colors - Gradients maintained for visual consistency */
+.total { background: linear-gradient(135deg, #d1fae5, #10b981); border: 1px solid rgba(34,197,94,.3);}
+.in    { background: linear-gradient(135deg, #dbeafe, #3b82f6); border: 1px solid rgba(59,130,246,.3);}
+.out   { background: linear-gradient(135deg, #fee2e2, #ef4444); border: 2px solid rgba(239,68,68,.3);}
+.low   { background: linear-gradient(135deg, #fff7ed, #f97316); border: 1px solid rgba(249,115,22,.3);}
 
 /* ===== SEARCH & TABLE ===== */
 .search-add-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -153,16 +197,25 @@ th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; font-si
 </div>
 
 <script>
-// --- ALERT LOOP LOGIC (3s ON, 3s OFF) ---
+// --- AUTO REFRESH ON MODE CHANGE ---
+let lastMode = document.body.classList.contains('dark-mode');
+const observer = new MutationObserver(() => {
+    let currentMode = document.body.classList.contains('dark-mode');
+    if (currentMode !== lastMode) {
+        lastMode = currentMode;
+        location.reload(); 
+    }
+});
+observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+// --- ALERT LOOP LOGIC ---
 function startAlertLoop() {
     const lCount = <?= $lowStock ?>;
     const popup = document.getElementById("lowPopup");
     if(lCount > 0){
-        // Initial flash
         setTimeout(() => popup.classList.add("show"), 500);
         setTimeout(() => popup.classList.remove("show"), 3500);
 
-        // Continuous Loop
         setInterval(() => {
             popup.classList.add("show");
             setTimeout(() => {
@@ -187,9 +240,6 @@ function renderPagination(){
     let pages = Math.ceil(rows.length / rowsPerPage);
     const pagin = document.getElementById("pagination");
     pagin.innerHTML = "";
-    // Only show pagination if no filter is active (checking if all rows are potentially visible)
-    // For simplicity, we just rebuild buttons. If filtered, buttons might not work as expected without complex logic,
-    // so usually we hide pagination on filter. But here is standard pagination:
     for(let i=1; i<=pages; i++){
         let b = document.createElement("button");
         b.textContent = i; 
@@ -198,7 +248,7 @@ function renderPagination(){
         pagin.appendChild(b);
     }
 }
-showPage(1); // Initialize
+showPage(1);
 
 // --- SEARCH ---
 function searchTable(v){
@@ -206,25 +256,19 @@ function searchTable(v){
     rows.forEach(r => r.style.display = r.textContent.toLowerCase().includes(v) ? "" : "none");
 }
 
-// --- FILTERING LOGIC (UPDATED) ---
-
-// 1. Filter In Stock (Qty > 5)
+// --- FILTERING LOGIC ---
 function filterIn(){
     rows.forEach(r => {
         let q = parseInt(r.querySelector("input").value);
         r.style.display = (q > 5) ? "" : "none";
     });
 }
-
-// 2. Filter Out Stock (Qty == 0)
 function filterOut(){
     rows.forEach(r => {
         let q = parseInt(r.querySelector("input").value);
         r.style.display = (q === 0) ? "" : "none";
     });
 }
-
-// 3. Filter Low Stock (Qty 1 to 5)
 function filterLow(){
     document.getElementById("lowPopup").classList.remove("show");
     rows.forEach(r => {
@@ -232,7 +276,6 @@ function filterLow(){
         r.style.display = (q > 0 && q <= 5) ? "" : "none";
     });
 }
-
 function showAll(){ location.reload(); }
 
 // --- EDIT LOGIC ---
@@ -243,7 +286,6 @@ function toggleEdit(btn){
         input.disabled = false; input.focus(); btn.innerText = "Save";
     } else {
         input.disabled = true;
-        // AJAX Update
         fetch("stock_update.php", {
             method: "POST",
             headers: {"Content-Type": "application/x-www-form-urlencoded"},

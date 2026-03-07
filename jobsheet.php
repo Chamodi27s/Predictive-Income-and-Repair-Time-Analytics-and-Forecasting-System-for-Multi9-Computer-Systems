@@ -41,28 +41,16 @@ $devices_res = $conn->query("SELECT * FROM job_device WHERE job_no = '$job_no'")
 <style>
 /* මෙතැනින් Browser එකේ Headers සහ Footers ඉවත් කරයි */
 @page {
-    margin: 5mm; /* පිටුවේ මායිම */
+    margin: 5mm; 
     size: auto;
 }
 
-/* මුද්‍රණයේදී ඉහළ ලිපිනයන් ඉවත් කිරීමට */
-@media print {
-    html, body {
-        height: 100%;
-        margin: 0 !important; 
-        padding: 0 !important;
-        overflow: hidden;
-    }
-}
-
 *{box-sizing:border-box;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif}
-body{margin:0;background:#f6f4ef;color:#083024;font-size:13px; padding: 20px;}
+body{margin:0;background:#f6f4ef;color:#083024;font-size:13px; padding: 20px; transition: background 0.3s ease;}
 
-.no-print{display:block}
-.page{width:95%;max-width:1100px;margin:0 auto; background:#fff; padding:30px; border-radius:10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+.page{width:95%;max-width:1100px;margin:0 auto; background:#fff; padding:30px; border-radius:10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); transition: background 0.3s ease;}
 .grid{display:grid;grid-template-columns:1fr 320px;gap:20px; margin-top: 20px;}
 
-/* Company Header Styles */
 .company-header {
     display: flex;
     justify-content: space-between;
@@ -109,14 +97,82 @@ body{margin:0;background:#f6f4ef;color:#083024;font-size:13px; padding: 20px;}
 .bottom{display:flex;justify-content:flex-end;margin-top:15px}
 .print{padding:10px 25px;font-size:15px;font-weight:700;border:none;border-radius:8px;background:linear-gradient(#0aa37a,#056d52);color:#fff;cursor:pointer}
 
-@media(max-width:900px){ .grid{grid-template-columns:1fr} }
-
-@media print{
-   body { background: #fff; }
-   .no-print, .print{ display:none !important; }
-   .page { width: 100%; margin: 0; box-shadow: none; border: none; padding: 0; }
-   .card, .pill, .sign { border-width: 1px !important; }
+/* ===============================
+    DARK MODE SCREEN STYLES
+================================ */
+body.dark-mode {
+    background: #0f172a !important;
+    color: #f1f5f9 !important;
 }
+body.dark-mode .page { background: #1e293b !important; border: 1px solid #334155 !important; }
+body.dark-mode .company-header { border-bottom-color: #334155 !important; }
+body.dark-mode .company-details, body.dark-mode .company-details strong, body.dark-mode .dt-value, body.dark-mode .dt-label { color: #f1f5f9 !important; }
+body.dark-mode .card { background: #334155 !important; border-color: #475569 !important; }
+body.dark-mode .compact-form label { color: #cbd5e1 !important; }
+body.dark-mode .compact-form input { background: #0f172a !important; border-color: #475569 !important; color: #ffffff !important; }
+body.dark-mode .pill.device { background: #064e3b !important; border-color: #065f46 !important; }
+body.dark-mode .pill.service { background: #7f1d1d !important; border-color: #991b1b !important; }
+body.dark-mode .pill label { color: #e2e8f0 !important; }
+body.dark-mode .pill input { color: #ffffff !important; }
+body.dark-mode .sign .body { background: #1e293b !important; color: #f1f5f9 !important; }
+body.dark-mode .terms { background: #0f172a !important; border-color: #334155 !important; color: #cbd5e1 !important; }
+
+/* ===============================
+    PRINT STYLES (ENHANCED)
+================================ */
+@media print {
+    /* Print එකේදී Dark mode අක්‍රිය කර සම්පූර්ණයෙන්ම සුදු පැහැති පසුබිමක් ලබා දෙයි */
+    body, body.dark-mode { 
+        background: white !important; 
+        color: black !important; 
+        padding: 0 !important; 
+        margin: 0 !important;
+        -webkit-print-color-adjust: exact; /* Background වර්ණ ලබා ගැනීමට මෙය අත්‍යවශ්‍යයි */
+        print-color-adjust: exact;
+    }
+    
+    .page, body.dark-mode .page { 
+        width: 100% !important; 
+        max-width: 100% !important;
+        margin: 0 !important; 
+        padding: 15px !important;
+        box-shadow: none !important; 
+        border: none !important; 
+        background: white !important;
+    }
+
+    .no-print, .print, .bottom { display: none !important; }
+
+    /* Headers සහ Text පැහැදිලි කිරීමට */
+    .company-header, body.dark-mode .company-header { border-bottom: 2px solid #083024 !important; }
+    .company-details strong, body.dark-mode .company-details strong, 
+    .dt-label, .dt-value, body.dark-mode .dt-value { color: #083024 !important; }
+    
+    /* Input field අකුරු නොපෙනී යාම වැළැක්වීමට */
+    .card, body.dark-mode .card { background: #fdeff0 !important; border: 1.5px solid #7fd0b9 !important; }
+    .compact-form label { color: black !important; }
+    .compact-form input, body.dark-mode .compact-form input { 
+        background: white !important; 
+        color: black !important; 
+        border: 1px solid #9fd9c6 !important; 
+        opacity: 1 !important;
+    }
+    
+    /* Pill වර්ණ මුද්‍රණයේදී පවත්වා ගැනීම */
+    .pill.device, body.dark-mode .pill.device { background: #e8faf2 !important; border: 1px solid #7fd0b9 !important; }
+    .pill.service, body.dark-mode .pill.service { background: #fdeef0 !important; border: 1px solid #f3a5b5 !important; }
+    .pill label { color: black !important; }
+    .pill input, body.dark-mode .pill input { color: black !important; font-weight: bold !important; }
+    
+    /* අත්සන් සඳහා කොටස් */
+    .sign .body, body.dark-mode .sign .body { background: white !important; color: black !important; border-top: 1px solid #bbb !important; }
+    .sig-line { border-bottom: 1px dotted #000 !important; }
+
+    /* කොන්දේසි (Terms) */
+    .terms, body.dark-mode .terms { background: #f1fff9 !important; border: 1px dashed #9fd9c6 !important; color: black !important; }
+}
+
+@media(max-width:900px){ .grid{grid-template-columns:1fr} }
 </style>
 </head>
 <body>
@@ -199,7 +255,18 @@ body{margin:0;background:#f6f4ef;color:#083024;font-size:13px; padding: 20px;}
 </div>
 
 <script>
-// ප්‍රින්ට් ඩයලොග් එක වැසුණු පසු රීඩිරෙක්ට් කිරීම සඳහා
+// Dark Mode පරීක්ෂාව සහ යෙදීම
+function applySystemTheme() {
+    const isDark = localStorage.getItem('darkMode') === 'enabled';
+    if (isDark) {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
+}
+applySystemTheme();
+
+// මුද්‍රණයෙන් පසු Redirect කිරීම
 window.onafterprint = function() {
     window.location.href = "customer_details.php?phone=<?= urlencode($job_main['phone_number']) ?>";
 };
