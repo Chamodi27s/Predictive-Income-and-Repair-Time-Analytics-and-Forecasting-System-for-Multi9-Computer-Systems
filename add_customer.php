@@ -95,7 +95,7 @@ $total_pages = ceil($total_records / $records_per_page);
         .device-badge { background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); color: #7b1fa2; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; display: inline-block; box-shadow: 0 2px 6px rgba(123, 31, 162, 0.15); }
         .predict-btn { background: linear-gradient(135deg, #059669 0%, #059669 100%); color: white !important; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 700; display: inline-block; transition: all 0.3s ease; box-shadow: 0 3px 10px rgba(5, 150, 105, 0.3); }
 
-        /* --- New Dark Mode CSS (Only applied when .dark-mode is active) --- */
+        /* --- New Dark Mode CSS --- */
         body.dark-mode { background: #0f172a; color: #f8fafc; }
         body.dark-mode .table-section { background: #1e293b; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
         body.dark-mode .table-controls h2 { color: #f8fafc; }
@@ -109,7 +109,6 @@ $total_pages = ceil($total_records / $records_per_page);
         body.dark-mode .pagination a { background: #1e293b; border-color: #334155; color: #cbd5e1; }
         body.dark-mode .showing-text { color: #94a3b8; }
         
-        /* Pagination Styles (Unchanged but adapted for dark) */
         .pagination-container { display: flex; justify-content: space-between; align-items: center; margin-top: 25px; padding-top: 20px; border-top: 2px solid #e9ecef; }
         .pagination a { padding: 10px 16px; border-radius: 8px; text-decoration: none; color: #6c757d; font-weight: 600; border: 2px solid #e9ecef; background: white; transition: 0.3s; }
         .pagination a.active { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; border-color: transparent; }
@@ -168,10 +167,10 @@ $total_pages = ceil($total_records / $records_per_page);
                             <td><?= $row['job_date'] ? date('d/m/Y', strtotime($row['job_date'])) : '-' ?></td>
                             <td><span class="job-badge"><?= htmlspecialchars($row['job_no']) ?></span></td>
                             <td style="font-weight: 600;"><?= htmlspecialchars($row['customer_name']) ?></td>
-                            <td><?= htmlspecialchars($row['email']) ?></td>
+                            <td><?= !empty($row['email']) ? htmlspecialchars($row['email']) : '<span style="color:#94a3b8; font-style:italic;">N/A</span>' ?></td>
                             <td><?= htmlspecialchars($row['phone_number']) ?></td>
                             <td><span class="device-badge"><?= htmlspecialchars($row['all_devices']) ?></span></td>
-                            <td><?= htmlspecialchars($row['address']) ?></td>
+                            <td><?= !empty($row['address']) ? htmlspecialchars($row['address']) : '<span style="color:#94a3b8; font-style:italic;">N/A</span>' ?></td>
                             <td onclick="event.stopPropagation();">
                                 <a href="duration.php?job_no=<?= urlencode($row['job_no']) ?>" class="predict-btn">Time Duration</a>
                             </td>
@@ -195,31 +194,19 @@ $total_pages = ceil($total_records / $records_per_page);
 </div>
 
 <script>
-    /**
-     * පද්ධතිය Refresh කරන්නේ නැතිව Auto-sync වීමට පහත JavaScript එක ක්‍රියාත්මක වේ.
-     */
     function applyTheme() {
         const body = document.getElementById('pageBody');
         const isDarkMode = localStorage.getItem("darkMode") === "enabled";
-        
         if (isDarkMode) {
             body.classList.add("dark-mode");
         } else {
             body.classList.remove("dark-mode");
         }
     }
-
-    // 1. පිටුව මුලින්ම load වන විට තේමාව පරීක්ෂා කිරීම
     applyTheme();
-
-    // 2. Navbar එකේ mode එක වෙනස් කළ සැනින් හඳුනා ගැනීම (Real-time storage listener)
     window.addEventListener('storage', (event) => {
-        if (event.key === 'darkMode') {
-            applyTheme();
-        }
+        if (event.key === 'darkMode') { applyTheme(); }
     });
-
-    // 3. Navbar එකේ switch එක click කරන අවස්ථාවේදීම වර්ණ වෙනස් වීම සහතික කිරීමට (Interval sync)
     setInterval(applyTheme, 500);
 </script>
 

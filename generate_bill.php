@@ -1,5 +1,6 @@
 <?php
 include 'db_config.php';
+session_start(); // Message එක පෙන්වීමට session එකක් අවශ්‍යයි
 
 date_default_timezone_set("Asia/Colombo");
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -9,6 +10,7 @@ $saved_items = [];
 $delay_fee = 0; 
 $service_charge_val = 0;
 
+// --- SMSAPI.lk හරහා SMS යැවීමේ Function එක ---
 // --- SMSAPI.lk හරහා SMS යැවීමේ Function එක ---
 function sendSMS($mobile, $message) {
     $api_key = "380|ulpebaPoK21nbP|TNCjeTP9Saij7R2Y19oxluWWf";
@@ -33,6 +35,7 @@ function sendSMS($mobile, $message) {
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         "Authorization: Bearer $api_key",
         "Content-Type: application/json",
@@ -40,9 +43,24 @@ function sendSMS($mobile, $message) {
     ]);
 
     $response = curl_exec($ch);
+
+    // --- පරීක්ෂා කිරීම සඳහා මෙම පේළි දෙක මෙතැනට එක් කරන්න ---
+    echo "<div style='background:white; color:black; padding:20px; border:2px solid red;'>";
+    echo "<h3>SMS API Response Debugger:</h3>";
+    echo "<pre>"; print_r($response); echo "</pre>";
+    echo "</div>";
+    // --------------------------------------------------
+
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $res_data = json_decode($response, true);
     curl_close($ch);
-    return $response;
+
+    if (($http_code == 200 || $http_code == 201) && isset($res_data['status']) && $res_data['status'] == 'success') {
+        return true;
+    }
+    return false;
 }
+
 
 // --- View Only Mode ---
 if (isset($_GET['view_only']) && $_GET['view_only'] == 'true' && isset($_GET['job_no'])) {
@@ -56,7 +74,7 @@ if (isset($_GET['view_only']) && $_GET['view_only'] == 'true' && isset($_GET['jo
         $_POST['grand_total'] = $inv_data['grand_total'];
         $service_charge_val = floatval($inv_data['service_charge']);
         $_POST['payment_status'] = ($inv_data['payment_status'] == 'Paid') ? 'Complete' : 'Pending';
-        $saved_items = json_decode($inv_data['items_json'], true);
+        $saved_items = json_decode($inv_data['items_json'] ?? '[]', true);
         $invoice_saved = true;
 
         if ($inv_data['payment_status'] == 'Pending') {
@@ -121,19 +139,27 @@ if (isset($_POST['save_invoice'])) {
         }
 
         // --- SMS යැවීමේ කොටස ---
-        $cust_res = $conn->query("
-    SELECT phone_number 
-    FROM job
-    WHERE job_no = '$job_no'
-");
+        $cust_res = $conn->query("SELECT phone_number FROM job WHERE job_no = '$job_no'");
+        $cust_data = $cust_res->fetch_assoc();
+        $customer_mobile = $cust_data['phone_number'] ?? '';
 
-$cust_data = $cust_res->fetch_assoc();
-$customer_mobile = $cust_data['phone_number'] ?? '';
+        if (!empty($customer_mobile)) {
+            $items_summary = (!empty($temp_items)) ? "" : "Service Only";
+            if (!empty($temp_items)) {
+                foreach ($temp_items as $item) { $items_summary .= $item['name'] . "(" . $item['qty'] . "), "; }
+                $items_summary = rtrim($items_summary, ", ");
+            }
 
-if (!empty($customer_mobile)) {
-    $sms_msg = "Multi9 Repair: Inv #$inv_no. Total: Rs." . number_format($g_total, 2) . ". Thank you!";
-    sendSMS($customer_mobile, $sms_msg);
-}
+            $sms_msg = "Multi9 Repair: Inv #$inv_no. Items: $items_summary. Total: Rs.".number_format($g_total, 2).". Thank you!";
+            
+            if (sendSMS($customer_mobile, $sms_msg)) {
+                $_SESSION['sms_msg'] = "Invoice Saved & SMS Sent Successfully!";
+                $_SESSION['sms_type'] = "success";
+            } else {
+                $_SESSION['sms_msg'] = "Invoice Saved, but SMS Failed! (Check API Balance or Sender ID)";
+                $_SESSION['sms_type'] = "error";
+            }
+        }
 
         $conn->commit();
         header("Location: generate_bill.php?view_only=true&job_no=" . urlencode($job_no));
@@ -169,12 +195,24 @@ $next_invoice_no = (($r = $conn->query("SELECT MAX(invoice_no) AS last FROM invo
         .btn-pay { background: #e67e22; color: white; }
         .btn-back { background: #6c757d; color: white; margin-top: 20px; }
         .add-item-box { background: #e8f5e9; padding: 20px; border-radius: 8px; display: flex; gap: 10px; }
+        
+        .sms-alert { padding: 15px; margin-bottom: 20px; border-radius: 8px; font-weight: bold; text-align: center; }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
         @media print { .no-print { display: none !important; } }
     </style>
 </head>
 <body>
 
 <div class="invoice-box">
+    <?php if (isset($_SESSION['sms_msg'])): ?>
+        <div class="sms-alert alert-<?= $_SESSION['sms_type'] ?>">
+            <?= $_SESSION['sms_msg'] ?>
+        </div>
+        <?php unset($_SESSION['sms_msg'], $_SESSION['sms_type']); ?>
+    <?php endif; ?>
+
     <div class="header">
         <h1>MULTI9 COMPUTER REPAIR</h1>
         <p>Invoice No: <strong>#<?= $invoice_saved ? $_POST['invoice_no'] : $next_invoice_no ?></strong></p>

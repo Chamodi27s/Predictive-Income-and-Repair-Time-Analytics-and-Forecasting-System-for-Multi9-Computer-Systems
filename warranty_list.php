@@ -22,10 +22,12 @@ if(isset($_GET['range'])) {
     <title>Warranty Management | Smart Repair</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* --- Styles remains same, adding Returned color logic --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #2ecc71; --primary-hover: #27ae60; --primary-dark: #229954;
             --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+            --info: #3b82f6; /* Returned සඳහා නිල් පාට */
             --secondary: #64748b; --bg-main: #f8fafc; --card-bg: #ffffff;
             --text-main: #1a202c; --text-dark: #0f172a; --text-muted: #64748b;
             --border: #e2e8f0; --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -48,26 +50,14 @@ if(isset($_GET['range'])) {
         th { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; padding: 16px 18px; text-align: left; font-size: 12px; font-weight: 800; text-transform: uppercase; }
         td { padding: 16px 18px; border-bottom: 1px solid #f0f2f5; font-size: 14px; transition: border-bottom 0.3s ease; }
         .status-select { padding: 8px 12px; border-radius: 10px; border: 2px solid var(--border); font-weight: 700; font-size: 13px; background: white; transition: all 0.3s ease; }
+        .status-select:disabled { background: #f1f5f9; cursor: not-allowed; opacity: 0.7; }
         .supplier-input { padding: 10px 14px; border-radius: 10px; border: 2px solid var(--border); width: 150px; background: #f8fafc; font-weight: 600; transition: all 0.3s ease; }
         .supplier-input.editing { background: white; border-color: var(--primary); }
         .btn-edit { background: var(--primary); color: white; border: none; padding: 10px 18px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 13px; }
         .job-badge { background: #e3f2fd; color: #1976d2; padding: 6px 12px; border-radius: 8px; font-weight: 800; }
         .save-toast { position: fixed; bottom: 30px; right: 30px; background: #1e293b; color: white; padding: 16px 28px; border-radius: 12px; display: none; z-index: 1000; box-shadow: var(--shadow-lg); }
-
-        /* --- Dark Mode CSS --- */
         body.dark-mode { background: #0f172a; color: #f8fafc; }
         body.dark-mode .container { background: #1e293b; border-color: #334155; }
-        body.dark-mode h2 { color: #f8fafc; }
-        body.dark-mode .header-flex { border-bottom-color: #334155; }
-        body.dark-mode td { border-bottom-color: #334155; color: #cbd5e1; }
-        body.dark-mode .search-input { background: #0f172a; border-color: #334155; color: white; }
-        body.dark-mode .filter-btn { background: #1e293b; border-color: #334155; color: #cbd5e1; }
-        body.dark-mode .status-select { background: #0f172a; border-color: #334155; color: white; }
-        body.dark-mode .supplier-input { background: #0f172a; border-color: #334155; color: white; }
-        body.dark-mode .supplier-input.editing { background: #1e293b; border-color: var(--primary); }
-        body.dark-mode .job-badge { background: #1e293b; color: #60a5fa; border: 1px solid #334155; }
-        body.dark-mode strong { color: #f8fafc; }
-        body.dark-mode .filter-btn.active { background: var(--primary); color: white; }
     </style>
 </head>
 <body id="warrantyBody">
@@ -80,10 +70,10 @@ if(isset($_GET['range'])) {
 
     <div class="container">
         <div class="filter-buttons">
-            <button class="filter-btn <?php echo !isset($_GET['range']) ? 'active' : ''; ?>" onclick="window.location.href='?'">All</button>
-            <button class="filter-btn <?php echo ($_GET['range'] ?? '') == 'today' ? 'active' : ''; ?>" onclick="window.location.href='?range=today'">Today</button>
-            <button class="filter-btn <?php echo ($_GET['range'] ?? '') == '2weeks' ? 'active' : ''; ?>" onclick="window.location.href='?range=2weeks'">Last 2 Weeks</button>
-            <button class="filter-btn <?php echo ($_GET['range'] ?? '') == 'month' ? 'active' : ''; ?>" onclick="window.location.href='?range=month'">This Month</button>
+            <button class="filter-btn <?= !isset($_GET['range']) ? 'active' : ''; ?>" onclick="window.location.href='?'">All</button>
+            <button class="filter-btn <?= ($_GET['range'] ?? '') == 'today' ? 'active' : ''; ?>" onclick="window.location.href='?range=today'">Today</button>
+            <button class="filter-btn <?= ($_GET['range'] ?? '') == '2weeks' ? 'active' : ''; ?>" onclick="window.location.href='?range=2weeks'">Last 2 Weeks</button>
+            <button class="filter-btn <?= ($_GET['range'] ?? '') == 'month' ? 'active' : ''; ?>" onclick="window.location.href='?range=month'">This Month</button>
         </div>
 
         <div class="header-flex">
@@ -117,6 +107,7 @@ if(isset($_GET['range'])) {
 
                     while($row = mysqli_fetch_assoc($result)): 
                         $id = $row['job_device_id'];
+                        $current_status = $row['device_status'];
                         $cat_val = $row['issue_category'] ?? 'Hardware';
                     ?>
                     <tr>
@@ -134,11 +125,26 @@ if(isset($_GET['range'])) {
                             <span style="color:var(--text-muted); font-size:12px;"><?= htmlspecialchars($row['phone_number']) ?></span>
                         </td>
                         <td>
-                            <select class="status-select" id="stat-<?= $id ?>" onchange="saveAll(<?= $id ?>)">
-                                <option value="Pending" <?= $row['device_status']=='Pending'?'selected':'' ?>>⏳ Pending</option>
-                                <option value="Sent to Warranty" <?= $row['device_status']=='Sent to Warranty'?'selected':'' ?>>📦 Sent</option>
-                                <option value="Completed" <?= $row['device_status']=='Completed'?'selected':'' ?>>✅ Completed</option>
-                                <option value="Rejected" <?= $row['device_status']=='Rejected'?'selected':'' ?>>❌ Rejected</option>
+                            <select class="status-select" id="stat-<?= $id ?>" onchange="saveAll(<?= $id ?>)" 
+                                <?= ($current_status == 'Completed' || $current_status == 'Returned') ? 'disabled' : ''; ?>>
+                                
+                                <option value="Pending" 
+                                    <?= $current_status =='Pending'?'selected':'' ?> 
+                                    <?= ($current_status != 'Pending') ? 'disabled' : ''; ?>>⏳ Pending</option>
+                                
+                                <option value="Sent to Warranty" 
+                                    <?= $current_status =='Sent to Warranty'?'selected':'' ?> 
+                                    <?= ($current_status == 'Completed' || $current_status == 'Returned' || $current_status == 'Rejected') ? 'disabled' : ''; ?>>📦 Sent</option>
+                                
+                                <option value="Returned" 
+                                    <?= $current_status =='Returned'?'selected':'' ?>
+                                    style="color: var(--info);">🚚 Returned</option>
+
+                                <option value="Completed" 
+                                    <?= $current_status =='Completed'?'selected':'' ?>>✅ Completed</option>
+                                
+                                <option value="Rejected" 
+                                    <?= $current_status =='Rejected'?'selected':'' ?>>❌ Rejected</option>
                             </select>
                         </td>
                         <td>
@@ -158,31 +164,9 @@ if(isset($_GET['range'])) {
 <div id="saveMsg" class="save-toast">✅ Saved!</div>
 
 <script>
-// Dark Mode Sync Script
-function syncWarrantyTheme() {
-    const body = document.getElementById('warrantyBody');
-    const isDark = localStorage.getItem("darkMode") === "enabled";
-    if (isDark) {
-        body.classList.add("dark-mode");
-    } else {
-        body.classList.remove("dark-mode");
-    }
-}
-syncWarrantyTheme();
-window.addEventListener('storage', syncWarrantyTheme);
-setInterval(syncWarrantyTheme, 500);
-
-function filterWarranty() {
-    let input = document.getElementById("warrantySearch").value.toUpperCase();
-    let tr = document.getElementById("warrantyTable").getElementsByTagName("tr");
-    for (let i = 1; i < tr.length; i++) {
-        let text = tr[i].innerText.toUpperCase();
-        tr[i].style.display = text.includes(input) ? "" : "none";
-    }
-}
-
 function saveAll(id) {
-    let status = document.getElementById('stat-' + id).value;
+    let statusSelect = document.getElementById('stat-' + id);
+    let status = statusSelect.value;
     let supplier = document.getElementById('sup-' + id).value;
     let category = document.getElementById('cat-' + id).value;
     
@@ -192,9 +176,30 @@ function saveAll(id) {
     xhr.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             showToast("Updated!");
+            // Refresh logic to apply "disabled" status locks for final states
+            if(status === 'Completed' || status === 'Sent to Warranty' || status === 'Returned') {
+                setTimeout(() => { location.reload(); }, 1000);
+            }
         }
     };
     xhr.send("id=" + id + "&supplier=" + encodeURIComponent(supplier) + "&status=" + encodeURIComponent(status) + "&category=" + encodeURIComponent(category));
+}
+
+function syncWarrantyTheme() {
+    const body = document.getElementById('warrantyBody');
+    const isDark = localStorage.getItem("darkMode") === "enabled";
+    if (isDark) body.classList.add("dark-mode");
+    else body.classList.remove("dark-mode");
+}
+syncWarrantyTheme();
+
+function filterWarranty() {
+    let input = document.getElementById("warrantySearch").value.toUpperCase();
+    let tr = document.getElementById("warrantyTable").getElementsByTagName("tr");
+    for (let i = 1; i < tr.length; i++) {
+        let text = tr[i].innerText.toUpperCase();
+        tr[i].style.display = text.includes(input) ? "" : "none";
+    }
 }
 
 function toggleSupplier(id) {
