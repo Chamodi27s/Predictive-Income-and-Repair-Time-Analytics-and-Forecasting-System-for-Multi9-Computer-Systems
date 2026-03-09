@@ -56,51 +56,26 @@ if(isset($_GET['range'])) {
         .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .est-input { width: 100px; padding: 5px; border: 1px solid var(--border); border-radius: 5px; font-weight: bold; color: var(--primary-dark); background: white; }
 
-        /* ============================================================
-           DARK MODE GLASS DASHBOARD STYLES (ONLY FOR DARK MODE)
-           ============================================================ */
         body.dark-mode {
             background: linear-gradient(135deg, #020617 0%, #0f172a 100%) !important;
             color: #e2e8f0 !important;
         }
-
         body.dark-mode .container {
             background: rgba(30, 41, 59, 0.6) !important;
             backdrop-filter: blur(14px) !important;
-            -webkit-backdrop-filter: blur(14px) !important;
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
         }
-
         body.dark-mode h2 { color: #ffffff !important; }
         body.dark-mode .header-section { border-bottom-color: rgba(255, 255, 255, 0.1) !important; }
-
-        body.dark-mode td {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-            color: #cbd5e1 !important;
-        }
-
+        body.dark-mode td { border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; color: #cbd5e1 !important; }
         body.dark-mode .table-container { border-color: rgba(255, 255, 255, 0.1) !important; }
-
-        body.dark-mode .search-input,
-        body.dark-mode .status-select,
-        body.dark-mode .est-input,
-        body.dark-mode .filter-btn {
+        body.dark-mode .search-input, body.dark-mode .status-select, body.dark-mode .est-input, body.dark-mode .filter-btn {
             background: rgba(15, 23, 42, 0.9) !important;
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
             color: white !important;
         }
-
-        body.dark-mode .editing-active {
-            background: #ffffff !important;
-            color: #0f172a !important;
-        }
-
-        body.dark-mode .filter-btn.active {
-            background: var(--primary) !important;
-            border-color: var(--primary) !important;
-        }
-
+        body.dark-mode .editing-active { background: #ffffff !important; color: #0f172a !important; }
         body.dark-mode .status-pending { background: rgba(99, 102, 241, 0.2) !important; color: #a5b4fc !important; }
         body.dark-mode .status-approved { background: rgba(34, 197, 94, 0.2) !important; color: #86efac !important; }
     </style>
@@ -136,7 +111,8 @@ if(isset($_GET['range'])) {
                         <th>Job No</th>
                         <th>Customer</th>
                         <th>Issue</th>
-                        <th>Estimate (Rs.)</th> <th>Diagnosis Category</th>
+                        <th>Estimate (Rs.)</th> 
+                        <th>Diagnosis Category</th>
                         <th>Phone</th>
                         <th>Status</th>
                         <th>Action</th>
@@ -164,11 +140,7 @@ if(isset($_GET['range'])) {
                         <td><strong>#<?php echo $id; ?></strong></td>
                         <td><input type="text" id="name-<?php echo $id; ?>" class="table-input" value="<?php echo htmlspecialchars($row['customer_name']); ?>" readonly></td>
                         <td><input type="text" id="issue-<?php echo $id; ?>" class="table-input" value="<?php echo htmlspecialchars($row['issue_name']); ?>" readonly></td>
-                        
-                        <td>
-                            <input type="number" id="est-<?php echo $id; ?>" class="est-input" value="<?php echo $est_cost; ?>" onchange="saveToDB('<?php echo $id; ?>')">
-                        </td>
-
+                        <td><input type="number" id="est-<?php echo $id; ?>" class="est-input" value="<?php echo $est_cost; ?>" onchange="saveToDB('<?php echo $id; ?>')"></td>
                         <td>
                             <select id="cat-<?php echo $id; ?>" class="status-select" onchange="saveToDB('<?php echo $id; ?>')">
                                 <option value="Hardware" <?php if($cat_val == 'Hardware') echo 'selected'; ?>>⚙️ Hardware</option>
@@ -204,11 +176,7 @@ if(isset($_GET['range'])) {
 function syncTheme() {
     const body = document.getElementById('jobsBody');
     const isDark = localStorage.getItem("darkMode") === "enabled";
-    if (isDark) {
-        body.classList.add("dark-mode");
-    } else {
-        body.classList.remove("dark-mode");
-    }
+    if (isDark) { body.classList.add("dark-mode"); } else { body.classList.remove("dark-mode"); }
 }
 syncTheme();
 setInterval(syncTheme, 500);
@@ -220,15 +188,8 @@ function updateStatusOnly(id) {
     if (currentStatus === 'Approved') {
         let currentEst = document.getElementById('est-' + id).value;
         let newEst = prompt("කරුණාකර ඇස්තමේන්තුගත මුදල (Estimate Cost) තහවුරු කරන්න:", currentEst);
-        
-        if (newEst !== null) {
-            document.getElementById('est-' + id).value = newEst;
-        } else {
-            statSelect.value = 'Pending';
-            return;
-        }
+        if (newEst !== null) { document.getElementById('est-' + id).value = newEst; } else { statSelect.value = 'Pending'; return; }
     }
-
     statSelect.className = 'status-select ' + (statSelect.value === 'Approved' ? 'status-approved' : 'status-pending');
     saveToDB(id);
 }
@@ -255,16 +216,15 @@ function saveToDB(id, callback = null) {
                 msg.style.display = 'inline';
                 setTimeout(() => { msg.style.display = 'none'; }, 2000);
                 if (callback) callback();
-            } else {
-                alert("Error saving data: " + this.responseText);
-            }
+            } else { alert("Error saving data: " + this.responseText); }
         }
     };
     xhr.send("id=" + encodeURIComponent(id) + "&data=" + encodeURIComponent(JSON.stringify(data)));
 }
 
+// මෙතැනදී 'phone' යන්න fields වලින් ඉවත් කර ඇත
 function toggleEdit(id) {
-    const fields = ['name', 'issue', 'phone'];
+    const fields = ['name', 'issue']; 
     const btn = document.getElementById('btn-edit-' + id);
     const isReadOnly = document.getElementById('name-' + id).readOnly;
 
