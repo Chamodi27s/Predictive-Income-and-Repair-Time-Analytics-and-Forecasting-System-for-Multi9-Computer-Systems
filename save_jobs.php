@@ -2,13 +2,13 @@
 include 'db_config.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // 1. මූලික දත්ත ලබා ගැනීම (Sanitize)
-    $job_no = mysqli_real_escape_string($conn, $_POST['job_no']);
-    $phone = mysqli_real_escape_string($conn, $_POST['phone_number']);
-    $cust_name = mysqli_real_escape_string($conn, $_POST['customer_name']);
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $address = mysqli_real_escape_string($conn, $_POST['address']);
-    $tech_id = $_POST['technician_id'];
+    // 1. මූලික දත්ත ලබා ගැනීම (Sanitize) - දත්ත නොමැති නම් Empty String ලබා දේ
+    $job_no = mysqli_real_escape_string($conn, $_POST['job_no'] ?? '');
+    $phone = mysqli_real_escape_string($conn, $_POST['phone_number'] ?? '');
+    $cust_name = mysqli_real_escape_string($conn, $_POST['customer_name'] ?? '');
+    $email = mysqli_real_escape_string($conn, $_POST['email'] ?? ''); // Warning Fix
+    $address = mysqli_real_escape_string($conn, $_POST['address'] ?? ''); // Warning Fix
+    $tech_id = $_POST['technician_id'] ?? '';
     $job_date = date('Y-m-d');
 
     // 2. අලුත් Technician කෙනෙක් නම් ඇතුළත් කිරීම
@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $tech_id = mysqli_insert_id($conn);
     }
 
-    // 3. Customer තොරතුරු Update කිරීම හෝ අලුතින් දැමීම (Phone Number is Primary Key)
+    // 3. Customer තොරතුරු Update කිරීම හෝ අලුතින් දැමීම
     $cust_sql = "INSERT INTO customer (phone_number, customer_name, email, address) 
                  VALUES ('$phone', '$cust_name', '$email', '$address') 
                  ON DUPLICATE KEY UPDATE customer_name='$cust_name', email='$email', address='$address'";
@@ -31,12 +31,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (mysqli_query($conn, $sql_job)) {
         
         // 5. Multiple Devices Loop එක
-        if (isset($_POST['devices'])) {
+        if (isset($_POST['devices']) && is_array($_POST['devices'])) {
             foreach ($_POST['devices'] as $key => $device) {
                 $device_name = mysqli_real_escape_string($conn, $device);
-                $issue = mysqli_real_escape_string($conn, $_POST['issues'][$key]);
-                $warranty = mysqli_real_escape_string($conn, $_POST['warranty_status'][$key]);
-                $description = mysqli_real_escape_string($conn, $_POST['descriptions'][$key]);
+                
+                // ⭐ Issue Logic එක
+                $issue_val = $_POST['issues'][$key] ?? '';
+                $final_issue_name = "";
+
+                if ($issue_val == 'new' && !empty($_POST['new_issues'][$key])) {
+                    $new_issue_text = mysqli_real_escape_string($conn, $_POST['new_issues'][$key]);
+                    
+                    $check_issue = mysqli_query($conn, "SELECT issue_name FROM issue WHERE issue_name = '$new_issue_text'");
+                    if (mysqli_num_rows($check_issue) == 0) {
+                        mysqli_query($conn, "INSERT INTO issue (issue_name) VALUES ('$new_issue_text')");
+                    }
+                    $final_issue_name = $new_issue_text;
+                } else {
+                    $res = mysqli_query($conn, "SELECT issue_name FROM issue WHERE issue_id = '$issue_val'");
+                    $row = mysqli_fetch_assoc($res);
+                    $final_issue_name = $row ? $row['issue_name'] : $issue_val;
+                }
+                
+                // Warranty Status පරීක්ෂාව - Warning Fix
+                $warranty = isset($_POST['warranty_status'][$key]) ? mysqli_real_escape_string($conn, $_POST['warranty_status'][$key]) : 'No Warranty';
+                $description = isset($_POST['descriptions'][$key]) ? mysqli_real_escape_string($conn, $_POST['descriptions'][$key]) : '';
                 
                 $img_name = ""; 
 
@@ -46,36 +65,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     if (!is_dir($target_dir)) {
                         mkdir($target_dir, 0777, true);
                     }
-
                     $file_ext = pathinfo($_FILES['device_images']['name'][$key], PATHINFO_EXTENSION);
                     $img_name = "IMG_" . uniqid() . "_" . $key . "." . $file_ext;
                     $target_file = $target_dir . $img_name;
-
                     move_uploaded_file($_FILES['device_images']['tmp_name'][$key], $target_file);
                 }
 
+                // job_device table එකට ඇතුළත් කිරීම
                 $sql_device = "INSERT INTO job_device (job_no, device_name, issue_name, device_status, warranty_status, description, device_image) 
-                               VALUES ('$job_no', '$device_name', '$issue', 'Pending', '$warranty', '$description', '$img_name')";
+                               VALUES ('$job_no', '$device_name', '$final_issue_name', 'Pending', '$warranty', '$description', '$img_name')";
                 
                 mysqli_query($conn, $sql_device);
             }
         }
 
-        // 6. සාර්ථක පණිවිඩය සහ Redirection (Primary Key එක URL එකට එක් කර ඇත)
+        // 6. සාර්ථක පණිවිඩය (SweetAlert2)
         echo "
         <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
         <body style='font-family:sans-serif;'>
         <script>
             Swal.fire({
                 icon: 'success',
+                iconColor: '#28a745',
                 title: 'Job Registered Successfully!',
-                text: 'Job No: $job_no | Customer: $cust_name',
+                html: '<b>Job No:</b> $job_no <br> <b>Customer:</b> $cust_name',
                 confirmButtonColor: '#28a745',
                 confirmButtonText: 'View Full Details',
                 allowOutsideClick: false
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Navbar එකේ නැතත් Phone Number එක Primary Key එක නිසා එය URL එකට යවා පේජ් එකට යයි
                     window.location.href = 'customer_details.php?phone=' + encodeURIComponent('$phone');
                 }
             });

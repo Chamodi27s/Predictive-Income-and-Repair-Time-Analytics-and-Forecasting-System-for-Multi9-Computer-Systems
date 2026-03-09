@@ -4,6 +4,7 @@ include 'navbar.php';
 
 /* COUNTS */
 $totalItems = $conn->query("SELECT COUNT(*) total FROM stock")->fetch_assoc()['total'];
+// Logic: In Stock (>5), Out Stock (=0), Low Stock (1-5)
 $inStock = $conn->query("SELECT COUNT(*) total FROM stock WHERE quantity > 5")->fetch_assoc()['total'];
 $outStock = $conn->query("SELECT COUNT(*) total FROM stock WHERE quantity = 0")->fetch_assoc()['total'];
 $lowStock = $conn->query("SELECT COUNT(*) total FROM stock WHERE quantity > 0 AND quantity <= 5")->fetch_assoc()['total'];
@@ -16,15 +17,12 @@ $stocks = $conn->query("
 ");
 ?>
 
-<?php
-// ... (ඔබේ පැරණි PHP code එක එලෙසම තබා ගන්න)
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="refresh" content="30">
 <title>Stock Management</title>
 <style>
 /* ===== BODY & CONTAINER ===== */
@@ -37,6 +35,49 @@ body {
     padding-right: 40px;
 }
 .container { max-width: 1400px; margin: auto; padding: 20px; }
+
+/* ===== DARK MODE CSS (UPDATED FOR BETTER VISIBILITY) ===== */
+body.dark-mode {
+    background: #0f172a !important;
+    color: #f1f5f9 !important;
+}
+
+body.dark-mode .table-box {
+    background: #1e293b !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,.3) !important;
+}
+
+body.dark-mode table, 
+body.dark-mode th, 
+body.dark-mode td {
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+
+body.dark-mode th {
+    background: #1e293b !important;
+    color: #94a3b8 !important;
+}
+
+/* Card visibility fix in Dark Mode */
+body.dark-mode .card h3 {
+    color: #f1f5f9 !important;
+}
+
+body.dark-mode .card h1 {
+    color: #ffffff !important; 
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+body.dark-mode .search-box {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: white !important;
+}
+
+body.dark-mode .qty-input {
+    color: #cbd5e1 !important;
+}
 
 /* ===== ORANGE ALERT (LOOP LOGIC) ===== */
 .popup {
@@ -54,7 +95,7 @@ body {
     min-width: 260px;
     transition: all 0.6s ease;
     opacity: 0;
-    pointer-events: none; /* සැඟවී ඇති විට click කළ නොහැක */
+    pointer-events: none;
     z-index: 900;
 }
 .popup.show { opacity: 1; pointer-events: auto; }
@@ -71,7 +112,7 @@ body {
     font-weight: bold;
 }
 
-/* ===== CARDS (ඔබේ මුල් ස්ටයිල් එක) ===== */
+/* ===== CARDS ===== */
 .cards { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; }
 .card {
     flex: 0 0 180px; height: 110px; padding: 15px; border-radius: 16px;
@@ -83,11 +124,11 @@ body {
 .card h3 { margin: 0; font-size: 11px; font-weight: 700; color: #5a6c7d; text-transform: uppercase; }
 .card h1 { margin: 2px 0 0; font-size: 28px; font-weight: 800; color: #2c3e50; }
 
-/* Card Colors - Gradients ඇතුළත් කර ඇත */
-.total { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border: 1px solid rgba(34,197,94,.3);}
-.in    { background: linear-gradient(135deg, #dbeafe, #bfdbfe); border: 1px solid rgba(59,130,246,.3);}
-.out   { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid rgba(239,68,68,.3);}
-.low   { background: linear-gradient(135deg, #fff7ed, #fed7aa); border: 1px solid rgba(249,115,22,.3);}
+/* Card Colors - Gradients maintained for visual consistency */
+.total { background: linear-gradient(135deg, #d1fae5, #10b981); border: 1px solid rgba(34,197,94,.3);}
+.in    { background: linear-gradient(135deg, #dbeafe, #3b82f6); border: 1px solid rgba(59,130,246,.3);}
+.out   { background: linear-gradient(135deg, #fee2e2, #ef4444); border: 2px solid rgba(239,68,68,.3);}
+.low   { background: linear-gradient(135deg, #fff7ed, #f97316); border: 1px solid rgba(249,115,22,.3);}
 
 /* ===== SEARCH & TABLE ===== */
 .search-add-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -156,76 +197,103 @@ th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; font-si
 </div>
 
 <script>
-// --- ALERT LOOP LOGIC (3s ON, 3s OFF) ---
+// --- AUTO REFRESH ON MODE CHANGE ---
+let lastMode = document.body.classList.contains('dark-mode');
+const observer = new MutationObserver(() => {
+    let currentMode = document.body.classList.contains('dark-mode');
+    if (currentMode !== lastMode) {
+        lastMode = currentMode;
+        location.reload(); 
+    }
+});
+observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+// --- ALERT LOOP LOGIC ---
 function startAlertLoop() {
     const lCount = <?= $lowStock ?>;
     const popup = document.getElementById("lowPopup");
     if(lCount > 0){
-        // මුලින්ම එකපාරක් පෙන්වීමට
         setTimeout(() => popup.classList.add("show"), 500);
         setTimeout(() => popup.classList.remove("show"), 3500);
 
-        // සෑම තත්පර 6කට වරක්ම Loop එක ක්‍රියාත්මක වේ (3s show + 3s hide)
         setInterval(() => {
             popup.classList.add("show");
             setTimeout(() => {
                 popup.classList.remove("show");
-            }, 3000); // තත්පර 3ක් පෙන්වා තබයි
-        }, 6000); // සම්පූර්ණ කාලය තත්පර 6කි
+            }, 3000); 
+        }, 6000); 
     }
 }
 window.onload = startAlertLoop;
 
-// --- TABLE LOGIC ---
-const rows=[...document.querySelectorAll("#tableBody tr")];
-let rowsPerPage=8, page=1;
+// --- TABLE & PAGINATION LOGIC ---
+const rows = [...document.querySelectorAll("#tableBody tr")];
+let rowsPerPage = 8, page = 1;
 
 function showPage(p){
-    page=p;
-    rows.forEach((r,i)=>r.style.display=(i>=(p-1)*rowsPerPage && i<p*rowsPerPage)?"":"none");
+    page = p;
+    rows.forEach((r,i) => r.style.display = (i >= (p-1)*rowsPerPage && i < p*rowsPerPage) ? "" : "none");
     renderPagination();
 }
 
 function renderPagination(){
-    let pages=Math.ceil(rows.length/rowsPerPage);
-    const pagin=document.getElementById("pagination");
-    pagin.innerHTML="";
-    for(let i=1;i<=pages;i++){
-        let b=document.createElement("button");
-        b.textContent=i; if(i===page) b.classList.add("active");
-        b.onclick=()=>showPage(i); pagin.appendChild(b);
+    let pages = Math.ceil(rows.length / rowsPerPage);
+    const pagin = document.getElementById("pagination");
+    pagin.innerHTML = "";
+    for(let i=1; i<=pages; i++){
+        let b = document.createElement("button");
+        b.textContent = i; 
+        if(i === page) b.classList.add("active");
+        b.onclick = () => showPage(i); 
+        pagin.appendChild(b);
     }
 }
 showPage(1);
 
+// --- SEARCH ---
 function searchTable(v){
-    v=v.toLowerCase();
-    rows.forEach(r=>r.style.display=r.textContent.toLowerCase().includes(v)?"":"none");
+    v = v.toLowerCase();
+    rows.forEach(r => r.style.display = r.textContent.toLowerCase().includes(v) ? "" : "none");
 }
 
+// --- FILTERING LOGIC ---
+function filterIn(){
+    rows.forEach(r => {
+        let q = parseInt(r.querySelector("input").value);
+        r.style.display = (q > 5) ? "" : "none";
+    });
+}
+function filterOut(){
+    rows.forEach(r => {
+        let q = parseInt(r.querySelector("input").value);
+        r.style.display = (q === 0) ? "" : "none";
+    });
+}
 function filterLow(){
     document.getElementById("lowPopup").classList.remove("show");
-    rows.forEach(r=>{
-        let q=parseInt(r.querySelector("input").value);
-        r.style.display=(q>0 && q<=5)?"":"none";
+    rows.forEach(r => {
+        let q = parseInt(r.querySelector("input").value);
+        r.style.display = (q > 0 && q <= 5) ? "" : "none";
     });
 }
 function showAll(){ location.reload(); }
 
+// --- EDIT LOGIC ---
 function toggleEdit(btn){
     const tr = btn.closest("tr");
     const input = tr.querySelector("input");
-    if(btn.innerText==="Edit"){
-        input.disabled=false; input.focus(); btn.innerText="Save";
+    if(btn.innerText === "Edit"){
+        input.disabled = false; input.focus(); btn.innerText = "Save";
     } else {
-        input.disabled=true;
+        input.disabled = true;
         fetch("stock_update.php", {
             method: "POST",
             headers: {"Content-Type": "application/x-www-form-urlencoded"},
             body: `item_code=${tr.children[0].innerText}&quantity=${input.value}`
-        }).then(()=>location.reload());
+        }).then(() => location.reload());
     }
 }
 </script>
 </body>
+<?php include 'chatbot.php'; ?>
 </html>

@@ -1,0 +1,175 @@
+/* ============================================================
+   1. DEFAULT LIGHT MODE (කිසිදු වෙනසක් කර නැත)
+   ============================================================ */
+body {
+    background: #f0f4f8;
+    color: #2c3e50;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ඔබගේ පවතින අනෙකුත් සියලුම සාමාන්‍ය (Light Mode) CSS මෙහි පවතී... */
+
+
+/* ============================================================
+   2. DARK MODE GLASS DASHBOARD (FORCE UPDATE)
+   ============================================================ */
+
+/* මුළු පිටුවේම පසුබිම */
+body.dark-mode {
+    background: linear-gradient(135deg, #020617 0%, #0f172a 100%) !important;
+    color: #e2e8f0 !important;
+}
+
+/* ⚠️ හදිසි විසඳුම: ඕනෑම සුදු පැහැති card එකක පසුබිම බලහත්කාරයෙන් ඉවත් කිරීම */
+body.dark-mode div[style*="background-color: white"],
+body.dark-mode div[style*="background: white"],
+body.dark-mode .all-customers-card,
+body.dark-mode .card,
+body.dark-mode .main-card,
+body.dark-mode .table-section, /* Dashboard එකේ Table section එක සඳහා */
+body.dark-mode .container-box { 
+    background-color: rgba(30, 41, 59, 0.6) !important;
+    background: rgba(30, 41, 59, 0.6) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Containers වල ඇති සුදු පැහැය ඉවත් කිරීම */
+body.dark-mode .container, 
+body.dark-mode .container-fluid,
+body.dark-mode .white-box,
+body.dark-mode section {
+    background: transparent !important;
+}
+
+/* Titles */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode .job-number,
+body.dark-mode .stat-info h3 {
+    color: #ffffff !important;
+}
+
+/* Tables - Glass Look */
+body.dark-mode table,
+body.dark-mode .table,
+body.dark-mode .customer-table {
+    background: transparent !important;
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode th {
+    background: rgba(2, 6, 23, 0.8) !important;
+    color: #f1f5f9 !important;
+    border-bottom: 2px solid #1e293b !important;
+}
+
+body.dark-mode td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    color: #cbd5e1 !important;
+    background: transparent !important;
+}
+
+/* Table Row Hover */
+body.dark-mode .customer-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    transform: translateX(4px);
+}
+
+/* Inputs & Form Elements */
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    background: #020617 !important;
+    border: 1px solid #334155 !important;
+    color: #f1f5f9 !important;
+}
+
+body.dark-mode input:focus {
+    border-color: #2ecc71 !important;
+}
+
+/* Labels */
+body.dark-mode label {
+    color: #94a3b8 !important;
+}
+
+/* Search bar එක සඳහා */
+body.dark-mode .search-bar,
+body.dark-mode .search-box input,
+body.dark-mode input[type="search"],
+body.dark-mode #search-input {
+    background: rgba(15, 23, 42, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}
+
+/* Stat Cards Integration */
+body.dark-mode .stat-card {
+    background: rgba(30, 41, 59, 0.4) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .stat-info .number {
+    color: #ffffff !important;
+}
+
+/* Buttons */
+body.dark-mode .btn-add,
+body.dark-mode .add-btn {
+    background: rgba(46, 204, 113, 0.1) !important;
+    color: #2ecc71 !important;
+    border: 1px solid #2ecc71 !important;
+}
+
+/* Sidebar & Topbar */
+body.dark-mode .topbar,
+body.dark-mode .sidebar,
+body.dark-mode nav {
+    background: #020617 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Chat & Profile */
+body.dark-mode .profile-dropdown,
+body.dark-mode .chat-box,
+body.dark-mode .chat-body {
+    background: #0f172a !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .msg.bot { background: #1e293b !important; }
+body.dark-mode .msg.user { background: #065f46 !important; }
+
+/* Scrollbar */
+body.dark-mode ::-webkit-scrollbar { width: 8px; }
+body.dark-mode ::-webkit-scrollbar-track { background: #020617; }
+body.dark-mode ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+
+/* Badges (Job, Device) Adjustment for Dark Mode */
+body.dark-mode .job-badge {
+    background: rgba(25, 118, 210, 0.2) !important;
+    color: #90caf9 !important;
+}
+
+body.dark-mode .device-badge {
+    background: rgba(123, 31, 162, 0.2) !important;
+    color: #e1bee7 !important;
+}
+
+/* Pagination */
+body.dark-mode .pagination a {
+    background: rgba(30, 41, 59, 0.6) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #cbd5e1 !important;
+}
+
+body.dark-mode .pagination a.active {
+    background: #2ecc71 !important;
+    color: white !important;
+}
