@@ -20,8 +20,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $job_data = mysqli_fetch_assoc($res);
         
         if ($job_data) {
-            $phone = "94" . ltrim(ltrim($job_data['phone_number'], '94'), '0');
-            $msg = "Multi9 Update: Your device " . $job_data['device_name'] . " (#" . $job_data['job_no'] . ") is now " . $status . ".";
+            // දුරකථන අංකය 947XXXXXXXX ලෙස සැකසීම
+            $clean_phone = ltrim($job_data['phone_number'], '94'); // කලින් තිබ්බ 94 අයින් කරන්න
+            $clean_phone = ltrim($clean_phone, '0'); // මුලට බිංදුව තිබ්බොත් අයින් කරන්න
+            $phone = "94" . $clean_phone;
+
+            // පණිවිඩය (Status එක සිංහලෙන් දැමීමටත් පුළුවන්)
+            $msg = "Multi9 Update: Your device " . $job_data['device_name'] . " (#" . $job_data['job_no'] . ") is now " . $status . ". Thank you!";
 
             $url = "https://dashboard.smsapi.lk/api/v3/sms/send";
   
@@ -43,19 +48,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
             $response = curl_exec($ch);
-            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE); // HTTP Status එක ලබා ගැනීම
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE); 
             $err = curl_error($ch);
             curl_close($ch);
 
-            // --- මෙතනයි වෙනස තියෙන්නේ ---
             if ($err) {
                 echo "❌ Connection Error: " . $err;
             } else {
-                // HTTP Code එක 200 නම් සාර්ථකයි
-                if ($http_code == 200) {
+                // SMSAPI එක සාමාන්‍යයෙන් 200 හෝ 201 code එකක් එවයි
+                if ($http_code == 200 || $http_code == 201) {
                     echo "✅ SMS Sent Successfully!";
                 } else {
-                    echo "⚠️ SMS Failed. Status Code: " . $http_code;
+                    // API එකෙන් එන වැරැද්ද බලාගන්න response එක පෙන්වන්න පුළුවන්
+                    echo "⚠️ SMS Failed. Code: " . $http_code . " Resp: " . $response;
                 }
             }
         } else {

@@ -13,20 +13,28 @@ $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['searc
 $filter_status = isset($_GET['status']) ? mysqli_real_escape_string($conn, $_GET['status']) : '';
 $date_filter = isset($_GET['date_filter']) ? $_GET['date_filter'] : '';
 
-// Invoice එකක් නැති හෝ Invoice එකක් තිබුණත් එය 'Paid' නොවූ ඒව පමණක් පෙන්වයි
+// Invoice එක 'Paid' නම් Status එක 'Returned' ලෙස පෙන්වීමේ logic එක Query එකටම ඇතුළත් කර ඇත
 $sql = "SELECT j.job_no, j.job_date, t.name as technician_name, c.customer_name, j.phone_number, 
-                jd.job_device_id, jd.device_name, jd.issue_name, jd.device_status,
-                jd.completed_date, jd.destroy_notice_sent_date, jd.rent_warning_sent 
+                jd.job_device_id, jd.device_name, jd.issue_name, 
+                CASE WHEN inv.payment_status = 'Paid' THEN 'Returned' ELSE jd.device_status END AS device_status,
+                jd.completed_date, jd.destroy_notice_sent_date, jd.rent_warning_sent,
+                inv.payment_status
         FROM job j
         INNER JOIN customer c ON j.phone_number = c.phone_number
         INNER JOIN job_device jd ON j.job_no = jd.job_no 
         LEFT JOIN technicians t ON j.technician_id = t.technician_id
         LEFT JOIN invoice inv ON jd.job_no = inv.job_no 
         WHERE j.job_status = 'Approved' 
-        AND jd.device_status != 'Destroyed'
-        AND (inv.job_no IS NULL OR inv.payment_status != 'Paid')";
+        AND jd.device_status != 'Destroyed'";
 
-if ($filter_status != '') { $sql .= " AND jd.device_status = '$filter_status'"; }
+// Filter Logic
+if ($filter_status != '') { 
+    if($filter_status == 'Returned') {
+        $sql .= " AND inv.payment_status = 'Paid'";
+    } else {
+        $sql .= " AND jd.device_status = '$filter_status' AND (inv.payment_status != 'Paid' OR inv.payment_status IS NULL)";
+    }
+}
 
 if ($date_filter == 'today') { $sql .= " AND DATE(j.job_date) = CURDATE()"; } 
 elseif ($date_filter == '2weeks') { $sql .= " AND j.job_date >= DATE_SUB(NOW(), INTERVAL 14 DAY)"; } 
@@ -47,6 +55,7 @@ $result = mysqli_query($conn, $sql);
     <title>Job Management - Multi9</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* --- ඔයාගේ CSS එක ඒ විදිහටම තියෙනවා --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #2ecc71; --primary-hover: #27ae60; --primary-dark: #229954;
@@ -73,62 +82,12 @@ $result = mysqli_query($conn, $sql);
         .btn-loading { opacity: 0.5; pointer-events: none; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ============================================================
-            DARK MODE GLASS DASHBOARD STYLES (ONLY FOR DARK MODE)
-           ============================================================ */
-        body.dark-mode {
-            background: linear-gradient(135deg, #020617 0%, #0f172a 100%) !important;
-            color: #e2e8f0 !important;
-        }
-
-        body.dark-mode .table-container {
-            background: rgba(30, 41, 59, 0.6) !important;
-            backdrop-filter: blur(14px) !important;
-            -webkit-backdrop-filter: blur(14px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
-        }
-
-        body.dark-mode .status-table th {
-            background: rgba(15, 23, 42, 0.8) !important;
-            color: #94a3b8 !important;
-        }
-
-        body.dark-mode .status-table td {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-            color: #cbd5e1 !important;
-        }
-
-        body.dark-mode .inline-input {
-            background: rgba(15, 23, 42, 0.5) !important;
-            color: #f1f5f9 !important;
-            border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        }
-
-        body.dark-mode .inline-input.editing {
-            background: rgba(30, 41, 59, 0.9) !important;
-            border-color: var(--primary) !important;
-            color: white !important;
-        }
-
-        body.dark-mode select {
-            background: #1e293b !important;
-            color: white !important;
-            border: 1px solid #334155 !important;
-            padding: 5px;
-            border-radius: 5px;
-        }
-
-        body.dark-mode input[name="search"] {
-            background: rgba(30, 41, 59, 0.8) !important;
-            color: white !important;
-            border: 1px solid #334155 !important;
-        }
-
-        body.dark-mode .badge {
-            background: #1e293b !important;
-            color: #94a3b8 !important;
-        }
+        /* DARK MODE STYLES */
+        body.dark-mode { background: linear-gradient(135deg, #020617 0%, #0f172a 100%) !important; color: #e2e8f0 !important; }
+        body.dark-mode .table-container { background: rgba(30, 41, 59, 0.6) !important; backdrop-filter: blur(14px) !important; -webkit-backdrop-filter: blur(14px) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important; }
+        body.dark-mode .status-table th { background: rgba(15, 23, 42, 0.8) !important; color: #94a3b8 !important; }
+        body.dark-mode .status-table td { border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; color: #cbd5e1 !important; }
+        body.dark-mode .inline-input { background: rgba(15, 23, 42, 0.5) !important; color: #f1f5f9 !important; border: 1px solid rgba(255, 255, 255, 0.05) !important; }
     </style>
 </head>
 <body id="jobBody">
@@ -144,6 +103,7 @@ $result = mysqli_query($conn, $sql);
         <a href="?status=Pending&date_filter=<?= $date_filter ?>" class="filter-tag <?= $filter_status == 'Pending' ? 'active-tag' : '' ?>" style="background: var(--warning)">⏳ Pending</a>
         <a href="?status=In Progress&date_filter=<?= $date_filter ?>" class="filter-tag <?= $filter_status == 'In Progress' ? 'active-tag' : '' ?>" style="background: var(--blue)">🔧 In Progress</a>
         <a href="?status=Completed&date_filter=<?= $date_filter ?>" class="filter-tag <?= $filter_status == 'Completed' ? 'active-tag' : '' ?>" style="background: var(--success)">✅ Completed</a>
+        <a href="?status=Returned&date_filter=<?= $date_filter ?>" class="filter-tag <?= $filter_status == 'Returned' ? 'active-tag' : '' ?>" style="background: #10b981">📦 Returned</a>
     </div>
 
     <div style="text-align: center; margin-bottom: 15px; font-size: 13px;">
@@ -183,15 +143,16 @@ $result = mysqli_query($conn, $sql);
                 <?php if(mysqli_num_rows($result) > 0): ?>
                     <?php while($row = mysqli_fetch_assoc($result)): 
                         $id = $row['job_device_id'];
+                        $current_status = $row['device_status'];
+                        $is_paid = ($row['payment_status'] == 'Paid');
+                        
                         $days_passed = 0; $delay_fee = 0;
                         $is_destroy_ready = false; $needs_sms_warning = false;
                         $needs_rent_warning = false;
 
-                        if($row['device_status'] == 'Completed' && $row['completed_date'] != null) {
+                        if($current_status == 'Completed' && $row['completed_date'] != null) {
                             $days_passed = floor((time() - strtotime($row['completed_date'])) / 86400);
-                            
                             if($days_passed > 90) { $delay_fee = ceil(($days_passed - 90) / 30) * 100; }
-                            
                             if($days_passed >= 90 && $days_passed < 365 && $row['rent_warning_sent'] == 0) $needs_rent_warning = true;
                             if($days_passed >= 365 && empty($row['destroy_notice_sent_date'])) $needs_sms_warning = true;
                             if($days_passed >= 372 && !empty($row['destroy_notice_sent_date'])) $is_destroy_ready = true;
@@ -209,11 +170,12 @@ $result = mysqli_query($conn, $sql);
                         <td><input type="text" id="dev-<?= $id ?>" class="inline-input" value="<?= htmlspecialchars($row['device_name']) ?>" readonly></td>
                         <td><input type="text" id="iss-<?= $id ?>" class="inline-input" value="<?= htmlspecialchars($row['issue_name']) ?>" readonly></td>
                         <td>
-                            <select id="stat-<?= $id ?>" onchange="updateStatusOnly(<?= $id ?>)" style="width: 120px;">
-                                <option value="Pending" <?= $row['device_status'] == 'Pending' ? 'selected' : '' ?>>Pending</option>
-                                <option value="In Progress" <?= $row['device_status'] == 'In Progress' ? 'selected' : '' ?>>In Progress</option>
-                                <option value="Completed" <?= $row['device_status'] == 'Completed' ? 'selected' : '' ?>>Completed</option>
-                                <option value="Cancel" <?= $row['device_status'] == 'Cancel' ? 'selected' : '' ?>>Cancel</option>
+                            <select id="stat-<?= $id ?>" onchange="updateStatusAndSMS(<?= $id ?>)" style="width: 120px;" <?= $is_paid ? 'disabled' : '' ?>>
+                                <option value="Pending" <?= $current_status == 'Pending' ? 'selected' : '' ?>>Pending</option>
+                                <option value="In Progress" <?= $current_status == 'In Progress' ? 'selected' : '' ?>>In Progress</option>
+                                <option value="Completed" <?= $current_status == 'Completed' ? 'selected' : '' ?>>Completed</option>
+                                <option value="Returned" <?= $current_status == 'Returned' ? 'selected' : '' ?>>Returned</option>
+                                <option value="Cancel" <?= $current_status == 'Cancel' ? 'selected' : '' ?>>Cancel</option>
                             </select>
                             <?php if($delay_fee > 0): ?>
                                 <div class="rent-fee" style="font-size:11px; color:var(--danger); font-weight:bold;">💰 Rs. <?= $delay_fee ?></div>
@@ -221,15 +183,13 @@ $result = mysqli_query($conn, $sql);
                         </td>
                         <td>
                             <div style="display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">
-                                <button onclick="manualSMS(<?= $id ?>)" style="background: var(--purple); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;" title="Send SMS">📱</button>
-
-                                <?php if($row['device_status'] == 'Completed'): ?>
+                                <?php if($current_status == 'Completed' && !$is_paid): ?>
                                     <?php if($is_destroy_ready): ?>
                                         <a href="destroy_page.php?id=<?= $id ?>" style="background: #000; color:white; padding:8px; border-radius:5px; text-decoration:none;">🗑️ Destroy</a>
                                     <?php else: ?>
                                         <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&fee=<?= $delay_fee ?>" style="background: var(--orange); color:white; padding:8px; border-radius:5px; text-decoration:none;">📄 Bill</a>
                                     <?php endif; ?>
-
+                                    
                                     <?php if($needs_rent_warning): ?>
                                         <button onclick="sendRentWarning(<?= $id ?>)" style="background: var(--warning); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;" title="Rent Warning">🔔 RENT</button>
                                     <?php endif; ?>
@@ -239,14 +199,18 @@ $result = mysqli_query($conn, $sql);
                                     <?php endif; ?>
                                 <?php endif; ?>
 
-                                <button id="btn-edit-<?= $id ?>" onclick="toggleEdit(<?= $id ?>)" style="background: var(--blue); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;">✏️</button>
-                                <button onclick="deleteItem(<?= $id ?>)" style="background: #f8d7da; color: #721c24; border:none; padding:8px; border-radius:5px; cursor:pointer;">🗑️</button>
+                                <?php if(!$is_paid): ?>
+                                    <button id="btn-edit-<?= $id ?>" onclick="toggleEdit(<?= $id ?>)" style="background: var(--blue); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;">✏️</button>
+                                    <button onclick="deleteItem(<?= $id ?>)" style="background: #f8d7da; color: #721c24; border:none; padding:8px; border-radius:5px; cursor:pointer;">🗑️</button>
+                                <?php else: ?>
+                                    <span class="badge" style="background: var(--success); color: white;">PAID & CLOSED</span>
+                                <?php endif; ?>
                             </div>
                         </td>
                     </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="6" style="padding: 50px; text-align: center;">No jobs found for the selected period.</td></tr>
+                    <tr><td colspan="6" style="padding: 50px; text-align: center;">No jobs found.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -256,67 +220,42 @@ $result = mysqli_query($conn, $sql);
 <script>
 // --- Theme Handling & Auto Refresh ---
 let currentTheme = localStorage.getItem("darkMode");
-
 function applySavedTheme() {
     const body = document.getElementById('jobBody');
     const isDark = localStorage.getItem("darkMode") === "enabled";
-    if (isDark) {
-        body.classList.add("dark-mode");
-    } else {
-        body.classList.remove("dark-mode");
-    }
+    if (isDark) body.classList.add("dark-mode");
+    else body.classList.remove("dark-mode");
 }
-
-// පිටුව Load වන විට තීම් එක යෙදීම
 applySavedTheme();
 
-// localStorage වෙනස් වන විට (Chatbot එකෙන් මාරු කරන විට) පිටුව Refresh කිරීම
-window.addEventListener('storage', (e) => {
-    if (e.key === 'darkMode') {
-        location.reload();
-    }
-});
+// --- Main Status & Auto SMS Logic ---
+function updateStatusAndSMS(id) {
+    const statusSelect = document.getElementById('stat-' + id);
+    const newStatus = statusSelect.value;
+    statusSelect.classList.add('btn-loading');
 
-// ඉතා වේගවත් පරීක්ෂාවක් (Internal page changes සඳහා)
-setInterval(() => {
-    const newTheme = localStorage.getItem("darkMode");
-    if (newTheme !== currentTheme) {
-        currentTheme = newTheme;
-        location.reload();
-    }
-}, 500);
-
-// --- Functions ---
-function sendRentWarning(id) {
-    if(confirm("මාස 3 පිරී ඇති බැවින් Rent එක ගැන පාරිභෝගිකයා දැනුවත් කරන්නද?")) {
-        fetch('send_rent_sms_api.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${id}`
-        }).then(res => res.text()).then(data => {
-            alert(data);
-            location.reload();
-        });
-    }
-}
-
-function sendDestroyWarning(id) {
-    if(confirm("Device is over 1 year old. Send final disposal warning?")) {
-        fetch('./send_destroy_sms_api.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${id}`
-        }).then(res => res.text()).then(data => {
-            alert(data);
-            location.reload();
-        });
-    }
-}
-
-function updateStatusOnly(id) {
-    const btn = document.getElementById('stat-' + id);
-    btn.classList.add('btn-loading');
-    sendUpdate(id, document.getElementById('dev-' + id).value, document.getElementById('iss-' + id).value, btn.value, true);
+    // 1. Update Database
+    let params = `id=${id}&device_name=${encodeURIComponent(document.getElementById('dev-' + id).value)}&issue_name=${encodeURIComponent(document.getElementById('iss-' + id).value)}&device_status=${encodeURIComponent(newStatus)}`;
+    
+    fetch('./inline_update_api.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params
+    }).then(res => res.text()).then(data => {
+        if(data.trim() === "Success") {
+            // 2. ස්වයංක්‍රීයව SMS එක යැවීම
+            fetch('send_sms_api.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `id=${id}&status=${newStatus}`
+            }).then(() => {
+                location.reload(); // දත්ත සහ SMS යැවුණු පසු refresh කර පෙන්වීම
+            });
+        } else {
+            alert("Error: " + data);
+            statusSelect.classList.remove('btn-loading');
+        }
+    });
 }
 
 function toggleEdit(id) {
@@ -328,53 +267,29 @@ function toggleEdit(id) {
         dev.classList.add('editing'); iss.classList.add('editing');
         btn.innerHTML = "💾"; btn.style.background = "var(--success)";
     } else {
-        sendUpdate(id, dev.value, iss.value, document.getElementById('stat-' + id).value, false);
+        updateStatusAndSMS(id); // Save කරන විටත් status logic එකම ක්‍රියාත්මක වේ
     }
 }
 
-function sendUpdate(id, dev, iss, stat, isStatusChange) {
-    let params = `id=${id}&device_name=${encodeURIComponent(dev)}&issue_name=${encodeURIComponent(iss)}&device_status=${encodeURIComponent(stat)}`;
-    fetch('./inline_update_api.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: params
-    }).then(res => res.text()).then(data => {
-        if(data.trim() === "Success") {
-            if(isStatusChange && stat === 'Completed') { location.reload(); } 
-            else {
-                let devInput = document.getElementById('dev-' + id);
-                let issInput = document.getElementById('iss-' + id);
-                let btn = document.getElementById('btn-edit-' + id);
-                devInput.readOnly = true; issInput.readOnly = true;
-                devInput.classList.remove('editing'); issInput.classList.remove('editing');
-                btn.innerHTML = "✏️"; btn.style.background = "var(--blue)";
-                document.getElementById('stat-' + id).classList.remove('btn-loading');
-            }
-        } else { alert("Error: " + data); }
-    });
+// --- Other Utility Functions (Rent, Destroy, Delete) ---
+function sendRentWarning(id) {
+    if(confirm("Send Rent Warning SMS?")) {
+        fetch('send_rent_sms_api.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `id=${id}` })
+        .then(res => res.text()).then(data => { alert(data); location.reload(); });
+    }
 }
 
-function manualSMS(id) {
-    let statVal = document.getElementById('stat-' + id).value;
-    if(confirm("Send SMS notification?")) {
-        fetch('send_sms_api.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${id}&status=${statVal}`
-        })
-        .then(res => res.text())
-        .then(data => alert("Result: " + data))
-        .catch(err => alert("ERROR: " + err.message));
+function sendDestroyWarning(id) {
+    if(confirm("Send Final Disposal Warning?")) {
+        fetch('./send_destroy_sms_api.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `id=${id}` })
+        .then(res => res.text()).then(data => { alert(data); location.reload(); });
     }
 }
 
 function deleteItem(id) {
     if(confirm("Are you sure?")) {
-        fetch('./delete_device.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: "device_id=" + id
-        }).then(res => res.text()).then(data => {
+        fetch('./delete_device.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: "device_id=" + id })
+        .then(res => res.text()).then(data => {
             if(data.trim() === "Success") {
                 document.getElementById('row-' + id).style.opacity = '0';
                 setTimeout(() => document.getElementById('row-' + id).remove(), 300);

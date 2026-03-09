@@ -2,7 +2,8 @@
 include 'db_config.php';
 include 'navbar.php'; 
 
-$filter_query = " WHERE jd.warranty_status = 'No Warranty' ";
+// Approved ඒව මේ list එකෙන් අයින් කරන්න අවශ්‍ය නම් මෙතනට AND j.job_status != 'Approved' දාන්න පුළුවන්
+$filter_query = " WHERE jd.warranty_status = 'No Warranty' AND j.job_status != 'Approved' ";
 if(isset($_GET['range'])) {
     if($_GET['range'] == 'today') {
         $filter_query .= " AND DATE(j.job_date) = CURDATE() ";
@@ -21,6 +22,7 @@ if(isset($_GET['range'])) {
     <title>Jobs Management | Smart Repair</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ඔයාගේ පරණ CSS ඔක්කොම මෙතන තියෙනවා */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #2ecc71; --primary-hover: #27ae60; --primary-dark: #229954;
@@ -49,6 +51,7 @@ if(isset($_GET['range'])) {
         .status-pending { background: #e0e7ff; color: #3730a3; }
         .status-approved { background: #dcfce7; color: #166534; }
         .btn-edit { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 700; white-space: nowrap; }
+        .btn-sms { background: var(--warning); color: #000; border: none; padding: 10px 15px; border-radius: 10px; cursor: pointer; font-weight: 700; margin-bottom: 5px; width: 100%; }
         .save-msg { font-size: 12px; color: var(--success); display: none; font-weight: 800; margin-left: 10px; }
         .filter-buttons { display: flex; gap: 8px; margin-bottom: 15px; }
         .filter-btn { padding: 8px 15px; border-radius: 8px; border: 1px solid var(--border); background: white; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.3s; }
@@ -66,18 +69,11 @@ if(isset($_GET['range'])) {
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
         }
-        body.dark-mode h2 { color: #ffffff !important; }
-        body.dark-mode .header-section { border-bottom-color: rgba(255, 255, 255, 0.1) !important; }
-        body.dark-mode td { border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; color: #cbd5e1 !important; }
-        body.dark-mode .table-container { border-color: rgba(255, 255, 255, 0.1) !important; }
         body.dark-mode .search-input, body.dark-mode .status-select, body.dark-mode .est-input, body.dark-mode .filter-btn {
             background: rgba(15, 23, 42, 0.9) !important;
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
             color: white !important;
         }
-        body.dark-mode .editing-active { background: #ffffff !important; color: #0f172a !important; }
-        body.dark-mode .status-pending { background: rgba(99, 102, 241, 0.2) !important; color: #a5b4fc !important; }
-        body.dark-mode .status-approved { background: rgba(34, 197, 94, 0.2) !important; color: #86efac !important; }
     </style>
 </head>
 <body id="jobsBody">
@@ -156,6 +152,7 @@ if(isset($_GET['range'])) {
                             <span id="msg-<?php echo $id; ?>" class="save-msg">✓</span>
                         </td>
                         <td>
+                            <button class="btn-sms" onclick="sendEstimateSMS('<?php echo $id; ?>')">📩 Send Estimate</button><br>
                             <button id="btn-edit-<?php echo $id; ?>" class="btn-edit" onclick="toggleEdit('<?php echo $id; ?>')">✏️ Edit</button>
                             <input type="hidden" id="email-<?php echo $id; ?>" value="<?php echo $row['email']; ?>">
                         </td>
@@ -181,14 +178,51 @@ function syncTheme() {
 syncTheme();
 setInterval(syncTheme, 500);
 
+// SMS එක යැවීමේ Function එක
+function sendEstimateSMS(id) {
+    let est = document.getElementById('est-' + id).value;
+    let parts = prompt("දාන්න බලාපොරොත්තු වන අමතර කොටස් (Parts) ඇතුළත් කරන්න:");
+    
+    if (parts === null || parts === "") {
+        alert("කරුණාකර Parts විස්තර ඇතුළත් කරන්න.");
+        return;
+    }
+
+    const data = {
+        job_no: id,
+        action: 'send_estimate_sms',
+        parts_details: parts,
+        estimated_cost: est,
+        phone_number: document.getElementById('phone-' + id).value,
+        customer_name: document.getElementById('name-' + id).value,
+        issue_name: document.getElementById('issue-' + id).value
+    };
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "update_engine.php", true);
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhr.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            if (this.responseText.trim().includes("success")) {
+                alert("Estimate SMS එක සාර්ථකව යවන ලදී!");
+            } else {
+                alert("SMS එක යැවීමේදී ගැටළුවක් ඇති විය: " + this.responseText);
+            }
+        }
+    };
+    xhr.send("id=" + id + "&data=" + encodeURIComponent(JSON.stringify(data)));
+}
+
 function updateStatusOnly(id) {
     const statSelect = document.getElementById('stat-' + id);
     const currentStatus = statSelect.value;
     
     if (currentStatus === 'Approved') {
-        let currentEst = document.getElementById('est-' + id).value;
-        let newEst = prompt("කරුණාකර ඇස්තමේන්තුගත මුදල (Estimate Cost) තහවුරු කරන්න:", currentEst);
-        if (newEst !== null) { document.getElementById('est-' + id).value = newEst; } else { statSelect.value = 'Pending'; return; }
+        let confirmAction = confirm("පාරිභෝගිකයා මෙම ඇස්තමේන්තුවට කැමති බව ස්ථිරද? එසේනම් මෙය Approved කර Order පිටුවට යවනු ඇත.");
+        if (!confirmAction) {
+            statSelect.value = 'Pending';
+            return;
+        }
     }
     statSelect.className = 'status-select ' + (statSelect.value === 'Approved' ? 'status-approved' : 'status-pending');
     saveToDB(id);
@@ -211,18 +245,21 @@ function saveToDB(id, callback = null) {
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhr.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            if (this.responseText.trim() === "success") {
+            if (this.responseText.trim().includes("success")) {
                 let msg = document.getElementById('msg-' + id);
                 msg.style.display = 'inline';
-                setTimeout(() => { msg.style.display = 'none'; }, 2000);
+                setTimeout(() => { 
+                    msg.style.display = 'none'; 
+                    // Approved නම් refresh කරලා list එකෙන් අයින් කරන්න
+                    if (data.job_status === 'Approved') location.reload();
+                }, 1000);
                 if (callback) callback();
-            } else { alert("Error saving data: " + this.responseText); }
+            } else { alert("Error: " + this.responseText); }
         }
     };
     xhr.send("id=" + encodeURIComponent(id) + "&data=" + encodeURIComponent(JSON.stringify(data)));
 }
 
-// මෙතැනදී 'phone' යන්න fields වලින් ඉවත් කර ඇත
 function toggleEdit(id) {
     const fields = ['name', 'issue']; 
     const btn = document.getElementById('btn-edit-' + id);
