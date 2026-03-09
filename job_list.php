@@ -13,7 +13,7 @@ $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['searc
 $filter_status = isset($_GET['status']) ? mysqli_real_escape_string($conn, $_GET['status']) : '';
 $date_filter = isset($_GET['date_filter']) ? $_GET['date_filter'] : '';
 
-// Invoice එක 'Paid' නම් Status එක 'Returned' ලෙස පෙන්වීමේ logic එක Query එකටම ඇතුළත් කර ඇත
+// Query Logic
 $sql = "SELECT j.job_no, j.job_date, t.name as technician_name, c.customer_name, j.phone_number, 
                 jd.job_device_id, jd.device_name, jd.issue_name, 
                 CASE WHEN inv.payment_status = 'Paid' THEN 'Returned' ELSE jd.device_status END AS device_status,
@@ -106,27 +106,6 @@ $result = mysqli_query($conn, $sql);
         <a href="?status=Returned&date_filter=<?= $date_filter ?>" class="filter-tag <?= $filter_status == 'Returned' ? 'active-tag' : '' ?>" style="background: #10b981">📦 Returned</a>
     </div>
 
-    <div style="text-align: center; margin-bottom: 15px; font-size: 13px;">
-        <span style="color: var(--text-muted);">View: </span>
-        <a href="?date_filter=today&status=<?= $filter_status ?>" style="text-decoration: none; color: <?= $date_filter=='today'?'var(--primary)':'var(--secondary)' ?>; font-weight: bold;">Today</a> | 
-        <a href="?date_filter=2weeks&status=<?= $filter_status ?>" style="text-decoration: none; color: <?= $date_filter=='2weeks'?'var(--primary)':'var(--secondary)' ?>; font-weight: bold;">2 Weeks</a> | 
-        <a href="?date_filter=monthly&status=<?= $filter_status ?>" style="text-decoration: none; color: <?= $date_filter=='monthly'?'var(--primary)':'var(--secondary)' ?>; font-weight: bold;">This Month</a> | 
-        <a href="?date_filter=yearly&status=<?= $filter_status ?>" style="text-decoration: none; color: <?= $date_filter=='yearly'?'var(--primary)':'var(--secondary)' ?>; font-weight: bold;">This Year</a> | 
-        <a href="?status=<?= $filter_status ?>" style="text-decoration: none; color: <?= $date_filter==''?'var(--primary)':'var(--secondary)' ?>; font-weight: bold;">All Time</a>
-    </div>
-
-    <div class="search-container">
-        <form action="" method="GET" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 25px;">
-            <input type="hidden" name="status" value="<?= htmlspecialchars($filter_status) ?>">
-            <input type="hidden" name="date_filter" value="<?= htmlspecialchars($date_filter) ?>">
-            <input type="text" name="search" style="padding: 12px; width: 350px; border-radius: 10px; border: 1px solid #ddd;" placeholder="Search Job, Name or Phone..." value="<?= htmlspecialchars($search) ?>">
-            <button type="submit" style="padding: 10px 25px; border-radius: 10px; border: none; background: var(--primary); color: white; cursor: pointer; font-weight: bold;">Search</button>
-            <?php if($search != '' || $date_filter != ''): ?>
-                <a href="?" style="padding: 10px; color: var(--danger); text-decoration: none; font-size: 14px; align-self: center;">✕ Clear</a>
-            <?php endif; ?>
-        </form>
-    </div>
-
     <div class="table-container">
         <table class="status-table">
             <thead>
@@ -146,6 +125,13 @@ $result = mysqli_query($conn, $sql);
                         $current_status = $row['device_status'];
                         $is_paid = ($row['payment_status'] == 'Paid');
                         
+                        // --- UPDATED LOGIC ---
+                        // Status එක Completed හෝ Returned නම් පමණක් Edit/Change සම්පූර්ණයෙන්ම Lock වේ
+                        $is_locked = ($current_status == 'Completed' || $current_status == 'Returned');
+                        
+                        // එක පාරක් Pending වලින් වෙනස් වුණාම ආයේ පස්සට (Pending වලට) යන්න බැහැ
+                        $disable_pending = ($current_status != 'Pending');
+
                         $days_passed = 0; $delay_fee = 0;
                         $is_destroy_ready = false; $needs_sms_warning = false;
                         $needs_rent_warning = false;
@@ -170,8 +156,8 @@ $result = mysqli_query($conn, $sql);
                         <td><input type="text" id="dev-<?= $id ?>" class="inline-input" value="<?= htmlspecialchars($row['device_name']) ?>" readonly></td>
                         <td><input type="text" id="iss-<?= $id ?>" class="inline-input" value="<?= htmlspecialchars($row['issue_name']) ?>" readonly></td>
                         <td>
-                            <select id="stat-<?= $id ?>" onchange="updateStatusAndSMS(<?= $id ?>)" style="width: 120px;" <?= $is_paid ? 'disabled' : '' ?>>
-                                <option value="Pending" <?= $current_status == 'Pending' ? 'selected' : '' ?>>Pending</option>
+                            <select id="stat-<?= $id ?>" onchange="updateStatusAndSMS(<?= $id ?>)" style="width: 120px;" <?= $is_locked ? 'disabled' : '' ?>>
+                                <option value="Pending" <?= $current_status == 'Pending' ? 'selected' : '' ?> <?= $disable_pending ? 'disabled' : '' ?>>Pending</option>
                                 <option value="In Progress" <?= $current_status == 'In Progress' ? 'selected' : '' ?>>In Progress</option>
                                 <option value="Completed" <?= $current_status == 'Completed' ? 'selected' : '' ?>>Completed</option>
                                 <option value="Returned" <?= $current_status == 'Returned' ? 'selected' : '' ?>>Returned</option>
@@ -183,27 +169,28 @@ $result = mysqli_query($conn, $sql);
                         </td>
                         <td>
                             <div style="display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">
-                                <?php if($current_status == 'Completed' && !$is_paid): ?>
-                                    <?php if($is_destroy_ready): ?>
-                                        <a href="destroy_page.php?id=<?= $id ?>" style="background: #000; color:white; padding:8px; border-radius:5px; text-decoration:none;">🗑️ Destroy</a>
-                                    <?php else: ?>
-                                        <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&fee=<?= $delay_fee ?>" style="background: var(--orange); color:white; padding:8px; border-radius:5px; text-decoration:none;">📄 Bill</a>
-                                    <?php endif; ?>
-                                    
-                                    <?php if($needs_rent_warning): ?>
-                                        <button onclick="sendRentWarning(<?= $id ?>)" style="background: var(--warning); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;" title="Rent Warning">🔔 RENT</button>
-                                    <?php endif; ?>
-                                    
-                                    <?php if($needs_sms_warning): ?>
-                                        <button onclick="sendDestroyWarning(<?= $id ?>)" style="background: var(--danger); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;" title="Final Warning">⚠️ DESTROY</button>
-                                    <?php endif; ?>
-                                <?php endif; ?>
-
-                                <?php if(!$is_paid): ?>
+                                
+                                <?php if(!$is_locked): ?>
                                     <button id="btn-edit-<?= $id ?>" onclick="toggleEdit(<?= $id ?>)" style="background: var(--blue); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;">✏️</button>
                                     <button onclick="deleteItem(<?= $id ?>)" style="background: #f8d7da; color: #721c24; border:none; padding:8px; border-radius:5px; cursor:pointer;">🗑️</button>
                                 <?php else: ?>
-                                    <span class="badge" style="background: var(--success); color: white;">PAID & CLOSED</span>
+                                    <?php if($is_paid): ?>
+                                        <span class="badge" style="background: var(--success); color: white;">PAID & CLOSED</span>
+                                    <?php else: ?>
+                                        <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&fee=<?= $delay_fee ?>" style="background: var(--orange); color:white; padding:8px; border-radius:5px; text-decoration:none; font-size:12px;">📄 Bill</a>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+
+                                <?php if($current_status == 'Completed' && !$is_paid): ?>
+                                    <?php if($is_destroy_ready): ?>
+                                        <a href="destroy_page.php?id=<?= $id ?>" style="background: #000; color:white; padding:8px; border-radius:5px; text-decoration:none;">🗑️ Destroy</a>
+                                    <?php endif; ?>
+                                    <?php if($needs_rent_warning): ?>
+                                        <button onclick="sendRentWarning(<?= $id ?>)" style="background: var(--warning); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;" title="Rent Warning">🔔</button>
+                                    <?php endif; ?>
+                                    <?php if($needs_sms_warning): ?>
+                                        <button onclick="sendDestroyWarning(<?= $id ?>)" style="background: var(--danger); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;" title="Final Warning">⚠️</button>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             </div>
                         </td>
@@ -218,13 +205,10 @@ $result = mysqli_query($conn, $sql);
 </div>
 
 <script>
-// --- Theme Handling & Auto Refresh ---
-let currentTheme = localStorage.getItem("darkMode");
+// --- Theme Handling ---
 function applySavedTheme() {
-    const body = document.getElementById('jobBody');
     const isDark = localStorage.getItem("darkMode") === "enabled";
-    if (isDark) body.classList.add("dark-mode");
-    else body.classList.remove("dark-mode");
+    if (isDark) document.getElementById('jobBody').classList.add("dark-mode");
 }
 applySavedTheme();
 
@@ -234,7 +218,6 @@ function updateStatusAndSMS(id) {
     const newStatus = statusSelect.value;
     statusSelect.classList.add('btn-loading');
 
-    // 1. Update Database
     let params = `id=${id}&device_name=${encodeURIComponent(document.getElementById('dev-' + id).value)}&issue_name=${encodeURIComponent(document.getElementById('iss-' + id).value)}&device_status=${encodeURIComponent(newStatus)}`;
     
     fetch('./inline_update_api.php', {
@@ -243,14 +226,11 @@ function updateStatusAndSMS(id) {
         body: params
     }).then(res => res.text()).then(data => {
         if(data.trim() === "Success") {
-            // 2. ස්වයංක්‍රීයව SMS එක යැවීම
             fetch('send_sms_api.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `id=${id}&status=${newStatus}`
-            }).then(() => {
-                location.reload(); // දත්ත සහ SMS යැවුණු පසු refresh කර පෙන්වීම
-            });
+            }).then(() => location.reload());
         } else {
             alert("Error: " + data);
             statusSelect.classList.remove('btn-loading');
@@ -267,11 +247,10 @@ function toggleEdit(id) {
         dev.classList.add('editing'); iss.classList.add('editing');
         btn.innerHTML = "💾"; btn.style.background = "var(--success)";
     } else {
-        updateStatusAndSMS(id); // Save කරන විටත් status logic එකම ක්‍රියාත්මක වේ
+        updateStatusAndSMS(id);
     }
 }
 
-// --- Other Utility Functions (Rent, Destroy, Delete) ---
 function sendRentWarning(id) {
     if(confirm("Send Rent Warning SMS?")) {
         fetch('send_rent_sms_api.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `id=${id}` })
@@ -290,10 +269,7 @@ function deleteItem(id) {
     if(confirm("Are you sure?")) {
         fetch('./delete_device.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: "device_id=" + id })
         .then(res => res.text()).then(data => {
-            if(data.trim() === "Success") {
-                document.getElementById('row-' + id).style.opacity = '0';
-                setTimeout(() => document.getElementById('row-' + id).remove(), 300);
-            }
+            if(data.trim() === "Success") location.reload();
         });
     }
 }
