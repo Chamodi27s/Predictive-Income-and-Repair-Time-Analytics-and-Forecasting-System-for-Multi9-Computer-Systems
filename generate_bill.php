@@ -13,7 +13,7 @@ $service_charge_val = 0;
 // --- SMSAPI.lk හරහා SMS යැවීමේ Function එක ---
 // --- SMSAPI.lk හරහා SMS යැවීමේ Function එක ---
 function sendSMS($mobile, $message) {
-    $api_key = "380|ulpebaPoK21nbP|TNCjeTP9Saij7R2Y19oxluWWf";
+    $api_key = "389|izlIg5IGA1QDWEyhzwLWwbN3Dhfh4ONZ3T8PSWWE ";
     $sender_id = "SMSAPI Demo"; 
     $url = "https://dashboard.smsapi.lk/api/v3/sms/send";
 
