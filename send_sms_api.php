@@ -2,7 +2,7 @@
 include 'db_config.php';
 
 // මේ විස්තර දෙක ඔයාගේ SMSAPI Dashboard එකේ තියෙන විදිහටම තියෙන්න ඕනේ
-$api_key = "389|izlIg5IGA1QDWEyhzwLWwbN3Dhfh4ONZ3T8PSWWE ";
+$api_key = "391|gyFVyQXSWNywx289bNDJdCkdKcOVRcPqyiUQzXzb";
 $sender_id = "SMSAPI Demo"; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {

@@ -2,7 +2,7 @@
 include 'db_config.php';
 
 // --- SMSAPI.lk Settings ---
-$api_key = "389|izlIg5IGA1QDWEyhzwLWwbN3Dhfh4ONZ3T8PSWWE "; 
+$api_key = "391|gyFVyQXSWNywx289bNDJdCkdKcOVRcPqyiUQzXzb"; 
 $sender_id = "SMSAPI Demo"; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
