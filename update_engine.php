@@ -22,7 +22,7 @@ if (isset($_POST['id']) && isset($_POST['data'])) {
         die("Error: Customer phone number not found.");
     }
 
-    $api_key = "389|izlIg5IGA1QDWEyhzwLWwbN3Dhfh4ONZ3T8PSWWE ";
+    $api_key = "391|gyFVyQXSWNywx289bNDJdCkdKcOVRcPqyiUQzXzb";
     $clean_phone = preg_replace('/[^0-9]/', '', $current_phone);
     $phone = "94" . ltrim($clean_phone, '0');
 
