@@ -10,6 +10,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $device_name = isset($_POST['device_name']) ? mysqli_real_escape_string($conn, $_POST['device_name']) : '';
     $issue_name = isset($_POST['issue_name']) ? mysqli_real_escape_string($conn, $_POST['issue_name']) : '';
     $status = isset($_POST['device_status']) ? mysqli_real_escape_string($conn, $_POST['device_status']) : '';
+    
+    // --- Solution එක ලබා ගැනීම (අලුතින් එකතු කළා) ---
+    $solution = isset($_POST['solution']) ? mysqli_real_escape_string($conn, $_POST['solution']) : '';
 
     if (!empty($id)) {
         // 1. කලින් තිබුණු status එක පරීක්ෂා කිරීම (Duplicate SMS වැළැක්වීමට)
@@ -18,10 +21,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $old_data = mysqli_fetch_assoc($check_res);
         $old_status = $old_data['device_status'] ?? '';
 
-        // 2. Database එක Update කිරීම (Unique job_device_id එකට පමණයි)
+        // 2. Database එක Update කිරීම (solution එකත් සමඟ)
         $sql = "UPDATE job_device SET 
                 device_name = '$device_name', 
                 issue_name = '$issue_name', 
+                solution = '$solution', 
                 device_status = '$status'";
         
         if ($status === 'Completed' && $old_status !== 'Completed') { 
