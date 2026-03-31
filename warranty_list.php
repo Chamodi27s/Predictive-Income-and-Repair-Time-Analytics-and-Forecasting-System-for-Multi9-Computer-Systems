@@ -136,13 +136,13 @@ if(isset($_GET['range'])) {
                                     <?= $current_status =='Sent to Warranty'?'selected':'' ?> 
                                     <?= ($current_status == 'Completed' || $current_status == 'Returned' || $current_status == 'Rejected') ? 'disabled' : ''; ?>>📦 Sent</option>
                                 
+                                
+                                <option value="Completed" 
+                                    <?= $current_status =='Completed'?'selected':'' ?>>✅ Completed</option>
                                 <option value="Returned" 
                                     <?= $current_status =='Returned'?'selected':'' ?>
                                     style="color: var(--info);">🚚 Returned</option>
 
-                                <option value="Completed" 
-                                    <?= $current_status =='Completed'?'selected':'' ?>>✅ Completed</option>
-                                
                                 <option value="Rejected" 
                                     <?= $current_status =='Rejected'?'selected':'' ?>>❌ Rejected</option>
                             </select>

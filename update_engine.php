@@ -2,14 +2,14 @@
 include 'db_config.php';
 
 if (isset($_POST['id']) && isset($_POST['data'])) {
-    $id = $_POST['id'];
+    $id = mysqli_real_escape_string($conn, $_POST['id']); // Job No
     $data = json_decode($_POST['data'], true);
 
     if (!$data) {
         die("Invalid JSON format");
     }
 
-    // --- Database එකෙන් අංකය ලබා ගැනීම ---
+    // --- Database එකෙන් වත්මන් Phone Number එක ලබා ගැනීම ---
     $stmt_get_phone = $conn->prepare("SELECT phone_number FROM job WHERE job_no = ?");
     $stmt_get_phone->bind_param("s", $id);
     $stmt_get_phone->execute();
@@ -26,22 +26,20 @@ if (isset($_POST['id']) && isset($_POST['data'])) {
     $clean_phone = preg_replace('/[^0-9]/', '', $current_phone);
     $phone = "94" . ltrim($clean_phone, '0');
 
-    // ==========================================
-    // ලොජික් 1: "Send Estimate" Button එක එබූ විට SMS යැවීම සහ Database Save කිරීම
-    // ==========================================
+    
     if (isset($data['action']) && $data['action'] === 'send_estimate_sms') {
         $total_cost = number_format($data['estimated_cost'], 2);
         $parts_with_prices = $data['parts_details']; 
         $name = $data['customer_name'];
         $issue = $data['issue_name'];
 
-        // 1. Technician දාපු Parts විස්තර 'parts_json' column එකට save කිරීම
-        $stmt_save_parts = $conn->prepare("UPDATE job_device SET parts_json = ? WHERE job_no = ?");
-        $stmt_save_parts->bind_param("ss", $parts_with_prices, $id);
+        
+        $stmt_save_parts = $conn->prepare("UPDATE job_device SET parts_json = ? WHERE job_no = ? AND issue_name = ?");
+        $stmt_save_parts->bind_param("sss", $parts_with_prices, $id, $issue);
         $stmt_save_parts->execute();
         $stmt_save_parts->close();
 
-        // 2. ඊටපස්සේ SMS එක යවමු
+        
         $message = "Multi9: Hi $name, Job #$id ($issue) Estimate:\n";
         $message .= "Parts: $parts_with_prices\n";
         $message .= "Total: Rs.$total_cost\n";
@@ -70,33 +68,34 @@ if (isset($_POST['id']) && isset($_POST['data'])) {
         exit; 
     }
 
-    // ==========================================
-    // ලොජික් 2: සාමාන්‍ය Update (Approved කිරීම ආදිය)
-    // ==========================================
     
-    // Customer table update
+    // 1. Customer table update 
     $sql1 = "UPDATE customer SET customer_name = ?, email = ? WHERE phone_number = ?";
     $stmt1 = $conn->prepare($sql1);
     $stmt1->bind_param("sss", $data['customer_name'], $data['email'], $current_phone);
     $stmt1->execute();
 
-    // Job table update
+    // 2. Job table update 
     $sql2 = "UPDATE job SET job_status = ?, estimated_cost = ? WHERE job_no = ?";
     $stmt2 = $conn->prepare($sql2);
     $stmt2->bind_param("sds", $data['job_status'], $data['estimated_cost'], $id);
     $stmt2->execute();
 
-    // Job Device table update
-    $sql3 = "UPDATE job_device SET issue_name = ?, issue_category = ? WHERE job_no = ?";
+    // 3. Job Device table update 
+    
+    $sql3 = "UPDATE job_device SET issue_category = ? WHERE job_no = ? AND issue_name = ?";
     $stmt3 = $conn->prepare($sql3);
-    $stmt3->bind_param("sss", $data['issue_name'], $data['issue_category'], $id);
+    $stmt3->bind_param("sss", $data['issue_category'], $id, $data['issue_name']);
     
     if ($stmt3->execute()) {
         echo "success";
     } else {
-        echo "Error: " . $conn->error;
+        echo "Error in Device Update: " . $conn->error;
     }
     
-    $stmt1->close(); $stmt2->close(); $stmt3->close(); $conn->close();
+    $stmt1->close(); 
+    $stmt2->close(); 
+    $stmt3->close(); 
+    $conn->close();
 }
 ?>
