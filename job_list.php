@@ -2,14 +2,14 @@
 include 'db_config.php';
 include 'navbar.php';
 
-// --- 1. ස්වයංක්‍රීයව Status Update කිරීම (Destroyed) ---
+// --- 1. Auto Status Update (Destroyed) ---
 mysqli_query($conn, "UPDATE job_device SET device_status = 'Destroyed' 
                      WHERE destroy_notice_sent_date IS NOT NULL 
                      AND DATEDIFF(NOW(), destroy_notice_sent_date) >= 7 
                      AND device_status != 'Destroyed'");
 
-// --- 2. Auto SMS Logic (Completed දවසේ සිට මාස 3ක් යනතුරු සෑම දින 2කට වරක්) ---
-$auto_sms_query = "SELECT jd.job_device_id, j.phone_number, c.customer_name, jd.device_name, jd.last_sms_sent_date 
+// --- 2. Auto SMS Logic ---
+$auto_sms_query = "SELECT jd.job_device_id, j.phone_number, c.customer_name, jd.device_name, j.job_no 
                    FROM job_device jd
                    INNER JOIN job j ON jd.job_no = j.job_no
                    INNER JOIN customer c ON j.phone_number = c.phone_number
@@ -20,28 +20,30 @@ $auto_sms_query = "SELECT jd.job_device_id, j.phone_number, c.customer_name, jd.
 $auto_res = mysqli_query($conn, $auto_sms_query);
 
 while($auto_row = mysqli_fetch_assoc($auto_res)) {
-    $job_device_id = $auto_row['job_device_id'];
-    $phone = $auto_row['phone_number'];
+    $j_id = $auto_row['job_device_id'];
+    $phone = "94" . ltrim(ltrim($auto_row['phone_number'], '94'), '0');
     $customer = $auto_row['customer_name'];
     $device = $auto_row['device_name'];
+    $job_no = $auto_row['job_no'];
 
-    // SMS පණිවිඩය
-    $message = "Hi $customer, your $device is ready at Multi9. Please collect it soon. Thank you!";
-
-    // --- 🔔 මෙතැනට ඔබේ SMS API Code එක දාන්න ---
-    // උදාහරණ: file_get_contents("https://sms-gateway.com/api?to=$phone&msg=".urlencode($message));
-
-    // අවසන් වරට SMS යැවූ දිනය අද දිනය ලෙස Update කිරීම
-    mysqli_query($conn, "UPDATE job_device SET last_sms_sent_date = CURDATE() WHERE job_device_id = $job_device_id");
+    $msg = "Hi $customer, your $device (Job #$job_no) is ready at Multi9. Please collect it soon.";
+    $safe_msg = mysqli_real_escape_string($conn, $msg);
+    
+    $history_sql = "INSERT INTO sms_history (job_device_id, phone_number, message, status) 
+                    VALUES ('$j_id', '$phone', '$safe_msg', 'Sent (Auto)')";
+    
+    if(mysqli_query($conn, $history_sql)) {
+        mysqli_query($conn, "UPDATE job_device SET last_sms_sent_date = CURDATE() WHERE job_device_id = $j_id");
+    }
 }
 
-// --- 3. දත්ත ලබාගැනීම සහ Filter කිරීම ---
+// --- 3. Data Fetching and Filtering ---
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 $filter_status = isset($_GET['status']) ? mysqli_real_escape_string($conn, $_GET['status']) : '';
 
 $status_flow = ['Pending', 'In Progress', 'Completed', 'Returned'];
 
-$sql = "SELECT j.job_no, j.job_date, t.name as technician_name, c.customer_name, j.phone_number, 
+$sql = "SELECT j.job_no, j.job_date, j.estimated_cost, j.advance_paid, t.name as technician_name, c.customer_name, j.phone_number, 
                 jd.job_device_id, jd.device_name, jd.issue_name, jd.solution,
                 CASE WHEN inv.payment_status = 'Paid' THEN 'Returned' ELSE jd.device_status END AS device_status,
                 jd.completed_date, jd.destroy_notice_sent_date, jd.rent_warning_sent,
@@ -55,16 +57,11 @@ $sql = "SELECT j.job_no, j.job_date, t.name as technician_name, c.customer_name,
         AND jd.device_status != 'Destroyed'";
 
 if ($filter_status != '') { 
-    if($filter_status == 'Returned') {
-        $sql .= " AND inv.payment_status = 'Paid'";
-    } else {
-        $sql .= " AND jd.device_status = '$filter_status' AND (inv.payment_status != 'Paid' OR inv.payment_status IS NULL)";
-    }
+    if($filter_status == 'Returned') { $sql .= " AND inv.payment_status = 'Paid'"; } 
+    else { $sql .= " AND jd.device_status = '$filter_status' AND (inv.payment_status != 'Paid' OR inv.payment_status IS NULL)"; }
 }
 
-if ($search != '') { 
-    $sql .= " AND (j.job_no LIKE '%$search%' OR j.phone_number LIKE '%$search%' OR jd.device_name LIKE '%$search%' OR c.customer_name LIKE '%$search%')"; 
-}
+if ($search != '') { $sql .= " AND (j.job_no LIKE '%$search%' OR j.phone_number LIKE '%$search%' OR jd.device_name LIKE '%$search%' OR c.customer_name LIKE '%$search%')"; }
 
 $sql .= " ORDER BY jd.job_device_id DESC";
 $result = mysqli_query($conn, $sql);
@@ -107,9 +104,22 @@ $result = mysqli_query($conn, $sql);
         .paid-badge { background: #ecfdf5; color: #059669; border: 1px solid #10b981; padding: 8px 15px; border-radius: 8px; font-weight: 800; }
         .sms-btn { background: #3b82f6; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: 900; }
         .lock-icon { font-size: 16px; opacity: 0.5; }
+        #smsModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; }
+        .modal-content { background:white; width:90%; max-width:600px; margin:80px auto; padding:20px; border-radius:15px; position:relative; box-shadow:0 5px 25px rgba(0,0,0,0.2); }
+        .close-modal { position:absolute; right:20px; top:15px; font-size:24px; cursor:pointer; font-weight:bold; }
+        .advance-amount { color: var(--danger); font-weight: 800; }
+        .balance-amount { font-size: 10px; color: var(--text-muted); display: block; margin-top: 4px; }
     </style>
 </head>
 <body>
+
+<div id="smsModal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="document.getElementById('smsModal').style.display='none'">&times;</span>
+        <h2 style="margin-bottom:15px;">📩 SMS History</h2>
+        <div id="historyBody" style="max-height:400px; overflow-y:auto;">Loading...</div>
+    </div>
+</div>
 
 <div class="page-container">
     <div class="page-header">
@@ -141,6 +151,7 @@ $result = mysqli_query($conn, $sql);
                     <th>CUSTOMER DETAILS</th>
                     <th>DEVICE</th>
                     <th>ISSUE</th>
+                    <th style="color: var(--danger);">ADVANCE (Rs.)</th>
                     <th>SOLUTION</th> 
                     <th>STATUS</th>
                     <th>ACTIONS</th>
@@ -152,11 +163,13 @@ $result = mysqli_query($conn, $sql);
                         $id = $row['job_device_id'];
                         $current_status = $row['device_status'];
                         $is_paid = ($row['payment_status'] == 'Paid');
-                        
                         $is_edit_locked = ($current_status == 'Completed' || $current_status == 'Returned');
                         $is_status_locked = ($current_status == 'Returned');
-
                         $current_idx = array_search($current_status, $status_flow);
+
+                        $advance = $row['advance_paid'] ?? 0;
+                        $estimate = $row['estimated_cost'] ?? 0;
+                        $balance = $estimate - $advance;
                         
                         $days_passed = 0; $delay_fee = 0;
                         if($current_status == 'Completed' && $row['completed_date'] != null) {
@@ -172,10 +185,18 @@ $result = mysqli_query($conn, $sql);
                         </td>
                         <td><input type="text" id="dev-<?= $id ?>" class="inline-input" value="<?= htmlspecialchars($row['device_name']) ?>" readonly></td>
                         <td><input type="text" id="iss-<?= $id ?>" class="inline-input" value="<?= htmlspecialchars($row['issue_name']) ?>" readonly></td>
+                        
+                        <td class="advance-amount">
+                            Rs. <?= number_format($advance, 2) ?>
+                            <?php if(!$is_paid && $balance > 0): ?>
+                                <span class="balance-amount">Bal: Rs. <?= number_format($balance, 2) ?></span>
+                            <?php endif; ?>
+                        </td>
+
                         <td><textarea id="sol-<?= $id ?>" class="inline-input" readonly style="min-height:45px;"><?= htmlspecialchars($row['solution'] ?? '') ?></textarea></td>
                         <td>
                             <select id="stat-<?= $id ?>" onchange="updateStatusAndSMS(<?= $id ?>)" <?= $is_status_locked ? 'disabled' : '' ?> 
-                                    style="padding:8px; border-radius:8px; border:1px solid var(--border); font-weight:600; cursor: <?= $is_status_locked ? 'not-allowed' : 'pointer' ?>;">
+                                    style="padding:8px; border-radius:8px; border:1px solid var(--border); font-weight:600;">
                                 <?php foreach ($status_flow as $idx => $opt): ?>
                                     <?php if ($idx >= $current_idx): ?>
                                         <option value="<?= $opt ?>" <?= $current_status == $opt ? 'selected' : '' ?>><?= $opt ?></option>
@@ -185,16 +206,17 @@ $result = mysqli_query($conn, $sql);
                             
                             <?php if($delay_fee > 0): ?>
                                 <div style="color:var(--danger); font-weight:900; font-size:11px; margin-top:5px;">💰 Rent: Rs. <?= $delay_fee ?></div>
-                                <button class="sms-btn" onclick="sendManualSMS(<?= $id ?>, '<?= $row['phone_number'] ?>', <?= $delay_fee ?>)">📩 SEND SMS</button>
+                                <button class="sms-btn" onclick="sendManualSMS(<?= $id ?>)">📩 SEND RENT SMS</button>
                             <?php endif; ?>
                         </td>
                         <td>
                             <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                                <button onclick="viewSMSHistory(<?= $id ?>)" title="View SMS History" style="background:#6366f1; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">📜</button>
+                                
                                 <?php if(!$is_edit_locked): ?>
-                                    <button id="btn-edit-<?= $id ?>" onclick="toggleEdit(<?= $id ?>)" 
-                                            style="background: var(--blue); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">✏️</button>
+                                    <button id="btn-edit-<?= $id ?>" onclick="toggleEdit(<?= $id ?>)" style="background: var(--blue); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">✏️</button>
                                 <?php else: ?>
-                                    <span class="lock-icon" title="Editing disabled for completed jobs">🔒</span>
+                                    <span class="lock-icon">🔒</span>
                                 <?php endif; ?>
 
                                 <?php if($current_status == 'Completed' || $current_status == 'Returned'): ?>
@@ -209,7 +231,7 @@ $result = mysqli_query($conn, $sql);
                     </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="7" style="padding: 60px; color: var(--text-muted);">No active jobs found.</td></tr>
+                    <tr><td colspan="8" style="padding: 60px; color: var(--text-muted);">No active jobs found.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -217,6 +239,24 @@ $result = mysqli_query($conn, $sql);
 </div>
 
 <script>
+function viewSMSHistory(id) {
+    document.getElementById('smsModal').style.display = 'block';
+    document.getElementById('historyBody').innerHTML = "Loading history...";
+    fetch('get_sms_history.php?id=' + id)
+        .then(res => res.text())
+        .then(data => { document.getElementById('historyBody').innerHTML = data; });
+}
+
+function sendManualSMS(id) {
+    if(confirm("Send rent reminder to this customer?")) {
+        fetch('./send_sms_api.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${id}`
+        }).then(res => res.text()).then(data => { alert(data); });
+    }
+}
+
 function updateStatusAndSMS(id) {
     const status = document.getElementById('stat-' + id).value;
     const params = `id=${id}&device_name=${encodeURIComponent(document.getElementById('dev-' + id).value)}&issue_name=${encodeURIComponent(document.getElementById('iss-' + id).value)}&solution=${encodeURIComponent(document.getElementById('sol-' + id).value)}&device_status=${encodeURIComponent(status)}`;
@@ -226,11 +266,8 @@ function updateStatusAndSMS(id) {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: params
     }).then(res => res.text()).then(data => {
-        if(data.trim() === "Success") { 
-            location.reload(); 
-        } else { 
-            alert("Error: " + data); 
-        }
+        if(data.trim() === "Success") { location.reload(); } 
+        else { alert("Error: " + data); }
     });
 }
 
@@ -246,16 +283,6 @@ function toggleEdit(id) {
         btn.innerHTML = "💾";
     } else {
         updateStatusAndSMS(id);
-    }
-}
-
-function sendManualSMS(id, phone, fee) {
-    if(confirm("Send rent reminder?")) {
-        fetch('./send_sms_api.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${id}&phone=${phone}&fee=${fee}`
-        }).then(res => res.text()).then(data => { alert(data); });
     }
 }
 </script>

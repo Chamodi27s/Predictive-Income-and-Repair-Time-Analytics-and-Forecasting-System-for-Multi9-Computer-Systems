@@ -6,7 +6,6 @@ $api_key = "391|gyFVyQXSWNywx289bNDJdCkdKcOVRcPqyiUQzXzb";
 $sender_id = "SMSAPI Demo"; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // දත්ත ලබා ගැනීම සහ පිරිසිදු කිරීම (Trimming)
     $id = isset($_POST['id']) ? mysqli_real_escape_string($conn, trim($_POST['id'])) : '';
     $device_name = isset($_POST['device_name']) ? mysqli_real_escape_string($conn, trim($_POST['device_name'])) : '';
     $issue_name = isset($_POST['issue_name']) ? mysqli_real_escape_string($conn, trim($_POST['issue_name'])) : '';
@@ -14,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $solution = isset($_POST['solution']) ? mysqli_real_escape_string($conn, trim($_POST['solution'])) : '';
 
     if (!empty($id)) {
-        // 1. කලින් තිබුණු status එක පරීක්ෂා කිරීම (Duplicate SMS වැළැක්වීමට)
+        // 1. කලින් තිබුණු status එක පරීක්ෂා කිරීම
         $check_query = "SELECT device_status FROM job_device WHERE job_device_id = '$id'";
         $check_res = mysqli_query($conn, $check_query);
         $old_data = mysqli_fetch_assoc($check_res);
@@ -27,7 +26,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 solution = '$solution', 
                 device_status = '$status'";
         
-        // Status එක අලුතින්ම 'Completed' වුනොත් පමණක් දිනය ඇතුළත් කරයි
         if ($status === 'Completed' && $old_status !== 'Completed') { 
             $sql .= ", completed_date = NOW()"; 
         }
@@ -45,13 +43,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $job_data = mysqli_fetch_assoc($res);
                 
                 if ($job_data) {
-                    // දුරකථන අංකය ජාත්‍යන්තර ආකෘතියට සකස් කිරීම
                     $phone = "94" . ltrim(ltrim($job_data['phone_number'], '94'), '0');
                     $msg = "Multi9: Your $device_name (Job #".$job_data['job_no'].") is now $status.";
 
                     // --- SMSAPI.lk v3 API Call ---
                     $url = "https://dashboard.smsapi.lk/api/v3/sms/send"; 
-                    
                     $postData = json_encode([
                         'recipient' => $phone,
                         'sender_id' => $sender_id,
@@ -68,17 +64,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         "Accept: application/json"
                     ]);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                    
                     $response = curl_exec($ch);
-                    
-                    // CURL Error එකක් තිබේදැයි බැලීම (Optional debugging)
-                    if(curl_errno($ch)) {
-                        // error_log('CURL Error: ' . curl_error($ch));
-                    }
+                    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                     curl_close($ch);
+
+                    // --- 🔔 මෙතැනදී History එකට Save කරනවා ---
+                    $sms_status = ($http_code == 200 || $http_code == 201) ? 'Success' : 'Failed';
+                    $safe_msg = mysqli_real_escape_string($conn, $msg);
+                    
+                    $history_sql = "INSERT INTO sms_history (job_device_id, phone_number, message, status) 
+                                   VALUES ('$id', '$phone', '$safe_msg', '$sms_status')";
+                    mysqli_query($conn, $history_sql);
                 }
             }
-            
             echo "Success"; 
         } else {
             echo "Error updating database: " . mysqli_error($conn);
