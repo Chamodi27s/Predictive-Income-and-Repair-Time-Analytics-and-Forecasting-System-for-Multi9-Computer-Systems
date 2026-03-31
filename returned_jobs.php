@@ -2,23 +2,22 @@
 include 'db_config.php';
 include 'navbar.php';
 
-// --- පරාමිතීන් ලබා ගැනීම ---
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 
-// --- Query Logic (Status එක 'Returned' වූ දත්ත පමණක් ලබා ගැනීම) ---
-$sql = "SELECT j.job_no, j.job_date, c.customer_name, j.phone_number, 
-               jd.device_name, jd.issue_name, jd.solution, jd.completed_date
-        FROM job j
+// Query එකේ i.invoice_no සහ i.grand_total එලෙසම තබා ගත්තේ backend logic සඳහා පමණි
+$sql = "SELECT i.invoice_no, i.job_no, i.invoice_date, c.customer_name, j.phone_number, 
+               jd.device_name, jd.issue_name, i.solution, i.grand_total
+        FROM invoice i
+        INNER JOIN job j ON i.job_no = j.job_no
         INNER JOIN customer c ON j.phone_number = c.phone_number
-        INNER JOIN job_device jd ON j.job_no = jd.job_no 
-        WHERE jd.device_status = 'Returned'";
+        INNER JOIN job_device jd ON i.job_no = jd.job_no
+        WHERE i.payment_status = 'Paid'";
 
-// --- Search Logic (Job No, Phone, Name සඳහා) ---
 if ($search != '') { 
-    $sql .= " AND (j.job_no LIKE '%$search%' OR j.phone_number LIKE '%$search%' OR c.customer_name LIKE '%$search%')"; 
+    $sql .= " AND (i.job_no LIKE '%$search%' OR j.phone_number LIKE '%$search%' OR c.customer_name LIKE '%$search%')"; 
 }
 
-$sql .= " ORDER BY jd.completed_date DESC";
+$sql .= " ORDER BY i.invoice_no DESC";
 $result = mysqli_query($conn, $sql);
 ?>
 
@@ -27,79 +26,159 @@ $result = mysqli_query($conn, $sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Returned History - Multi9</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Returned Jobs - Multi9</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ඔබේ අනෙක් පිටු වලට සමාන CSS */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary: #10b981; 
-            --secondary: #64748b;
+            --primary: #10b981;
+            --primary-hover: #059669;
             --bg-main: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
             --border: #e2e8f0;
-            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); 
-            padding: 120px 20px 40px 20px; 
+        body.dark-mode {
+            --bg-main: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
         }
 
-        .page-container { max-width: 1300px; margin: 0 auto; }
-
-        .page-header { 
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
-            padding: 30px; border-radius: 20px; margin-bottom: 30px; 
-            color: white; text-align: center; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
-        }
-
-        .search-container { display: flex; justify-content: center; margin-bottom: 35px; }
-        .search-box { 
-            display: flex; background: white; padding: 5px; border-radius: 12px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08); width: 100%; max-width: 600px; border: 1px solid var(--border); 
-        }
-        .search-box input { flex: 1; border: none; padding: 12px; outline: none; }
-        .search-box button { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-
-        .table-container { background: white; border-radius: 15px; box-shadow: var(--shadow-lg); overflow: hidden; }
-        .status-table { width: 100%; border-collapse: collapse; }
-        .status-table th { background: #f1f5f9; color: var(--secondary); padding: 18px; font-size: 12px; text-transform: uppercase; }
-        .status-table td { padding: 18px; border-bottom: 1px solid var(--border); text-align: center; font-size: 14px; }
-
-        .badge-id { background: #f1f5f9; color: #475569; padding: 5px 10px; border-radius: 50px; font-weight: 700; border: 1px solid #e2e8f0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        /* Dark Mode */
-        body.dark-mode { background: #020617 !important; color: #e2e8f0 !important; }
-        body.dark-mode .table-container, body.dark-mode .search-box { background: #1e293b; border-color: #334155; }
-        body.dark-mode .status-table th { background: #0f172a; }
-        body.dark-mode .status-table td { border-color: #334155; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            padding: 120px 20px 40px;
+            transition: all 0.3s ease;
+        }
+
+        .container { max-width: 1300px; margin: 0 auto; }
+
+        .page-header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.2);
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        .search-box {
+            display: flex;
+            background: var(--card-bg);
+            padding: 8px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+        .search-box input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 12px 20px;
+            color: var(--text-main);
+            font-size: 15px;
+            outline: none;
+        }
+        .search-box button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .search-box button:hover { background: var(--primary-hover); }
+
+        .table-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .status-table { width: 100%; border-collapse: collapse; }
+        .status-table th {
+            background: rgba(0,0,0,0.02);
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+        .status-table td {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .job-id-badge {
+            background: var(--bg-main);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+        .solution-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            max-width: 250px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+        .status-pill {
+            background: #dcfce7;
+            color: #166534;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 800;
+        }
     </style>
 </head>
-<body id="pageBody">
+<body id="mainBody">
 
-<div class="page-container">
+<div class="container">
     <div class="page-header">
-        <h1>📦 Returned Jobs History</h1>
-        <p>List of all devices successfully returned to customers</p>
+        <h1 style="font-size: 32px; font-weight: 800;">📦 Returned Jobs History</h1>
+        <p style="opacity: 0.9; margin-top: 8px;">List of all devices successfully returned to customers</p>
     </div>
 
     <div class="search-container">
         <form action="" method="GET" class="search-box">
-            <input type="text" name="search" placeholder="Search by Job No, Phone, or Name..." value="<?= htmlspecialchars($search) ?>">
-            <button type="submit">Search</button>
+            <input type="text" name="search" placeholder="Search by Job No, Phone or Customer..." value="<?= htmlspecialchars($search) ?>">
+            <button type="submit">Search Records</button>
         </form>
     </div>
 
-    <div class="table-container">
+    <div class="table-card">
         <table class="status-table">
             <thead>
                 <tr>
                     <th>Job No</th>
-                    <th>Customer</th>
+                    <th>Customer Details</th>
                     <th>Device & Issue</th>
                     <th>Repair Solution</th>
-                    <th>Date Returned</th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -107,22 +186,31 @@ $result = mysqli_query($conn, $sql);
                 <?php if(mysqli_num_rows($result) > 0): ?>
                     <?php while($row = mysqli_fetch_assoc($result)): ?>
                     <tr>
-                        <td><span class="badge-id">#<?= $row['job_no'] ?></span></td>
+                        <td>
+                            <span class="job-id-badge">#<?= $row['job_no'] ?></span>
+                        </td>
                         <td style="text-align: left;">
-                            <b><?= htmlspecialchars($row['customer_name']) ?></b><br>
-                            <small style="color: var(--secondary)"><?= $row['phone_number'] ?></small>
+                            <b style="font-size: 15px;"><?= htmlspecialchars($row['customer_name']) ?></b><br>
+                            <small style="color: var(--text-muted)"><?= $row['phone_number'] ?></small>
                         </td>
                         <td style="text-align: left;">
                             <b><?= htmlspecialchars($row['device_name']) ?></b><br>
-                            <small><?= htmlspecialchars($row['issue_name']) ?></small>
+                            <small style="color: #ef4444;"><?= htmlspecialchars($row['issue_name']) ?></small>
                         </td>
-                        <td><small><?= $row['solution'] ?: 'No details recorded' ?></small></td>
-                        <td><?= $row['completed_date'] ? date('M d, Y', strtotime($row['completed_date'])) : 'N/A' ?></td>
-                        <td><span style="color: #10b981; font-weight: 800;">✅ RETURNED</span></td>
+                        <td>
+                            <div class="solution-text">
+                                <?= $row['solution'] ? htmlspecialchars($row['solution']) : '<i>No solution recorded</i>' ?>
+                            </div>
+                        </td>
+                        <td><span class="status-pill">RETURNED</span></td>
                     </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="6" style="padding: 50px;">No returned jobs found.</td></tr>
+                    <tr>
+                        <td colspan="5" style="padding: 100px; color: var(--text-muted);">
+                            No returned jobs found in the database.
+                        </td>
+                    </tr>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -130,11 +218,14 @@ $result = mysqli_query($conn, $sql);
 </div>
 
 <script>
-    function applySavedTheme() {
+    function applyTheme() {
         const isDark = localStorage.getItem("darkMode") === "enabled";
-        if (isDark) document.getElementById('pageBody').classList.add("dark-mode");
+        if (isDark) {
+            document.getElementById('mainBody').classList.add('dark-mode');
+        }
     }
-    applySavedTheme();
+    applyTheme();
 </script>
+
 </body>
 </html>
