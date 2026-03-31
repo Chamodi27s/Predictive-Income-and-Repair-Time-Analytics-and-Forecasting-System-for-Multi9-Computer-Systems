@@ -9,7 +9,7 @@ if (isset($_POST['id']) && isset($_POST['data'])) {
         die("Invalid JSON format");
     }
 
-    // --- Database එකෙන් වත්මන් Phone Number එක ලබා ගැනීම ---
+    
     $stmt_get_phone = $conn->prepare("SELECT phone_number FROM job WHERE job_no = ?");
     $stmt_get_phone->bind_param("s", $id);
     $stmt_get_phone->execute();
