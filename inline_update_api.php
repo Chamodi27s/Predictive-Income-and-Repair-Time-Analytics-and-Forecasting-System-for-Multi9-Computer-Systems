@@ -6,13 +6,12 @@ $api_key = "391|gyFVyQXSWNywx289bNDJdCkdKcOVRcPqyiUQzXzb";
 $sender_id = "SMSAPI Demo"; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = isset($_POST['id']) ? mysqli_real_escape_string($conn, $_POST['id']) : '';
-    $device_name = isset($_POST['device_name']) ? mysqli_real_escape_string($conn, $_POST['device_name']) : '';
-    $issue_name = isset($_POST['issue_name']) ? mysqli_real_escape_string($conn, $_POST['issue_name']) : '';
-    $status = isset($_POST['device_status']) ? mysqli_real_escape_string($conn, $_POST['device_status']) : '';
-    
-    // --- Solution එක ලබා ගැනීම (අලුතින් එකතු කළා) ---
-    $solution = isset($_POST['solution']) ? mysqli_real_escape_string($conn, $_POST['solution']) : '';
+    // දත්ත ලබා ගැනීම සහ පිරිසිදු කිරීම (Trimming)
+    $id = isset($_POST['id']) ? mysqli_real_escape_string($conn, trim($_POST['id'])) : '';
+    $device_name = isset($_POST['device_name']) ? mysqli_real_escape_string($conn, trim($_POST['device_name'])) : '';
+    $issue_name = isset($_POST['issue_name']) ? mysqli_real_escape_string($conn, trim($_POST['issue_name'])) : '';
+    $status = isset($_POST['device_status']) ? mysqli_real_escape_string($conn, trim($_POST['device_status'])) : '';
+    $solution = isset($_POST['solution']) ? mysqli_real_escape_string($conn, trim($_POST['solution'])) : '';
 
     if (!empty($id)) {
         // 1. කලින් තිබුණු status එක පරීක්ෂා කිරීම (Duplicate SMS වැළැක්වීමට)
@@ -21,13 +20,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $old_data = mysqli_fetch_assoc($check_res);
         $old_status = $old_data['device_status'] ?? '';
 
-        // 2. Database එක Update කිරීම (solution එකත් සමඟ)
+        // 2. Database එක Update කිරීම
         $sql = "UPDATE job_device SET 
                 device_name = '$device_name', 
                 issue_name = '$issue_name', 
                 solution = '$solution', 
                 device_status = '$status'";
         
+        // Status එක අලුතින්ම 'Completed' වුනොත් පමණක් දිනය ඇතුළත් කරයි
         if ($status === 'Completed' && $old_status !== 'Completed') { 
             $sql .= ", completed_date = NOW()"; 
         }
@@ -45,11 +45,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $job_data = mysqli_fetch_assoc($res);
                 
                 if ($job_data) {
+                    // දුරකථන අංකය ජාත්‍යන්තර ආකෘතියට සකස් කිරීම
                     $phone = "94" . ltrim(ltrim($job_data['phone_number'], '94'), '0');
                     $msg = "Multi9: Your $device_name (Job #".$job_data['job_no'].") is now $status.";
 
                     // --- SMSAPI.lk v3 API Call ---
-                    $url = "https://smsapi.lk/api/v3/sms/send"; 
+                    $url = "https://dashboard.smsapi.lk/api/v3/sms/send"; 
                     
                     $postData = json_encode([
                         'recipient' => $phone,
@@ -69,6 +70,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     
                     $response = curl_exec($ch);
+                    
+                    // CURL Error එකක් තිබේදැයි බැලීම (Optional debugging)
+                    if(curl_errno($ch)) {
+                        // error_log('CURL Error: ' . curl_error($ch));
+                    }
                     curl_close($ch);
                 }
             }
