@@ -8,20 +8,34 @@ mysqli_query($conn, "UPDATE job_device SET device_status = 'Destroyed'
                      AND DATEDIFF(NOW(), destroy_notice_sent_date) >= 7 
                      AND device_status != 'Destroyed'");
 
-// --- 2. Auto SMS Logic (මාස 3 සම්පූර්ණ වූ පසු එක වරක් පමණක් SMS යැවීම) ---
-$auto_sms_query = "SELECT jd.job_device_id, j.phone_number, c.customer_name, jd.device_name 
+// --- 2. Auto SMS Logic (Completed දවසේ සිට මාස 3ක් යනතුරු සෑම දින 2කට වරක්) ---
+$auto_sms_query = "SELECT jd.job_device_id, j.phone_number, c.customer_name, jd.device_name, jd.last_sms_sent_date 
                    FROM job_device jd
                    INNER JOIN job j ON jd.job_no = j.job_no
                    INNER JOIN customer c ON j.phone_number = c.phone_number
                    WHERE jd.device_status = 'Completed' 
-                   AND jd.rent_warning_sent = 0 
-                   AND DATEDIFF(NOW(), jd.completed_date) >= 90";
+                   AND DATEDIFF(NOW(), jd.completed_date) <= 90
+                   AND (jd.last_sms_sent_date IS NULL OR DATEDIFF(NOW(), jd.last_sms_sent_date) >= 2)";
 
 $auto_res = mysqli_query($conn, $auto_sms_query);
+
 while($auto_row = mysqli_fetch_assoc($auto_res)) {
-    mysqli_query($conn, "UPDATE job_device SET rent_warning_sent = 1 WHERE job_device_id = " . $auto_row['job_device_id']);
+    $job_device_id = $auto_row['job_device_id'];
+    $phone = $auto_row['phone_number'];
+    $customer = $auto_row['customer_name'];
+    $device = $auto_row['device_name'];
+
+    // SMS පණිවිඩය
+    $message = "Hi $customer, your $device is ready at Multi9. Please collect it soon. Thank you!";
+
+    // --- 🔔 මෙතැනට ඔබේ SMS API Code එක දාන්න ---
+    // උදාහරණ: file_get_contents("https://sms-gateway.com/api?to=$phone&msg=".urlencode($message));
+
+    // අවසන් වරට SMS යැවූ දිනය අද දිනය ලෙස Update කිරීම
+    mysqli_query($conn, "UPDATE job_device SET last_sms_sent_date = CURDATE() WHERE job_device_id = $job_device_id");
 }
 
+// --- 3. දත්ත ලබාගැනීම සහ Filter කිරීම ---
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 $filter_status = isset($_GET['status']) ? mysqli_real_escape_string($conn, $_GET['status']) : '';
 
@@ -139,11 +153,7 @@ $result = mysqli_query($conn, $sql);
                         $current_status = $row['device_status'];
                         $is_paid = ($row['payment_status'] == 'Paid');
                         
-                        // --- ලොක් කිරීමේ Logic එක ---
-                        // Completed හෝ Returned නම් Edit කිරීමට ඉඩ නොදේ.
                         $is_edit_locked = ($current_status == 'Completed' || $current_status == 'Returned');
-                        
-                        // Returned නම් Status වෙනස් කිරීමද ලොක් වේ.
                         $is_status_locked = ($current_status == 'Returned');
 
                         $current_idx = array_search($current_status, $status_flow);
@@ -230,7 +240,6 @@ function toggleEdit(id) {
     let sol = document.getElementById('sol-' + id);
     let btn = document.getElementById('btn-edit-' + id);
     
-    // වැරදීමකින් හෝ lock වූ row එකක edit trigger නොවන බවට සහතික වීම
     if (dev.readOnly) {
         dev.readOnly = false; iss.readOnly = false; sol.readOnly = false;
         dev.classList.add('editing'); iss.classList.add('editing'); sol.classList.add('editing');
@@ -242,7 +251,7 @@ function toggleEdit(id) {
 
 function sendManualSMS(id, phone, fee) {
     if(confirm("Send rent reminder?")) {
-        fetch('./send_manual_sms_api.php', {
+        fetch('./send_sms_api.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `id=${id}&phone=${phone}&fee=${fee}`

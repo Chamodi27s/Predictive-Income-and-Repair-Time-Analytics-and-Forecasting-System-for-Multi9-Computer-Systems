@@ -1,35 +1,52 @@
 <?php
 include 'db_config.php';
 
-// Config - මේවා වෙනම file එකක තිබේ නම් වඩාත් හොඳයි
+// Config
 $api_key = "391|gyFVyQXSWNywx289bNDJdCkdKcOVRcPqyiUQzXzb";
 $sender_id = "SMSAPI Demo"; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id = isset($_POST['id']) ? mysqli_real_escape_string($conn, $_POST['id']) : '';
-    $status = isset($_POST['status']) ? mysqli_real_escape_string($conn, $_POST['status']) : '';
 
     if (!empty($id)) {
-        $query = "SELECT j.job_no, j.phone_number, jd.device_name 
+        // Rent එක ගණනය කිරීමට completed_date එකත් query එකට එකතු කර ගන්නවා
+        $query = "SELECT j.job_no, j.phone_number, jd.device_name, jd.completed_date, c.customer_name 
                   FROM job j 
                   INNER JOIN job_device jd ON j.job_no = jd.job_no 
+                  INNER JOIN customer c ON j.phone_number = c.phone_number
                   WHERE jd.job_device_id = '$id'";
         
         $res = mysqli_query($conn, $query);
         $job_data = mysqli_fetch_assoc($res);
         
-        if ($job_data) {
+        if ($job_data && $job_data['completed_date']) {
+            // --- Rent Calculation Logic ---
+            $completed_date = strtotime($job_data['completed_date']);
+            $today = time();
+            $days_passed = floor(($today - $completed_date) / 86400); // ගතවූ දින ගණන
+            
+            $rent_fee = 0;
+            if($days_passed > 90) {
+                // දින 90න් පසු සෑම දින 30කටම (මාසයකට) රු. 100 බැගින්
+                $rent_fee = ceil(($days_passed - 90) / 30) * 100;
+            }
+
             // Phone number formatting
             $raw_phone = $job_data['phone_number'];
-            $clean_phone = preg_replace('/[^0-9]/', '', $raw_phone); // ඉලක්කම් පමණක් ඉතිරි කරන්න
+            $clean_phone = preg_replace('/[^0-9]/', '', $raw_phone);
             $clean_phone = ltrim($clean_phone, '94'); 
             $clean_phone = ltrim($clean_phone, '0'); 
             $phone = "94" . $clean_phone;
 
-            $msg = "Multi9 Update: Your device " . $job_data['device_name'] . " (#" . $job_data['job_no'] . ") status is: " . $status . ". Thank you!";
+            // --- නව පණිවිඩය (Custom Message with Rent) ---
+            $msg = "Hi " . $job_data['customer_name'] . ", your " . $job_data['device_name'] . " has been ready for $days_passed days. ";
+            if($rent_fee > 0) {
+                $msg .= "Current rent fee is Rs. $rent_fee. Please collect it soon from Multi9.";
+            } else {
+                $msg .= "Please collect it from Multi9 at your earliest.";
+            }
 
             $url = "https://dashboard.smsapi.lk/api/v3/sms/send";
-  
             $data = json_encode(array(
                 'recipient' => $phone,
                 'sender_id' => $sender_id,
@@ -55,17 +72,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($err) {
                 echo "❌ Connection Error: " . $err;
             } else {
-                $res_data = json_decode($response, true);
-                // සාර්ථක නම් බොහෝවිට status 'success' ලෙස හෝ code 200/201 ලෙස පැමිණේ
                 if ($http_code == 200 || $http_code == 201) {
-                    echo "✅ SMS Sent Successfully to " . $phone;
+                    echo "✅ Rent Reminder Sent Successfully!";
                 } else {
-                    $error_msg = isset($res_data['message']) ? $res_data['message'] : 'Unknown Error';
-                    echo "⚠️ SMS Failed. Code: $http_code | Error: $error_msg";
+                    echo "⚠️ SMS Failed. Code: $http_code";
                 }
             }
         } else {
-            echo "❌ Error: Job data not found.";
+            echo "❌ Error: Job data or Completion date not found.";
         }
     } else {
         echo "❌ Error: Missing ID.";
