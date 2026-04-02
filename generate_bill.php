@@ -12,7 +12,9 @@ $months_late = 0;
 $service_charge_val = 0;
 $estimate_amount = 0;
 $advance_paid = 0;
+$pay_status = 'Pending'; 
 $invoice_date = date("Y-m-d"); 
+$current_invoice_no = "";
 
 // --- SMSAPI.lk Function ---
 function sendSMS($mobile, $message) {
@@ -35,7 +37,7 @@ function sendSMS($mobile, $message) {
     return ($http_code == 200 || $http_code == 201);
 }
 
-// --- දත්ත ලබා ගැනීම (Job සහ Job Device Table එකෙන්) ---
+// --- දත්ත ලබා ගැනීම ---
 $job_no_param = $_GET['job_no'] ?? ($_POST['job_no'] ?? '');
 if (!empty($job_no_param)) {
     $job_res = $conn->query("
@@ -53,7 +55,6 @@ if (!empty($job_no_param)) {
         $completion_date = $job_info['completed_date'];
         $customer_mobile = $job_info['phone_number'];
 
-        // --- RENT LOGIC: Rs. 100 per every 30 days AFTER first 90 days ---
         if (!empty($completion_date)) {
             $comp_dt = new DateTime($completion_date);
             $today_dt = new DateTime();
@@ -75,15 +76,16 @@ if (isset($_GET['view_only']) && $_GET['view_only'] == 'true' && isset($_GET['jo
     $check_inv = $conn->query("SELECT * FROM invoice WHERE job_no = '$v_job_no'");
     if ($check_inv->num_rows > 0) {
         $inv_data = $check_inv->fetch_assoc();
-        $_POST['invoice_no'] = $inv_data['invoice_no'];
+        $current_invoice_no = $inv_data['invoice_no'];
         $service_charge_val = floatval($inv_data['service_charge']);
         $saved_items = json_decode($inv_data['items_json'] ?? '[]', true);
         $invoice_date = $inv_data['invoice_date'];
+        $pay_status = $inv_data['payment_status'];
         $invoice_saved = true;
     }
 }
 
-// --- Invoice Save Logic + FULL DETAILS SMS ---
+// --- Invoice Save Logic ---
 if (isset($_POST['save_invoice'])) {
     $inv_no = $_POST['invoice_no'];
     $job_no = $_POST['job_no'];
@@ -91,10 +93,9 @@ if (isset($_POST['save_invoice'])) {
     $s_charge = floatval($_POST['service_charge']);
     $p_total = floatval($_POST['parts_total']);
     $g_total = floatval($_POST['grand_total']);
-    $pay_status = $_POST['payment_status'] ?? 'Pending'; 
+    $pay_status_input = $_POST['payment_status'] ?? 'Pending'; 
     $balance = $g_total - $advance_paid;
 
-    // Parts list for SMS
     $item_list_sms = "";
     $temp_items = [];
     if (isset($_POST['item_codes'])) {
@@ -103,7 +104,6 @@ if (isset($_POST['save_invoice'])) {
             $price = $_POST['item_prices'][$key];
             $qty = $_POST['item_qtys'][$key];
             $sub = floatval($price) * intval($qty);
-            
             $temp_items[] = ['code'=>$code, 'name'=>$name, 'price'=>$price, 'qty'=>$qty, 'sub'=>$sub];
             $item_list_sms .= "\n- $name (Rs.$price x $qty)";
         }
@@ -114,26 +114,14 @@ if (isset($_POST['save_invoice'])) {
     try {
         $sql1 = "INSERT INTO invoice (invoice_no, job_no, invoice_date, service_charge, parts_total, grand_total, items_json, payment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE service_charge=VALUES(service_charge), parts_total=VALUES(parts_total), grand_total=VALUES(grand_total), items_json=VALUES(items_json), payment_status=VALUES(payment_status)";
         $stmt1 = $conn->prepare($sql1);
-        $stmt1->bind_param("sssdddss", $inv_no, $job_no, $inv_date, $s_charge, $p_total, $g_total, $items_json, $pay_status);
+        $stmt1->bind_param("sssdddss", $inv_no, $job_no, $inv_date, $s_charge, $p_total, $g_total, $items_json, $pay_status_input);
         $stmt1->execute();
         
         $conn->query("UPDATE job_device SET device_status = 'Completed' WHERE job_no = '$job_no'");
         
-        // --- Full Details SMS ---
-        $message = "MULTI9 REPAIR\nInv: #$inv_no | Job: $job_no\n";
-        $message .= "Est: Rs.".number_format($estimate_amount, 2)."\n";
-        $message .= "Parts:".$item_list_sms."\n";
-        $message .= "S.Charge: Rs.".number_format($s_charge, 2)."\n";
-        if($delay_fee > 0) $message .= "Late Fee: Rs.".number_format($delay_fee, 2)."\n";
-        $message .= "----------------\n";
-        $message .= "Grand Total: Rs.".number_format($g_total, 2)."\n";
-        $message .= "Advance Paid: Rs.".number_format($advance_paid, 2)."\n";
-        $message .= "Balance Due: Rs.".number_format($balance, 2)."\n";
-        $message .= "Thank you!";
+        $message = "MULTI9 REPAIR\nInv: #$inv_no | Job: $job_no\nGrand Total: Rs.".number_format($g_total, 2)."\nBalance Due: Rs.".number_format($balance, 2);
 
-        if (!empty($customer_mobile)) {
-            sendSMS($customer_mobile, $message);
-        }
+        if (!empty($customer_mobile)) { sendSMS($customer_mobile, $message); }
 
         $conn->commit();
         header("Location: generate_bill.php?view_only=true&job_no=" . urlencode($job_no));
@@ -153,17 +141,16 @@ $next_invoice_no = (($r = $conn->query("SELECT MAX(invoice_no) AS last FROM invo
     <title>Invoice - Multi9 Repair</title>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 100px 0; }
-        .invoice-box { max-width: 850px; margin: auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .invoice-box { max-width: 850px; margin: auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; }
         .header { text-align: center; border-bottom: 3px solid #065f46; padding-bottom: 15px; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { background: #065f46; color: white; padding: 12px; text-align: left; }
         td { padding: 12px; border-bottom: 1px solid #eee; }
         .total-section { background: #fdfdfd; padding: 20px; border-radius: 8px; border: 1px solid #eee; margin-top: 20px; text-align: right; }
-        .rent-row { color: #d35400; font-weight: bold; background: #fff3e0; padding: 8px; border-radius: 5px; display: inline-block; margin-bottom: 10px; }
         .grand-total { font-size: 24px; color: #065f46; font-weight: bold; border-top: 2px solid #065f46; margin-top: 10px; padding-top: 10px; }
-        .btn { padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 10px; text-decoration: none; display: inline-block; text-align: center; box-sizing: border-box; }
-        .btn-save { background: #065f46; color: white; }
-        .btn-print { background: #3498db; color: white; }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; text-decoration: none; display: inline-block; }
+        .btn-paid { background: #27ae60; color: white; }
+        .paid-badge { border: 3px solid #27ae60; color: #27ae60; padding: 10px 20px; border-radius: 10px; display: inline-block; transform: rotate(-10deg); font-size: 24px; font-weight: 900; margin-top: 15px; }
         @media print { .no-print { display: none !important; } }
     </style>
 </head>
@@ -172,12 +159,12 @@ $next_invoice_no = (($r = $conn->query("SELECT MAX(invoice_no) AS last FROM invo
 <div class="invoice-box">
     <div class="header">
         <h1>MULTI9 COMPUTER REPAIR</h1>
-        <p>Invoice: <strong>#<?= $invoice_saved ? $_POST['invoice_no'] : $next_invoice_no ?></strong> | Job: <strong><?= htmlspecialchars($job_no_param) ?></strong></p>
+        <p>Invoice: <strong>#<?= $invoice_saved ? $current_invoice_no : $next_invoice_no ?></strong> | Job: <strong><?= htmlspecialchars($job_no_param) ?></strong></p>
         <p>Date: <?= date('Y-m-d', strtotime($invoice_date)) ?></p>
     </div>
 
     <form method="POST">
-        <input type="hidden" name="invoice_no" value="<?= $invoice_saved ? $_POST['invoice_no'] : $next_invoice_no ?>">
+        <input type="hidden" name="invoice_no" value="<?= $invoice_saved ? $current_invoice_no : $next_invoice_no ?>">
         <input type="hidden" name="job_no" value="<?= $job_no_param ?>">
         <input type="hidden" name="parts_total" id="p_total_val">
         <input type="hidden" name="grand_total" id="g_total_val">
@@ -193,7 +180,7 @@ $next_invoice_no = (($r = $conn->query("SELECT MAX(invoice_no) AS last FROM invo
                 <?php endforeach; ?>
             </select>
             <input type="number" id="qty" value="1" min="1" style="width:60px; padding:10px;">
-            <button type="button" onclick="addItem()" class="btn" style="flex:1; background:#2ecc71; color:white; margin:0;">+ ADD</button>
+            <button type="button" onclick="addItem()" class="btn" style="background:#2ecc71; color:white;">+ ADD</button>
         </div>
         <?php endif; ?>
 
@@ -216,7 +203,6 @@ $next_invoice_no = (($r = $conn->query("SELECT MAX(invoice_no) AS last FROM invo
         </table>
 
         <div class="total-section">
-            <p style="color: #555;">Estimated Amount: Rs. <?= number_format($estimate_amount, 2) ?></p>
             <p>Parts Total: Rs. <span id="p_disp">0.00</span></p>
             <p>Service Charge: 
                 <?php if(!$invoice_saved): ?>
@@ -228,24 +214,36 @@ $next_invoice_no = (($r = $conn->query("SELECT MAX(invoice_no) AS last FROM invo
             </p>
 
             <?php if ($delay_fee > 0): ?>
-            <div class="rent-row">
-                ⚠ Late Fee (<?= $months_late ?> Month/s): Rs. <?= number_format($delay_fee, 2) ?>
-            </div>
+                <div style="color: #d35400; font-weight: bold;">⚠ Late Fee: Rs. <?= number_format($delay_fee, 2) ?></div>
             <?php endif; ?>
 
             <div class="grand-total">Grand Total: Rs. <span id="g_disp">0.00</span></div>
-            <p style="color: #d9534f; font-weight: bold; margin-top: 10px;">Advance Paid: Rs. <?= number_format($advance_paid, 2) ?></p>
-            <p style="font-size: 20px;">Balance Due: <strong>Rs. <span id="balance_disp">0.00</span></strong></p>
+            
+            <?php if ($pay_status == 'Paid'): ?>
+                <div class="paid-badge">PAID IN FULL</div>
+            <?php else: ?>
+                <p style="color: #d9534f; font-weight: bold; margin-top: 10px;">Advance: Rs. <?= number_format($advance_paid, 2) ?></p>
+                <p style="font-size: 20px;">Balance Due: <strong>Rs. <span id="balance_disp">0.00</span></strong></p>
+            <?php endif; ?>
         </div>
 
-        <div class="no-print">
+        <div class="no-print" style="margin-top: 30px; display: flex; gap: 10px; justify-content: flex-end;">
             <?php if (!$invoice_saved): ?>
-                <button type="submit" name="save_invoice" class="btn btn-save">💾 SAVE INVOICE & SEND SMS</button>
+                <button type="submit" name="save_invoice" class="btn" style="background:#065f46; color:white; width:100%;">💾 SAVE INVOICE</button>
             <?php else: ?>
-                <button type="button" onclick="window.print()" class="btn btn-print">🖨️ PRINT INVOICE</button>
+                <button type="button" onclick="window.print()" class="btn" style="background:#3498db; color:white;">🖨️ PRINT</button>
+                <?php if ($pay_status !== 'Paid'): ?>
+                    <button type="submit" form="payForm" class="btn btn-paid">✅ MARK AS PAID</button>
+                <?php endif; ?>
             <?php endif; ?>
-            <a href="invoice_list.php" class="btn btn-back" style="background:#6c757d; color:white;">⬅ BACK</a>
+            <a href="invoice_list.php" class="btn" style="background:#6c757d; color:white;">⬅ BACK</a>
         </div>
+    </form>
+    
+    <form id="payForm" method="POST" action="update_payment_status.php">
+        <input type="hidden" name="invoice_no" value="<?= htmlspecialchars($current_invoice_no) ?>">
+        <input type="hidden" name="status" value="Paid">
+        <input type="hidden" name="job_no" value="<?= htmlspecialchars($job_no_param) ?>">
     </form>
 </div>
 
@@ -267,7 +265,9 @@ function calcTotal() {
 
     document.getElementById('p_disp').innerText = pTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
     document.getElementById('g_disp').innerText = gTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
-    document.getElementById('balance_disp').innerText = balance.toLocaleString(undefined, {minimumFractionDigits: 2});
+    
+    const balDisp = document.getElementById('balance_disp');
+    if(balDisp) balDisp.innerText = (balance < 0 ? 0 : balance).toLocaleString(undefined, {minimumFractionDigits: 2});
     
     if(document.getElementById('p_total_val')) document.getElementById('p_total_val').value = pTotal;
     if(document.getElementById('g_total_val')) document.getElementById('g_total_val').value = gTotal;
