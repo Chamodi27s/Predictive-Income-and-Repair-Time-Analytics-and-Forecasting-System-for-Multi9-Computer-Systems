@@ -50,7 +50,7 @@ function sendSMS($mobile, $message) {
     return ($http_code == 200 || $http_code == 201);
 }
 
-// --- දත්ත ලබා ගැනීම (Database එකේ නම estimated_cost නිසා එය නිවැරදි කර ඇත) ---
+// --- දත්ත ලබා ගැනීම ---
 $job_no_param = $_GET['job_no'] ?? ($_POST['job_no'] ?? '');
 if (!empty($job_no_param)) {
     $job_res = $conn->query("SELECT estimated_cost, advance_paid FROM job WHERE job_no = '$job_no_param'");
@@ -121,18 +121,30 @@ if (isset($_POST['save_invoice'])) {
             }
         }
 
-        // --- Detailed SMS Logic ---
+        // --- Detailed SMS Logic (Updated with Parts, Prices & Service Charge) ---
         $cust_res = $conn->query("SELECT phone_number FROM job WHERE job_no = '$job_no'");
         $customer_mobile = $cust_res->fetch_assoc()['phone_number'] ?? '';
 
         if (!empty($customer_mobile)) {
             $balance = $g_total - $advance_paid;
             
+            // Parts සහ ඒවායේ මිල ගණන් පේළියෙන් පේළියට සකස් කිරීම
+            $parts_list_sms = "";
+            if (!empty($temp_items)) {
+                $parts_list_sms = "\n--- Parts ---";
+                foreach ($temp_items as $item) {
+                    $parts_list_sms .= "\n" . $item['name'] . ": Rs." . number_format($item['sub'], 0);
+                }
+            }
+            
             $sms_msg = "Multi9: Inv #$inv_no\n"
-                     . "Est.Cost: Rs.".number_format($estimate_amount, 0)."\n"
-                     . "Total: Rs.".number_format($g_total, 0)."\n"
-                     . "Adv. Paid: Rs.".number_format($advance_paid, 0)."\n"
-                     . "Balance: Rs.".number_format($balance, 0)."\n"
+                     . "Job: $job_no"
+                     . $parts_list_sms . "\n"
+                     . "S.Charge: Rs." . number_format($s_charge, 0) . "\n"
+                     . "----------------\n"
+                     . "Total: Rs." . number_format($g_total, 0) . "\n"
+                     . "Adv.Paid: Rs." . number_format($advance_paid, 0) . "\n"
+                     . "Balance: Rs." . number_format($balance, 0) . "\n"
                      . "Thank you!";
 
             if(sendSMS($customer_mobile, $sms_msg)) {

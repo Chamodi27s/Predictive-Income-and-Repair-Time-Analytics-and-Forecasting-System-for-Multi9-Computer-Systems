@@ -1,19 +1,18 @@
 <?php
 include 'db_config.php';
 
-// Job Number calculation
-$query = "SELECT job_no FROM job ORDER BY job_no DESC LIMIT 1";
-$result = mysqli_query($conn, $query);
-$last_job = mysqli_fetch_assoc($result);
+// --- 1. System Settings වලින් Next Job Number එක ලබා ගැනීම (නිවැරදි Table Name: system_settings) ---
+$setting_query = "SELECT next_job_no FROM system_settings LIMIT 1";
+$setting_result = mysqli_query($conn, $setting_query);
+$setting_data = mysqli_fetch_assoc($setting_result);
 
-if ($last_job) {
-    $number = preg_replace("/[^0-9]/", "", $last_job['job_no']);
-    $new_number = (int)$number + 1;
-} else {
-    $new_number = 5000;
-}
+// Settings වල අගයක් ඇත්නම් එය ගන්නවා, නැත්නම් default 5000 ලෙස ගන්නවා
+$new_number = ($setting_data && isset($setting_data['next_job_no'])) ? $setting_data['next_job_no'] : 5000;
+
+// Job Number එක පෙන්වන format එක (ORD-5000 වැනි)
 $job_no = "ORD-" . $new_number;
 
+// --- 2. අනෙකුත් විස්තර (Technicians/Issues) ලබා ගැනීම ---
 $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
 $issue_result = mysqli_query($conn, "SELECT * FROM issue"); 
 ?>
@@ -184,9 +183,7 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
     }
 
     window.addEventListener('storage', (e) => {
-        if (e.key === 'darkMode') {
-            checkTheme();
-        }
+        if (e.key === 'darkMode') checkTheme();
     });
 
     document.getElementById('customer_phone').addEventListener('input', function() {
@@ -287,7 +284,6 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
         if(select.value === 'new') input.focus();
     }
 
-    // Initialize with one device
     window.onload = addDevice;
 </script>
 
