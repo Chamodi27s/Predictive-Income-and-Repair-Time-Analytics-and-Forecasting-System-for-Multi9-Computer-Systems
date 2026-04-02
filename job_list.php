@@ -8,7 +8,7 @@ mysqli_query($conn, "UPDATE job_device SET device_status = 'Destroyed'
                      AND DATEDIFF(NOW(), destroy_notice_sent_date) >= 7 
                      AND device_status != 'Destroyed'");
 
-// --- 2. Auto SMS Logic ---
+// --- 2. Auto SMS Logic (Ready to collect) ---
 $auto_sms_query = "SELECT jd.job_device_id, j.phone_number, c.customer_name, jd.device_name, j.job_no 
                    FROM job_device jd
                    INNER JOIN job j ON jd.job_no = j.job_no
@@ -43,7 +43,7 @@ $filter_status = isset($_GET['status']) ? mysqli_real_escape_string($conn, $_GET
 
 $status_flow = ['Pending', 'In Progress', 'Completed', 'Returned'];
 
-$sql = "SELECT j.job_no, j.job_date, j.estimated_cost, j.advance_paid, t.name as technician_name, c.customer_name, j.phone_number, 
+$sql = "SELECT j.job_no, j.job_date, j.advance_paid, t.name as technician_name, c.customer_name, j.phone_number, 
                 jd.job_device_id, jd.device_name, jd.issue_name, jd.solution,
                 CASE WHEN inv.payment_status = 'Paid' THEN 'Returned' ELSE jd.device_status END AS device_status,
                 jd.completed_date, jd.destroy_notice_sent_date, jd.rent_warning_sent,
@@ -89,7 +89,6 @@ $result = mysqli_query($conn, $sql);
         .search-box { display: flex; background: white; padding: 5px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); width: 100%; max-width: 500px; border: 1px solid var(--border); }
         .search-box input { flex: 1; border: none; padding: 10px 15px; outline: none; border-radius: 8px; }
         .search-box button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-        .history-btn { background: #0f172a; color: white; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
         .filter-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
         .filter-tag { padding: 12px 22px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 13px; color: white; transition: 0.2s; }
         .active-tag { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.1); outline: 3px solid rgba(0,0,0,0.1); }
@@ -97,18 +96,16 @@ $result = mysqli_query($conn, $sql);
         .status-table { width: 100%; border-collapse: collapse; min-width: 1100px; }
         .status-table th { background: #f1f5f9; color: var(--text-muted); padding: 15px; font-size: 12px; text-transform: uppercase; }
         .status-table td { padding: 15px; border-bottom: 1px solid var(--border); text-align: center; }
-        .inline-input { width: 100%; border: 1px solid transparent; background: #f8fafc; padding: 8px; border-radius: 8px; text-align: center; font-size: 13px; }
-        .inline-input.editing { border-color: var(--primary); background: white; }
+        .inline-input { width: 100%; border: 1px solid transparent; background: #f8fafc; padding: 8px; border-radius: 8px; text-align: center; font-size: 13px; transition: 0.3s; }
+        .inline-input.editing { border-color: var(--blue); background: white; outline: none; box-shadow: 0 0 5px rgba(59, 130, 246, 0.2); }
         .badge { padding: 6px 14px; border-radius: 50px; font-size: 11px; font-weight: 800; }
         .bill-btn { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: 800; }
         .paid-badge { background: #ecfdf5; color: #059669; border: 1px solid #10b981; padding: 8px 15px; border-radius: 8px; font-weight: 800; }
-        .sms-btn { background: #3b82f6; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: 900; }
-        .lock-icon { font-size: 16px; opacity: 0.5; }
+        .sms-btn { background: #3b82f6; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: 900; margin-top: 5px; }
         #smsModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; }
         .modal-content { background:white; width:90%; max-width:600px; margin:80px auto; padding:20px; border-radius:15px; position:relative; box-shadow:0 5px 25px rgba(0,0,0,0.2); }
         .close-modal { position:absolute; right:20px; top:15px; font-size:24px; cursor:pointer; font-weight:bold; }
-        .advance-amount { color: var(--danger); font-weight: 800; }
-        .balance-amount { font-size: 10px; color: var(--text-muted); display: block; margin-top: 4px; }
+        .advance-amount { color: var(--danger); font-weight: 800; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -133,7 +130,7 @@ $result = mysqli_query($conn, $sql);
             <input type="text" name="search" placeholder="Search by Job No, Phone, Name..." value="<?= htmlspecialchars($search) ?>">
             <button type="submit">Search</button>
         </form>
-        <a href="returned_jobs.php" class="history-btn">📦 View History</a>
+        <a href="returned_jobs.php" style="background: #0f172a; color: white; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: 600;">📦 History</a>
     </div>
 
     <div class="filter-container">
@@ -163,15 +160,10 @@ $result = mysqli_query($conn, $sql);
                         $id = $row['job_device_id'];
                         $current_status = $row['device_status'];
                         $is_paid = ($row['payment_status'] == 'Paid');
-                        $is_edit_locked = ($current_status == 'Completed' || $current_status == 'Returned');
-                        $is_status_locked = ($current_status == 'Returned');
                         $current_idx = array_search($current_status, $status_flow);
 
-                        $advance = $row['advance_paid'] ?? 0;
-                        $estimate = $row['estimated_cost'] ?? 0;
-                        $balance = $estimate - $advance;
-                        
-                        $days_passed = 0; $delay_fee = 0;
+                        // Rent calculation
+                        $delay_fee = 0;
                         if($current_status == 'Completed' && $row['completed_date'] != null) {
                             $days_passed = floor((time() - strtotime($row['completed_date'])) / 86400);
                             if($days_passed > 90) { $delay_fee = ceil(($days_passed - 90) / 30) * 100; }
@@ -187,15 +179,12 @@ $result = mysqli_query($conn, $sql);
                         <td><input type="text" id="iss-<?= $id ?>" class="inline-input" value="<?= htmlspecialchars($row['issue_name']) ?>" readonly></td>
                         
                         <td class="advance-amount">
-                            Rs. <?= number_format($advance, 2) ?>
-                            <?php if(!$is_paid && $balance > 0): ?>
-                                <span class="balance-amount">Bal: Rs. <?= number_format($balance, 2) ?></span>
-                            <?php endif; ?>
+                            Rs. <?= number_format($row['advance_paid'], 2) ?>
                         </td>
 
                         <td><textarea id="sol-<?= $id ?>" class="inline-input" readonly style="min-height:45px;"><?= htmlspecialchars($row['solution'] ?? '') ?></textarea></td>
                         <td>
-                            <select id="stat-<?= $id ?>" onchange="updateStatusAndSMS(<?= $id ?>)" <?= $is_status_locked ? 'disabled' : '' ?> 
+                            <select id="stat-<?= $id ?>" onchange="updateStatusAndSMS(<?= $id ?>)" <?= $current_status == 'Returned' ? 'disabled' : '' ?> 
                                     style="padding:8px; border-radius:8px; border:1px solid var(--border); font-weight:600;">
                                 <?php foreach ($status_flow as $idx => $opt): ?>
                                     <?php if ($idx >= $current_idx): ?>
@@ -213,10 +202,10 @@ $result = mysqli_query($conn, $sql);
                             <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
                                 <button onclick="viewSMSHistory(<?= $id ?>)" title="View SMS History" style="background:#6366f1; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">📜</button>
                                 
-                                <?php if(!$is_edit_locked): ?>
+                                <?php if($current_status != 'Completed' && $current_status != 'Returned'): ?>
                                     <button id="btn-edit-<?= $id ?>" onclick="toggleEdit(<?= $id ?>)" style="background: var(--blue); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">✏️</button>
                                 <?php else: ?>
-                                    <span class="lock-icon">🔒</span>
+                                    <span style="opacity:0.3; font-size:16px;">🔒</span>
                                 <?php endif; ?>
 
                                 <?php if($current_status == 'Completed' || $current_status == 'Returned'): ?>
@@ -259,15 +248,23 @@ function sendManualSMS(id) {
 
 function updateStatusAndSMS(id) {
     const status = document.getElementById('stat-' + id).value;
-    const params = `id=${id}&device_name=${encodeURIComponent(document.getElementById('dev-' + id).value)}&issue_name=${encodeURIComponent(document.getElementById('iss-' + id).value)}&solution=${encodeURIComponent(document.getElementById('sol-' + id).value)}&device_status=${encodeURIComponent(status)}`;
+    const device_name = document.getElementById('dev-' + id).value;
+    const issue_name = document.getElementById('iss-' + id).value;
+    const solution = document.getElementById('sol-' + id).value;
+
+    const params = `id=${id}&device_name=${encodeURIComponent(device_name)}&issue_name=${encodeURIComponent(issue_name)}&solution=${encodeURIComponent(solution)}&device_status=${encodeURIComponent(status)}`;
     
     fetch('./inline_update_api.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: params
     }).then(res => res.text()).then(data => {
-        if(data.trim() === "Success") { location.reload(); } 
-        else { alert("Error: " + data); }
+        if(data.trim() === "Success") { 
+            location.reload(); 
+        } 
+        else { 
+            alert("Error: " + data); 
+        }
     });
 }
 
@@ -278,9 +275,15 @@ function toggleEdit(id) {
     let btn = document.getElementById('btn-edit-' + id);
     
     if (dev.readOnly) {
-        dev.readOnly = false; iss.readOnly = false; sol.readOnly = false;
-        dev.classList.add('editing'); iss.classList.add('editing'); sol.classList.add('editing');
+        dev.readOnly = false; 
+        iss.readOnly = false; 
+        sol.readOnly = false;
+        dev.classList.add('editing'); 
+        iss.classList.add('editing'); 
+        sol.classList.add('editing');
+        dev.focus();
         btn.innerHTML = "💾";
+        btn.style.background = "var(--success)";
     } else {
         updateStatusAndSMS(id);
     }
