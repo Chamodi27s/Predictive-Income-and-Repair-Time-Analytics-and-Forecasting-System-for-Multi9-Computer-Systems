@@ -37,7 +37,7 @@ function sendSMS($mobile, $message) {
     return ($http_code == 200 || $http_code == 201);
 }
 
-// --- දත්ත ලබා ගැනීම ---
+// --- 1. දත්ත ලබා ගැනීම (Job Info & Late Fee Calculation) ---
 $job_no_param = $_GET['job_no'] ?? ($_POST['job_no'] ?? '');
 if (!empty($job_no_param)) {
     $job_res = $conn->query("
@@ -55,22 +55,24 @@ if (!empty($job_no_param)) {
         $completion_date = $job_info['completed_date'];
         $customer_mobile = $job_info['phone_number'];
 
+        // අද දිනට සාපේක්ෂව Rent එක ගණනය කිරීම
         if (!empty($completion_date)) {
             $comp_dt = new DateTime($completion_date);
             $today_dt = new DateTime();
-            $interval = $comp_dt->diff($today_dt);
-            $total_days = $interval->days;
-
-            if ($total_days > 90) {
-                $days_after_grace = $total_days - 90;
-                $months_late = ceil($days_after_grace / 30); 
-                $delay_fee = $months_late * 100; 
+            if ($today_dt > $comp_dt) {
+                $interval = $comp_dt->diff($today_dt);
+                $total_days = $interval->days;
+                if ($total_days > 90) {
+                    $days_after_grace = $total_days - 90;
+                    $months_late = ceil($days_after_grace / 30); 
+                    $delay_fee = $months_late * 100; 
+                }
             }
         }
     }
 }
 
-// --- View Only Mode ---
+// --- 2. View Only Mode (සහ Auto Update Logic) ---
 if (isset($_GET['view_only']) && $_GET['view_only'] == 'true' && isset($_GET['job_no'])) {
     $v_job_no = $_GET['job_no'];
     $check_inv = $conn->query("SELECT * FROM invoice WHERE job_no = '$v_job_no'");
@@ -78,7 +80,26 @@ if (isset($_GET['view_only']) && $_GET['view_only'] == 'true' && isset($_GET['jo
         $inv_data = $check_inv->fetch_assoc();
         $current_invoice_no = $inv_data['invoice_no'];
         $service_charge_val = floatval($inv_data['service_charge']);
-        $delay_fee = floatval($inv_data['late_fee'] ?? 0);
+        $saved_parts_total = floatval($inv_data['parts_total']);
+        $saved_late_fee = floatval($inv_data['late_fee'] ?? 0);
+        
+        // 🔔 බිල්පත බලන විට තවදුරටත් කාලය ගතවී ඇත්නම් Rent එක Update කිරීම
+        if ($delay_fee > $saved_late_fee) {
+            $new_grand_total = $saved_parts_total + $service_charge_val + $delay_fee;
+            $new_balance = $new_grand_total - $advance_paid;
+            if($new_balance < 0) $new_balance = 0;
+
+            // Database එකේ සේව් කර ඇති අගයන් අලුත් ගණනය කිරීමට අනුව Update කිරීම
+            $conn->query("UPDATE invoice SET 
+                            late_fee = '$delay_fee', 
+                            grand_total = '$new_grand_total', 
+                            balance_due = '$new_balance' 
+                          WHERE invoice_no = '$current_invoice_no'");
+        } else {
+            // පරණ Rent එකම පාවිච්චි කිරීම (අඩු වී නැතිනම්)
+            $delay_fee = $saved_late_fee;
+        }
+
         $saved_items = json_decode($inv_data['items_json'] ?? '[]', true);
         $invoice_date = $inv_data['invoice_date'];
         $pay_status = $inv_data['payment_status'];
@@ -86,16 +107,16 @@ if (isset($_GET['view_only']) && $_GET['view_only'] == 'true' && isset($_GET['jo
     }
 }
 
-// --- Invoice Save Logic ---
+// --- 3. Invoice Save Logic ---
 if (isset($_POST['save_invoice'])) {
     $inv_no = $_POST['invoice_no'];
     $job_no = $_POST['job_no'];
     $inv_date = date("Y-m-d"); 
     $s_charge = floatval($_POST['service_charge']);
     $p_total = floatval($_POST['parts_total']);
-    $l_fee = floatval($delay_fee); 
+    $l_fee = floatval($_POST['late_fee_input']); 
     $g_total = floatval($_POST['grand_total']);
-    $pay_status_input = $_POST['payment_status'] ?? 'Pending'; 
+    $pay_status_input = 'Pending'; 
     $balance = $g_total - $advance_paid;
     if($balance < 0) $balance = 0;
 
@@ -126,34 +147,21 @@ if (isset($_POST['save_invoice'])) {
         
         $conn->query("UPDATE job_device SET device_status = 'billed' WHERE job_no = '$job_no'");
         
-        // --- UPDATED SMS MESSAGE ---
-        $message = "MULTI9 COMPUTER SYSTEM\n";
-        $message .= "Inv:#$inv_no | Job:$job_no\n";
-        $message .= "Est: Rs." . number_format($estimate_amount, 2) . "\n";
-        $message .= "Srv Charge: Rs." . number_format($s_charge, 2) . "\n";
-        $message .= "Parts: Rs." . number_format($p_total, 2) . "\n";
-        if($l_fee > 0) $message .= "Late Fee: Rs." . number_format($l_fee, 2) . "\n";
-        $message .= "Total: Rs." . number_format($g_total, 2) . "\n";
-        $message .= "Advance: Rs." . number_format($advance_paid, 2) . "\n";
-        $message .= "Balance: Rs." . number_format($balance, 2) . "\n";
-        $message .= "Thank you!";
-
-        if (!empty($customer_mobile)) { 
-            sendSMS($customer_mobile, $message); 
-        }
+        $message = "MULTI9 COMPUTER SYSTEM\nInv:#$inv_no | Job:$job_no\nSrv: Rs.".number_format($s_charge, 2)."\nParts: Rs.".number_format($p_total, 2)."\nLate: Rs.".number_format($l_fee, 2)."\nTotal: Rs.".number_format($g_total, 2)."\nBalance: Rs.".number_format($balance, 2)."\nThank you!";
+        if (!empty($customer_mobile)) { sendSMS($customer_mobile, $message); }
 
         $conn->commit();
         header("Location: generate_bill.php?view_only=true&job_no=" . urlencode($job_no));
         exit();
-    } catch (Exception $e) { 
-        $conn->rollback(); 
-        die("Error: " . $e->getMessage()); 
-    }
+    } catch (Exception $e) { $conn->rollback(); die("Error: " . $e->getMessage()); }
 }
 
 include 'navbar.php';
 $stock_items = $conn->query("SELECT item_code, item_name, unit_price FROM stock WHERE quantity > 0")->fetch_all(MYSQLI_ASSOC);
 $next_invoice_no = (($r = $conn->query("SELECT MAX(CAST(invoice_no AS UNSIGNED)) AS last FROM invoice")->fetch_assoc()) && $r['last']) ? $r['last'] + 1 : 1;
+
+$parts_sum = 0;
+foreach($saved_items as $it) { $parts_sum += floatval($it['sub']); }
 ?>
 
 <!DOCTYPE html>
@@ -163,7 +171,7 @@ $next_invoice_no = (($r = $conn->query("SELECT MAX(CAST(invoice_no AS UNSIGNED))
     <title>Invoice - Multi9 Repair</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 100px 0; }
-        .invoice-box { max-width: 850px; margin: auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .invoice-box { max-width: 850px; margin: auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative;}
         .header { text-align: center; border-bottom: 3px solid #065f46; padding-bottom: 15px; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { background: #065f46; color: white; padding: 12px; text-align: left; }
@@ -172,13 +180,17 @@ $next_invoice_no = (($r = $conn->query("SELECT MAX(CAST(invoice_no AS UNSIGNED))
         .grand-total { font-size: 24px; color: #065f46; font-weight: bold; border-top: 2px solid #065f46; margin-top: 10px; padding-top: 10px; }
         .btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; }
         .btn-paid { background: #27ae60; color: white; }
-        .paid-badge { border: 4px solid #27ae60; color: #27ae60; padding: 10px 20px; border-radius: 10px; display: inline-block; transform: rotate(-5deg); font-size: 28px; font-weight: 900; margin-top: 15px; }
-        @media print { .no-print { display: none !important; } .invoice-box { box-shadow: none; padding: 0; } }
+        .paid-badge { border: 4px solid #27ae60; color: #27ae60; padding: 10px 20px; border-radius: 10px; display: inline-block; transform: rotate(-15deg); font-size: 32px; font-weight: 900; position: absolute; top: 150px; right: 50px; z-index: 10; background: rgba(255,255,255,0.8); }
+        @media print { .no-print { display: none !important; } .invoice-box { box-shadow: none; padding: 0; margin: 0; max-width: 100%; } }
     </style>
 </head>
 <body>
 
 <div class="invoice-box">
+    <?php if ($pay_status == 'Paid'): ?>
+        <div class="paid-badge">PAID IN FULL</div>
+    <?php endif; ?>
+
     <div class="header">
         <h1>MULTI 9 COMPUTER SYSTEM</h1>
         <p>Invoice: <strong>#<?= $invoice_saved ? $current_invoice_no : $next_invoice_no ?></strong> | Job: <strong><?= htmlspecialchars($job_no_param) ?></strong></p>
@@ -190,6 +202,7 @@ $next_invoice_no = (($r = $conn->query("SELECT MAX(CAST(invoice_no AS UNSIGNED))
         <input type="hidden" name="job_no" value="<?= $job_no_param ?>">
         <input type="hidden" name="parts_total" id="p_total_val">
         <input type="hidden" name="grand_total" id="g_total_val">
+        <input type="hidden" name="late_fee_input" id="late_fee_hidden" value="<?= $delay_fee ?>">
 
         <?php if (!$invoice_saved): ?>
         <div class="no-print" style="margin-bottom: 20px; background:#e8f5e9; padding:15px; border-radius:8px; display:flex; gap:10px;">
@@ -217,7 +230,7 @@ $next_invoice_no = (($r = $conn->query("SELECT MAX(CAST(invoice_no AS UNSIGNED))
                             <td><?= htmlspecialchars($it['name']) ?></td>
                             <td><?= number_format($it['price'], 2) ?></td>
                             <td><?= $it['qty'] ?></td>
-                            <td style="text-align:right;"><?= number_format($it['sub'], 2) ?></td>
+                            <td class="item-subtotal" style="text-align:right;" data-val="<?= $it['sub'] ?>"><?= number_format($it['sub'], 2) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -237,17 +250,13 @@ $next_invoice_no = (($r = $conn->query("SELECT MAX(CAST(invoice_no AS UNSIGNED))
             </p>
 
             <?php if ($delay_fee > 0): ?>
-                <p style="color: #d35400; font-weight: bold;">⚠ Late Fee (Storage): Rs. <?= number_format($delay_fee, 2) ?></p>
+                <p style="color: #d35400; font-weight: bold;">⚠ Late Fee (Storage Rent): Rs. <span id="delay_disp"><?= number_format($delay_fee, 2) ?></span></p>
             <?php endif; ?>
 
             <div class="grand-total">Grand Total: Rs. <span id="g_disp">0.00</span></div>
             
-            <?php if ($pay_status == 'Paid'): ?>
-                <div class="paid-badge">PAID IN FULL</div>
-            <?php else: ?>
-                <p style="color: #d9534f; font-weight: bold; margin-top: 10px;">Advance Paid: Rs. <?= number_format($advance_paid, 2) ?></p>
-                <p style="font-size: 22px; color: #333;">Balance Due: <strong>Rs. <span id="balance_disp">0.00</span></strong></p>
-            <?php endif; ?>
+            <p style="color: #d9534f; font-weight: bold; margin-top: 10px;">Advance Paid: Rs. <?= number_format($advance_paid, 2) ?></p>
+            <p style="font-size: 22px; color: #333;">Balance Due: <strong>Rs. <span id="balance_disp">0.00</span></strong></p>
         </div>
 
         <div class="no-print" style="margin-top: 30px; display: flex; gap: 10px; justify-content: flex-end;">
@@ -270,42 +279,48 @@ $next_invoice_no = (($r = $conn->query("SELECT MAX(CAST(invoice_no AS UNSIGNED))
 </div>
 
 <script>
-const advAmount = <?= $advance_paid ?>;
-const delayFee = <?= $delay_fee ?>; 
+const advAmount = parseFloat("<?= $advance_paid ?>");
+const delayFeeVal = parseFloat("<?= $delay_fee ?>"); 
+const isSaved = <?= $invoice_saved ? 'true' : 'false' ?>;
 
 function calcTotal() {
     let pTotal = 0;
-    // Calculate parts total from table rows
-    document.querySelectorAll('#billTable tbody tr').forEach(row => {
-        let cells = row.getElementsByTagName('td');
-        if (cells.length >= 4) {
-            let valText = cells[3].innerText.replace(/,/g, '');
-            let val = parseFloat(valText);
-            if(!isNaN(val)) pTotal += val;
-        }
-    });
+    if (isSaved) {
+        document.querySelectorAll('.item-subtotal').forEach(td => {
+            pTotal += parseFloat(td.getAttribute('data-val') || 0);
+        });
+    } else {
+        document.querySelectorAll('#billTable tbody tr').forEach(row => {
+            let cells = row.getElementsByTagName('td');
+            if (cells.length >= 4) {
+                let valText = cells[3].innerText.replace(/,/g, '').trim();
+                let val = parseFloat(valText);
+                if(!isNaN(val)) pTotal += val;
+            }
+        });
+    }
     
     let sCharge = parseFloat(document.getElementById('s_charge').value || 0);
-    let gTotal = pTotal + sCharge + delayFee;
+    let gTotal = pTotal + sCharge + delayFeeVal;
     let balance = gTotal - advAmount;
 
-    // Display values in UI
-    document.getElementById('p_disp').innerText = pTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
-    document.getElementById('g_disp').innerText = gTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
+    document.getElementById('p_disp').innerText = pTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('g_disp').innerText = gTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
     
     const balDisp = document.getElementById('balance_disp');
-    if(balDisp) balDisp.innerText = (balance < 0 ? '0.00' : balance.toLocaleString(undefined, {minimumFractionDigits: 2}));
+    if(balDisp) balDisp.innerText = (balance < 0 ? '0.00' : balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
     
-    // Set hidden inputs for form submission
-    if(document.getElementById('p_total_val')) document.getElementById('p_total_val').value = pTotal;
-    if(document.getElementById('g_total_val')) document.getElementById('g_total_val').value = gTotal;
+    if(!isSaved) {
+        document.getElementById('p_total_val').value = pTotal.toFixed(2);
+        document.getElementById('g_total_val').value = gTotal.toFixed(2);
+    }
 }
 
 function addItem() {
     const sel = document.getElementById('itemSelect');
     const opt = sel.options[sel.selectedIndex];
     if(!opt.value) return alert('Please select an item');
-    const qty = document.getElementById('qty').value;
+    const qty = parseInt(document.getElementById('qty').value);
     const price = parseFloat(opt.dataset.price);
     const sub = price * qty;
     
@@ -316,15 +331,16 @@ function addItem() {
             <input type="hidden" name="item_prices[]" value="${price}">
             <input type="hidden" name="item_qtys[]" value="${qty}">
         </td>
-        <td>${price.toFixed(2)}</td>
+        <td>${price.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
         <td>${qty}</td>
-        <td style="text-align:right;">${sub.toFixed(2)}</td>
+        <td style="text-align:right;">${sub.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
     </tr>`;
     
-    document.querySelector('#billTable tbody').innerHTML += row;
+    document.querySelector('#billTable tbody').insertAdjacentHTML('beforeend', row);
     calcTotal();
     sel.selectedIndex = 0;
 }
+
 window.onload = calcTotal;
 </script>
 </body>

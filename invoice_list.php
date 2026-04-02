@@ -4,7 +4,7 @@ include 'navbar.php';
 
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 
-// Query එකේදී invoice, job, job_device සහ customer table සම්බන්ධ කර ඇත
+// Query එකේදී late_fee column එකත් ඇතුළත් කර ඇත
 $query = "SELECT i.*, j.phone_number, jd.device_name, jd.device_status, c.customer_name 
           FROM invoice i 
           JOIN job j ON i.job_no = j.job_no 
@@ -36,12 +36,10 @@ $result = $conn->query($query);
         th { background: #065f46; color: white; padding: 15px; text-align: left; font-size: 14px; }
         td { padding: 15px; border-bottom: 1px solid #f1f1f1; font-size: 14px; vertical-align: middle; }
         
-        /* Status Styles */
         .status { padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; display: inline-block; }
         .status-paid { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
         .status-pending { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
         
-        .rent-badge { background: #fef3c7; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 4px; border: 1px solid #f59e0b; display: block; margin-top: 4px; width: fit-content; }
         .action-btn { background: #3498db; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 13px; border:none; cursor:pointer; transition: 0.3s; }
         .action-btn:hover { opacity: 0.8; }
         .print-btn { background: #065f46; }
@@ -67,32 +65,19 @@ $result = $conn->query($query);
                 <th>Job No</th>
                 <th>Customer Details</th>
                 <th>Device</th>
-                <th>Service + Parts</th>
-                <th>Late Rent</th>
-                <th>Final Amount</th>
-                <th>Payment Status</th>
+                <th style="text-align:right;">Subtotal</th>
+                <th style="text-align:right;">Late Rent</th>
+                <th style="text-align:right;">Final Amount</th>
+                <th>Status</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             <?php if ($result->num_rows > 0): ?>
                 <?php while($row = $result->fetch_assoc()): 
-                    
-                    // --- Rent Calculation Logic (ඔයාගේම Logic එක) ---
-                    $invoice_date = $row['invoice_date']; 
-                    $created = new DateTime($invoice_date);
-                    $today = new DateTime();
-                    $diff = $created->diff($today);
-                    
-                    $months_passed = ($diff->y * 12) + $diff->m;
-                    $rent_amount = 0;
-                    
-                    // 'Paid' නොවන සහ මාස 3 ඉක්මවූ අයට පමණක් rent එකතු වේ
-                    if ($row['payment_status'] != 'Paid' && $months_passed >= 3) {
-                        $rent_amount = ($months_passed - 2) * 1000; // මාස 3 සිට ගණනය කරන්නේ නම්
-                    }
-                    
-                    $final_total = $row['grand_total'] + $rent_amount;
+                    // Database එකේ සේව් වී ඇති අගයන් කෙලින්ම ලබා ගැනීම
+                    $late_fee = floatval($row['late_fee'] ?? 0);
+                    $grand_total = floatval($row['grand_total']); // මෙය (Service + Parts + Late Fee) දැනටමත් සේව් වී ඇති අගයයි
                 ?>
                 <tr>
                     <td><strong>#<?= $row['invoice_no'] ?></strong></td>
@@ -102,15 +87,12 @@ $result = $conn->query($query);
                         <small style="color: #666;"><?= $row['phone_number'] ?></small>
                     </td>
                     <td><?= $row['device_name'] ?></td>
-                    <td>Rs. <?= number_format($row['grand_total'], 2) ?></td>
-                    <td style="color: #e67e22; font-weight: bold;">
-                        <?= ($rent_amount > 0) ? "Rs. " . number_format($rent_amount, 2) : "-" ?>
-                        <?php if($rent_amount > 0): ?>
-                            <span class="rent-badge"><?= $months_passed ?> Months Late</span>
-                        <?php endif; ?>
+                    <td style="text-align:right;">Rs. <?= number_format($grand_total - $late_fee, 2) ?></td>
+                    <td style="text-align:right; color: #e67e22; font-weight: bold;">
+                        <?= ($late_fee > 0) ? "Rs. " . number_format($late_fee, 2) : "-" ?>
                     </td>
-                    <td style="font-weight: 800; color: #2c3e50;">
-                        Rs. <?= number_format($final_total, 2) ?>
+                    <td style="text-align:right; font-weight: 800; color: #2c3e50;">
+                        Rs. <?= number_format($grand_total, 2) ?>
                     </td>
                     <td>
                         <span class="status <?= ($row['payment_status'] == 'Paid') ? 'status-paid' : 'status-pending' ?>">

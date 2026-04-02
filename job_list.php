@@ -101,7 +101,7 @@ $result = mysqli_query($conn, $sql);
         .badge { padding: 6px 14px; border-radius: 50px; font-size: 11px; font-weight: 800; }
         .bill-btn { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: 800; }
         .paid-badge { background: #ecfdf5; color: #059669; border: 1px solid #10b981; padding: 8px 15px; border-radius: 8px; font-weight: 800; }
-        .sms-btn { background: #3b82f6; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: 900; margin-top: 5px; }
+        .sms-btn { background: #3b82f6; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: 900; margin-top: 5px; width: 100%; }
         #smsModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; }
         .modal-content { background:white; width:90%; max-width:600px; margin:80px auto; padding:20px; border-radius:15px; position:relative; box-shadow:0 5px 25px rgba(0,0,0,0.2); }
         .close-modal { position:absolute; right:20px; top:15px; font-size:24px; cursor:pointer; font-weight:bold; }
@@ -162,11 +162,14 @@ $result = mysqli_query($conn, $sql);
                         $is_paid = ($row['payment_status'] == 'Paid');
                         $current_idx = array_search($current_status, $status_flow);
 
-                        // Rent calculation
                         $delay_fee = 0;
-                        if($current_status == 'Completed' && $row['completed_date'] != null) {
-                            $days_passed = floor((time() - strtotime($row['completed_date'])) / 86400);
-                            if($days_passed > 90) { $delay_fee = ceil(($days_passed - 90) / 30) * 100; }
+                        $days_passed = 0;
+                        if($current_status == 'Completed' && !empty($row['completed_date'])) {
+                            $completed_time = strtotime($row['completed_date']);
+                            $days_passed = floor((time() - $completed_time) / 86400);
+                            if($days_passed > 90) { 
+                                $delay_fee = ceil(($days_passed - 90) / 30) * 100; 
+                            }
                         }
                     ?>
                     <tr id="row-<?= $id ?>">
@@ -183,9 +186,10 @@ $result = mysqli_query($conn, $sql);
                         </td>
 
                         <td><textarea id="sol-<?= $id ?>" class="inline-input" readonly style="min-height:45px;"><?= htmlspecialchars($row['solution'] ?? '') ?></textarea></td>
-                        <td>
+                        
+                        <td style="vertical-align: top;">
                             <select id="stat-<?= $id ?>" onchange="updateStatusAndSMS(<?= $id ?>)" <?= $current_status == 'Returned' ? 'disabled' : '' ?> 
-                                    style="padding:8px; border-radius:8px; border:1px solid var(--border); font-weight:600;">
+                                    style="padding:8px; border-radius:8px; border:1px solid var(--border); font-weight:600; width: 100%;">
                                 <?php foreach ($status_flow as $idx => $opt): ?>
                                     <?php if ($idx >= $current_idx): ?>
                                         <option value="<?= $opt ?>" <?= $current_status == $opt ? 'selected' : '' ?>><?= $opt ?></option>
@@ -194,10 +198,17 @@ $result = mysqli_query($conn, $sql);
                             </select>
                             
                             <?php if($delay_fee > 0): ?>
-                                <div style="color:var(--danger); font-weight:900; font-size:11px; margin-top:5px;">💰 Rent: Rs. <?= $delay_fee ?></div>
-                                <button class="sms-btn" onclick="sendManualSMS(<?= $id ?>)">📩 SEND RENT SMS</button>
+                                <div style="margin-top: 8px; padding: 6px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 8px;">
+                                    <div style="color: #dc2626; font-weight: 900; font-size: 11px; margin-bottom: 4px;">
+                                        💰 RENT: Rs. <?= $delay_fee ?>
+                                    </div>
+                                    <button class="sms-btn" onclick="sendManualSMS(<?= $id ?>)" style="background: #ef4444; border-radius: 5px; padding: 5px; font-size: 10px;">📩 SEND RENT SMS</button>
+                                </div>
+                            <?php elseif($current_status == 'Completed'): ?>
+                                <div style="font-size: 9px; color: #94a3b8; margin-top: 5px;">Collection: <?= $days_passed ?> days</div>
                             <?php endif; ?>
                         </td>
+
                         <td>
                             <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
                                 <button onclick="viewSMSHistory(<?= $id ?>)" title="View SMS History" style="background:#6366f1; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">📜</button>
@@ -237,7 +248,7 @@ function viewSMSHistory(id) {
 }
 
 function sendManualSMS(id) {
-    if(confirm("Send rent reminder to this customer?")) {
+    if(confirm("මෙම පාරිභෝගිකයාට Rent එක පිළිබඳව මතක් කිරීමේ SMS පණිවිඩයක් යවන්නද?")) {
         fetch('./send_sms_api.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
