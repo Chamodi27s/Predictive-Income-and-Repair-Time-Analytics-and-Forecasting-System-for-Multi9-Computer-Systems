@@ -29,6 +29,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 VALUES ('$job_no', '$job_date', '$phone', '$tech_id')";
     
     if (mysqli_query($conn, $sql_job)) {
+
+        // --- අලුතින් එකතු කළ කොටස: System Settings Update කිරීම ---
+        // Job එක සාර්ථකව save වුණාම ඊළඟ අංකය +1 කින් වැඩි කරනවා
+        mysqli_query($conn, "UPDATE system_settings SET next_job_no = next_job_no + 1 WHERE id = 1");
+        // -------------------------------------------------------
         
         // 5. Multiple Devices Loop එක
         if (isset($_POST['devices']) && is_array($_POST['devices'])) {
@@ -72,7 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     move_uploaded_file($_FILES['device_images']['tmp_name'][$key], $target_file);
                 }
 
-                // job_device table එකට ඇතුළත් කිරීම (another_note ඇතුළුව)
+                // job_device table එකට ඇතුළත් කිරීම
                 $sql_device = "INSERT INTO job_device (job_no, device_name, issue_name, device_status, warranty_status, description, another_note, device_image) 
                                VALUES ('$job_no', '$device_name', '$final_issue_name', 'Pending', '$warranty', '$description', '$another_note', '$img_name')";
                 
@@ -80,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
-        // 6. සාර්ථක පණිවිඩය
+        // 6. සාර්ථක පණිවිඩය (SweetAlert)
         echo "
         <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
         <body style='font-family:sans-serif;'>
