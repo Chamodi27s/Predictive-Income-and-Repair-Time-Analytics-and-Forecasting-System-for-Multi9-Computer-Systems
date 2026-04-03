@@ -1,30 +1,67 @@
 <?php
-session_start();
+// Error පෙන්වීමට (Development අවධියේදී පමණක්)
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-/* ===============================
-   DUMMY USER DATA (NO DATABASE)
-================================ */
-$DUMMY_EMAIL    = "multi9@gmail.com";
-$DUMMY_USERNAME = "multi9";
-$DUMMY_PASSWORD = "multi912#";
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'PHPMailer/Exception.php';
+require 'PHPMailer/PHPMailer.php';
+require 'PHPMailer/SMTP.php';
+
+session_start();
+include 'db_config.php'; // Screenshot එකට අනුව නිවැරදි නම
 
 $error = '';
-$success = '';
 
 if (isset($_POST['reset'])) {
-    $email = trim($_POST['email']);
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    
+    // Database එකේ user ඉන්නවාදැයි බැලීම
+    $query = "SELECT * FROM login_users WHERE email='$email'";
+    $result = mysqli_query($conn, $query);
 
-    if ($email === '') {
-        $error = "❌ Please enter your email address.";
-    } elseif ($email === $DUMMY_EMAIL) {
-        $success = "
-            ✅ Account found!<br><br>
-            <strong>Username:</strong> $DUMMY_USERNAME<br>
-            <strong>Password:</strong> $DUMMY_PASSWORD<br><br>
-           
-        ";
+    if (mysqli_num_rows($result) > 0) {
+        $otp = rand(100000, 999999);
+        // විනාඩි 5කින් කල් ඉකුත් වන ලෙස සකස් කිරීම
+        $expiry = date("Y-m-d H:i:s", strtotime('+5 minutes'));
+
+        // Database එකට OTP එක Update කිරීම
+        $update = "UPDATE login_users SET reset_token='$otp', token_expiry='$expiry' WHERE email='$email'";
+        mysqli_query($conn, $update);
+
+        $mail = new PHPMailer(true);
+
+        try {
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host       = 'smtp.gmail.com';
+            $mail->SMTPAuth   = true;
+            $mail->Username   = 'vibuddha2025@gmail.com'; // ඔයාගේ Gmail එක
+            $mail->Password   = 'jzfdneipexlnjzat';       // App Password එක (හිස්තැන් නැතිව)
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = 587;
+
+            // Recipients
+            $mail->setFrom('vibuddha2025@gmail.com', 'Multi9 Systems');
+            $mail->addAddress($email);
+
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = 'Your Password Reset OTP';
+            $mail->Body    = "Your verification code is: <b>$otp</b>. It will expire in 5 minutes.";
+
+            $mail->send();
+            $_SESSION['reset_email'] = $email;
+            header("Location: verify.php"); // සාර්ථක නම් verify.php වෙත
+            exit();
+
+        } catch (Exception $e) {
+            $error = "Mail error: {$mail->ErrorInfo}";
+        }
     } else {
-        $error = "❌ Email not found!";
+        $error = "❌ Email not found in our system!";
     }
 }
 ?>
@@ -32,93 +69,29 @@ if (isset($_POST['reset'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Forgot Username / Password</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-
-<style>
-body {
-    font-family: 'Poppins', sans-serif;
-    background: #1f1f1f;
-    color: #fff;
-    height: 100vh;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.container {
-    background: rgba(50,50,50,0.25);
-    backdrop-filter: blur(16px);
-    padding: 30px 40px;
-    border-radius: 16px;
-    max-width: 420px;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.35);
-}
-h2 {
-    margin-bottom: 20px;
-    color: #00ffe0;
-}
-input {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.5);
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-}
-input::placeholder {
-    color: rgba(255,255,255,0.6);
-}
-input[type="submit"] {
-    background: #1f7a63;
-    border: none;
-    cursor: pointer;
-    transition: 0.3s;
-}
-input[type="submit"]:hover {
-    background: #0e5b43;
-}
-.error {
-    color: #ff6b6b;
-    margin-bottom: 15px;
-}
-.success {
-    color: #a2ff8e;
-    margin-bottom: 15px;
-    line-height: 1.6;
-}
-.back {
-    display: block;
-    margin-top: 12px;
-    color: #cfdfff;
-    text-decoration: none;
-    font-size: 14px;
-}
-</style>
+    <meta charset="UTF-8">
+    <title>Forgot Password</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: rgba(50,50,50,0.25); backdrop-filter: blur(16px); padding: 40px; border-radius: 16px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); }
+        h2 { color: #00ffe0; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #fff; box-sizing: border-box; }
+        input[type="submit"] { background: #1f7a63; border: none; cursor: pointer; font-weight: 600; transition: 0.3s; }
+        input[type="submit"]:hover { background: #165e4d; }
+        .error { color: #ff6b6b; font-size: 14px; margin-bottom: 15px; }
+        .back { display: block; margin-top: 15px; color: #00ffe0; text-decoration: none; font-size: 14px; }
+    </style>
 </head>
-
 <body>
-
-<div class="container">
-    <h2>Forgot Username / Password</h2>
-
-    <?php if ($error)   echo "<div class='error'>$error</div>"; ?>
-    <?php if ($success) echo "<div class='success'>$success</div>"; ?>
-
-    <form method="POST" autocomplete="off">
-        <input type="email" name="email" placeholder="Enter your email" required>
-        <input type="submit" name="reset" value="Recover Account">
-    </form>
-
-    <a class="back" href="login.php">← Back to Login</a>
-</div>
-
+    <div class="container">
+        <h2>Recover Account</h2>
+        <?php if ($error) echo "<div class='error'>$error</div>"; ?>
+        <form method="POST">
+            <input type="email" name="email" placeholder="Enter your email" required>
+            <input type="submit" name="reset" value="Send Security Code">
+        </form>
+        <a href="login.php" class="back">← Back to Login</a>
+    </div>
 </body>
-<?php include 'chatbot.php'; ?>
 </html>
