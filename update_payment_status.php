@@ -1,61 +1,62 @@
 <?php
 include 'db_config.php';
+session_start();
 
-// කාල කලාපය ලංකාවට සැකසීම
+// ශ්‍රී ලංකාවේ වේලාව සැකසීම
 date_default_timezone_set("Asia/Colombo");
 
-// generate_bill.php එකෙන් ලැබෙන්නේ job_no එකයි
-if (isset($_POST['mark_paid']) && isset($_POST['job_no'])) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['invoice_no'])) {
     
+    $inv_no = mysqli_real_escape_string($conn, $_POST['invoice_no']);
     $job_no = mysqli_real_escape_string($conn, $_POST['job_no']);
-    $date = date('Y-m-d');
-    $status = 'Paid';
+    $today = date('Y-m-d');
 
+    // දත්ත සමුදායේ වැඩ කිහිපයක් එකවර සිදුවන නිසා Transaction එකක් භාවිතා කරමු
     $conn->begin_transaction();
+
     try {
-        // 1. Job No එකට අදාළ Invoice විස්තර සහ Rent එක ඇතුළු මුළු මුදල ලබාගැනීම
-        // (මෙහිදී අපි invoice_no එකත් සොයාගත යුතුයි cashbook එකට දාන්න)
-        $stmt_get = $conn->prepare("SELECT invoice_no, grand_total FROM invoice WHERE job_no = ?");
-        $stmt_get->bind_param("s", $job_no);
-        $stmt_get->execute();
-        $inv_res = $stmt_get->get_result();
+        // 1. Invoice වගුව යාවත්කාලීන කිරීම
+        $update_inv = $conn->query("UPDATE invoice SET payment_status = 'Paid', balance_due = 0 WHERE invoice_no = '$inv_no'");
+        if (!$update_inv) throw new Exception("Invoice Update Failed");
 
-        if ($inv_res->num_rows == 0) {
-            throw new Exception("Invoice not found for this Job No!");
-        }
-        $inv_data = $inv_res->fetch_assoc();
-        $inv_no = $inv_data['invoice_no'];
-        $amount_to_save = floatval($inv_data['grand_total']);
+        // 2. job_device වගුවේ status එක 'billed' ලෙස යාවත්කාලීන කිරීම
+        $update_job = $conn->query("UPDATE job_device SET device_status = 'billed' WHERE job_no = '$job_no'");
+        if (!$update_job) throw new Exception("Job Device Update Failed");
 
-        // 2. Invoice Status එක 'Paid' ලෙස Update කිරීම
-        $stmt_upd = $conn->prepare("UPDATE invoice SET payment_status = ? WHERE job_no = ?");
-        $stmt_upd->bind_param("ss", $status, $job_no);
-        $stmt_upd->execute();
+        // 3. Cashbook එකට දත්ත ඇතුළත් කිරීම
+        // මුලින්ම අදාළ ඉන්වොයිස් එකේ මුළු මුදල ලබාගන්න
+        $inv_res = $conn->query("SELECT grand_total FROM invoice WHERE invoice_no = '$inv_no'");
+        $inv_row = $inv_res->fetch_assoc();
+        $amount = floatval($inv_row['grand_total']);
 
-        // 3. Cashbook එකේ අන්තිම balance එක ලබාගැනීම
-        $res = $conn->query("SELECT balance FROM cashbook ORDER BY cashid DESC LIMIT 1");
-        $last_balance = 0;
-        if ($res && $row = $res->fetch_assoc()) {
-            $last_balance = floatval($row['balance']);
-        }
-        $new_balance = $last_balance + $amount_to_save;
+        // Cashbook එකේ දැනට පවතින අවසාන ශේෂය (Balance) ලබාගන්න
+        $cash_res = $conn->query("SELECT balance FROM cashbook ORDER BY cashid DESC LIMIT 1");
+        $last_balance = ($cash_res->num_rows > 0) ? floatval($cash_res->fetch_assoc()['balance']) : 0;
+        $new_balance = $last_balance + $amount;
 
-        // 4. Cashbook එකට Income එක ඇතුළත් කිරීම
-        $stmt_cash = $conn->prepare("INSERT INTO cashbook (date, invoice_no, income, balance) VALUES (?, ?, ?, ?)");
-        $stmt_cash->bind_param("ssdd", $date, $inv_no, $amount_to_save, $new_balance);
-        $stmt_cash->execute();
-
-        $conn->commit();
+        // ඔයාගේ Database Structure එකට අනුව (invoice_no, date, income, balance, acc_id) ඇතුළත් කිරීම
+        // මෙහි acc_id සඳහා දැනට NULL අගය ලබා දී ඇත
+        $sql_cash = "INSERT INTO cashbook (invoice_no, date, income, balance, acc_id) 
+                     VALUES ('$inv_no', '$today', '$amount', '$new_balance', NULL)";
         
-        // සාර්ථක නම් නැවත බිලටම යොමු කරන්න
+        if (!$conn->query($sql_cash)) {
+            throw new Exception("Cashbook Insert Failed: " . $conn->error);
+        }
+
+        // සියලු පියවර සාර්ථක නම් දත්ත සුරැකීම (Commit) කරන්න
+        $conn->commit();
+
+        // සාර්ථක වූ පසු නැවත බිල පෙන්වන පිටුවට යොමු කරන්න
         header("Location: generate_bill.php?view_only=true&job_no=" . urlencode($job_no));
         exit();
 
     } catch (Exception $e) {
+        // කිසියම් දෝෂයක් ආවොත් සිදුකළ වෙනස්කම් අවලංගු කරන්න
         $conn->rollback();
-        die("Error: " . $e->getMessage());
+        die("System Error: " . $e->getMessage());
     }
+
 } else {
-    echo "Invalid Request!";
+    echo "Invalid Request Method.";
 }
 ?>
