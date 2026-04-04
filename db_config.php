@@ -1,8 +1,21 @@
 <?php
-// කිසිදු හිස්තැනක් (Space) නොමැතිව පහත පරිදි ලියන්න
-$conn = new mysqli("localhost", "root", "", "servidedb");
+// 1. Set the PHP timezone to Sri Lanka (Crucial for OTP logic)
+date_default_timezone_set('Asia/Colombo');
 
-if ($conn->connect_error) { 
-    die("සම්බන්ධතාවය බිඳ වැටුණි: " . $conn->connect_error); 
+// 2. Database Connection Details
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "servidedb";
+
+// 3. Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// 4. Check connection
+if ($conn->connect_error) {
+    die("Database Connection Failed: " . $conn->connect_error);
 }
+
+// 5. Sync MySQL session time with the PHP timezone (+05:30 for Sri Lanka)
+$conn->query("SET time_zone = '+05:30'");
 ?>
