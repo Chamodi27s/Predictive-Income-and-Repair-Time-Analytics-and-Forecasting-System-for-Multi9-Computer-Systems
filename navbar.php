@@ -91,6 +91,7 @@ body.dark-mode .chat-body { background: #020617; }
         <a href="cashbook_view.php" class="<?= $current_page=='cashbook_view.php'?'active':'' ?>">Payment</a>
         <a href="report.php" class="<?= $current_page=='report.php'?'active':'' ?>">Report</a>
         <a href="stock.php" class="<?= $current_page=='stock.php'?'active':'' ?>">Stock</a>
+        <a href="invoice_list.php" class="<?= $current_page=='invoice_list.php'?'active':'' ?>">Invoice</a>
         <a href="destroyed_items_view.php" class="<?= $current_page=='destroyed_items_view.php'?'active':'' ?>">Destroy Items</a>
     </div>
 
@@ -124,7 +125,7 @@ body.dark-mode .chat-body { background: #020617; }
 </div>
 
 <script>
-// පිටුව Load වන විට තිබෙන Theme එක පරීක්ෂා කර ක්‍රියාත්මක කිරීම
+
 (function() {
     const savedTheme = localStorage.getItem("darkMode");
     if (savedTheme === "enabled") {
@@ -134,7 +135,7 @@ body.dark-mode .chat-body { background: #020617; }
 
 function toggleDarkMode() {
     const isDarkMode = document.body.classList.toggle("dark-mode");
-    // තේරීම localStorage වල save කිරීම
+   
     localStorage.setItem("darkMode", isDarkMode ? "enabled" : "disabled");
 }
 
