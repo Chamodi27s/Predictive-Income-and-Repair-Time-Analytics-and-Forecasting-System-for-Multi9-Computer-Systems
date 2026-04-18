@@ -114,5 +114,5 @@ $result = $conn->query($query);
 </div>
 
 </body>
-<?php include 'chatbot.php'; ?>
+
 </html>

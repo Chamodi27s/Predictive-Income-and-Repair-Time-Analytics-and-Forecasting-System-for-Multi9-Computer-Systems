@@ -381,5 +381,5 @@ observer.observe(document.body, { attributes: true, attributeFilter: ['class'] }
 </script>
 
 </body>
-<?php include 'chatbot.php'; ?>
+
 </html>
