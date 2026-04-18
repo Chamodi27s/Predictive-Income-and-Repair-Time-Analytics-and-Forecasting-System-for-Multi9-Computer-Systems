@@ -324,5 +324,5 @@ body.dark-mode .icon-box {
 </script>
 
 </body>
-<?php include 'chatbot.php'; ?>
+
 </html>

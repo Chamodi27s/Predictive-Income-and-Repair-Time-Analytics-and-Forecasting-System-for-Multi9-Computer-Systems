@@ -466,5 +466,5 @@ function filterTable() {
 </script>
 
 </body>
-<?php include 'chatbot.php'; ?>
+
 </html>

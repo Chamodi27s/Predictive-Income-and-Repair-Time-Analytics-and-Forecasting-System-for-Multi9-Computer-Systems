@@ -526,5 +526,5 @@ if (isset($_POST['predict']) && $job_no) {
 </script>
 
 </body>
-<?php include 'chatbot.php'; ?>
+
 </html>
