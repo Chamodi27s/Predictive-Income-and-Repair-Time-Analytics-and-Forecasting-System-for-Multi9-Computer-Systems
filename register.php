@@ -288,4 +288,3 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
 </script>
 
 </body>
-</html>

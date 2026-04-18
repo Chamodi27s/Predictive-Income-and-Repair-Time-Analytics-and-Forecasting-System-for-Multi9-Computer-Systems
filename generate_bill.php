@@ -344,4 +344,3 @@ function addItem() {
 window.onload = calcTotal;
 </script>
 </body>
-</html>
