@@ -94,4 +94,4 @@ if (isset($_POST['reset'])) {
         <a href="login.php" class="back">← Back to Login</a>
     </div>
 </body>
-</html>
+
