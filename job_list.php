@@ -157,7 +157,7 @@ $result = mysqli_query($conn, $sql);
             <tbody>
                 <?php if(mysqli_num_rows($result) > 0): ?>
                     <?php while($row = mysqli_fetch_assoc($result)): 
-                        $id = $row['job_device_id'];
+                        $id = $row['job_device_id']; // මෙන්න මේ Unique ID එක භාවිතා කරනවා
                         $current_status = $row['device_status'];
                         $is_paid = ($row['payment_status'] == 'Paid');
                         $current_idx = array_search($current_status, $status_flow);
@@ -178,6 +178,7 @@ $result = mysqli_query($conn, $sql);
                             <b style="font-size:14px;"><?= htmlspecialchars($row['customer_name']) ?></b><br>
                             <small style="color:var(--text-muted);"><?= $row['phone_number'] ?></small>
                         </td>
+                        
                         <td><input type="text" id="dev-<?= $id ?>" class="inline-input" value="<?= htmlspecialchars($row['device_name']) ?>" readonly></td>
                         <td><input type="text" id="iss-<?= $id ?>" class="inline-input" value="<?= htmlspecialchars($row['issue_name']) ?>" readonly></td>
                         
@@ -286,6 +287,7 @@ function toggleEdit(id) {
     let btn = document.getElementById('btn-edit-' + id);
     
     if (dev.readOnly) {
+        // Edit Mode On
         dev.readOnly = false; 
         iss.readOnly = false; 
         sol.readOnly = false;
@@ -296,8 +298,10 @@ function toggleEdit(id) {
         btn.innerHTML = "💾";
         btn.style.background = "var(--success)";
     } else {
+        // Save Mode
         updateStatusAndSMS(id);
     }
 }
 </script>
 </body>
+</html>
