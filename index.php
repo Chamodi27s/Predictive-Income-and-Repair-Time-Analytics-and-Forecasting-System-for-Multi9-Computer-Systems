@@ -237,6 +237,7 @@ body.dark-mode .icon-box {
 </style>
 </head>
 <body>
+    <?php include 'chatbot.php'; ?>
 
 <div class="main-container">
     <div class="welcome-section">
