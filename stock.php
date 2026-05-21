@@ -40,8 +40,8 @@ $stocks = $conn->query("
     --text-main: #1e293b;
     --text-muted: #64748b;
     --border: #e2e8f0;
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-    --shadow-lg: 0 10px 25px rgba(0,0,0,0.10);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.05);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.08);
 }
 
 body {
@@ -121,44 +121,35 @@ body {
     font-weight: 700;
 }
 
-/* ===== CARDS ===== */
+/* ===== CLEAN CARDS ===== */
 .cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: 18px;
+    gap: 20px;
     margin-bottom: 28px;
 }
 
 .card {
-    height: 135px;
-    padding: 22px;
-    border-radius: 22px;
+    padding: 25px 20px;
+    border-radius: 16px;
     cursor: pointer;
-    color: white;
-    box-shadow: var(--shadow-lg);
+    text-align: center;
+    box-shadow: var(--shadow-md);
     transition: 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.card::after {
-    content: "";
-    position: absolute;
-    width: 120px;
-    height: 120px;
-    right: -35px;
-    top: -35px;
-    background: rgba(255,255,255,0.18);
-    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
 }
 
 .card:hover {
-    transform: translateY(-6px);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
 }
 
 .card span {
-    font-size: 28px;
-    display: block;
+    font-size: 36px;
     margin-bottom: 12px;
 }
 
@@ -166,30 +157,37 @@ body {
     font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
-    opacity: 0.9;
-    margin-bottom: 6px;
+    color: #64748b; /* Muted text for titles */
+    margin-bottom: 5px;
+    letter-spacing: 0.5px;
 }
 
 .card h1 {
-    font-size: 34px;
+    font-size: 46px; /* Large readable numbers */
     font-weight: 800;
+    color: #0f172a; /* Dark solid black */
+    line-height: 1.1;
 }
 
-/* 4 CARD COLORS */
+/* 4 SIMPLE SOLID COLORS */
 .total {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    background: #f1f5f9; /* Light Slate / Gray */
+    border-color: #e2e8f0;
 }
 
 .in {
-    background: linear-gradient(135deg, #22c55e, #15803d);
+    background: #ecfdf5; /* Light Emerald */
+    border-color: #d1fae5;
 }
 
 .out {
-    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    background: #fff1f2; /* Light Rose */
+    border-color: #ffe4e6;
 }
 
 .low {
-    background: linear-gradient(135deg, #f97316, #c2410c);
+    background: #fff7ed; /* Light Orange */
+    border-color: #ffedd5;
 }
 
 /* ===== MAIN BOX ===== */
@@ -343,6 +341,7 @@ tbody tr:hover {
     background: #e2e8f0;
     cursor: pointer;
     font-weight: 700;
+    color: #1e293b;
 }
 
 .pagination button.active {
