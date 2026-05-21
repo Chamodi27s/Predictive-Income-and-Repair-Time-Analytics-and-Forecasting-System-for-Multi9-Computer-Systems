@@ -48,7 +48,8 @@ body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
     margin: 0;
-    padding: 140px 25px 40px;
+    /* Adjusted padding-top back to a clean level since popup is removed */
+    padding: 140px 25px 40px; 
     color: var(--text-main);
 }
 
@@ -57,81 +58,17 @@ body {
     margin: auto;
 }
 
-/* ===== PAGE HEADER ===== */
-.page-header {
-    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-    padding: 34px 40px;
-    border-radius: 22px;
-    margin-bottom: 28px;
-    box-shadow: 0 12px 30px rgba(46,204,113,0.35);
-    color: white;
-    text-align: center;
-}
-
-.page-header h1 {
-    font-size: 32px;
-    font-weight: 800;
-    margin-bottom: 8px;
-}
-
-.page-header p {
-    font-size: 15px;
-    opacity: 0.95;
-}
-
-/* ===== POPUP ===== */
-.popup {
-    position: fixed;
-    top: 115px;
-    right: 25px;
-    background: linear-gradient(135deg, #fff7ed, #f97316);
-    color: #1f2937;
-    padding: 18px 22px;
-    border-radius: 18px;
-    box-shadow: 0 15px 30px rgba(0,0,0,.18);
-    min-width: 280px;
-    opacity: 0;
-    pointer-events: none;
-    transition: 0.5s ease;
-    z-index: 999;
-}
-
-.popup.show {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.popup h4 {
-    font-size: 16px;
-    margin-bottom: 6px;
-}
-
-.popup p {
-    font-size: 14px;
-    margin-bottom: 12px;
-}
-
-.popup button {
-    background: white;
-    color: #f97316;
-    border: none;
-    padding: 7px 15px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-weight: 700;
-}
-
-/* ===== CLEAN CARDS ===== */
+/* ===== COMPACT CARDS ===== */
 .cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
     margin-bottom: 28px;
 }
 
 .card {
-    padding: 25px 20px;
-    border-radius: 16px;
+    padding: 16px 14px;
+    border-radius: 12px;
     cursor: pointer;
     text-align: center;
     box-shadow: var(--shadow-md);
@@ -140,54 +77,54 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: 1px solid transparent;
+    border: 2px solid transparent;
 }
 
 .card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     box-shadow: var(--shadow-lg);
 }
 
 .card span {
-    font-size: 36px;
-    margin-bottom: 12px;
+    font-size: 26px;
+    margin-bottom: 8px;
 }
 
 .card h3 {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
-    color: #64748b; /* Muted text for titles */
-    margin-bottom: 5px;
+    color: #475569;
+    margin-bottom: 4px;
     letter-spacing: 0.5px;
 }
 
 .card h1 {
-    font-size: 46px; /* Large readable numbers */
+    font-size: 32px;
     font-weight: 800;
-    color: #0f172a; /* Dark solid black */
-    line-height: 1.1;
+    color: #0f172a;
+    line-height: 1;
 }
 
-/* 4 SIMPLE SOLID COLORS */
+/* ENHANCED SOLID COLORS */
 .total {
-    background: #f1f5f9; /* Light Slate / Gray */
-    border-color: #e2e8f0;
+    background: #dbeafe;
+    border-color: #bfdbfe;
 }
 
 .in {
-    background: #ecfdf5; /* Light Emerald */
-    border-color: #d1fae5;
+    background: #dcfce7;
+    border-color: #bbf7d0;
 }
 
 .out {
-    background: #fff1f2; /* Light Rose */
-    border-color: #ffe4e6;
+    background: #fee2e2;
+    border-color: #fecaca;
 }
 
 .low {
-    background: #fff7ed; /* Light Orange */
-    border-color: #ffedd5;
+    background: #ffedd5;
+    border-color: #fed7aa;
 }
 
 /* ===== MAIN BOX ===== */
@@ -382,15 +319,7 @@ body.dark-mode .table-box {
 
 @media (max-width: 768px) {
     body {
-        padding: 110px 15px 30px;
-    }
-
-    .page-header {
-        padding: 28px 20px;
-    }
-
-    .page-header h1 {
-        font-size: 25px;
+        padding: 120px 15px 30px;
     }
 
     .content-box {
@@ -411,18 +340,7 @@ body.dark-mode .table-box {
 
 <body>
 
-<div class="popup" id="lowPopup">
-    <h4>⚠️ Stock Alert</h4>
-    <p><b><?= $lowStock ?> items</b> are running low.</p>
-    <button onclick="filterLow()">Review Now</button>
-</div>
-
 <div class="page-container">
-
-    <div class="page-header">
-        <h1>📦 Stock Management</h1>
-        <p>Manage items, quantities, stock status and inventory updates</p>
-    </div>
 
     <div class="cards">
         <div class="card total" onclick="showAll()">
@@ -507,24 +425,6 @@ body.dark-mode .table-box {
 </div>
 
 <script>
-/* ===== LOW STOCK POPUP ===== */
-function startAlertLoop() {
-    const lCount = <?= $lowStock ?>;
-    const popup = document.getElementById("lowPopup");
-
-    if (lCount > 0) {
-        setTimeout(() => popup.classList.add("show"), 600);
-        setTimeout(() => popup.classList.remove("show"), 4000);
-
-        setInterval(() => {
-            popup.classList.add("show");
-            setTimeout(() => popup.classList.remove("show"), 3500);
-        }, 7000);
-    }
-}
-
-window.onload = startAlertLoop;
-
 /* ===== TABLE PAGINATION ===== */
 const rows = [...document.querySelectorAll("#tableBody tr")];
 let rowsPerPage = 8;
@@ -596,8 +496,6 @@ function filterOut() {
 }
 
 function filterLow() {
-    document.getElementById("lowPopup").classList.remove("show");
-
     currentRows = rows.filter(r => {
         let q = parseInt(r.querySelector(".qty-input").value);
         return q > 0 && q <= 5;
