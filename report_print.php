@@ -12,10 +12,6 @@ if (file_exists(__DIR__ . "/db_config.php")) {
     die("db_config.php not found");
 }
 
-if (file_exists(__DIR__ . "/navbar.php")) {
-    include __DIR__ . "/navbar.php";
-}
-
 /* ---------------- DB CHECK ---------------- */
 
 if (!isset($conn)) {
@@ -190,7 +186,7 @@ if ($failureResult) {
 body{
     font-family:'Inter',sans-serif;
     background:var(--bg-main);
-    padding:140px 20px 40px 20px;
+    padding:20px;
     color:var(--text-dark);
 }
 
@@ -424,7 +420,6 @@ td{
     display:flex;
     align-items:center;
     gap:8px;
-    text-decoration:none;
 }
 
 /* ---------------- RESPONSIVE ---------------- */
@@ -453,13 +448,7 @@ td{
 
 @media print{
 
-    .btn-export,
-    .topbar,
-    .no-print,
-    .chat-trigger,
-    .chat-box,
-    nav,
-    .navbar{
+    .btn-export{
         display:none !important;
     }
 
@@ -474,9 +463,9 @@ td{
 
 <body>
 
-<a href="report_print.php" target="_blank" class="btn-export">
+<button onclick="window.print()" class="btn-export">
 🖨️ Export to PDF / Print
-</a>
+</button>
 
 <div class="page-container">
 
@@ -786,11 +775,5 @@ new Chart(ctx, {
 </script>
 
 </body>
-
-<?php
-if (file_exists(__DIR__ . "/chatbot.php")) {
-    include __DIR__ . "/chatbot.php";
-}
-?>
 
 </html>
