@@ -18,7 +18,7 @@ if(isset($_POST['id'])) {
     $sms_msg = "Multi9 Alert: Job #$job_no සූදානම් කර මාස 3ක් ගතවී ඇත. අද සිට ඉදිරි මාස 12 සඳහා මසකට Rs.100 බැගින් Rent එකක් එකතු වේ. ස්තූතියි!";
 
     // SMS API Curl කොටස
-    $api_key = "380|ulpebaPoK21nbP|TNCjeTP9Saij7R2Y19oxluWWf";
+    $api_key = "391|gyFVyQXSWNywx289bNDJdCkdKcOVRcPqyiUQzXzb";
     $sender_id = "SMSAPI Demo"; 
     $url = "https://dashboard.smsapi.lk/api/v3/sms/send";
     $data = array('recipient' => $phone, 'sender_id' => $sender_id, 'message' => $sms_msg);

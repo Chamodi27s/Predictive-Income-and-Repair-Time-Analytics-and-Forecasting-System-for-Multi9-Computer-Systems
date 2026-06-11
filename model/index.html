@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RepairScope — Repair Duration Predictor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --surface2: #222222;
+      --border: #2e2e2e;
+      --amber: #f59e0b;
+      --amber-dim: #b45309;
+      --green: #22c55e;
+      --red: #ef4444;
+      --text: #e5e5e5;
+      --muted: #737373;
+      --mono: 'DM Mono', monospace;
+      --sans: 'Syne', sans-serif;
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(245, 158, 11, .03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245, 158, 11, .03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* HEADER */
+    header {
+      position: relative;
+      z-index: 10;
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      animation: slideDown .5s ease both;
+    }
+
+    .logo-mark {
+      width: 40px;
+      height: 40px;
+      background: var(--amber);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: grid;
+      place-items: center;
+      font-size: .7rem;
+      font-weight: 800;
+      color: #000;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      color: #fff;
+    }
+
+    header h1 span {
+      color: var(--amber);
+    }
+
+    .header-tag {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: .65rem;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: .25rem .6rem;
+      border-radius: 2px;
+    }
+
+    /* MAIN LAYOUT */
+    main {
+      position: relative;
+      z-index: 5;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 4rem;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    /* FORM CARD */
+    .form-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2rem;
+      animation: fadeUp .6s .1s ease both;
+    }
+
+    .card-title {
+      font-size: .65rem;
+      font-family: var(--mono);
+      color: var(--amber);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .card-title::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--amber);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.1rem;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    label {
+      font-family: var(--mono);
+      font-size: .68rem;
+      color: var(--muted);
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .badge-dropdown {
+      font-family: var(--mono);
+      font-size: .53rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      background: rgba(245, 158, 11, .12);
+      color: var(--amber);
+      border: 1px solid rgba(245, 158, 11, .25);
+      border-radius: 2px;
+      padding: 1px 5px;
+    }
+
+    .badge-text {
+      font-family: var(--mono);
+      font-size: .53rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      background: var(--surface2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 1px 5px;
+    }
+
+    input,
+    select,
+    textarea {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: .82rem;
+      padding: .62rem .85rem;
+      border-radius: 3px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      width: 100%;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--amber);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, .12);
+    }
+
+    input::placeholder {
+      color: #3a3a3a;
+    }
+
+    select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23737373' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right .85rem center;
+      padding-right: 2.2rem;
+    }
+
+    /* highlight dropdown inputs with amber left border */
+    select {
+      border-left: 2px solid var(--amber-dim);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    /* SUBMIT */
+    .btn-predict {
+      grid-column: 1 / -1;
+      margin-top: .5rem;
+      background: var(--amber);
+      color: #000;
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: .9rem;
+      letter-spacing: .04em;
+      border: none;
+      padding: .85rem 1.5rem;
+      border-radius: 3px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: background .2s, transform .1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .6rem;
+    }
+
+    .btn-predict:hover {
+      background: #fbbf24;
+    }
+
+    .btn-predict:active {
+      transform: scale(.98);
+    }
+
+    .btn-predict .spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(0, 0, 0, .3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    .btn-predict.loading .spinner {
+      display: block;
+    }
+
+    .btn-predict.loading .btn-text {
+      opacity: .6;
+    }
+
+    /* RESULT PANEL */
+    .result-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      animation: fadeUp .6s .2s ease both;
+    }
+
+    .status-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .idle-msg {
+      text-align: center;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .75rem;
+      line-height: 1.8;
+    }
+
+    .idle-icon {
+      font-size: 2rem;
+      margin-bottom: .5rem;
+      opacity: .4;
+      display: block;
+    }
+
+    .result-content {
+      display: none;
+    }
+
+    .result-days {
+      font-size: 4rem;
+      font-weight: 800;
+      color: var(--amber);
+      line-height: 1;
+      letter-spacing: -.04em;
+    }
+
+    .result-days-label {
+      font-family: var(--mono);
+      font-size: .65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-top: .3rem;
+    }
+
+    .date-row {
+      margin-top: 1.2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem;
+    }
+
+    .date-chip {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: .75rem 1rem;
+    }
+
+    .date-chip-label {
+      font-family: var(--mono);
+      font-size: .58rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: .25rem;
+    }
+
+    .date-chip-val {
+      font-family: var(--mono);
+      font-size: .92rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .date-chip.out .date-chip-val {
+      color: var(--green);
+    }
+
+    .progress-wrap {
+      margin-top: 1rem;
+    }
+
+    .progress-label {
+      font-family: var(--mono);
+      font-size: .6rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: .4rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .progress-track {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--amber-dim), var(--amber));
+      border-radius: 2px;
+      width: 0;
+      transition: width 1s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .error-card {
+      display: none;
+      background: rgba(239, 68, 68, .08);
+      border: 1px solid rgba(239, 68, 68, .3);
+      border-radius: 3px;
+      padding: .85rem 1rem;
+      font-family: var(--mono);
+      font-size: .75rem;
+      color: var(--red);
+    }
+
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.25rem 1.5rem;
+    }
+
+    .info-title {
+      font-family: var(--mono);
+      font-size: .6rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: .85rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: .6rem;
+    }
+
+    .tip-list {
+      list-style: none;
+    }
+
+    .tip-list li {
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--muted);
+      padding: .35rem 0;
+      border-bottom: 1px solid #1f1f1f;
+      display: flex;
+      gap: .6rem;
+      align-items: baseline;
+    }
+
+    .tip-list li::before {
+      content: '→';
+      color: var(--amber);
+      flex-shrink: 0;
+    }
+
+    .model-badge {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: .6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      font-family: var(--mono);
+      font-size: .68rem;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--green);
+      flex-shrink: 0;
+    }
+
+    .badge-label {
+      color: var(--muted);
+    }
+
+    .badge-val {
+      color: var(--text);
+      margin-left: auto;
+    }
+
+    /* ANIMATIONS */
+    @keyframes slideDown {
+      from {
+        transform: translateY(-16px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: .3;
+      }
+    }
+
+    @keyframes resultIn {
+      from {
+        transform: scale(.9);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 820px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field.full {
+        grid-column: 1;
+      }
+
+      header {
+        padding: 1rem 1.25rem;
+      }
+
+      main {
+        padding: 1.5rem 1rem 3rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo-mark">RS</div>
+    <h1>Repair<span>Scope</span></h1>
+    <div class="header-tag">ML · Random Forest · v2.0</div>
+  </header>
+
+  <main>
+
+    <!-- LEFT: FORM -->
+    <div class="form-card">
+      <div class="card-title">Repair Intake Form</div>
+
+      <div class="form-grid">
+
+        <!-- Date In -->
+        <div class="field">
+          <div class="field-header">
+            <label>Date In</label>
+          </div>
+          <input type="date" id="date_in" />
+        </div>
+
+        <!-- Device Type — text -->
+        <div class="field">
+          <div class="field-header">
+            <label>Device Type</label>
+            <span class="badge-text">text</span>
+          </div>
+          <input type="text" id="device_type" placeholder="e.g. Desktop PC, Laptop" />
+        </div>
+
+        <!-- Item Model — text -->
+        <div class="field">
+          <div class="field-header">
+            <label>Item Model</label>
+            <span class="badge-text">text</span>
+          </div>
+          <input type="text" id="item_model" placeholder="e.g. Core i5 Desktop, HP 15s" />
+        </div>
+
+        <!-- Technician — DROPDOWN -->
+        <div class="field">
+          <div class="field-header">
+            <label>Technician</label>
+            <span class="badge-dropdown">dropdown</span>
+          </div>
+          <select id="technician">
+            <option value="">— select —</option>
+            <option value="Dilshan">Dilshan</option>
+            <option value="Kasun">Kasun</option>
+            <option value="Nimales">Nimales</option>
+            <option value="Pradeep">Pradeep</option>
+            <option value="Sachin">Sachin</option>
+          </select>
+        </div>
+
+        <!-- Repair Path — text -->
+        <div class="field">
+          <div class="field-header">
+            <label>Repair Path</label>
+            <span class="badge-text">text</span>
+          </div>
+          <input type="text" id="repair_path" placeholder="e.g. In-House, Outsource" />
+        </div>
+
+        <!-- Warranty — DROPDOWN -->
+        <div class="field">
+          <div class="field-header">
+            <label>Warranty</label>
+            <span class="badge-dropdown">dropdown</span>
+          </div>
+          <select id="warranty">
+            <option value="">— select —</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+
+        <!-- Solution — text -->
+        <div class="field full">
+          <div class="field-header">
+            <label>Solution / Service Type</label>
+            <span class="badge-text">text</span>
+          </div>
+          <input type="text" id="solution" placeholder="e.g. Power Supply Replaced, RAM Replacement" />
+        </div>
+
+        <!-- Fault Description -->
+        <div class="field full">
+          <label>Fault Description</label>
+          <textarea id="fault_description"
+            placeholder="e.g. No power, display flickering, keyboard not responding…"></textarea>
+        </div>
+
+        <button class="btn-predict" id="predict-btn" onclick="submitPrediction()">
+          <div class="spinner"></div>
+          <span class="btn-text">Predict Completion Date</span>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: RESULTS -->
+    <div class="result-panel">
+
+      <div class="model-badge">
+        <div class="badge-dot"></div>
+        <span class="badge-label">Model</span>
+        <span class="badge-val">RandomForest · 1200 trees · R² 0.89</span>
+      </div>
+
+      <div class="status-card" id="status-card">
+        <div class="idle-msg" id="idle-msg">
+          <span class="idle-icon">🔧</span>
+          Fill in the repair details<br>and click <strong>Predict</strong> to see<br>the estimated completion date.
+        </div>
+
+        <div class="result-content" id="result-content">
+          <div style="display:flex;align-items:baseline;gap:.5rem">
+            <div class="result-days" id="res-days">—</div>
+            <div style="font-family:var(--mono);font-size:.75rem;color:var(--muted)">days</div>
+          </div>
+          <div class="result-days-label">Estimated Repair Duration</div>
+
+          <div class="date-row">
+            <div class="date-chip in">
+              <div class="date-chip-label">Date In</div>
+              <div class="date-chip-val" id="res-date-in">—</div>
+            </div>
+            <div class="date-chip out">
+              <div class="date-chip-label">Ready By</div>
+              <div class="date-chip-val" id="res-date-out">—</div>
+            </div>
+          </div>
+
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span>Repair Timeline</span>
+              <span id="prog-pct">0%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="prog-fill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="error-card" id="error-card"></div>
+
+      <div class="info-card">
+        <div class="info-title">Field Guide</div>
+        <ul class="tip-list">
+          <li><strong style="color:var(--amber)">Technician & Warranty</strong> must be selected from the dropdown</li>
+          <li>All other fields accept free text; unseen values fall back gracefully</li>
+          <li>Fault Description drives the NLP model (TF-IDF, tri-grams, 350 features)</li>
+          <li>Repair Path has the highest single feature importance (0.18)</li>
+          <li>Completion date = Date In + Predicted Duration (days)</li>
+        </ul>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    const API = "";
+
+    // Set today as default
+    document.getElementById("date_in").value = new Date().toISOString().split("T")[0];
+
+    async function submitPrediction() {
+      const btn = document.getElementById("predict-btn");
+
+      const date_in = document.getElementById("date_in").value;
+      const device_type = document.getElementById("device_type").value.trim();
+      const item_model = document.getElementById("item_model").value.trim();
+      const technician = document.getElementById("technician").value;
+      const repair_path = document.getElementById("repair_path").value.trim();
+      const warranty = document.getElementById("warranty").value;
+      const solution = document.getElementById("solution").value.trim();
+      const fault_description = document.getElementById("fault_description").value.trim();
+
+      if (!date_in || !fault_description) {
+        showError("Date In and Fault Description are required.");
+        return;
+      }
+
+      btn.classList.add("loading");
+      hideResult(); hideError();
+
+      try {
+        const res = await fetch(`${API}/predict`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ date_in, device_type, item_model, technician, repair_path, warranty, solution, fault_description }),
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || "Prediction failed.");
+        showResult(data);
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        btn.classList.remove("loading");
+      }
+    }
+
+    function showResult({ predicted_days, date_in, date_out }) {
+      document.getElementById("idle-msg").style.display = "none";
+      const rc = document.getElementById("result-content");
+      rc.style.display = "block";
+      rc.style.animation = "resultIn .4s ease both";
+
+      document.getElementById("res-days").textContent = predicted_days;
+      document.getElementById("res-date-in").textContent = formatDate(date_in);
+      document.getElementById("res-date-out").textContent = formatDate(date_out);
+
+      const pct = Math.min(100, Math.round((predicted_days / 30) * 100));
+      setTimeout(() => {
+        document.getElementById("prog-fill").style.width = pct + "%";
+        document.getElementById("prog-pct").textContent = pct + "%";
+      }, 50);
+    }
+
+    function hideResult() {
+      document.getElementById("idle-msg").style.display = "block";
+      document.getElementById("result-content").style.display = "none";
+      document.getElementById("prog-fill").style.width = "0";
+      document.getElementById("prog-pct").textContent = "0%";
+    }
+
+    function showError(msg) {
+      const el = document.getElementById("error-card");
+      el.style.display = "block";
+      el.textContent = "⚠ " + msg;
+    }
+
+    function hideError() {
+      document.getElementById("error-card").style.display = "none";
+    }
+
+    function formatDate(str) {
+      const [y, m, d] = str.split("-");
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return `${d} ${months[+m - 1]} ${y}`;
+    }
+  </script>
+</body>
+
+</html>

@@ -1,19 +1,18 @@
 <?php
 include 'db_config.php';
 
-// Job Number calculation
-$query = "SELECT job_no FROM job ORDER BY job_no DESC LIMIT 1";
-$result = mysqli_query($conn, $query);
-$last_job = mysqli_fetch_assoc($result);
+// --- 1. System Settings වලින් Next Job Number එක ලබා ගැනීම (නිවැරදි Table Name: system_settings) ---
+$setting_query = "SELECT next_job_no FROM system_settings LIMIT 1";
+$setting_result = mysqli_query($conn, $setting_query);
+$setting_data = mysqli_fetch_assoc($setting_result);
 
-if ($last_job) {
-    $number = preg_replace("/[^0-9]/", "", $last_job['job_no']);
-    $new_number = (int)$number + 1;
-} else {
-    $new_number = 5000;
-}
+// Settings වල අගයක් ඇත්නම් එය ගන්නවා, නැත්නම් default 5000 ලෙස ගන්නවා
+$new_number = ($setting_data && isset($setting_data['next_job_no'])) ? $setting_data['next_job_no'] : 5000;
+
+// Job Number එක පෙන්වන format එක (ORD-5000 වැනි)
 $job_no = "ORD-" . $new_number;
 
+// --- 2. අනෙකුත් විස්තර (Technicians/Issues) ලබා ගැනීම ---
 $tech_result = mysqli_query($conn, "SELECT * FROM technicians");
 $issue_result = mysqli_query($conn, "SELECT * FROM issue"); 
 ?>
@@ -26,11 +25,10 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
     <title>Service Registration | Smart Repair</title>
     
     <script>
-        // Navbar එකේ logic එකට ගැලපෙන පරිදි localStorage පරීක්ෂාව
         (function() {
             const savedTheme = localStorage.getItem("darkMode");
             if (savedTheme === "enabled") {
-                document.documentElement.classList.add("dark-mode"); // HTML වලටත් දානවා safer වෙන්න
+                document.documentElement.classList.add("dark-mode");
             }
         })();
     </script>
@@ -38,7 +36,6 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
     <?php include 'navbar.php'; ?>
 
     <style>
-        /* --- ඔබේ මුල් CSS (කිසිවක් වෙනස් කර නැත) --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
@@ -50,8 +47,6 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
             color: #2c3e50;
         }
 
-        /* --- DARK MODE APPLY (Navbar CSS එකට ගැලපෙන පරිදි) --- */
-        /* Navbar එකේ body.dark-mode පාවිච්චි කරන නිසා අපිත් ඒකම පාවිච්චි කරමු */
         body.dark-mode {
             background: linear-gradient(135deg, #020617, #0f172a) !important;
             color: #e2e8f0 !important;
@@ -66,38 +61,17 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
 
         body.dark-mode .page-title h1, 
         body.dark-mode .section-header h3,
-        body.dark-mode .job-number {
-            color: #ffffff !important;
-        }
-
-        body.dark-mode label {
-            color: #94a3b8 !important;
-        }
-
-        body.dark-mode input, 
-        body.dark-mode select, 
-        body.dark-mode textarea {
+        body.dark-mode .job-number { color: #ffffff !important; }
+        body.dark-mode label { color: #94a3b8 !important; }
+        body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
             background: #0f172a !important;
             border-color: #334155 !important;
             color: #f1f5f9 !important;
         }
+        body.dark-mode .device-card { background: rgba(15, 23, 42, 0.5) !important; border-color: #1e293b !important; }
+        body.dark-mode .job-no-badge { background: rgba(34, 197, 94, 0.1) !important; border-color: #22c55e !important; }
+        body.dark-mode .btn-add { background: transparent !important; color: #22c55e !important; }
 
-        body.dark-mode .device-card {
-            background: rgba(15, 23, 42, 0.5) !important;
-            border-color: #1e293b !important;
-        }
-
-        body.dark-mode .job-no-badge {
-            background: rgba(34, 197, 94, 0.1) !important;
-            border-color: #22c55e !important;
-        }
-
-        body.dark-mode .btn-add {
-            background: transparent !important;
-            color: #22c55e !important;
-        }
-
-        /* --- මුල් CSS ඉතිරි කොටස --- */
         .container { max-width: 1000px; margin: 0 auto; margin-top: 25px; }
         .page-title { text-align: center; margin-bottom: 30px; }
         .page-title h1 { font-size: 32px; font-weight: 700; color: #2c3e50; margin-bottom: 8px; }
@@ -147,11 +121,11 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
                         <input type="text" name="customer_name" id="customer_name" required>
                     </div>
                     <div class="form-group">
-                        <label>Email Address</label>
+                        <label>Email Address (Optional)</label>
                         <input type="email" name="email" id="customer_email" placeholder="example@mail.com">
                     </div>
                     <div class="form-group">
-                        <label>Address</label>
+                        <label>Address (Optional)</label>
                         <input type="text" name="address" id="customer_address" placeholder="City / Street">
                     </div>
                 </div>
@@ -199,7 +173,6 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
 </div>
 
 <script>
-    // Navbar එකේ Dark Mode switch එකට respond කිරීම සඳහා අමතර Listener එකක්
     function checkTheme() {
         const savedTheme = localStorage.getItem("darkMode");
         if (savedTheme === "enabled") {
@@ -209,14 +182,10 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
         }
     }
 
-    // Navbar button එක ක්ලික් කළ විට මේ පිටුවේ styles ද වහාම මාරු වීමට මෙය අවශ්‍යයි
     window.addEventListener('storage', (e) => {
-        if (e.key === 'darkMode') {
-            checkTheme();
-        }
+        if (e.key === 'darkMode') checkTheme();
     });
 
-    // --- ඔබේ මුල් JS Logic එලෙසම ---
     document.getElementById('customer_phone').addEventListener('input', function() {
         let phone = this.value.replace(/[^0-9+]/g, '');
         this.value = phone;
@@ -281,24 +250,28 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
                         ${dbOptions}
                         <option value="new" style="color:#2ecc71;">+ Add New Issue</option>
                     </select>
-                    <input type="text" name="new_issues[]" style="display:none; margin-top:10px;">
+                    <input type="text" name="new_issues[]" style="display:none; margin-top:10px;" placeholder="Enter New Issue">
                 </div>
                 <div class="form-group">
                     <label>Warranty Status</label>
-                    <select name="warranty_status[]" required>
+                    <select name="warranty[]">
                         <option value="No Warranty">No Warranty</option>
-                        <option value="Warranty"> Warranty</option>
+                        <option value="Warranty">Warranty</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>Device Image</label>
+                    <input type="file" name="device_images[]" accept="image/*">
+                </div>
             </div>
-            <div class="form-grid" style="margin-top:20px;">
-                <div class="form-group" style="grid-column: span 2;">
-                    <label>Description / Note</label>
-                    <textarea name="descriptions[]" placeholder="Notes..."></textarea>
+            <div class="form-grid" style="margin-top:15px;">
+                <div class="form-group">
+                    <label>Description / Fault Details</label>
+                    <textarea name="descriptions[]" rows="2" placeholder="Describe the problem..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Device Image (Optional)</label>
-                    <input type="file" name="device_images[]" accept="image/*">
+                    <label>Another Note (Optional)</label>
+                    <textarea name="another_notes[]" rows="2" placeholder="Any additional notes..."></textarea>
                 </div>
             </div>
         `;
@@ -306,10 +279,12 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
     }
 
     function toggleNewIssue(select) {
-        select.nextElementSibling.style.display = (select.value === 'new') ? 'block' : 'none';
+        const input = select.nextElementSibling;
+        input.style.display = (select.value === 'new') ? 'block' : 'none';
+        if(select.value === 'new') input.focus();
     }
 
-    addDevice(); 
+    window.onload = addDevice;
 </script>
+
 </body>
-</html>

@@ -2,14 +2,6 @@
 include 'db_config.php';
 include 'navbar.php';
 
-// සදහටම ඉවත් කිරීමේ (Permanent Delete) Logic එක
-if (isset($_GET['delete_id'])) {
-    $del_id = mysqli_real_escape_string($conn, $_GET['delete_id']);
-    mysqli_query($conn, "DELETE FROM job_device WHERE job_device_id = '$del_id'");
-    header("Location: destroyed_items_view.php");
-    exit();
-}
-
 // 'Destroyed' තත්ත්වයේ ඇති දත්ත පමණක් ලබා ගැනීම
 $sql = "SELECT jd.*, j.job_no, c.customer_name 
         FROM job_device jd
@@ -101,7 +93,14 @@ $result = mysqli_query($conn, $sql);
             color: #94a3b8 !important;
         }
 
-        /* ===== LIGHT MODE STYLES (ORIGINAL) ===== */
+        /* NEW: Dark mode search bar input */
+        body.dark-mode .search-input {
+            background: #334155 !important;
+            border-color: #475569 !important;
+            color: #ffffff !important;
+        }
+
+        /* ===== LIGHT MODE STYLES ===== */
         .page-container {
             max-width: 900px;
             margin: 0 auto;
@@ -143,28 +142,63 @@ $result = mysqli_query($conn, $sql);
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Update flexbox to handle search bar on the right */
+        .table-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .header-title {
             font-size: 26px;
             font-weight: 800;
             color: var(--text-dark);
-            text-align: center;
-            margin-bottom: 28px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--border);
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 12px;
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        /* SEARCH BAR STYLES */
+        .search-container {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.5;
         }
 
         .table-container {
@@ -221,25 +255,6 @@ $result = mysqli_query($conn, $sql);
             border: 2px solid #ffcc80;
         }
 
-        .btn-delete-perm {
-            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-delete-perm:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
-        }
-
         .empty-msg {
             padding: 60px 20px;
             text-align: center;
@@ -249,6 +264,8 @@ $result = mysqli_query($conn, $sql);
         @media (max-width: 768px) {
             body { padding-top: 120px; }
             .report-table { font-size: 12px; }
+            .search-container { width: 100%; }
+            .table-header-flex { justify-content: center; text-align: center; }
         }
     </style>
 </head>
@@ -262,10 +279,16 @@ $result = mysqli_query($conn, $sql);
 </div>
 
 <div class="container">
-    <h2 class="header-title">📋 Destroyed Items Records</h2>
+    <div class="table-header-flex">
+        <h2 class="header-title">📋 Destroyed Items Records</h2>
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search by Job No, Customer, Device...">
+        </div>
+    </div>
     
     <div class="table-container">
-        <table class="report-table">
+        <table class="report-table" id="destroyedTable">
             <thead>
                 <tr>
                     <th>Job No</th>
@@ -273,7 +296,6 @@ $result = mysqli_query($conn, $sql);
                     <th>Device Details</th>
                     <th>Completion Date</th>
                     <th>Destroyed Date</th>
-                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
@@ -298,18 +320,11 @@ $result = mysqli_query($conn, $sql);
                         <td>
                             <span class="badge-date"><?= date('M d, Y', strtotime($row['destroy_notice_sent_date'])) ?></span>
                         </td>
-                        <td>
-                            <a href="?delete_id=<?= $row['job_device_id'] ?>" 
-                               class="btn-delete-perm" 
-                               onclick="return confirm('මෙම වාර්තාව සදහටම ඉවත් කිරීමට අවශ්‍යද?')">
-                                🗑️ Permanent Delete
-                            </a>
-                        </td>
                     </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr>
-                        <td colspan="6" class="empty-msg">
+                    <tr id="noRecordsRow">
+                        <td colspan="5" class="empty-msg">
                             <span style="font-size: 40px; display: block; margin-bottom: 10px;">📋</span>
                             <strong>No destroyed items found in the records.</strong>
                         </td>
@@ -317,12 +332,43 @@ $result = mysqli_query($conn, $sql);
                 <?php endif; ?>
             </tbody>
         </table>
+        <div id="noSearchResults" style="display: none; padding: 40px; text-align: center; font-weight: 600; color: var(--danger);">
+             No matching records found for your search.
+        </div>
     </div>
 </div>
 
 <script>
+// --- REAL-TIME SEARCH FUNCTIONALITY ---
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const filter = this.value.toLowerCase();
+    const tableBody = document.getElementById('tableBody');
+    const rows = tableBody.getElementsByTagName('tr');
+    const noResultsMsg = document.getElementById('noSearchResults');
+    let hasMatch = false;
+
+    // Start loop (skip 'No records' row if it exists)
+    for (let i = 0; i < rows.length; i++) {
+        if (rows[i].id === 'noRecordsRow') continue;
+
+        const text = rows[i].textContent.toLowerCase();
+        if (text.includes(filter)) {
+            rows[i].style.display = "";
+            hasMatch = true;
+        } else {
+            rows[i].style.display = "none";
+        }
+    }
+
+    // Show/Hide "No Match" message
+    if (!hasMatch && filter !== "") {
+        noResultsMsg.style.display = "block";
+    } else {
+        noResultsMsg.style.display = "none";
+    }
+});
+
 // --- AUTO REFRESH ON MODE CHANGE ---
-// Navbar එකේ ඇති Dark Mode toggle එක අනුව පිටුව refresh වීමට මෙම කොටස භාවිතා වේ.
 let lastMode = document.body.classList.contains('dark-mode');
 const observer = new MutationObserver(() => {
     let currentMode = document.body.classList.contains('dark-mode');
@@ -335,5 +381,5 @@ observer.observe(document.body, { attributes: true, attributeFilter: ['class'] }
 </script>
 
 </body>
-<?php include 'chatbot.php'; ?>
+
 </html>

@@ -42,7 +42,9 @@ $completed_count = $conn->query("
 ")->fetch_assoc()['c'];
 $total_customers = $conn->query("SELECT COUNT(*) c FROM customer")->fetch_assoc()['c'];
 $revenue_today = $conn->query("SELECT SUM(income) total FROM cashbook WHERE DATE(date)='$today'")->fetch_assoc()['total'] ?? 0;
-$low_stock_count = $conn->query("SELECT COUNT(*) c FROM stock WHERE quantity BETWEEN 1 AND 5")->fetch_assoc()['c'];
+
+// Returned Orders logic - Paid වූ ඉන්වොයිස් ගණන (අද දිනට අදාළව හෝ සමස්තය පෙන්විය හැක)
+$returned_count = $conn->query("SELECT COUNT(*) c FROM invoice WHERE payment_status='Paid'")->fetch_assoc()['c'];
 ?>
 
 <!DOCTYPE html>
@@ -63,7 +65,6 @@ $low_stock_count = $conn->query("SELECT COUNT(*) c FROM stock WHERE quantity BET
     font-family: 'Poppins', sans-serif;
 }
 
-/* --- FIX: SCROLL ENABLED --- */
 html, body {
     height: auto; 
     min-height: 100%;
@@ -84,7 +85,6 @@ body.dark-mode {
     color: #e2e8f0 !important;
 }
 
-/* Dark Mode එකේදී Card එකට Glass Effect ලබා දීම */
 body.dark-mode .card {
     background: rgba(30, 41, 59, 0.4) !important;
     backdrop-filter: blur(14px) !important;
@@ -93,7 +93,6 @@ body.dark-mode .card {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* Dark Mode එකේදී Card එක ඇතුළත අකුරු සුදු පැහැ ගැන්වීම */
 body.dark-mode .card-title,
 body.dark-mode .card-value,
 body.dark-mode .card-footer,
@@ -105,7 +104,6 @@ body.dark-mode .sub-text, body.dark-mode .sub-text strong {
     color: #94a3b8 !important;
 }
 
-/* Icon Box සදහා Dark Mode වර්ණ */
 body.dark-mode .icon-box {
     background: rgba(255, 255, 255, 0.05) !important;
 }
@@ -115,14 +113,10 @@ body.dark-mode .icon-box {
     max-width: 1400px;
     width: 96%;
     margin: 0 auto;
-    height: auto; 
-    display: flex;
-    flex-direction: column;
     padding-bottom: 40px; 
 }
 
 .welcome-section {
-    flex: 0 0 auto;
     margin-bottom: 25px;
 }
 
@@ -144,9 +138,7 @@ body.dark-mode .icon-box {
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr); 
-    grid-template-rows: auto; 
     gap: 25px;
-    flex: 1; 
 }
 
 .card {
@@ -154,18 +146,19 @@ body.dark-mode .icon-box {
     border-radius: 24px;
     padding: 35px; 
     min-height: 220px; 
-    width: 100%;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
     border: 1px solid rgba(255,255,255,0.6); 
-    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    cursor: pointer;
+    text-decoration: none;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
@@ -204,7 +197,7 @@ body.dark-mode .icon-box {
     padding-top: 10px;
 }
 
-/* LIGHT MODE COLORS */
+/* COLORS */
 .bg-pending { border-left: 8px solid #f97316; }
 .bg-pending .card-title, .bg-pending .card-value { color: #c2410c; }
 .bg-pending .icon-box { color: #ea580c; background: #fff7ed; }
@@ -225,9 +218,10 @@ body.dark-mode .icon-box {
 .bg-revenue .card-title, .bg-revenue .card-value { color: #0e7490; }
 .bg-revenue .icon-box { color: #0891b2; background: #ecfeff; }
 
-.bg-lowstock { border-left: 8px solid #f43f5e; }
-.bg-lowstock .card-title, .bg-lowstock .card-value { color: #be123c; }
-.bg-lowstock .icon-box { color: #e11d48; background: #fff1f2; }
+/* Returned Order Card Style */
+.bg-returned { border-left: 8px solid #6366f1; }
+.bg-returned .card-title, .bg-returned .card-value { color: #4338ca; }
+.bg-returned .icon-box { color: #4f46e5; background: #eef2ff; }
 
 /* MOBILE RESPONSIVE */
 @media screen and (max-width: 1024px) {
@@ -243,6 +237,7 @@ body.dark-mode .icon-box {
 </style>
 </head>
 <body>
+    <?php include 'chatbot.php'; ?>
 
 <div class="main-container">
     <div class="welcome-section">
@@ -259,64 +254,63 @@ body.dark-mode .icon-box {
     </div>
 
     <div class="dashboard-grid">
-        <div class="card bg-pending">
+        <a href="job_list.php?status=Pending" class="card bg-pending">
             <div class="card-header">
                 <span class="card-title">Pending Repairs</span>
                 <span class="icon-box">⏳</span>
             </div>
             <div class="card-value"><?php echo $pending_count; ?></div>
             <div class="card-footer">Waiting for action</div>
-        </div>
+        </a>
 
-        <div class="card bg-progress">
+        <a href="job_list.php?status=In Progress" class="card bg-progress">
             <div class="card-header">
                 <span class="card-title">In Progress</span>
                 <span class="icon-box">⌛</span>
             </div>
             <div class="card-value"><?php echo $inprogress_count; ?></div>
             <div class="card-footer">Currently working</div>
-        </div>
+        </a>
 
-        <div class="card bg-completed">
+        <a href="job_list.php?status=Completed" class="card bg-completed">
             <div class="card-header">
                 <span class="card-title">Completed Today</span>
                 <span class="icon-box">✅</span>
             </div>
             <div class="card-value"><?php echo $completed_count; ?></div>
             <div class="card-footer">Successfully done</div>
-        </div>
+        </a>
 
-        <div class="card bg-customers">
+        <a href="customers.php" class="card bg-customers">
             <div class="card-header">
                 <span class="card-title">Total Customers</span>
                 <span class="icon-box">👥</span>
             </div>
             <div class="card-value"><?php echo $total_customers; ?></div>
             <div class="card-footer">Total Registered</div>
-        </div>
+        </a>
 
-        <div class="card bg-revenue">
+        <a href="cashbook.php" class="card bg-revenue">
             <div class="card-header">
                 <span class="card-title">Revenue Today</span>
                 <span class="icon-box">💰</span>
             </div>
             <div class="card-value">Rs.<?php echo number_format($revenue_today, 2); ?></div>
             <div class="card-footer">Daily Income</div>
-        </div>
+        </a>
 
-        <div class="card bg-lowstock">
+        <a href="returned_jobs.php" class="card bg-returned">
             <div class="card-header">
-                <span class="card-title">Low Stock</span>
-                <span class="icon-box">⚠️</span>
+                <span class="card-title">Returned Orders</span>
+                <span class="icon-box">📦</span>
             </div>
-            <div class="card-value"><?php echo $low_stock_count; ?></div>
-            <div class="card-footer">Items needing attention</div>
-        </div>
+            <div class="card-value"><?php echo $returned_count; ?></div>
+            <div class="card-footer">Paid & Handed over</div>
+        </a>
     </div>
 </div>
 
 <script>
-    // Theme එක Real-time check කිරීමට
     function syncDashboardTheme() {
         const theme = localStorage.getItem("darkMode");
         if (theme === "enabled") {
@@ -326,11 +320,10 @@ body.dark-mode .icon-box {
         }
     }
     
-    // පිටුව load වන විට සහ theme වෙනස් වන විට ක්‍රියාත්මක කිරීම
     syncDashboardTheme();
     window.addEventListener('storage', syncDashboardTheme);
 </script>
 
 </body>
-<?php include 'chatbot.php'; ?>
+
 </html>

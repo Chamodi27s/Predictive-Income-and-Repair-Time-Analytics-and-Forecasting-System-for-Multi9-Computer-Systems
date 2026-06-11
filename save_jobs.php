@@ -2,12 +2,12 @@
 include 'db_config.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // 1. මූලික දත්ත ලබා ගැනීම (Sanitize) - දත්ත නොමැති නම් Empty String ලබා දේ
+    // 1. මූලික දත්ත ලබා ගැනීම (Sanitize)
     $job_no = mysqli_real_escape_string($conn, $_POST['job_no'] ?? '');
     $phone = mysqli_real_escape_string($conn, $_POST['phone_number'] ?? '');
     $cust_name = mysqli_real_escape_string($conn, $_POST['customer_name'] ?? '');
-    $email = mysqli_real_escape_string($conn, $_POST['email'] ?? ''); // Warning Fix
-    $address = mysqli_real_escape_string($conn, $_POST['address'] ?? ''); // Warning Fix
+    $email = mysqli_real_escape_string($conn, $_POST['email'] ?? ''); 
+    $address = mysqli_real_escape_string($conn, $_POST['address'] ?? ''); 
     $tech_id = $_POST['technician_id'] ?? '';
     $job_date = date('Y-m-d');
 
@@ -29,13 +29,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 VALUES ('$job_no', '$job_date', '$phone', '$tech_id')";
     
     if (mysqli_query($conn, $sql_job)) {
+
+        // --- අලුතින් එකතු කළ කොටස: System Settings Update කිරීම ---
+        // Job එක සාර්ථකව save වුණාම ඊළඟ අංකය +1 කින් වැඩි කරනවා
+        mysqli_query($conn, "UPDATE system_settings SET next_job_no = next_job_no + 1 WHERE id = 1");
+        // -------------------------------------------------------
         
         // 5. Multiple Devices Loop එක
         if (isset($_POST['devices']) && is_array($_POST['devices'])) {
             foreach ($_POST['devices'] as $key => $device) {
                 $device_name = mysqli_real_escape_string($conn, $device);
                 
-                // ⭐ Issue Logic එක
+                // Issue Logic එක
                 $issue_val = $_POST['issues'][$key] ?? '';
                 $final_issue_name = "";
 
@@ -48,14 +53,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     }
                     $final_issue_name = $new_issue_text;
                 } else {
-                    $res = mysqli_query($conn, "SELECT issue_name FROM issue WHERE issue_id = '$issue_val'");
+                    $res = mysqli_query($conn, "SELECT issue_name FROM issue WHERE issue_name = '$issue_val'");
                     $row = mysqli_fetch_assoc($res);
                     $final_issue_name = $row ? $row['issue_name'] : $issue_val;
                 }
                 
-                // Warranty Status පරීක්ෂාව - Warning Fix
-                $warranty = isset($_POST['warranty_status'][$key]) ? mysqli_real_escape_string($conn, $_POST['warranty_status'][$key]) : 'No Warranty';
+                // Warranty, Description සහ Another Note ලබා ගැනීම
+                $warranty = isset($_POST['warranty'][$key]) ? mysqli_real_escape_string($conn, $_POST['warranty'][$key]) : 'No Warranty';
                 $description = isset($_POST['descriptions'][$key]) ? mysqli_real_escape_string($conn, $_POST['descriptions'][$key]) : '';
+                $another_note = isset($_POST['another_notes'][$key]) ? mysqli_real_escape_string($conn, $_POST['another_notes'][$key]) : '';
                 
                 $img_name = ""; 
 
@@ -72,14 +78,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
 
                 // job_device table එකට ඇතුළත් කිරීම
-                $sql_device = "INSERT INTO job_device (job_no, device_name, issue_name, device_status, warranty_status, description, device_image) 
-                               VALUES ('$job_no', '$device_name', '$final_issue_name', 'Pending', '$warranty', '$description', '$img_name')";
+                $sql_device = "INSERT INTO job_device (job_no, device_name, issue_name, device_status, warranty_status, description, another_note, device_image) 
+                               VALUES ('$job_no', '$device_name', '$final_issue_name', 'Pending', '$warranty', '$description', '$another_note', '$img_name')";
                 
                 mysqli_query($conn, $sql_device);
             }
         }
 
-        // 6. සාර්ථක පණිවිඩය (SweetAlert2)
+        // 6. සාර්ථක පණිවිඩය (SweetAlert)
         echo "
         <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
         <body style='font-family:sans-serif;'>
