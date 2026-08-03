@@ -113,14 +113,14 @@ $result = mysqli_query($conn, $sql);
 <div id="smsModal">
     <div class="modal-content">
         <span class="close-modal" onclick="document.getElementById('smsModal').style.display='none'">&times;</span>
-        <h2 style="margin-bottom:15px;">📩 SMS History</h2>
+        <h2 style="margin-bottom:15px;">SMS History</h2>
         <div id="historyBody" style="max-height:400px; overflow-y:auto;">Loading...</div>
     </div>
 </div>
 
 <div class="page-container">
     <div class="page-header">
-        <h1>⚙️ Job Management System</h1>
+        <h1> Job Management System</h1>
         <p>Track repair status, manage billing, and automate notifications</p>
     </div>
 
@@ -130,11 +130,11 @@ $result = mysqli_query($conn, $sql);
             <input type="text" name="search" placeholder="Search by Job No, Phone, Name..." value="<?= htmlspecialchars($search) ?>">
             <button type="submit">Search</button>
         </form>
-        <a href="returned_jobs.php" style="background: #0f172a; color: white; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: 600;">📦 History</a>
+        <a href="returned_jobs.php" style="background: #0f172a; color: white; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: 600;"> History</a>
     </div>
 
     <div class="filter-container">
-        <a href="?search=<?= $search ?>" class="filter-tag <?= $filter_status == '' ? 'active-tag' : '' ?>" style="background: var(--secondary)">📋 All Jobs</a>
+        <a href="?search=<?= $search ?>" class="filter-tag <?= $filter_status == '' ? 'active-tag' : '' ?>" style="background: var(--secondary)"> All Jobs</a>
         <?php foreach (['Pending' => '--warning', 'In Progress' => '--blue', 'Completed' => '--success', 'Returned' => '#10b981'] as $st => $col): ?>
             <a href="?status=<?= $st ?>&search=<?= $search ?>" class="filter-tag <?= $filter_status == $st ? 'active-tag' : '' ?>" style="background: var(<?= $col ?>, <?= $col ?>)"><?= $st ?></a>
         <?php endforeach; ?>
@@ -201,9 +201,9 @@ $result = mysqli_query($conn, $sql);
                             <?php if($delay_fee > 0): ?>
                                 <div style="margin-top: 8px; padding: 6px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 8px;">
                                     <div style="color: #dc2626; font-weight: 900; font-size: 11px; margin-bottom: 4px;">
-                                        💰 RENT: Rs. <?= $delay_fee ?>
+                                         RENT: Rs. <?= $delay_fee ?>
                                     </div>
-                                    <button class="sms-btn" onclick="sendManualSMS(<?= $id ?>)" style="background: #ef4444; border-radius: 5px; padding: 5px; font-size: 10px;">📩 SEND RENT SMS</button>
+                                    <button class="sms-btn" onclick="sendManualSMS(<?= $id ?>)" style="background: #ef4444; border-radius: 5px; padding: 5px; font-size: 10px;"> SEND RENT SMS</button>
                                 </div>
                             <?php elseif($current_status == 'Completed'): ?>
                                 <div style="font-size: 9px; color: #94a3b8; margin-top: 5px;">Collection: <?= $days_passed ?> days</div>
@@ -212,19 +212,19 @@ $result = mysqli_query($conn, $sql);
 
                         <td>
                             <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-                                <button onclick="viewSMSHistory(<?= $id ?>)" title="View SMS History" style="background:#6366f1; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">📜</button>
+                                <button onclick="viewSMSHistory(<?= $id ?>)" title="View SMS History" style="background:#6366f1; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">SMS History</button>
                                 
                                 <?php if($current_status != 'Completed' && $current_status != 'Returned'): ?>
-                                    <button id="btn-edit-<?= $id ?>" onclick="toggleEdit(<?= $id ?>)" style="background: var(--blue); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">✏️</button>
+                                    <button id="btn-edit-<?= $id ?>" onclick="toggleEdit(<?= $id ?>)" style="background: var(--blue); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">Edit</button>
                                 <?php else: ?>
-                                    <span style="opacity:0.3; font-size:16px;">🔒</span>
+                                    <span style="opacity:0.3; font-size:16px;"></span>
                                 <?php endif; ?>
 
                                 <?php if($current_status == 'Completed' || $current_status == 'Returned'): ?>
                                     <?php if(!$is_paid): ?>
-                                        <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&fee=<?= $delay_fee ?>" class="bill-btn">📄 BILL</a>
+                                        <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&fee=<?= $delay_fee ?>" class="bill-btn"> BILL</a>
                                     <?php else: ?>
-                                        <span class="paid-badge">✅ PAID</span>
+                                        <span class="paid-badge"> PAID</span>
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </div>

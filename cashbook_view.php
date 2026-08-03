@@ -312,13 +312,13 @@ include_once 'navbar.php';
 
 <div class="page-container">
     <div class="page-header">
-        <h1>💰 Cashbook Management</h1>
+        <h1> Cashbook Management</h1>
         <p>Track all bank transactions and financial records</p>
     </div>
 
     <div class="container">
         <div class="form-section">
-            <h3>➕ Add New Transaction</h3>
+            <h3> Add New Transaction</h3>
             
             <?php if(isset($_GET['status']) && $_GET['status'] == 'success'): ?>
                 <div id="success-msg" class="success-banner">✓ Transaction Successfully Added!</div>
@@ -332,12 +332,12 @@ include_once 'navbar.php';
 
             <form method="POST" class="grid-form">
                 <div class="form-group">
-                    <label>📅 Date</label>
+                    <label> Date</label>
                     <input type="date" name="date" value="<?= date('Y-m-d') ?>" class="form-control" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>🏦 Account Name</label>
+                    <label> Account Name</label>
                     <select name="acc_id" id="acc_select" class="form-control" onchange="showAccNo()" required>
                         <option value="">-- Select Account --</option>
                         <?php 
@@ -349,17 +349,17 @@ include_once 'navbar.php';
                 </div>
                 
                 <div class="form-group">
-                    <label>🔢 Account Number</label>
+                    <label> Account Number</label>
                     <input type="text" id="display_acc_no" class="form-control" placeholder="Auto-filled" readonly>
                 </div>
                 
                 <div class="form-group">
-                    <label>📝 Reference</label>
+                    <label> Reference</label>
                     <input type="text" name="reference" class="form-control" placeholder="e.g. Deposit" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>💵 Amount (Rs.)</label>
+                    <label> Amount (Rs.)</label>
                     <input type="number" name="amount" class="form-control" step="0.01" min="0.01" required placeholder="0.00">
                 </div>
                 
@@ -372,7 +372,7 @@ include_once 'navbar.php';
         <div class="section-header">
             <h3> Transaction History</h3>
             <div class="search-box">
-                <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search records..." onkeyup="filterTable()">
+                <input type="text" id="searchInput" class="search-input" placeholder=" Search records..." onkeyup="filterTable()">
             </div>
         </div>
 

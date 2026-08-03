@@ -64,7 +64,7 @@ if(isset($_GET['range'])) {
 
 <div class="page-container">
     <div class="page-header">
-        <h1>🛡️ Warranty Management</h1>
+        <h1> Warranty Management</h1>
         <p>Track and manage warranty devices efficiently</p>
     </div>
 
@@ -77,7 +77,7 @@ if(isset($_GET['range'])) {
         </div>
 
         <div class="header-flex">
-            <h2>📋 Warranty Devices</h2>
+            <h2> Warranty Devices</h2>
             <div class="search-box">
                 <input type="text" id="warrantySearch" class="search-input" placeholder="🔍 Search Job, Name, Phone..." onkeyup="filterWarranty()">
                 <button class="btn-edit" style="background:var(--danger);" onclick="window.location.href='?'">✕</button>
@@ -113,11 +113,11 @@ if(isset($_GET['range'])) {
                     <tr>
                         <td><span class="job-badge">#<?= $row['job_no'] ?></span></td>
                         <td>
-                            <strong>📱 <?= htmlspecialchars($row['device_name']) ?></strong><br>
+                            <strong> <?= htmlspecialchars($row['device_name']) ?></strong><br>
                             <small><?= htmlspecialchars($row['issue_name']) ?></small><br>
                             <select id="cat-<?= $id ?>" class="status-select" style="margin-top:5px; height:30px; font-size:11px;" onchange="saveAll(<?= $id ?>)">
-                                <option value="Hardware" <?= $cat_val=='Hardware'?'selected':'' ?>>⚙️ Hardware</option>
-                                <option value="Software" <?= $cat_val=='Software'?'selected':'' ?>>💻 Software</option>
+                                <option value="Hardware" <?= $cat_val=='Hardware'?'selected':'' ?>> Hardware</option>
+                                <option value="Software" <?= $cat_val=='Software'?'selected':'' ?>> Software</option>
                             </select>
                         </td>
                         <td>
@@ -130,21 +130,21 @@ if(isset($_GET['range'])) {
                                 
                                 <option value="Pending" 
                                     <?= $current_status =='Pending'?'selected':'' ?> 
-                                    <?= ($current_status != 'Pending') ? 'disabled' : ''; ?>>⏳ Pending</option>
+                                    <?= ($current_status != 'Pending') ? 'disabled' : ''; ?>> Pending</option>
                                 
                                 <option value="Sent to Warranty" 
                                     <?= $current_status =='Sent to Warranty'?'selected':'' ?> 
-                                    <?= ($current_status == 'Completed' || $current_status == 'Returned' || $current_status == 'Rejected') ? 'disabled' : ''; ?>>📦 Sent</option>
+                                    <?= ($current_status == 'Completed' || $current_status == 'Returned' || $current_status == 'Rejected') ? 'disabled' : ''; ?>> Sent</option>
                                 
                                 
                                 <option value="Completed" 
-                                    <?= $current_status =='Completed'?'selected':'' ?>>✅ Completed</option>
+                                    <?= $current_status =='Completed'?'selected':'' ?>> Completed</option>
                                 <option value="Returned" 
                                     <?= $current_status =='Returned'?'selected':'' ?>
-                                    style="color: var(--info);">🚚 Returned</option>
+                                    style="color: var(--info);"> Returned</option>
 
                                 <option value="Rejected" 
-                                    <?= $current_status =='Rejected'?'selected':'' ?>>❌ Rejected</option>
+                                    <?= $current_status =='Rejected'?'selected':'' ?>> Rejected</option>
                             </select>
                         </td>
                         <td>
@@ -161,7 +161,7 @@ if(isset($_GET['range'])) {
     </div>
 </div>
 
-<div id="saveMsg" class="save-toast">✅ Saved!</div>
+<div id="saveMsg" class="save-toast"> Saved!</div>
 
 <script>
 function saveAll(id) {

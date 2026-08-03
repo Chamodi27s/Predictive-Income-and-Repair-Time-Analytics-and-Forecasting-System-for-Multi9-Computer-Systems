@@ -340,7 +340,7 @@ td{
 }
 
 .inventory-table th{
-    color:white;
+    color:black;
     padding:16px;
     font-size:13px;
     letter-spacing:0.5px;
@@ -475,7 +475,7 @@ td{
 <body>
 
 <a href="report_print.php" target="_blank" class="btn-export">
-🖨️ Export to PDF / Print
+ Export to PDF / Print
 </a>
 
 <div class="page-container">
@@ -485,7 +485,7 @@ td{
 <div class="page-header">
 
 <h1>
-📊 Business Intelligence Report
+Business Intelligence Report
 </h1>
 
 <p>
@@ -534,7 +534,7 @@ Rs. <?php echo number_format($totalStockValue,0); ?>
 <div class="analytics-box">
 
 <h2 class="section-title" style="color:#92400e;">
-🔍 Device Failure Patterns Detected
+ Device Failure Patterns Detected
 </h2>
 
 <p style="font-size:14px;margin-bottom:15px;">
@@ -545,7 +545,7 @@ Automated data analysis has identified the following recurring technical issues:
 
 <span class="pattern-chip">
 
-📍
+
 
 <strong>
 <?php echo htmlspecialchars($fp['device_name']); ?>
@@ -639,7 +639,7 @@ Top Devices
 <div class="main-card inventory-card">
 
 <h2 class="section-title">
-🚨 Critical Inventory Alert
+ Critical Inventory Alert
 </h2>
 
 <p class="inventory-subtitle">
@@ -681,7 +681,7 @@ $isVeryLow = $s['quantity'] <= 2;
 <tr>
 
 <td class="item-name">
-📦 <?php echo htmlspecialchars($s['item_name']); ?>
+ <?php echo htmlspecialchars($s['item_name']); ?>
 </td>
 
 <td>

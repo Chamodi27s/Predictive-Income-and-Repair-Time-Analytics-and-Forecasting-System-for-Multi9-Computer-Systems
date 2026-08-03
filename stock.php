@@ -344,25 +344,25 @@ body.dark-mode .table-box {
 
     <div class="cards">
         <div class="card total" onclick="showAll()">
-            <span>📦</span>
+            <span></span>
             <h3>Total Items</h3>
             <h1><?= $totalItems ?></h1>
         </div>
 
         <div class="card in" onclick="filterIn()">
-            <span>✅</span>
+            <span></span>
             <h3>In Stock</h3>
             <h1><?= $inStock ?></h1>
         </div>
 
         <div class="card out" onclick="filterOut()">
-            <span>❌</span>
+            <span></span>
             <h3>Out Stock</h3>
             <h1><?= $outStock ?></h1>
         </div>
 
         <div class="card low" onclick="filterLow()">
-            <span>⚠️</span>
+            <span></span>
             <h3>Low Stock</h3>
             <h1><?= $lowStock ?></h1>
         </div>

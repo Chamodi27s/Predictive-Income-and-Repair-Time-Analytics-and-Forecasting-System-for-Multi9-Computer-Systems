@@ -99,7 +99,7 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
 
 <div class="container">
     <div class="page-title">
-        <h1>🔧 Customer Registration Form</h1>
+        <h1> Customer Registration Form</h1>
         <p>Register new customer and service details</p>
     </div>
     
@@ -108,7 +108,7 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
             
             <div class="section">
                 <div class="section-header">
-                    <span class="section-icon">👤</span>
+                    <span class="section-icon"></span>
                     <h3>Customer Information</h3>
                 </div>
                 <div class="form-grid">
@@ -133,7 +133,7 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
 
             <div class="section">
                 <div class="section-header">
-                    <span class="section-icon">📋</span>
+                    <span class="section-icon"></span>
                     <h3>Job Assignment</h3>
                 </div>
                 
@@ -160,7 +160,7 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
 
             <div class="section">
                 <div class="section-header">
-                    <span class="section-icon">📱</span>
+                    <span class="section-icon"></span>
                     <h3>Device Details</h3>
                 </div>
                 <div id="devicesContainer"></div>

@@ -121,13 +121,13 @@ $total_pages = ceil($total_records / $records_per_page);
         <div class="stats-container">
             <div class="stat-card">
                 <div class="stat-info">
-                    <h3>👥 Total Customers</h3>
+                    <h3> Total Customers</h3>
                     <div class="number"><?= $total_customers ?></div>
                 </div>
             </div>
             <div class="stat-card pink">
                 <div class="stat-info">
-                    <h3>📈 New This Month</h3>
+                    <h3> New This Month</h3>
                     <div class="number"><?= $monthly_customers ?></div>
                 </div>
             </div>

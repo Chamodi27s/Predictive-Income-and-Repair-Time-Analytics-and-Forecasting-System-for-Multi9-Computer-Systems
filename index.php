@@ -55,7 +55,8 @@ $returned_count = $conn->query("SELECT COUNT(*) c FROM invoice WHERE payment_sta
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 /* RESET */
 * {
@@ -257,7 +258,7 @@ body.dark-mode .icon-box {
         <a href="job_list.php?status=Pending" class="card bg-pending">
             <div class="card-header">
                 <span class="card-title">Pending Repairs</span>
-                <span class="icon-box">⏳</span>
+                <span class="icon-box"><i class="fa-solid fa-hourglass-half"></i></span>
             </div>
             <div class="card-value"><?php echo $pending_count; ?></div>
             <div class="card-footer">Waiting for action</div>
@@ -266,7 +267,7 @@ body.dark-mode .icon-box {
         <a href="job_list.php?status=In Progress" class="card bg-progress">
             <div class="card-header">
                 <span class="card-title">In Progress</span>
-                <span class="icon-box">⌛</span>
+                <span class="icon-box"><i class="fa-solid fa-spinner"></i></span>
             </div>
             <div class="card-value"><?php echo $inprogress_count; ?></div>
             <div class="card-footer">Currently working</div>
@@ -275,7 +276,7 @@ body.dark-mode .icon-box {
         <a href="job_list.php?status=Completed" class="card bg-completed">
             <div class="card-header">
                 <span class="card-title">Completed Today</span>
-                <span class="icon-box">✅</span>
+                <span class="icon-box"><i class="fa-solid fa-circle-check"></i></span>
             </div>
             <div class="card-value"><?php echo $completed_count; ?></div>
             <div class="card-footer">Successfully done</div>
@@ -284,7 +285,7 @@ body.dark-mode .icon-box {
         <a href="customers.php" class="card bg-customers">
             <div class="card-header">
                 <span class="card-title">Total Customers</span>
-                <span class="icon-box">👥</span>
+                <span class="icon-box"><i class="fa-solid fa-users"></i></span>
             </div>
             <div class="card-value"><?php echo $total_customers; ?></div>
             <div class="card-footer">Total Registered</div>
@@ -293,7 +294,7 @@ body.dark-mode .icon-box {
         <a href="cashbook.php" class="card bg-revenue">
             <div class="card-header">
                 <span class="card-title">Revenue Today</span>
-                <span class="icon-box">💰</span>
+                <span class="icon-box"><i class="fa-solid fa-wallet"></i></span>
             </div>
             <div class="card-value">Rs.<?php echo number_format($revenue_today, 2); ?></div>
             <div class="card-footer">Daily Income</div>
@@ -302,7 +303,7 @@ body.dark-mode .icon-box {
         <a href="returned_jobs.php" class="card bg-returned">
             <div class="card-header">
                 <span class="card-title">Returned Orders</span>
-                <span class="icon-box">📦</span>
+                <span class="icon-box"><i class="fa-solid fa-arrow-rotate-left"></i></span>
             </div>
             <div class="card-value"><?php echo $returned_count; ?></div>
             <div class="card-footer">Paid & Handed over</div>

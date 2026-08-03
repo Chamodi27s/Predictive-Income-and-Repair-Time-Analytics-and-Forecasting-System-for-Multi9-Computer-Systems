@@ -160,7 +160,7 @@ $result = mysqli_query($conn, $sql);
 
 <div class="container">
     <div class="page-header">
-        <h1 style="font-size: 32px; font-weight: 800;">📦 Returned Jobs History</h1>
+        <h1 style="font-size: 32px; font-weight: 800;"> Returned Jobs History</h1>
         <p style="opacity: 0.9; margin-top: 8px;">List of all devices successfully returned to customers</p>
     </div>
 

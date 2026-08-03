@@ -59,7 +59,7 @@ $predict_err            = "";
 if (isset($_POST['predict']) && $job_no && $job_data) {
 
     if (!$api_alive) {
-        $predict_err = "⚠️ ML API is offline. Run: cd model && python predict_api.py";
+        $predict_err = " ML API is offline. Run: cd model && python predict_api.py";
     } else {
         $date_in = $job_data['job_date'];
         $warranty_days     = [];
@@ -300,21 +300,21 @@ if (isset($_POST['predict']) && $job_no && $job_data) {
 
 <div class="container">
     <div class="page-header">
-        <h1>⏱️ Repair Time Prediction</h1>
+        <h1> Repair Time Prediction</h1>
         <p>AI-powered completion estimate using your trained ML model</p>
     </div>
 
     <!-- API Status -->
     <?php if ($api_alive): ?>
-        <div class="api-status api-ok">✅ ML Prediction Engine is online and ready</div>
+        <div class="api-status api-ok">ML Prediction Engine is online and ready</div>
     <?php else: ?>
-        <div class="api-status api-err">⚠️ ML Engine offline — run: <code>cd model && python predict_api.py</code></div>
+        <div class="api-status api-err"> ML Engine offline — run: <code>cd model && python predict_api.py</code></div>
     <?php endif; ?>
 
     <div class="predict-card">
         <?php if ($job_data): ?>
 
-            <div class="section-title">📋 Job Information</div>
+            <div class="section-title"> Job Information</div>
             <div class="info-grid">
                 <div class="info-item">
                     <label>Job Number</label>
@@ -331,7 +331,7 @@ if (isset($_POST['predict']) && $job_no && $job_data) {
             </div>
 
             <div class="device-list">
-                <div class="device-list-title">📱 Devices in This Job</div>
+                <div class="device-list-title"> Devices in This Job</div>
                 <?php
                 // Re-query for display — uses same actual columns
                 $dev_res = mysqli_query($conn, "SELECT device_name, issue_name, warranty_status FROM job_device WHERE job_no = '$job_no'");
@@ -341,7 +341,7 @@ if (isset($_POST['predict']) && $job_no && $job_data) {
                 ?>
                     <div class="device-item">
                         <div class="device-name">
-                            <span>📱</span>
+                            <span></span>
                             <div>
                                 <div><?= htmlspecialchars($dev['device_name']) ?></div>
                                 <div class="device-issue"><?= htmlspecialchars($dev['issue_name']) ?></div>
@@ -357,12 +357,12 @@ if (isset($_POST['predict']) && $job_no && $job_data) {
                 <?php endif; ?>
             </div>
 
-            <div class="section-title">🤖 ML Prediction</div>
+            <div class="section-title">ML Prediction</div>
 
             <form method="POST">
                 <button type="submit" name="predict" class="btn-predict"
                     <?= !$api_alive ? 'disabled' : '' ?>>
-                    <span>🎯</span>
+                    <span></span>
                     <span><?= $api_alive ? 'Calculate Prediction' : 'API Offline' ?></span>
                 </button>
             </form>
@@ -375,10 +375,10 @@ if (isset($_POST['predict']) && $job_no && $job_data) {
                 <div class="result-container">
                     <?php if ($predicted_warranty): ?>
                     <div class="result-box warranty-box">
-                        <span class="result-icon">✅</span>
+                        <span class="result-icon">Result</span>
                         <small>Warranty Devices</small>
                         <h3><?= $predicted_warranty ?></h3>
-                        <div class="result-date">📅 Ready by <?= $warranty_date ?></div>
+                        <div class="result-date">Date Ready by <?= $warranty_date ?></div>
                     </div>
                     <?php endif; ?>
 
@@ -387,7 +387,7 @@ if (isset($_POST['predict']) && $job_no && $job_data) {
                         <span class="result-icon">⚡</span>
                         <small>Non-Warranty Devices</small>
                         <h3><?= $predicted_non_warranty ?></h3>
-                        <div class="result-date">📅 Ready by <?= $non_warranty_date ?></div>
+                        <div class="result-date">Date Ready by <?= $non_warranty_date ?></div>
                     </div>
                     <?php endif; ?>
                 </div>
