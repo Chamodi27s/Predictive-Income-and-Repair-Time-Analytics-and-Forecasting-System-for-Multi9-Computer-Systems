@@ -12,8 +12,16 @@ if (file_exists(__DIR__ . "/db_config.php")) {
     die("db_config.php not found");
 }
 
+/*
+ * Capture the navbar HTML instead of printing it before <!DOCTYPE html>.
+ * It will be displayed inside a .no-print wrapper in the <body>.
+ */
+$navbarHtml = '';
+
 if (file_exists(__DIR__ . "/navbar.php")) {
+    ob_start();
     include __DIR__ . "/navbar.php";
+    $navbarHtml = ob_get_clean();
 }
 
 /* ---------------- DB CHECK ---------------- */
@@ -452,15 +460,45 @@ td{
 
 @media print{
 
+    .no-print,
     .btn-export,
+    #report-navbar,
     nav,
-    .navbar{
+    .navbar,
+    .topbar,
+    .sidebar,
+    [class*="navbar"],
+    [id*="navbar"]{
         display:none !important;
     }
 
     body{
-        padding:0;
+        background:#ffffff !important;
+        padding:0 !important;
+        -webkit-print-color-adjust:exact;
+        print-color-adjust:exact;
     }
+
+    .page-container{
+        width:100%;
+        max-width:none;
+        margin:0;
+    }
+
+    .page-header,
+    .stat-card,
+    .main-card,
+    .analytics-box,
+    table,
+    tr{
+        break-inside:avoid;
+        page-break-inside:avoid;
+    }
+}
+
+@page{
+    size:A4;
+    margin:12mm;
 }
 
 </style>
@@ -468,6 +506,12 @@ td{
 </head>
 
 <body>
+
+<?php if ($navbarHtml !== ''): ?>
+<div id="report-navbar" class="no-print">
+<?php echo $navbarHtml; ?>
+</div>
+<?php endif; ?>
 
 <button onclick="window.print()" class="btn-export">
 🖨️ Export to PDF / Print
@@ -780,12 +824,12 @@ new Chart(ctx, {
 
 </script>
 
-</body>
+<?php if (file_exists(__DIR__ . "/chatbot.php")): ?>
+<div class="no-print">
+<?php include __DIR__ . "/chatbot.php"; ?>
+</div>
+<?php endif; ?>
 
-<?php
-if (file_exists(__DIR__ . "/chatbot.php")) {
-    include __DIR__ . "/chatbot.php";
-}
-?>
+</body>
 
 </html>
