@@ -420,7 +420,7 @@ body.dark-mode .item-name { color: #f8fafc; }
 .btn-export{
     position:fixed;
     bottom:30px;
-    right:30px;
+    left:30px;
     background:var(--primary-green);
     color:white;
     border:none;

@@ -59,12 +59,6 @@ body.dark-mode .profile-dropdown a { color: #f1f5f9; border-color: #1e293b; }
 body.dark-mode .profile-dropdown a:hover { background: #1e293b; }
 .profile-dropdown a i.ph { font-size: 18px; color: var(--primary-green); }
 
-/* Assistant / Chatbox Styles */
-.chat-trigger { position: fixed; bottom: 30px; right: 30px; background: linear-gradient(135deg, var(--primary-green), var(--accent-green)); color: white; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; z-index: 10000; transition: var(--transition); box-shadow: 0 10px 25px rgba(20, 184, 166, 0.4); border: 2px solid rgba(255,255,255,0.2); }
-.chat-trigger:hover { transform: scale(1.05); }
-.chat-box { display: none; width: 380px; height: 550px; position: fixed; bottom: 110px; right: 30px; background: var(--light-surface); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); flex-direction: column; z-index: 10001; overflow: hidden; border: 1px solid var(--border-light); }
-body.dark-mode .chat-box { background: var(--dark-surface); border-color: #334155; }
-body.dark-mode .chat-body { background: var(--dark-bg); }
 
 @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
@@ -91,56 +85,52 @@ body.dark-mode .chat-body { background: var(--dark-bg); }
         <a href="destroyed_items_view.php" class="<?= $current_page=='destroyed_items_view.php'?'active':'' ?>">Destroy Items</a>
     </div>
 
-    <div class="user-section" id="userMenuTrigger">
-        <button class="dark-toggle" onclick="toggleDarkMode()" style="background:none; border:none; cursor:pointer; color: #d1fae5; font-size: 22px; margin-right: 5px;" title="Toggle Dark/Light Mode">
-            <i class="ph ph-moon-stars"></i>
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <button class="dark-toggle" onclick="toggleDarkMode()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); cursor:pointer; color: #d1fae5; font-size: 20px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s;" title="Toggle Dark/Light Mode">
+            <i class="ph ph-sun" id="themeIcon"></i>
         </button>
-        <div class="user-info" style="text-align: right;">
-            <span style="font-size: 13px; font-weight: 600; color:white; display: block;"><?= $user_name ?></span>
-        </div>
-        <div class="profile-card"><?= $user_initial ?></div>
-        <div class="profile-dropdown" id="userDropdown">
-            <a href="profile_settings.php"><i class="ph ph-gear"></i> System Settings</a>
-            <a href="backup_db.php"><i class="ph ph-database"></i> Database Backup</a>
-            <a href="logout.php" style="color: #ef4444; font-weight: 600;"><i class="ph ph-sign-out"></i> Log Out</a>
+
+        <div class="user-section" id="userMenuTrigger">
+            <div class="user-info" style="text-align: right;">
+                <span style="font-size: 13px; font-weight: 600; color:white; display: block;"><?= $user_name ?></span>
+            </div>
+            <div class="profile-card"><?= $user_initial ?></div>
+            <div class="profile-dropdown" id="userDropdown">
+                <a href="profile_settings.php"><i class="ph ph-gear"></i> System Settings</a>
+                <a href="backup_db.php"><i class="ph ph-database"></i> Database Backup</a>
+                <a href="logout.php" style="color: #ef4444; font-weight: 600;"><i class="ph ph-sign-out"></i> Log Out</a>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="chat-trigger" onclick="toggleChat()"><i class="ph ph-robot"></i></div>
-<div class="chat-box" id="globalChatBox">
-    <div class="chat-header" style="background:#0f766e; color:white; padding:16px; display:flex; justify-content:space-between;">
-        <span>System Assistant</span>
-        <span onclick="toggleChat()" style="cursor:pointer;">×</span>
-    </div>
-    <div class="chat-body" id="chatBody" style="flex:1; padding:15px; overflow-y:auto; background:#f9fafb;">
-        <div class="msg bot" style="background:#e5e7eb; padding:10px; border-radius:10px; margin-bottom:10px; font-size:14px; color:#333;">Hello 👋 I can help you with system tasks.</div>
-    </div>
-    <div class="chat-input" style="padding:10px; display:flex; border-top:1px solid #eee;">
-        <input type="text" id="chatMsg" placeholder="Type..." style="flex:1; border:1px solid #ddd; border-radius:5px; padding:8px;">
-        <button style="background:#0f766e; color:white; border:none; padding:8px 12px; border-radius:5px; margin-left:5px;">Send</button>
-    </div>
-</div>
+
 
 <script>
 
 (function() {
     const savedTheme = localStorage.getItem("darkMode");
+    const themeIcon = document.getElementById("themeIcon");
     if (savedTheme === "enabled") {
         document.body.classList.add("dark-mode");
+        if(themeIcon) themeIcon.className = "ph ph-moon-stars";
     }
 })();
 
 function toggleDarkMode() {
     const isDarkMode = document.body.classList.toggle("dark-mode");
+    const themeIcon = document.getElementById("themeIcon");
+    
+    if (isDarkMode) {
+        if(themeIcon) themeIcon.className = "ph ph-moon-stars";
+    } else {
+        if(themeIcon) themeIcon.className = "ph ph-sun";
+    }
    
     localStorage.setItem("darkMode", isDarkMode ? "enabled" : "disabled");
 }
 
-function toggleChat() {
-    const chat = document.getElementById("globalChatBox");
-    chat.style.display = (chat.style.display === "flex") ? "none" : "flex";
-}
+
 
 document.getElementById('userMenuTrigger').addEventListener('click', function(e) {
     e.stopPropagation();

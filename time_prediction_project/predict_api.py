@@ -4,6 +4,8 @@ import sys
 import joblib
 import pandas as pd
 import json
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 
 # Load trained model
 model = joblib.load("time_prediction_model.pkl")

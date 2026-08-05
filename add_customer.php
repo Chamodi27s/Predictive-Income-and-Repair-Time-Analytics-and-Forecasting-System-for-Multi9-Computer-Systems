@@ -133,6 +133,9 @@ $total_pages = ceil($total_records / $records_per_page);
         .predict-btn { background: linear-gradient(135deg, var(--primary-green), var(--primary-green-dark)); color: white !important; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; transition: var(--transition); box-shadow: 0 3px 10px rgba(15, 118, 110, 0.3); }
         .predict-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(15, 118, 110, 0.4); }
 
+        .cost-btn { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white !important; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; transition: var(--transition); box-shadow: 0 3px 10px rgba(37, 99, 235, 0.3); }
+        .cost-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4); }
+
         .pagination-container { display: flex; justify-content: space-between; align-items: center; margin-top: 25px; padding-top: 20px; border-top: 2px solid var(--border-light); }
         .pagination a { padding: 10px 16px; border-radius: 8px; text-decoration: none; color: var(--text-muted); font-weight: 600; border: 1px solid var(--border-light); background: var(--light-surface); transition: var(--transition); }
         .pagination a.active { background: var(--primary-green); color: white; border-color: transparent; }
@@ -192,7 +195,10 @@ $total_pages = ceil($total_records / $records_per_page);
                             <td><span class="device-badge"><?= htmlspecialchars($row['all_devices']) ?></span></td>
                             <td onclick="event.stopPropagation();">
                                 <?php if($row['job_no']): ?>
-                                    <a href="time_prediction_project/index.php?job_no=<?= urlencode($row['job_no']) ?>" class="predict-btn"><i class="ph ph-clock"></i> Predict</a>
+                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                        <button type="button" onclick="openPredictionModal('<?= htmlspecialchars($row['job_no']) ?>')" class="predict-btn" style="border:none; cursor:pointer;"><i class="ph ph-clock"></i> Predict</button>
+                                        <a href="cost_estimation.php?job_no=<?= urlencode($row['job_no']) ?>" class="cost-btn"><i class="ph ph-currency-circle-dollar"></i> Cost Est.</a>
+                                    </div>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -229,6 +235,77 @@ $total_pages = ceil($total_records / $records_per_page);
         if (event.key === 'darkMode') { applyTheme(); }
     });
     setInterval(applyTheme, 500);
+</script>
+
+<!-- Prediction Modal -->
+<div id="predictModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(5px); z-index:9999; justify-content:center; align-items:center;">
+    <div class="modal-content" style="background:var(--dark-surface); border:1px solid rgba(255,255,255,0.1); border-radius:20px; width:400px; padding:30px; box-shadow:0 20px 40px rgba(0,0,0,0.5); position:relative;">
+        <button onclick="closePredictionModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:var(--text-muted); font-size:24px; cursor:pointer;"><i class="ph ph-x"></i></button>
+        
+        <div style="text-align:center; margin-bottom:20px;">
+            <i class="ph-fill ph-brain" style="font-size:48px; color:var(--primary-green); filter:drop-shadow(0 0 10px rgba(20, 184, 166, 0.4));"></i>
+            <h2 style="margin:10px 0 5px 0; font-size:20px;">AI Instant Prediction</h2>
+            <p id="predictJobNo" style="color:var(--text-muted); font-size:14px; margin:0;"></p>
+        </div>
+        
+        <div id="predictLoading" style="text-align:center; padding:30px 0;">
+            <i class="ph ph-spinner ph-spin" style="font-size:32px; color:var(--primary-green);"></i>
+            <p style="margin-top:15px; color:var(--text-muted);">Analyzing device data & calculating...</p>
+        </div>
+        
+        <div id="predictResults" style="display:none;">
+            <div style="background:rgba(20, 184, 166, 0.1); border:1px solid rgba(20,184,166,0.3); border-radius:12px; padding:20px; text-align:center; margin-bottom:15px;">
+                <h3 style="font-size:12px; text-transform:uppercase; color:var(--text-muted); margin:0 0 5px 0;">Estimated Repair Time</h3>
+                <div style="font-size:36px; font-weight:800; color:var(--primary-green); text-shadow:0 0 15px rgba(20, 184, 166, 0.4);"><span id="resDays"></span> Days</div>
+            </div>
+            
+            <div style="background:rgba(59, 130, 246, 0.1); border:1px solid rgba(59,130,246,0.3); border-radius:12px; padding:20px; text-align:center;">
+                <h3 style="font-size:12px; text-transform:uppercase; color:var(--text-muted); margin:0 0 5px 0;">Estimated Repair Cost</h3>
+                <div style="font-size:32px; font-weight:700; color:#60a5fa;"><span id="resCost"></span></div>
+                <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">(Placeholder Formula)</div>
+            </div>
+        </div>
+        
+        <div id="predictError" style="display:none; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.3); color:#fca5a5; padding:15px; border-radius:12px; font-size:14px; text-align:center;">
+        </div>
+    </div>
+</div>
+
+<script>
+    function openPredictionModal(jobNo) {
+        document.getElementById('predictModal').style.display = 'flex';
+        document.getElementById('predictJobNo').innerText = 'Job ID: ' + jobNo;
+        
+        // Reset states
+        document.getElementById('predictLoading').style.display = 'block';
+        document.getElementById('predictResults').style.display = 'none';
+        document.getElementById('predictError').style.display = 'none';
+        
+        // Call API
+        fetch('api_predict.php?job_no=' + encodeURIComponent(jobNo))
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('predictLoading').style.display = 'none';
+                
+                if(data.status === 'success') {
+                    document.getElementById('predictResults').style.display = 'block';
+                    document.getElementById('resDays').innerText = data.days;
+                    document.getElementById('resCost').innerText = '$' + data.cost;
+                } else {
+                    document.getElementById('predictError').style.display = 'block';
+                    document.getElementById('predictError').innerText = data.message;
+                }
+            })
+            .catch(err => {
+                document.getElementById('predictLoading').style.display = 'none';
+                document.getElementById('predictError').style.display = 'block';
+                document.getElementById('predictError').innerText = 'Network Error occurred.';
+            });
+    }
+    
+    function closePredictionModal() {
+        document.getElementById('predictModal').style.display = 'none';
+    }
 </script>
 
 </body>

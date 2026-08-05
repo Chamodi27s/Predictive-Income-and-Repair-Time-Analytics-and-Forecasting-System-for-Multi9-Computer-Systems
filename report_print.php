@@ -161,8 +161,9 @@ if ($failureResult) {
 
 <title>Business Report | Smart Repair</title>
 
+<link rel="stylesheet" href="CSS/global.css">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <style>
@@ -171,16 +172,6 @@ if ($failureResult) {
     margin:0;
     padding:0;
     box-sizing:border-box;
-}
-
-:root{
-    --primary:#2ecc71;
-    --primary-dark:#27ae60;
-    --bg-main:#f8fafc;
-    --card-bg:#ffffff;
-    --text-dark:#0f172a;
-    --text-muted:#64748b;
-    --border-color:#e2e8f0;
 }
 
 body{
@@ -196,46 +187,66 @@ body{
 }
 
 .page-header{
-    background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);
+    background:linear-gradient(135deg,var(--primary-green) 0%,var(--accent-green) 100%);
     padding:40px;
     border-radius:24px;
     margin-bottom:40px;
     color:white;
     text-align:center;
+    box-shadow: 0 10px 30px rgba(15, 118, 110, 0.4);
 }
 
+/* --- NEW EXECUTIVE LAYOUT --- */
+.executive-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+.layout-left {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.layout-right {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+/* ---------------------------- */
+
 .stats-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    display:flex;
+    flex-direction: column;
     gap:20px;
-    margin-bottom:30px;
 }
 
 .stat-card{
-    background:var(--card-bg);
-    padding:25px;
+    background:var(--light-surface);
+    padding:20px;
     border-radius:15px;
-    border:1px solid var(--border-color);
+    border:1px solid var(--border-light);
     text-align:center;
-    box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);
+    box-shadow:var(--card-shadow);
 }
 
 .stat-card h3{
-    margin-bottom:10px;
-    font-size:15px;
+    margin-bottom:8px;
+    font-size:14px;
+    color: var(--text-muted);
 }
 
 .stat-value{
-    font-size:24px;
+    font-size:22px;
     font-weight:800;
 }
 
 .main-card{
-    background:var(--card-bg);
+    background:var(--light-surface);
     padding:25px;
     border-radius:20px;
-    border:1px solid var(--border-color);
-    margin-bottom:30px;
+    border:1px solid var(--border-light);
+    box-shadow:var(--card-shadow);
 }
 
 .section-title{
@@ -245,21 +256,22 @@ body{
     display:flex;
     align-items:center;
     gap:10px;
+    color: var(--text-dark);
 }
 
 .section-title::before{
     content:'';
     width:5px;
     height:18px;
-    background:var(--primary);
+    background:var(--primary-green);
     border-radius:10px;
 }
 
 /* ---------------- ANALYTICS ---------------- */
 
 .analytics-box{
-    background:#fffcf0;
-    border:1px solid #fde68a;
+    background:var(--primary-green-light);
+    border:1px solid rgba(20, 184, 166, 0.2);
     border-radius:15px;
     padding:20px;
     margin-bottom:30px;
@@ -267,21 +279,22 @@ body{
 
 .pattern-chip{
     display:inline-block;
-    background:#fef3c7;
-    color:#92400e;
+    background:var(--light-surface);
+    color:var(--primary-green-dark);
     padding:6px 12px;
     border-radius:8px;
     font-size:13px;
     font-weight:700;
     margin:5px;
-    border:1px solid #fde68a;
+    border:1px solid rgba(20, 184, 166, 0.2);
+    box-shadow: var(--card-shadow);
 }
 
 /* ---------------- TABLE ---------------- */
 
 .table-container{
     border-radius:12px;
-    border:1px solid var(--border-color);
+    border:1px solid var(--border-light);
     overflow:hidden;
 }
 
@@ -291,30 +304,30 @@ table{
 }
 
 th{
-    background:#f8fafc;
+    background: #f1f5f9;
     padding:12px;
     font-size:12px;
     text-align:left;
     text-transform:uppercase;
-    color:var(--text-muted);
+    color: #475569;
 }
 
 td{
     padding:12px;
     font-size:14px;
-    border-bottom:1px solid #f1f5f9;
+    border-bottom:1px solid var(--border-light);
 }
 
 /* ---------------- INVENTORY TABLE ---------------- */
 
 .inventory-card{
-    background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%);
-    border:1px solid #e2e8f0;
-    box-shadow:0 10px 25px rgba(0,0,0,0.05);
+    background:var(--light-surface);
+    border:1px solid var(--border-light);
+    box-shadow:var(--card-shadow);
 }
 
 .inventory-subtitle{
-    color:#64748b;
+    color:var(--text-muted);
     font-size:14px;
     margin-bottom:20px;
 }
@@ -322,20 +335,17 @@ td{
 .inventory-table-wrapper{
     overflow-x:auto;
     border-radius:16px;
-    border:1px solid #e2e8f0;
+    border:1px solid var(--border-light);
 }
 
 .inventory-table{
     width:100%;
     border-collapse:collapse;
-    background:white;
-}
-
-.inventory-table thead{
-    background:linear-gradient(135deg,#2ecc71 0%,#27ae60 100%);
+    background:var(--light-surface);
 }
 
 .inventory-table th{
+    background:linear-gradient(135deg,var(--primary-green) 0%,var(--accent-green) 100%);
     color:white;
     padding:16px;
     font-size:13px;
@@ -346,17 +356,17 @@ td{
 
 .inventory-table td{
     padding:18px 16px;
-    border-bottom:1px solid #f1f5f9;
+    border-bottom:1px solid var(--border-light);
     font-size:14px;
     font-weight:600;
 }
 
 .inventory-table tbody tr{
-    transition:0.25s ease;
+    transition:var(--transition);
 }
 
 .inventory-table tbody tr:hover{
-    background:#f0fff4;
+    background:var(--light-bg);
     transform:scale(1.01);
 }
 
@@ -409,8 +419,8 @@ td{
 .btn-export{
     position:fixed;
     bottom:30px;
-    right:30px;
-    background:var(--primary-dark);
+    left:30px;
+    background:var(--primary-green);
     color:white;
     border:none;
     padding:12px 20px;
@@ -420,12 +430,56 @@ td{
     display:flex;
     align-items:center;
     gap:8px;
+    box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4);
+    transition: var(--transition);
+    z-index: 1000;
+}
+.btn-export:hover {
+    background: var(--primary-green-dark);
+    transform: translateY(-2px);
+}
+
+.btn-back{
+    position:fixed;
+    bottom:90px;
+    left:30px;
+    background: #334155; /* Dark Slate / Visible Color */
+    color: white;
+    border: none;
+    padding:12px 20px;
+    border-radius:10px;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    text-decoration:none;
+    box-shadow: 0 4px 12px rgba(51, 65, 85, 0.4);
+    transition: var(--transition);
+    z-index: 1000;
+}
+.btn-back:hover {
+    background: #1e293b;
+    transform: translateY(-2px);
 }
 
 /* ---------------- RESPONSIVE ---------------- */
 
-@media(max-width:900px){
+@media(max-width:1024px){
+    .executive-layout {
+        grid-template-columns: 1fr;
+    }
+    .stats-grid {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .stat-card {
+        flex: 1;
+        min-width: 200px;
+    }
+}
 
+@media(max-width:900px){
     .charts-grid{
         grid-template-columns:1fr !important;
     }
@@ -448,12 +502,48 @@ td{
 
 @media print{
 
-    .btn-export{
+    .btn-export, .btn-back {
         display:none !important;
     }
 
     body{
         padding:0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .executive-layout {
+        display: block !important;
+    }
+
+    .layout-left, .layout-right {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    .stats-grid {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 15px;
+    }
+
+    .main-card, .stat-card, .analytics-box, .inventory-card, table, tr, thead, tbody {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* Force Table Headers to be visible in print */
+    th, .inventory-table th {
+        color: #000 !important;
+        background-color: #f1f5f9 !important;
+        border-bottom: 2px solid #cbd5e1 !important;
+    }
+    .inventory-table thead {
+        background: #f1f5f9 !important;
+    }
+
+    .page-header {
+        margin-bottom: 20px;
     }
 }
 
@@ -463,8 +553,12 @@ td{
 
 <body>
 
+<a href="report.php" class="btn-back">
+<i class="ph-bold ph-arrow-left" style="font-size: 1.2rem;"></i> Back to Report
+</a>
+
 <button onclick="window.print()" class="btn-export">
-🖨️ Export to PDF / Print
+<i class="ph-fill ph-printer" style="font-size: 1.2rem;"></i> Export to PDF / Print
 </button>
 
 <div class="page-container">
@@ -474,7 +568,7 @@ td{
 <div class="page-header">
 
 <h1>
-📊 Business Intelligence Report
+<i class="ph-fill ph-chart-bar" style="vertical-align: middle;"></i> Business Intelligence Report
 </h1>
 
 <p>
@@ -484,8 +578,13 @@ Smart Repair Management Insight -
 
 </div>
 
-<!-- QUICK STATS -->
+<!-- EXECUTIVE LAYOUT START -->
+<div class="executive-layout">
 
+<!-- LEFT COLUMN -->
+<div class="layout-left">
+
+<!-- QUICK STATS -->
 <div class="stats-grid">
 
 <div class="stat-card">
@@ -516,119 +615,78 @@ Rs. <?php echo number_format($totalStockValue,0); ?>
 </div>
 </div>
 
-</div>
+</div> <!-- end stats-grid -->
 
 <!-- FAILURE ANALYTICS -->
+<div class="analytics-box" style="margin-bottom:0;">
 
-<div class="analytics-box">
-
-<h2 class="section-title" style="color:#92400e;">
-🔍 Device Failure Patterns Detected
+<h2 class="section-title" style="color:var(--primary-green-dark); font-size:16px;">
+<i class="ph-fill ph-magnifying-glass" style="font-size: 1.2rem;"></i> Failure Patterns
 </h2>
 
-<p style="font-size:14px;margin-bottom:15px;">
-Automated data analysis has identified the following recurring technical issues:
+<p style="font-size:13px;margin-bottom:15px; color:var(--text-muted);">
+Automated data analysis identified the following recurring technical issues:
 </p>
 
+<div style="display:flex; flex-direction:column; gap:8px;">
 <?php foreach($failurePatterns as $fp): ?>
-
-<span class="pattern-chip">
-
-📍
-
-<strong>
-<?php echo htmlspecialchars($fp['device_name']); ?>
-</strong>
-
-:
-
-<strong>
-<?php echo htmlspecialchars($fp['issue_name']); ?>
-</strong>
-
+<span class="pattern-chip" style="margin:0; font-size:12px; padding:8px;">
+<i class="ph-fill ph-map-pin" style="color:var(--primary-green-dark);"></i>
+<strong><?php echo htmlspecialchars($fp['device_name']); ?></strong>:
+<strong><?php echo htmlspecialchars($fp['issue_name']); ?></strong>
 (<?php echo $fp['issue_count']; ?> Cases)
-
 </span>
-
 <?php endforeach; ?>
-
 </div>
 
-<!-- CHART + TABLE -->
+</div> <!-- end analytics-box -->
 
-<div class="charts-grid" style="display:grid;grid-template-columns:1.5fr 1fr;gap:20px;">
+</div> <!-- END LEFT COLUMN -->
+
+<!-- RIGHT COLUMN -->
+<div class="layout-right">
 
 <!-- REVENUE CHART -->
-
-<div class="main-card">
-
-<h2 class="section-title">
-Revenue Trend
-</h2>
-
+<div class="main-card" style="margin-bottom:0;">
+<h2 class="section-title">Revenue Trend</h2>
 <div style="height:280px;">
 <canvas id="revenueChart"></canvas>
 </div>
-
 </div>
 
 <!-- TOP DEVICES -->
-
-<div class="main-card">
-
-<h2 class="section-title">
-Top Devices
-</h2>
-
+<div class="main-card" style="margin-bottom:0;">
+<h2 class="section-title">Top Devices</h2>
 <div class="table-container">
-
 <table>
-
 <thead>
-
 <tr>
 <th>Device Model</th>
 <th>Job Count</th>
 </tr>
-
 </thead>
-
 <tbody>
-
 <?php foreach($deviceData as $device): ?>
-
 <tr>
-
-<td>
-<strong>
-<?php echo htmlspecialchars($device['item_category']); ?>
-</strong>
-</td>
-
-<td>
-<?php echo $device['count']; ?>
-</td>
-
+<td><strong><?php echo htmlspecialchars($device['item_category']); ?></strong></td>
+<td><?php echo $device['count']; ?></td>
 </tr>
-
 <?php endforeach; ?>
-
 </tbody>
-
 </table>
-
+</div>
 </div>
 
-</div>
+</div> <!-- END RIGHT COLUMN -->
 
-</div>
+</div> <!-- EXECUTIVE LAYOUT END -->
 
 <!-- INVENTORY -->
 
 <div class="main-card inventory-card">
 
 <h2 class="section-title">
-🚨 Critical Inventory Alert
+<i class="ph-fill ph-warning-circle" style="color:#ef4444; font-size: 1.5rem;"></i> Critical Inventory Alert
 </h2>
 
 <p class="inventory-subtitle">
@@ -670,7 +728,7 @@ $isVeryLow = $s['quantity'] <= 2;
 <tr>
 
 <td class="item-name">
-📦 <?php echo htmlspecialchars($s['item_name']); ?>
+<i class="ph-fill ph-package" style="color:var(--text-muted); margin-right:5px;"></i> <?php echo htmlspecialchars($s['item_name']); ?>
 </td>
 
 <td>

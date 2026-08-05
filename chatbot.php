@@ -66,12 +66,6 @@
         font-weight: 600;
     }
 
-    .chat-video-area {
-        width: 100%;
-        height: 180px;
-        background: #000;
-        overflow: hidden;
-    }
 
     .chat-messages {
         flex: 1;
@@ -161,11 +155,6 @@
         <i class="bi bi-x-lg" style="cursor:pointer;" onclick="toggleChat()"></i>
     </div>
 
-    <div class="chat-video-area">
-        <video width="100%" height="100%" autoplay muted loop style="object-fit: cover;">
-            <source src="assets/uploads/products/melody_vedio.mp4" type="video/mp4">
-        </video>
-    </div>
 
     <div class="chat-messages" id="chatBox">
         <div class="msg bot">Hi! 👋 I'm the Multi9 Assistant. How can I help you today?</div>
