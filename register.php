@@ -36,63 +36,47 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
     <?php include 'navbar.php'; ?>
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 50%, #ffffff 100%);
-            min-height: 100vh;
-            padding-top: 120px;
-            padding-left: 40px;
-            padding-right: 40px;
-            color: #2c3e50;
-        }
-
-        body.dark-mode {
-            background: linear-gradient(135deg, #020617, #0f172a) !important;
-            color: #e2e8f0 !important;
-        }
-
-        body.dark-mode .form-card {
-            background: rgba(30, 41, 59, 0.7) !important;
-            backdrop-filter: blur(14px);
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
-        }
-
-        body.dark-mode .page-title h1, 
-        body.dark-mode .section-header h3,
-        body.dark-mode .job-number { color: #ffffff !important; }
-        body.dark-mode label { color: #94a3b8 !important; }
-        body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
-            background: #0f172a !important;
-            border-color: #334155 !important;
-            color: #f1f5f9 !important;
-        }
-        body.dark-mode .device-card { background: rgba(15, 23, 42, 0.5) !important; border-color: #1e293b !important; }
-        body.dark-mode .job-no-badge { background: rgba(34, 197, 94, 0.1) !important; border-color: #22c55e !important; }
-        body.dark-mode .btn-add { background: transparent !important; color: #22c55e !important; }
-
         .container { max-width: 1000px; margin: 0 auto; margin-top: 25px; }
         .page-title { text-align: center; margin-bottom: 30px; }
-        .page-title h1 { font-size: 32px; font-weight: 700; color: #2c3e50; margin-bottom: 8px; }
-        .page-title p { color: #7f8c8d; font-size: 15px; }
-        .form-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 40px; border-radius: 20px; box-shadow: 0 8px 32px rgba(46, 125, 50, 0.12); border: 1px solid rgba(255, 255, 255, 0.5); transition: 0.3s; }
-        .section { margin-bottom: 35px; padding-bottom: 25px; border-bottom: 2px solid #f0f2f5; }
-        .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid #2ecc71; }
-        .section-header h3 { font-size: 18px; font-weight: 700; color: #2c3e50; }
+        .page-title h1 { font-size: 32px; font-weight: 700; color: var(--primary-green); margin-bottom: 8px; }
+        .page-title p { color: var(--text-muted); font-size: 15px; }
+        .form-card { background: var(--light-surface); padding: 40px; border-radius: var(--border-radius); box-shadow: var(--card-shadow); border: 1px solid var(--border-light); transition: var(--transition); }
+        body.dark-mode .form-card { background: var(--dark-surface); border-color: #334155; }
+        
+        .section { margin-bottom: 35px; padding-bottom: 25px; border-bottom: 2px solid var(--border-light); }
+        body.dark-mode .section { border-bottom-color: #334155; }
+        .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid var(--accent-green); }
+        .section-header h3 { font-size: 18px; font-weight: 700; color: var(--text-dark); }
+        body.dark-mode .section-header h3 { color: #f1f5f9; }
+        
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 20px; }
         .form-group { display: flex; flex-direction: column; }
-        label { font-weight: 600; margin-bottom: 8px; font-size: 13px; color: #5a6c7d; text-transform: uppercase; letter-spacing: 0.5px; }
-        input, select, textarea { padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 10px; outline: none; font-family: inherit; font-size: 14px; transition: all 0.3s ease; background: white; }
-        input:focus, select:focus, textarea:focus { border-color: #2ecc71; box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1); }
-        .job-no-badge { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 2px solid #2ecc71; padding: 15px 20px; border-radius: 12px; text-align: center; margin-bottom: 25px; }
-        .job-no-badge label { font-size: 11px; color: #27ae60; margin-bottom: 5px; }
-        .job-no-badge .job-number { font-size: 24px; font-weight: 800; color: #2c3e50; letter-spacing: 1px; }
-        .device-card { background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 2px solid #e8ecef; padding: 25px; border-radius: 15px; margin-bottom: 20px; position: relative; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); transition: 0.3s; }
-        .btn-primary { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; border: none; padding: 16px 32px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 700; font-size: 15px; box-shadow: 0 6px 20px rgba(46, 204, 113, 0.3); margin-top: 20px; }
-        .btn-add { background: white; border: 2px solid #2ecc71; color: #2ecc71; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; width: 100%; margin-bottom: 10px; }
-        .remove-btn { color: #e74c3c; cursor: pointer; font-size: 14px; border: 2px solid #e74c3c; background: white; padding: 6px 14px; border-radius: 8px; font-weight: 600; }
-        .loading-text { font-size: 11px; color: #2ecc71; display: none; margin-left: 8px; font-weight: 600; }
+        label { font-weight: 600; margin-bottom: 8px; font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        input, select, textarea { padding: 12px 16px; border: 2px solid var(--border-light); border-radius: 10px; outline: none; font-size: 14px; transition: var(--transition); background: var(--light-bg); color: var(--text-dark); }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary-green); box-shadow: 0 0 0 3px var(--primary-green-light); }
+        body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+        body.dark-mode input:focus, body.dark-mode select:focus, body.dark-mode textarea:focus { box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2); }
+        
+        .job-no-badge { background: var(--primary-green-light); border: 2px solid var(--primary-green); padding: 15px 20px; border-radius: 12px; text-align: center; margin-bottom: 25px; }
+        body.dark-mode .job-no-badge { background: rgba(20, 184, 166, 0.1); border-color: var(--primary-green); }
+        .job-no-badge label { font-size: 11px; color: var(--primary-green-dark); margin-bottom: 5px; }
+        body.dark-mode .job-no-badge label { color: var(--accent-green); }
+        .job-no-badge .job-number { font-size: 24px; font-weight: 800; color: var(--primary-green); letter-spacing: 1px; }
+        
+        .device-card { background: var(--light-bg); border: 2px solid var(--border-light); padding: 25px; border-radius: 15px; margin-bottom: 20px; position: relative; transition: var(--transition); }
+        body.dark-mode .device-card { background: rgba(15, 23, 42, 0.5); border-color: #1e293b; }
+        
+        .btn-primary { background: linear-gradient(135deg, var(--primary-green), var(--accent-green)); color: white; border: none; padding: 16px 32px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 700; font-size: 15px; box-shadow: 0 6px 20px rgba(20, 184, 166, 0.3); margin-top: 20px; transition: var(--transition); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(20, 184, 166, 0.4); }
+        
+        .btn-add { background: transparent; border: 2px solid var(--primary-green); color: var(--primary-green); padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; width: 100%; margin-bottom: 10px; transition: var(--transition); }
+        .btn-add:hover { background: var(--primary-green); color: white; }
+        
+        .remove-btn { color: #ef4444; cursor: pointer; font-size: 14px; border: 2px solid #ef4444; background: transparent; padding: 6px 14px; border-radius: 8px; font-weight: 600; transition: var(--transition); }
+        .remove-btn:hover { background: #ef4444; color: white; }
+        
+        .loading-text { font-size: 11px; color: var(--accent-green); display: none; margin-left: 8px; font-weight: 600; }
     </style>
 </head>
 <body class="<?= (isset($_COOKIE['darkMode']) && $_COOKIE['darkMode'] == 'enabled') ? 'dark-mode' : '' ?>">

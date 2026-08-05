@@ -55,35 +55,10 @@ $returned_count = $conn->query("SELECT COUNT(*) c FROM invoice WHERE payment_sta
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-/* RESET */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
-}
-
-html, body {
-    height: auto; 
-    min-height: 100%;
-    overflow-y: auto; 
-}
-
-body {
-    background: linear-gradient(135deg, #fafffd 0%, #e2fce9 100%);
-    padding-top: 135px;
-    display: flex;
-    flex-direction: column;
-    transition: background 0.3s ease;
-}
-
 /* ---------------- DASHBOARD DARK MODE FIX ---------------- */
 body.dark-mode {
-    background: linear-gradient(135deg, #020617, #0f172a) !important;
-    color: #e2e8f0 !important;
+    background: var(--dark-bg) !important;
 }
 
 body.dark-mode .card {
@@ -142,24 +117,49 @@ body.dark-mode .icon-box {
     gap: 25px;
 }
 
-.card {
-    background: #fff;
+.dashboard-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-radius: 24px;
     padding: 35px; 
     min-height: 220px; 
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-    border: 1px solid rgba(255,255,255,0.6); 
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     cursor: pointer;
     text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
 }
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.1);
+.dashboard-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+    z-index: -1;
+    transition: opacity 0.4s ease;
+    opacity: 0;
+}
+
+body.dark-mode .dashboard-card {
+    background: rgba(30, 41, 59, 0.7);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-card:hover::before {
+    opacity: 1;
 }
 
 .card-header {
@@ -198,35 +198,46 @@ body.dark-mode .icon-box {
     padding-top: 10px;
 }
 
-/* COLORS */
-.bg-pending { border-left: 8px solid #f97316; }
-.bg-pending .card-title, .bg-pending .card-value { color: #c2410c; }
-.bg-pending .icon-box { color: #ea580c; background: #fff7ed; }
+/* COLORS (Premium Gradients) */
+.bg-pending { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-left: none; }
+body.dark-mode .bg-pending { background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%); }
+.bg-pending .card-title, .bg-pending .card-value { color: #b45309; }
+.bg-pending .icon-box { color: #f59e0b; background: white; box-shadow: 0 8px 16px rgba(245, 158, 11, 0.15); }
+body.dark-mode .bg-pending .icon-box { background: rgba(245, 158, 11, 0.2); }
 
-.bg-progress { border-left: 8px solid #3b82f6; }
+.bg-progress { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: none; }
+body.dark-mode .bg-progress { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%); }
 .bg-progress .card-title, .bg-progress .card-value { color: #1d4ed8; }
-.bg-progress .icon-box { color: #2563eb; background: #eff6ff; }
+.bg-progress .icon-box { color: #3b82f6; background: white; box-shadow: 0 8px 16px rgba(59, 130, 246, 0.15); }
+body.dark-mode .bg-progress .icon-box { background: rgba(59, 130, 246, 0.2); }
 
-.bg-completed { border-left: 8px solid #22c55e; }
+.bg-completed { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-left: none; }
+body.dark-mode .bg-completed { background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%); }
 .bg-completed .card-title, .bg-completed .card-value { color: #15803d; }
-.bg-completed .icon-box { color: #16a34a; background: #f0fdf4; }
+.bg-completed .icon-box { color: #22c55e; background: white; box-shadow: 0 8px 16px rgba(34, 197, 94, 0.15); }
+body.dark-mode .bg-completed .icon-box { background: rgba(34, 197, 94, 0.2); }
 
-.bg-customers { border-left: 8px solid #8b5cf6; }
+.bg-customers { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-left: none; }
+body.dark-mode .bg-customers { background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.05) 100%); }
 .bg-customers .card-title, .bg-customers .card-value { color: #6d28d9; }
-.bg-customers .icon-box { color: #7c3aed; background: #f5f3ff; }
+.bg-customers .icon-box { color: #8b5cf6; background: white; box-shadow: 0 8px 16px rgba(139, 92, 246, 0.15); }
+body.dark-mode .bg-customers .icon-box { background: rgba(139, 92, 246, 0.2); }
 
-.bg-revenue { border-left: 8px solid #06b6d4; }
+.bg-revenue { background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%); border-left: none; }
+body.dark-mode .bg-revenue { background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(6, 182, 212, 0.05) 100%); }
 .bg-revenue .card-title, .bg-revenue .card-value { color: #0e7490; }
-.bg-revenue .icon-box { color: #0891b2; background: #ecfeff; }
+.bg-revenue .icon-box { color: #06b6d4; background: white; box-shadow: 0 8px 16px rgba(6, 182, 212, 0.15); }
+body.dark-mode .bg-revenue .icon-box { background: rgba(6, 182, 212, 0.2); }
 
 /* Returned Order Card Style */
-.bg-returned { border-left: 8px solid #6366f1; }
-.bg-returned .card-title, .bg-returned .card-value { color: #4338ca; }
-.bg-returned .icon-box { color: #4f46e5; background: #eef2ff; }
+.bg-returned { background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%); border-left: none; }
+body.dark-mode .bg-returned { background: linear-gradient(135deg, rgba(217, 70, 239, 0.15) 0%, rgba(217, 70, 239, 0.05) 100%); }
+.bg-returned .card-title, .bg-returned .card-value { color: #a21caf; }
+.bg-returned .icon-box { color: #d946ef; background: white; box-shadow: 0 8px 16px rgba(217, 70, 239, 0.15); }
+body.dark-mode .bg-returned .icon-box { background: rgba(217, 70, 239, 0.2); }
 
 /* MOBILE RESPONSIVE */
 @media screen and (max-width: 1024px) {
-    body { padding-top: 110px; }
     .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
 }
 
@@ -255,55 +266,55 @@ body.dark-mode .icon-box {
     </div>
 
     <div class="dashboard-grid">
-        <a href="job_list.php?status=Pending" class="card bg-pending">
+        <a href="job_list.php?status=Pending" class="dashboard-card bg-pending">
             <div class="card-header">
                 <span class="card-title">Pending Repairs</span>
-                <span class="icon-box"><i class="fa-solid fa-hourglass-half"></i></span>
+                <span class="icon-box"><i class="ph-fill ph-hourglass-high"></i></span>
             </div>
             <div class="card-value"><?php echo $pending_count; ?></div>
             <div class="card-footer">Waiting for action</div>
         </a>
 
-        <a href="job_list.php?status=In Progress" class="card bg-progress">
+        <a href="job_list.php?status=In Progress" class="dashboard-card bg-progress">
             <div class="card-header">
                 <span class="card-title">In Progress</span>
-                <span class="icon-box"><i class="fa-solid fa-spinner"></i></span>
+                <span class="icon-box"><i class="ph-fill ph-spinner-gap"></i></span>
             </div>
             <div class="card-value"><?php echo $inprogress_count; ?></div>
             <div class="card-footer">Currently working</div>
         </a>
 
-        <a href="job_list.php?status=Completed" class="card bg-completed">
+        <a href="job_list.php?status=Completed" class="dashboard-card bg-completed">
             <div class="card-header">
                 <span class="card-title">Completed Today</span>
-                <span class="icon-box"><i class="fa-solid fa-circle-check"></i></span>
+                <span class="icon-box"><i class="ph-fill ph-check-circle"></i></span>
             </div>
             <div class="card-value"><?php echo $completed_count; ?></div>
             <div class="card-footer">Successfully done</div>
         </a>
 
-        <a href="customers.php" class="card bg-customers">
+        <a href="customers.php" class="dashboard-card bg-customers">
             <div class="card-header">
                 <span class="card-title">Total Customers</span>
-                <span class="icon-box"><i class="fa-solid fa-users"></i></span>
+                <span class="icon-box"><i class="ph-fill ph-users"></i></span>
             </div>
             <div class="card-value"><?php echo $total_customers; ?></div>
             <div class="card-footer">Total Registered</div>
         </a>
 
-        <a href="cashbook.php" class="card bg-revenue">
+        <a href="cashbook.php" class="dashboard-card bg-revenue">
             <div class="card-header">
                 <span class="card-title">Revenue Today</span>
-                <span class="icon-box"><i class="fa-solid fa-wallet"></i></span>
+                <span class="icon-box"><i class="ph-fill ph-wallet"></i></span>
             </div>
             <div class="card-value">Rs.<?php echo number_format($revenue_today, 2); ?></div>
             <div class="card-footer">Daily Income</div>
         </a>
 
-        <a href="returned_jobs.php" class="card bg-returned">
+        <a href="returned_jobs.php" class="dashboard-card bg-returned">
             <div class="card-header">
                 <span class="card-title">Returned Orders</span>
-                <span class="icon-box"><i class="fa-solid fa-arrow-rotate-left"></i></span>
+                <span class="icon-box"><i class="ph-fill ph-arrow-counter-clockwise"></i></span>
             </div>
             <div class="card-value"><?php echo $returned_count; ?></div>
             <div class="card-footer">Paid & Handed over</div>

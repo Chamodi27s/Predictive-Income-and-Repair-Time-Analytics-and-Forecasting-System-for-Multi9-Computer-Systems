@@ -165,33 +165,16 @@ if ($failureResult) {
 
 <title>Business Report | Smart Repair</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="CSS/global.css">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-:root{
-    --primary:#2ecc71;
-    --primary-dark:#27ae60;
-    --bg-main:#f8fafc;
-    --card-bg:#ffffff;
-    --text-dark:#0f172a;
-    --text-muted:#64748b;
-    --border-color:#e2e8f0;
-}
-
-body{
-    font-family:'Inter',sans-serif;
-    background:var(--bg-main);
-    padding:140px 20px 40px 20px;
-    color:var(--text-dark);
+.page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    margin-top: 25px;
 }
 
 .page-container{
@@ -200,12 +183,13 @@ body{
 }
 
 .page-header{
-    background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);
+    background:linear-gradient(135deg,var(--primary-green) 0%,var(--accent-green) 100%);
     padding:40px;
     border-radius:24px;
     margin-bottom:40px;
     color:white;
     text-align:center;
+    box-shadow: 0 10px 30px rgba(15, 118, 110, 0.4);
 }
 
 .stats-grid{
@@ -216,30 +200,41 @@ body{
 }
 
 .stat-card{
-    background:var(--card-bg);
+    background:var(--light-surface);
     padding:25px;
     border-radius:15px;
-    border:1px solid var(--border-color);
+    border:1px solid var(--border-light);
     text-align:center;
-    box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);
+    box-shadow:var(--card-shadow);
+    transition: var(--transition);
+}
+
+body.dark-mode .stat-card, body.dark-mode .main-card, body.dark-mode .inventory-card {
+    background: var(--dark-surface);
+    border-color: #334155;
 }
 
 .stat-card h3{
     margin-bottom:10px;
     font-size:15px;
+    color: var(--text-muted);
 }
+body.dark-mode .stat-card h3 { color: #cbd5e1; }
 
 .stat-value{
     font-size:24px;
     font-weight:800;
+    color: var(--text-dark);
 }
+body.dark-mode .stat-value, body.dark-mode .section-title { color: #f8fafc; }
 
 .main-card{
-    background:var(--card-bg);
+    background:var(--light-surface);
     padding:25px;
     border-radius:20px;
-    border:1px solid var(--border-color);
+    border:1px solid var(--border-light);
     margin-bottom:30px;
+    box-shadow:var(--card-shadow);
 }
 
 .section-title{
@@ -249,43 +244,46 @@ body{
     display:flex;
     align-items:center;
     gap:10px;
+    color: var(--text-dark);
 }
 
 .section-title::before{
     content:'';
     width:5px;
     height:18px;
-    background:var(--primary);
+    background:var(--primary-green);
     border-radius:10px;
 }
 
 /* ---------------- ANALYTICS ---------------- */
 
 .analytics-box{
-    background:#fffcf0;
-    border:1px solid #fde68a;
+    background:var(--primary-green-light);
+    border:1px solid rgba(20, 184, 166, 0.2);
     border-radius:15px;
     padding:20px;
     margin-bottom:30px;
 }
+body.dark-mode .analytics-box { background: rgba(20, 184, 166, 0.1); border-color: var(--primary-green-dark); }
 
 .pattern-chip{
     display:inline-block;
-    background:#fef3c7;
-    color:#92400e;
+    background:var(--light-surface);
+    color:var(--primary-green-dark);
     padding:6px 12px;
     border-radius:8px;
     font-size:13px;
     font-weight:700;
     margin:5px;
-    border:1px solid #fde68a;
+    border:1px solid rgba(20, 184, 166, 0.2);
+    box-shadow: var(--card-shadow);
 }
+body.dark-mode .pattern-chip { background: var(--dark-surface); border-color: #334155; color: var(--primary-green-light); }
 
 /* ---------------- TABLE ---------------- */
-
 .table-container{
     border-radius:12px;
-    border:1px solid var(--border-color);
+    border:1px solid var(--border-light);
     overflow:hidden;
 }
 
@@ -295,30 +293,33 @@ table{
 }
 
 th{
-    background:#f8fafc;
+    background:var(--light-bg);
     padding:12px;
     font-size:12px;
     text-align:left;
     text-transform:uppercase;
     color:var(--text-muted);
 }
+body.dark-mode th { background: rgba(0,0,0,0.2); color: #94a3b8; }
 
 td{
     padding:12px;
     font-size:14px;
-    border-bottom:1px solid #f1f5f9;
+    border-bottom:1px solid var(--border-light);
+    color: var(--text-dark);
 }
+body.dark-mode td { border-bottom-color: #334155; color: #cbd5e1; }
 
 /* ---------------- INVENTORY TABLE ---------------- */
 
 .inventory-card{
-    background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%);
-    border:1px solid #e2e8f0;
-    box-shadow:0 10px 25px rgba(0,0,0,0.05);
+    background:var(--light-surface);
+    border:1px solid var(--border-light);
+    box-shadow:var(--card-shadow);
 }
 
 .inventory-subtitle{
-    color:#64748b;
+    color:var(--text-muted);
     font-size:14px;
     margin-bottom:20px;
 }
@@ -326,48 +327,54 @@ td{
 .inventory-table-wrapper{
     overflow-x:auto;
     border-radius:16px;
-    border:1px solid #e2e8f0;
+    border:1px solid var(--border-light);
 }
+body.dark-mode .inventory-table-wrapper { border-color: #334155; }
 
 .inventory-table{
     width:100%;
     border-collapse:collapse;
-    background:white;
+    background:var(--light-surface);
 }
+body.dark-mode .inventory-table { background: var(--dark-surface); }
 
 .inventory-table thead{
-    background:linear-gradient(135deg,#2ecc71 0%,#27ae60 100%);
+    background:linear-gradient(135deg,var(--primary-green) 0%,var(--accent-green) 100%);
 }
 
 .inventory-table th{
-    color:black;
+    color:white;
     padding:16px;
     font-size:13px;
     letter-spacing:0.5px;
     text-transform:uppercase;
     border:none;
 }
+body.dark-mode .inventory-table th { color: white; background: transparent; }
 
 .inventory-table td{
     padding:18px 16px;
-    border-bottom:1px solid #f1f5f9;
+    border-bottom:1px solid var(--border-light);
     font-size:14px;
     font-weight:600;
 }
+body.dark-mode .inventory-table td { border-bottom-color: #334155; }
 
 .inventory-table tbody tr{
-    transition:0.25s ease;
+    transition:var(--transition);
 }
 
 .inventory-table tbody tr:hover{
-    background:#f0fff4;
+    background:var(--light-bg);
     transform:scale(1.01);
 }
+body.dark-mode .inventory-table tbody tr:hover { background: #1e293b; }
 
 .item-name{
-    color:#0f172a;
+    color:var(--text-dark);
     font-weight:700;
 }
+body.dark-mode .item-name { color: #f8fafc; }
 
 .qty-badge{
     display:inline-block;
@@ -414,7 +421,7 @@ td{
     position:fixed;
     bottom:30px;
     right:30px;
-    background:var(--primary-dark);
+    background:var(--primary-green);
     color:white;
     border:none;
     padding:12px 20px;
@@ -425,6 +432,13 @@ td{
     align-items:center;
     gap:8px;
     text-decoration:none;
+    box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4);
+    transition: var(--transition);
+    z-index: 100;
+}
+.btn-export:hover {
+    background: var(--primary-green-dark);
+    transform: translateY(-2px);
 }
 
 /* ---------------- RESPONSIVE ---------------- */
@@ -475,7 +489,7 @@ td{
 <body>
 
 <a href="report_print.php" target="_blank" class="btn-export">
- Export to PDF / Print
+ <i class="ph ph-printer"></i> Export to PDF / Print
 </a>
 
 <div class="page-container">
@@ -485,7 +499,7 @@ td{
 <div class="page-header">
 
 <h1>
-Business Intelligence Report
+<i class="ph-fill ph-chart-line-up"></i> Business Intelligence Report
 </h1>
 
 <p>
@@ -500,28 +514,28 @@ Smart Repair Management Insight -
 <div class="stats-grid">
 
 <div class="stat-card">
-<h3>Total Repairs</h3>
+<h3><i class="ph-fill ph-wrench"></i> Total Repairs</h3>
 <div class="stat-value">
 <?php echo number_format($totalRepairs); ?>
 </div>
 </div>
 
 <div class="stat-card">
-<h3>Monthly Revenue</h3>
+<h3><i class="ph-fill ph-currency-circle-dollar"></i> Monthly Revenue</h3>
 <div class="stat-value">
 Rs. <?php echo number_format($monthlyRevenue,0); ?>
 </div>
 </div>
 
 <div class="stat-card">
-<h3>Stock Items</h3>
+<h3><i class="ph-fill ph-package"></i> Stock Items</h3>
 <div class="stat-value">
 <?php echo number_format($totalStockQty); ?>
 </div>
 </div>
 
 <div class="stat-card">
-<h3>Inventory Value</h3>
+<h3><i class="ph-fill ph-coins"></i> Inventory Value</h3>
 <div class="stat-value">
 Rs. <?php echo number_format($totalStockValue,0); ?>
 </div>
@@ -533,8 +547,8 @@ Rs. <?php echo number_format($totalStockValue,0); ?>
 
 <div class="analytics-box">
 
-<h2 class="section-title" style="color:#92400e;">
- Device Failure Patterns Detected
+<h2 class="section-title" style="color:var(--primary-green-dark);">
+ <i class="ph-fill ph-warning-circle"></i> Device Failure Patterns Detected
 </h2>
 
 <p style="font-size:14px;margin-bottom:15px;">
@@ -544,9 +558,7 @@ Automated data analysis has identified the following recurring technical issues:
 <?php foreach($failurePatterns as $fp): ?>
 
 <span class="pattern-chip">
-
-
-
+<i class="ph-fill ph-device-mobile"></i> 
 <strong>
 <?php echo htmlspecialchars($fp['device_name']); ?>
 </strong>

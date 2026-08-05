@@ -67,51 +67,75 @@ $total_pages = ceil($total_records / $records_per_page);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer & Job Dashboard</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        /* --- Existing White Mode CSS (Unchanged) --- */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; min-height: 100vh; padding-top: 120px; padding-left: 40px; padding-right: 40px; color: #2c3e50; transition: background 0.3s ease, color 0.3s ease; }
-        .container { max-width: 1400px; margin: 0 auto; margin-top: 25px; }
+        :root {
+            --primary-green: #14b8a6;
+            --primary-green-dark: #0f766e;
+            --primary-green-light: #ccfbf1;
+            --accent-green: #2ecc71;
+            --light-bg: #f8fafc;
+            --light-surface: #ffffff;
+            --dark-surface: #1e293b;
+            --border-light: #e2e8f0;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--light-bg); color: var(--text-dark); transition: var(--transition); padding-top: 100px; }
+        body.dark-mode { background: #0f172a; color: #f1f5f9; }
+
+        .container { max-width: 1400px; margin: 0 auto; margin-top: 25px; padding: 0 20px; }
         .stats-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 20px; flex-wrap: wrap; }
         .stats-container { display: flex; gap: 20px; flex: 1; }
-        .stat-card { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); padding: 25px 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(46, 204, 113, 0.2); min-width: 220px; border: 2px solid rgba(46, 204, 113, 0.3); position: relative; overflow: hidden; transition: all 0.3s ease; }
-        .stat-card.pink { background: linear-gradient(135deg, #ffe8f0 0%, #ffc9dd 100%); border-color: rgba(233, 30, 99, 0.3); box-shadow: 0 8px 24px rgba(233, 30, 99, 0.2); }
-        .stat-info .number { font-size: 36px; font-weight: 800; color: #2c3e50; }
-        .add-btn { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; padding: 14px 35px; border-radius: 30px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 10px; }
-        .table-section { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: background 0.3s ease; }
+        .stat-card { background: var(--light-surface); padding: 25px 30px; border-radius: 16px; box-shadow: var(--card-shadow); min-width: 220px; border: 1px solid var(--border-light); position: relative; overflow: hidden; transition: var(--transition); border-left: 4px solid var(--primary-green); }
+        .stat-card.pink { border-left-color: var(--accent-green); }
+        body.dark-mode .stat-card { background: var(--dark-surface); border-color: #334155; }
+        .stat-info .number { font-size: 36px; font-weight: 800; color: var(--text-dark); }
+        body.dark-mode .stat-info .number { color: #f1f5f9; }
+        .add-btn { background: linear-gradient(135deg, var(--primary-green), var(--accent-green)); color: white; padding: 14px 35px; border-radius: 30px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 6px 15px rgba(20, 184, 166, 0.3); transition: var(--transition); }
+        .add-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(20, 184, 166, 0.4); color: white; }
+        
+        .table-section { background: var(--light-surface); border-radius: 12px; padding: 25px; box-shadow: var(--card-shadow); transition: var(--transition); border: 1px solid var(--border-light); }
+        body.dark-mode .table-section { background: var(--dark-surface); border-color: #334155; }
+        
         .table-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .table-controls h2 { font-size: 22px; font-weight: 700; color: #2c3e50; }
+        .table-controls h2 { font-size: 22px; font-weight: 700; color: var(--text-dark); }
+        body.dark-mode .table-controls h2 { color: #f1f5f9; }
+        
         .right-controls { display: flex; gap: 12px; align-items: center; }
         .search-box { position: relative; }
-        .search-box input { padding: 12px 20px 12px 46px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 14px; width: 320px; transition: all 0.3s ease; background: #f8fafc; color: #2c3e50; font-weight: 500; }
-        .search-box input:focus { outline: none; border-color: #2ecc71; background: white; box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1); }
-        .search-box::before { content: '🔍'; position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
-        .customer-table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        .customer-table th { text-align: left; padding: 16px 15px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); color: #5a6c7d; font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px; border-bottom: 2px solid #dee2e6; transition: background 0.3s ease; }
-        .customer-table tbody tr { cursor: pointer; transition: all 0.3s ease; background: white; }
-        .customer-table tbody tr:hover { background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%); transform: translateX(4px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
-        .customer-table td { padding: 16px 15px; font-size: 13px; color: #2c3e50; border-bottom: 1px solid #f0f2f5; transition: color 0.3s ease; }
-        .job-badge { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); color: #1976d2; padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 12px; display: inline-block; box-shadow: 0 2px 6px rgba(25, 118, 210, 0.15); }
-        .device-badge { background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); color: #7b1fa2; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; display: inline-block; box-shadow: 0 2px 6px rgba(123, 31, 162, 0.15); }
-        .predict-btn { background: linear-gradient(135deg, #059669 0%, #059669 100%); color: white !important; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 700; display: inline-block; transition: all 0.3s ease; box-shadow: 0 3px 10px rgba(5, 150, 105, 0.3); }
-
-        /* --- New Dark Mode CSS --- */
-        body.dark-mode { background: #0f172a; color: #f8fafc; }
-        body.dark-mode .table-section { background: #1e293b; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-        body.dark-mode .table-controls h2 { color: #f8fafc; }
-        body.dark-mode .stat-card { background: #1e293b; border-color: #334155; color: #fff; }
-        body.dark-mode .stat-info .number { color: #fff; }
-        body.dark-mode .customer-table th { background: #334155; color: #cbd5e1; border-bottom-color: #475569; }
-        body.dark-mode .customer-table tbody tr { background: #1e293b; }
-        body.dark-mode .customer-table tbody tr:hover { background: #2d3748; }
-        body.dark-mode .customer-table td { color: #cbd5e1; border-bottom-color: #334155; }
-        body.dark-mode .search-box input { background: #0f172a; border-color: #334155; color: #fff; }
-        body.dark-mode .pagination a { background: #1e293b; border-color: #334155; color: #cbd5e1; }
-        body.dark-mode .showing-text { color: #94a3b8; }
+        .search-box input { padding: 12px 20px 12px 46px; border: 2px solid var(--border-light); border-radius: 12px; font-size: 14px; width: 320px; transition: var(--transition); background: var(--light-bg); color: var(--text-dark); font-weight: 500; }
+        .search-box input:focus { outline: none; border-color: var(--primary-green); background: var(--light-surface); box-shadow: 0 0 0 4px var(--primary-green-light); }
+        body.dark-mode .search-box input { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+        body.dark-mode .search-box input:focus { box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.2); }
+        .search-box i.ph { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--text-muted); }
         
-        .pagination-container { display: flex; justify-content: space-between; align-items: center; margin-top: 25px; padding-top: 20px; border-top: 2px solid #e9ecef; }
-        .pagination a { padding: 10px 16px; border-radius: 8px; text-decoration: none; color: #6c757d; font-weight: 600; border: 2px solid #e9ecef; background: white; transition: 0.3s; }
-        .pagination a.active { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; border-color: transparent; }
+        .customer-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .customer-table th { text-align: left; padding: 16px 15px; background: var(--light-bg); color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px; border-bottom: 2px solid var(--border-light); transition: var(--transition); }
+        .customer-table tbody tr { cursor: pointer; transition: var(--transition); background: var(--light-surface); }
+        .customer-table tbody tr:hover { background: var(--light-bg); transform: translateX(4px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
+        .customer-table td { padding: 16px 15px; font-size: 13px; color: var(--text-dark); border-bottom: 1px solid var(--border-light); transition: var(--transition); }
+        
+        body.dark-mode .customer-table th { background: rgba(0,0,0,0.2); border-bottom-color: #334155; }
+        body.dark-mode .customer-table tbody tr { background: var(--dark-surface); }
+        body.dark-mode .customer-table tbody tr:hover { background: #1e293b; }
+        body.dark-mode .customer-table td { border-bottom-color: #1e293b; color: #e2e8f0; }
+        
+        .job-badge { background: var(--primary-green-light); color: var(--primary-green-dark); padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 12px; display: inline-block; border: 1px solid rgba(20, 184, 166, 0.2); }
+        body.dark-mode .job-badge { background: rgba(20, 184, 166, 0.1); color: var(--accent-green); }
+        
+        .device-badge { background: #f3e8ff; color: #6b21a8; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; display: inline-block; border: 1px solid rgba(147, 51, 234, 0.2); }
+        body.dark-mode .device-badge { background: rgba(147, 51, 234, 0.1); color: #d8b4fe; }
+        
+        .predict-btn { background: linear-gradient(135deg, var(--primary-green), var(--primary-green-dark)); color: white !important; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; transition: var(--transition); box-shadow: 0 3px 10px rgba(15, 118, 110, 0.3); }
+        .predict-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(15, 118, 110, 0.4); }
+
+        .pagination-container { display: flex; justify-content: space-between; align-items: center; margin-top: 25px; padding-top: 20px; border-top: 2px solid var(--border-light); }
+        .pagination a { padding: 10px 16px; border-radius: 8px; text-decoration: none; color: var(--text-muted); font-weight: 600; border: 1px solid var(--border-light); background: var(--light-surface); transition: var(--transition); }
+        .pagination a.active { background: var(--primary-green); color: white; border-color: transparent; }
     </style>
 </head>
 <body id="pageBody">
@@ -121,28 +145,27 @@ $total_pages = ceil($total_records / $records_per_page);
         <div class="stats-container">
             <div class="stat-card">
                 <div class="stat-info">
-                    <h3> Total Customers</h3>
+                    <h3>Total Customers</h3>
                     <div class="number"><?= $total_customers ?></div>
                 </div>
             </div>
             <div class="stat-card pink">
                 <div class="stat-info">
-                    <h3> New This Month</h3>
+                    <h3>New This Month</h3>
                     <div class="number"><?= $monthly_customers ?></div>
                 </div>
             </div>
         </div>
-        <a href="register.php" class="add-btn"><span>+</span><span>Add Customer</span></a>
+        <a href="register.php" class="add-btn"><i class="ph ph-plus-circle"></i> New Registration</a>
     </div>
 
     <div class="table-section">
         <div class="table-controls">
-            <h2>All Customers</h2>
+            <h2>All Customers & Repairs</h2>
             <div class="right-controls">
-                <form method="GET">
-                    <div class="search-box">
-                        <input type="text" name="search" placeholder="Search here..." value="<?= htmlspecialchars($search) ?>">
-                    </div>
+                <form method="GET" action="" class="search-box">
+                    <i class="ph ph-magnifying-glass"></i>
+                    <input type="text" name="search" placeholder="Search by name, phone or job no..." value="<?= htmlspecialchars($search) ?>">
                 </form>
             </div>
         </div>
@@ -150,40 +173,38 @@ $total_pages = ceil($total_records / $records_per_page);
         <table class="customer-table">
             <thead>
                 <tr>
-                    <th>Date</th>
                     <th>Job No</th>
+                    <th>Date</th>
                     <th>Customer Name</th>
-                    <th>Email</th>
-                    <th>Phone NO</th>
-                    <th>Device</th>
-                    <th>Address</th>
-                    <th>Time Duration</th>
+                    <th>Contact</th>
+                    <th>Devices</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if(mysqli_num_rows($customers_result) > 0): ?>
                     <?php while($row = mysqli_fetch_assoc($customers_result)): ?>
                         <tr onclick="window.location.href='customer_details.php?phone=<?= urlencode($row['phone_number']) ?>'">
-                            <td><?= $row['job_date'] ? date('d/m/Y', strtotime($row['job_date'])) : '-' ?></td>
                             <td><span class="job-badge"><?= htmlspecialchars($row['job_no']) ?></span></td>
+                            <td><?= $row['job_date'] ? date('d/m/Y', strtotime($row['job_date'])) : '-' ?></td>
                             <td style="font-weight: 600;"><?= htmlspecialchars($row['customer_name']) ?></td>
-                            <td><?= !empty($row['email']) ? htmlspecialchars($row['email']) : '<span style="color:#94a3b8; font-style:italic;">N/A</span>' ?></td>
                             <td><?= htmlspecialchars($row['phone_number']) ?></td>
                             <td><span class="device-badge"><?= htmlspecialchars($row['all_devices']) ?></span></td>
-                            <td><?= !empty($row['address']) ? htmlspecialchars($row['address']) : '<span style="color:#94a3b8; font-style:italic;">N/A</span>' ?></td>
                             <td onclick="event.stopPropagation();">
-                                <a href="duration.php?job_no=<?= urlencode($row['job_no']) ?>" class="predict-btn">Time Duration</a>
+                                <?php if($row['job_no']): ?>
+                                    <a href="time_prediction_project/index.php?job_no=<?= urlencode($row['job_no']) ?>" class="predict-btn"><i class="ph ph-clock"></i> Predict</a>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="8" style="text-align:center;">No records found</td></tr>
+                    <tr><td colspan="6" style="text-align:center;">No records found</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
 
         <div class="pagination-container">
-            <div class="showing-text">Showing records...</div>
+            <div class="showing-text">Showing page <?= $page ?> of <?= $total_pages ?></div>
             <div class="pagination">
                 <?php for($i=1; $i<=$total_pages; $i++): ?>
                     <a href="?page=<?= $i ?>&search=<?= urlencode($search) ?>" class="<?= ($i==$page)?'active':'' ?>"><?= $i ?></a>

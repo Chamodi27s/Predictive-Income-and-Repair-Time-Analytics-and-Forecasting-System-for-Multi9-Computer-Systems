@@ -5,7 +5,7 @@ date_default_timezone_set('Asia/Colombo');
 // 2. Database Connection Details
 $servername = "localhost";
 $username = "root";
-$password = "";
+$password = "admin123";
 $dbname = "servidedb";
 
 // 3. Create connection

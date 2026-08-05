@@ -43,20 +43,15 @@ if (isset($_POST['login'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multi 9 Computer System Login</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="CSS/global.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        * { box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            min-height: 100vh; 
-            margin: 0; 
+        body.login-page { 
+            padding-top: 0;
             display: flex; 
             flex-direction: column;
             justify-content: center; 
             align-items: center; 
-            overflow-x: hidden; 
             background-color: #1a1a1a; 
             padding: 20px;
         }
@@ -111,7 +106,7 @@ if (isset($_POST['login'])) {
             font-size: 20px; 
             font-weight: 600; 
             margin-bottom: 25px; 
-            border-left: 4px solid #1f7a63; 
+            border-left: 4px solid var(--primary-green); 
             padding-left: 12px; 
             color: #ececec;
         }
@@ -128,12 +123,13 @@ if (isset($_POST['login'])) {
             background: rgba(0,0,0,0.2); 
             color: #fff; 
             outline: none; 
-            transition: 0.3s;
+            transition: var(--transition);
         }
 
         input[type="text"]:focus, input[type="password"]:focus {
-            border-color: #1f7a63;
+            border-color: var(--primary-green);
             background: rgba(0,0,0,0.3);
+            box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.2);
         }
 
         .password-wrapper { position: relative; width: 100%; }
@@ -145,25 +141,29 @@ if (isset($_POST['login'])) {
             top: 13px;
             cursor: pointer; 
             color: rgba(255,255,255,0.6);
-            font-size: 16px; 
+            font-size: 18px; 
+            transition: var(--transition);
         }
+        .password-wrapper i:hover { color: var(--primary-green); }
 
         input[type="submit"] { 
             width: 100%; 
             padding: 12px; 
-            background: #1f7a63; 
+            background: linear-gradient(135deg, var(--primary-green), var(--accent-green)); 
             border: none; 
             border-radius: 10px; 
             color: #fff; 
             font-size: 15px; 
             font-weight: 600; 
             cursor: pointer; 
-            transition: 0.3s; 
+            transition: var(--transition); 
             margin-top: 5px;
+            box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
         }
         input[type="submit"]:hover { 
-            background: #26967a; 
-            box-shadow: 0 8px 20px rgba(31,122,99,0.3); 
+            background: linear-gradient(135deg, var(--accent-green), var(--primary-green)); 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(20, 184, 166, 0.4); 
         }
 
         .error { 
@@ -177,9 +177,9 @@ if (isset($_POST['login'])) {
             border: 1px solid rgba(255,82,82,0.3); 
         }
 
-        .forgot { margin-top: 20px; text-align: center; font-size: 12px; }
-        .forgot a { color: #999; text-decoration: none; transition: 0.3s; }
-        .forgot a:hover { color: #1f7a63; }
+        .forgot { margin-top: 20px; text-align: center; font-size: 13px; }
+        .forgot a { color: #999; text-decoration: none; transition: var(--transition); }
+        .forgot a:hover { color: var(--accent-green); }
 
         .illustration { flex: 0.8; display: flex; justify-content: center; }
         .illustration img { 
@@ -194,7 +194,7 @@ if (isset($_POST['login'])) {
         }
     </style>
 </head>
-<body>
+<body class="login-page">
 
 <div class="page-title">Multi 9 Computer System</div>
 
@@ -213,7 +213,7 @@ if (isset($_POST['login'])) {
             <label>Password</label>
             <div class="password-wrapper">
                 <input type="password" name="password" id="passwordField" placeholder="Enter Password" required>
-                <i class="fa-solid fa-eye" id="togglePassword"></i>
+                <i class="ph ph-eye" id="togglePassword"></i>
             </div>
 
             <input type="submit" name="login" value="Log in">
@@ -236,8 +236,8 @@ if (isset($_POST['login'])) {
     togglePassword.addEventListener('click', function () {
         const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordField.setAttribute('type', type);
-        this.classList.toggle('fa-eye');
-        this.classList.toggle('fa-eye-slash');
+        this.classList.toggle('ph-eye');
+        this.classList.toggle('ph-eye-slash');
     });
 </script>
 

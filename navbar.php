@@ -11,74 +11,70 @@ $current_page = basename($_SERVER['PHP_SELF']);
 $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : 'User';
 $user_initial = strtoupper(substr($user_name, 0, 1));
 ?>
+<!-- Premium Fonts and Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<link rel="stylesheet" href="CSS/global.css">
 
 <style>
-/* ---------------- GLOBAL DARK MODE (System-wide) ---------------- */
-body.dark-mode {
-    background: linear-gradient(135deg,#020617,#0f172a) !important;
-    color:#e2e8f0 !important;
-}
-
-/* Glass Effect Cards - Dark Mode එකේදී පමණක් වැඩ කරයි */
-body.dark-mode .card, 
-body.dark-mode .dashboard-card, 
-body.dark-mode .stat-card {
-    background: rgba(30,41,59,0.55) !important;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255,255,255,0.08) !important;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
-    transition: all 0.3s ease;
-}
-
-/* Navbar Changes for Dark Mode */
-body.dark-mode .topbar { 
-    background: linear-gradient(90deg,#020617,#0f172a) !important; 
-}
-body.dark-mode .profile-dropdown { 
-    background: #0f172a !important; 
-    border: 1px solid #334155;
-}
-body.dark-mode .profile-dropdown a { 
-    color: #e2e8f0 !important; 
-    border-bottom: 1px solid #1e293b;
-}
-
-/* ---------------- DEFAULT NAVBAR STYLES ---------------- */
+/* ---------------- NAVBAR STYLES ---------------- */
 .topbar {
-    position: fixed; top: 0; left: 0; width: 100%; z-index: 9999;
-    background: linear-gradient(90deg, #043f2e, #065f46);
-    color: white; padding: 15px 45px; display: flex; align-items: center; justify-content: space-between;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3); box-sizing: border-box;
+    position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height); z-index: 9999;
+    background: rgba(4, 63, 46, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    color: white; padding: 0 45px; display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); box-sizing: border-box;
 }
 
-.menu { display: flex; gap: 15px; }
-.menu a { color: #d1fae5; text-decoration: none; font-size: 14px; font-weight: 500; padding: 8px 5px; position: relative; transition: 0.3s; }
-.menu a.active { color: #ffffff; }
-.menu a.active::after { content: ""; position: absolute; left: 0; bottom: -5px; width: 100%; height: 3px; background: #22c55e; }
+body.dark-mode .topbar { 
+    background: rgba(2, 6, 23, 0.85) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
 
-.user-section { display: flex; align-items: center; gap: 10px; position: relative; cursor: pointer; padding: 5px 12px; border-radius: 50px; background: rgba(255, 255, 255, 0.05); transition: 0.3s; }
-.profile-card { background: #22c55e; color: #064e3b; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; }
+.brand-section { display: flex; align-items: center; gap: 10px; }
+.brand { display: flex; flex-direction: column; justify-content: center; }
+.brand strong { font-size: 20px; letter-spacing: 1px; color: #fff; font-weight: 700; }
+.brand small { font-size: 10px; opacity: 0.7; letter-spacing: 2px; color: #a7f3d0; }
 
-.profile-dropdown { position: absolute; top: 55px; right: 0; background: white; min-width: 200px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); display: none; overflow: hidden; z-index: 10000; }
+.menu { display: flex; gap: 20px; align-items: center; }
+.menu a { color: #d1fae5; text-decoration: none; font-size: 14px; font-weight: 500; padding: 10px 0; position: relative; transition: var(--transition); display: flex; align-items: center; gap: 6px; }
+.menu a:hover { color: #ffffff; }
+.menu a.active { color: #14b8a6; font-weight: 600; }
+.menu a.active::after { content: ""; position: absolute; left: 0; bottom: 0; width: 100%; height: 3px; background: #14b8a6; border-radius: 3px 3px 0 0; }
+.menu i.ph { font-size: 18px; }
+
+.user-section { display: flex; align-items: center; gap: 15px; position: relative; cursor: pointer; padding: 6px 16px; border-radius: 50px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); transition: var(--transition); }
+.user-section:hover { background: rgba(255, 255, 255, 0.15); }
+
+.profile-card { background: linear-gradient(135deg, #14b8a6, #0f766e); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid rgba(255,255,255,0.5); font-size: 14px; }
+
+.profile-dropdown { position: absolute; top: calc(100% + 10px); right: 0; background: var(--light-surface); min-width: 220px; border-radius: 16px; box-shadow: var(--card-shadow); border: 1px solid var(--border-light); display: none; overflow: hidden; z-index: 10000; }
+body.dark-mode .profile-dropdown { background: var(--dark-surface); border-color: #334155; }
 .profile-dropdown.active { display: block; animation: slideDown 0.2s ease-out; }
-.profile-dropdown a { display: block; padding: 12px 20px; color: #333; text-decoration: none; font-size: 14px; border-bottom: 1px solid #f1f1f1; }
+.profile-dropdown a { display: flex; align-items: center; gap: 10px; padding: 14px 20px; color: var(--text-dark); text-decoration: none; font-size: 14px; border-bottom: 1px solid var(--border-light); transition: var(--transition); }
+.profile-dropdown a:hover { background: var(--light-bg); padding-left: 25px; }
+body.dark-mode .profile-dropdown a { color: #f1f5f9; border-color: #1e293b; }
+body.dark-mode .profile-dropdown a:hover { background: #1e293b; }
+.profile-dropdown a i.ph { font-size: 18px; color: var(--primary-green); }
 
 /* Assistant / Chatbox Styles */
-.chat-trigger { position: fixed; bottom: 25px; right: 25px; background: #0f766e; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; z-index: 10000; transition: 0.3s; }
-.chat-box { display: none; width: 360px; height: 520px; position: fixed; bottom: 100px; right: 25px; background: #fff; border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); flex-direction: column; z-index: 10001; overflow: hidden; }
-body.dark-mode .chat-box { background: #0f172a; border: 1px solid #334155; }
-body.dark-mode .chat-body { background: #020617; }
+.chat-trigger { position: fixed; bottom: 30px; right: 30px; background: linear-gradient(135deg, var(--primary-green), var(--accent-green)); color: white; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; z-index: 10000; transition: var(--transition); box-shadow: 0 10px 25px rgba(20, 184, 166, 0.4); border: 2px solid rgba(255,255,255,0.2); }
+.chat-trigger:hover { transform: scale(1.05); }
+.chat-box { display: none; width: 380px; height: 550px; position: fixed; bottom: 110px; right: 30px; background: var(--light-surface); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); flex-direction: column; z-index: 10001; overflow: hidden; border: 1px solid var(--border-light); }
+body.dark-mode .chat-box { background: var(--dark-surface); border-color: #334155; }
+body.dark-mode .chat-body { background: var(--dark-bg); }
 
 @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 
 <div class="topbar no-print">
     <div class="brand-section">
+        <i class="ph ph-cpu" style="font-size: 32px; color: #14b8a6;"></i>
         <div class="brand">
             <strong>MULTI 9</strong>
-            <small style="display:block; font-size:10px; opacity:0.8;">COMPUTER SYSTEM</small>
+            <small>COMPUTER SYSTEM</small>
         </div>
     </div>
 
@@ -96,20 +92,22 @@ body.dark-mode .chat-body { background: #020617; }
     </div>
 
     <div class="user-section" id="userMenuTrigger">
-        <button class="dark-toggle" onclick="toggleDarkMode()" style="background:none; border:none; cursor:pointer; font-size:18px;" title="Toggle Dark/Light Mode">🌙</button>
+        <button class="dark-toggle" onclick="toggleDarkMode()" style="background:none; border:none; cursor:pointer; color: #d1fae5; font-size: 22px; margin-right: 5px;" title="Toggle Dark/Light Mode">
+            <i class="ph ph-moon-stars"></i>
+        </button>
         <div class="user-info" style="text-align: right;">
-            <span style="font-size: 13px; font-weight: 600; color:white;"><?= $user_name ?></span>
+            <span style="font-size: 13px; font-weight: 600; color:white; display: block;"><?= $user_name ?></span>
         </div>
         <div class="profile-card"><?= $user_initial ?></div>
         <div class="profile-dropdown" id="userDropdown">
-            <a href="profile_settings.php">⚙️ System Settings</a>
-            <a href="backup_db.php">💾 Database Backup</a>
-            <a href="logout.php" style="color: #dc2626; font-weight: 700;">🚪 Log Out</a>
+            <a href="profile_settings.php"><i class="ph ph-gear"></i> System Settings</a>
+            <a href="backup_db.php"><i class="ph ph-database"></i> Database Backup</a>
+            <a href="logout.php" style="color: #ef4444; font-weight: 600;"><i class="ph ph-sign-out"></i> Log Out</a>
         </div>
     </div>
 </div>
 
-<div class="chat-trigger" onclick="toggleChat()">🤖</div>
+<div class="chat-trigger" onclick="toggleChat()"><i class="ph ph-robot"></i></div>
 <div class="chat-box" id="globalChatBox">
     <div class="chat-header" style="background:#0f766e; color:white; padding:16px; display:flex; justify-content:space-between;">
         <span>System Assistant</span>

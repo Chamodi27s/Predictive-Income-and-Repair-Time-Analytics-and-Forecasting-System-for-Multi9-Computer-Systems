@@ -73,31 +73,28 @@ $result = mysqli_query($conn, $sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job Management - Multi9</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="CSS/global.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --primary: #2ecc71; --primary-hover: #27ae60; --success: #10b981; 
-            --danger: #ef4444; --warning: #f59e0b; --blue: #3b82f6;
-            --secondary: #64748b; --bg-main: #f8fafc; --border: #e2e8f0;
-            --text-main: #1a202c; --text-muted: #64748b;
-        }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-main); padding: 120px 20px 40px 20px; color: var(--text-main); }
-        .page-container { max-width: 1400px; margin: 0 auto; }
-        .page-header { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); padding: 30px; border-radius: 20px; margin-bottom: 30px; color: white; text-align: center; box-shadow: 0 10px 20px rgba(46,204,113,0.2); }
+        .page-container { max-width: 1400px; margin: 0 auto; margin-top: 25px; }
+        .page-header { background: linear-gradient(135deg, var(--primary-green), var(--accent-green)); padding: 30px; border-radius: 20px; margin-bottom: 30px; color: white; text-align: center; box-shadow: 0 10px 20px rgba(15, 118, 110, 0.2); }
         .search-container { display: flex; justify-content: center; margin-bottom: 25px; align-items: center; gap: 15px; }
-        .search-box { display: flex; background: white; padding: 5px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); width: 100%; max-width: 500px; border: 1px solid var(--border); }
-        .search-box input { flex: 1; border: none; padding: 10px 15px; outline: none; border-radius: 8px; }
-        .search-box button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .search-box { display: flex; background: var(--light-surface); padding: 5px; border-radius: 12px; box-shadow: var(--card-shadow); width: 100%; max-width: 500px; border: 1px solid var(--border-light); }
+        .search-box input { flex: 1; border: none; padding: 10px 15px; outline: none; border-radius: 8px; background: transparent; color: var(--text-dark); }
+        .search-box button { background: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: var(--transition); display: flex; align-items: center; gap: 5px; }
+        .search-box button:hover { background: var(--primary-green-dark); }
+        
         .filter-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
-        .filter-tag { padding: 12px 22px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 13px; color: white; transition: 0.2s; }
-        .active-tag { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.1); outline: 3px solid rgba(0,0,0,0.1); }
-        .table-container { background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow-x: auto; }
+        .filter-tag { padding: 12px 22px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 13px; color: white; transition: var(--transition); border: 2px solid transparent; }
+        .active-tag { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: rgba(255,255,255,0.8); }
+        
+        .table-container { background: var(--light-surface); border-radius: 15px; box-shadow: var(--card-shadow); overflow-x: auto; border: 1px solid var(--border-light); }
         .status-table { width: 100%; border-collapse: collapse; min-width: 1100px; }
-        .status-table th { background: #f1f5f9; color: var(--text-muted); padding: 15px; font-size: 12px; text-transform: uppercase; }
-        .status-table td { padding: 15px; border-bottom: 1px solid var(--border); text-align: center; }
-        .inline-input { width: 100%; border: 1px solid transparent; background: #f8fafc; padding: 8px; border-radius: 8px; text-align: center; font-size: 13px; transition: 0.3s; }
-        .inline-input.editing { border-color: var(--blue); background: white; outline: none; box-shadow: 0 0 5px rgba(59, 130, 246, 0.2); }
+        .status-table th { background: var(--light-bg); color: var(--text-muted); padding: 15px; font-size: 12px; text-transform: uppercase; border-bottom: 2px solid var(--border-light); }
+        .status-table td { padding: 15px; border-bottom: 1px solid var(--border-light); text-align: center; color: var(--text-dark); transition: var(--transition); }
+        
+        .inline-input { width: 100%; border: 1px solid transparent; background: var(--light-bg); padding: 8px; border-radius: 8px; text-align: center; font-size: 13px; transition: var(--transition); color: var(--text-dark); }
+        .inline-input.editing { border-color: var(--primary-green); background: var(--light-surface); outline: none; box-shadow: 0 0 5px rgba(20, 184, 166, 0.2); }
         .badge { padding: 6px 14px; border-radius: 50px; font-size: 11px; font-weight: 800; }
         .bill-btn { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: 800; }
         .paid-badge { background: #ecfdf5; color: #059669; border: 1px solid #10b981; padding: 8px 15px; border-radius: 8px; font-weight: 800; }
@@ -128,9 +125,9 @@ $result = mysqli_query($conn, $sql);
         <form action="" method="GET" class="search-box">
             <input type="hidden" name="status" value="<?= htmlspecialchars($filter_status) ?>">
             <input type="text" name="search" placeholder="Search by Job No, Phone, Name..." value="<?= htmlspecialchars($search) ?>">
-            <button type="submit">Search</button>
+            <button type="submit"><i class="ph ph-magnifying-glass"></i> Search</button>
         </form>
-        <a href="returned_jobs.php" style="background: #0f172a; color: white; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: 600;"> History</a>
+        <a href="returned_jobs.php" style="background: var(--dark-surface); color: white; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 5px; border: 1px solid var(--border-light);"><i class="ph ph-clock-counter-clockwise"></i> History</a>
     </div>
 
     <div class="filter-container">
@@ -203,7 +200,7 @@ $result = mysqli_query($conn, $sql);
                                     <div style="color: #dc2626; font-weight: 900; font-size: 11px; margin-bottom: 4px;">
                                          RENT: Rs. <?= $delay_fee ?>
                                     </div>
-                                    <button class="sms-btn" onclick="sendManualSMS(<?= $id ?>)" style="background: #ef4444; border-radius: 5px; padding: 5px; font-size: 10px;"> SEND RENT SMS</button>
+                                    <button class="sms-btn" onclick="sendManualSMS(<?= $id ?>)" style="background: #ef4444; border-radius: 5px; padding: 5px; font-size: 10px; display:flex; align-items:center; justify-content:center; gap:3px;"><i class="ph ph-paper-plane-tilt"></i> RENT SMS</button>
                                 </div>
                             <?php elseif($current_status == 'Completed'): ?>
                                 <div style="font-size: 9px; color: #94a3b8; margin-top: 5px;">Collection: <?= $days_passed ?> days</div>
@@ -212,19 +209,19 @@ $result = mysqli_query($conn, $sql);
 
                         <td>
                             <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-                                <button onclick="viewSMSHistory(<?= $id ?>)" title="View SMS History" style="background:#6366f1; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">SMS History</button>
+                                <button onclick="viewSMSHistory(<?= $id ?>)" title="View SMS History" style="background:var(--secondary); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;"><i class="ph ph-chat-text"></i></button>
                                 
                                 <?php if($current_status != 'Completed' && $current_status != 'Returned'): ?>
-                                    <button id="btn-edit-<?= $id ?>" onclick="toggleEdit(<?= $id ?>)" style="background: var(--blue); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">Edit</button>
+                                    <button id="btn-edit-<?= $id ?>" onclick="toggleEdit(<?= $id ?>)" style="background: var(--blue); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;"><i class="ph ph-pencil-simple"></i></button>
                                 <?php else: ?>
                                     <span style="opacity:0.3; font-size:16px;"></span>
                                 <?php endif; ?>
 
                                 <?php if($current_status == 'Completed' || $current_status == 'Returned'): ?>
                                     <?php if(!$is_paid): ?>
-                                        <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&fee=<?= $delay_fee ?>" class="bill-btn"> BILL</a>
+                                        <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&fee=<?= $delay_fee ?>" class="bill-btn"><i class="ph ph-receipt"></i> BILL</a>
                                     <?php else: ?>
-                                        <span class="paid-badge"> PAID</span>
+                                        <span class="paid-badge"><i class="ph ph-check-circle"></i> PAID</span>
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </div>
@@ -295,7 +292,7 @@ function toggleEdit(id) {
         iss.classList.add('editing'); 
         sol.classList.add('editing');
         dev.focus();
-        btn.innerHTML = "💾";
+        btn.innerHTML = "<i class='ph ph-floppy-disk'></i>";
         btn.style.background = "var(--success)";
     } else {
         // Save Mode
