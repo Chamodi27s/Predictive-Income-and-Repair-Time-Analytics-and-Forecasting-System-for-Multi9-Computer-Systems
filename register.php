@@ -151,7 +151,7 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
                 <button type="button" class="btn-add" onclick="addDevice()">+ Add Another Device</button>
             </div>
 
-            <button type="submit" class="btn-primary">✓ Complete Registration</button>
+            <button type="submit" class="btn-primary"><i class="ph ph-check-circle" style="margin-right:8px; font-size:18px; vertical-align:middle;"></i> Complete Registration</button>
         </form>
     </div>
 </div>
@@ -211,8 +211,8 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
 
         div.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <strong>📱 Device #${deviceCount}</strong>
-                ${deviceCount > 1 ? `<button type="button" class="remove-btn" onclick="this.parentElement.parentElement.remove()">✕ Remove</button>` : ''}
+                <strong style="display:flex; align-items:center; gap:8px;"><i class="ph-fill ph-device-mobile" style="color:var(--primary); font-size:18px;"></i> Device #${deviceCount}</strong>
+                ${deviceCount > 1 ? `<button type="button" class="remove-btn" onclick="this.parentElement.parentElement.remove()"><i class="ph ph-x"></i> Remove</button>` : ''}
             </div>
             <div class="form-grid">
                 <div class="form-group">

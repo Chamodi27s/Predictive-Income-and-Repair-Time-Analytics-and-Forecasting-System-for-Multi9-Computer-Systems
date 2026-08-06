@@ -229,7 +229,7 @@ $total_pages = ceil($total_records / $records_per_page);
                             <td><span style="color:#ef4444; font-weight:600;"><?= htmlspecialchars($row['all_issues'] ?? '-') ?></span></td>
                             <td><?= htmlspecialchars($row['all_warranties'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($row['all_paths'] ?? '-') ?></td>
-                            <td><span class="tech-badge">👨‍🔧 <?= htmlspecialchars($row['tech_name'] ?? 'Unassigned') ?></span></td>
+                            <td><span class="tech-badge"><i class="ph-fill ph-wrench"></i> <?= htmlspecialchars($row['tech_name'] ?? 'Unassigned') ?></span></td>
                             <td><span class="status-badge <?= $status_class ?>"><?= htmlspecialchars($status) ?></span></td>
                             <td onclick="event.stopPropagation();">
                                 <?php if($row['job_no']): ?>

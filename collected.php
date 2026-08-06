@@ -566,7 +566,7 @@ function toggleEdit(row_uid, job_no) {
             el.classList.add('editing-active');
         });
 
-        btn.innerHTML = "💾 Save";
+        btn.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Save';
     } else {
         saveToDB(row_uid, job_no, 0, () => {
             fields.forEach(f => {
@@ -575,7 +575,7 @@ function toggleEdit(row_uid, job_no) {
                 el.classList.remove('editing-active');
             });
 
-            btn.innerHTML = "✏️ Edit";
+            btn.innerHTML = '<i class="ph-bold ph-pencil-simple"></i> Edit';
         });
     }
 }
