@@ -101,7 +101,7 @@ include_once 'navbar.php';
             padding: 28px;
             border-radius: 12px;
             margin-bottom: 32px;
-            border: 2px solid rgba(20, 184, 166, 0.2);
+            border: 2px solid rgba(26, 163, 83, 0.2);
         }
 
         .grid-form {
@@ -127,7 +127,7 @@ include_once 'navbar.php';
 
         .form-control:focus {
             border-color: var(--primary-green);
-            box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.15);
+            box-shadow: 0 0 0 4px rgba(26, 163, 83, 0.15);
         }
 
         .btn-primary {
@@ -139,13 +139,13 @@ include_once 'navbar.php';
             cursor: pointer;
             font-weight: 700;
             transition: var(--transition);
-            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+            box-shadow: 0 4px 12px rgba(26, 163, 83, 0.3);
             display: flex; align-items: center; justify-content: center; gap: 8px;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(20, 184, 166, 0.4);
+            box-shadow: 0 6px 16px rgba(26, 163, 83, 0.4);
         }
 
         .success-banner {
@@ -218,7 +218,7 @@ include_once 'navbar.php';
         }
 
         .account-badge {
-            background: rgba(20, 184, 166, 0.1);
+            background: rgba(26, 163, 83, 0.1);
             color: var(--primary-green-dark);
             padding: 6px 12px;
             border-radius: 8px;
@@ -232,7 +232,7 @@ include_once 'navbar.php';
         }
 
         body.dark-mode .form-section {
-            background: rgba(20, 184, 166, 0.1);
+            background: rgba(26, 163, 83, 0.1);
             border-color: var(--primary-green-dark);
         }
         
@@ -277,7 +277,7 @@ include_once 'navbar.php';
         }
 
         body.dark-mode .account-badge {
-            background: rgba(20, 184, 166, 0.1);
+            background: rgba(26, 163, 83, 0.1);
             color: var(--accent-green);
         }
 

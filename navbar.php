@@ -20,7 +20,7 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
 /* ---------------- NAVBAR STYLES ---------------- */
 .topbar {
     position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height); z-index: 9999;
-    background: rgba(4, 63, 46, 0.9);
+    background: rgba(26, 163, 83, 0.9);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -36,19 +36,19 @@ body.dark-mode .topbar {
 .brand-section { display: flex; align-items: center; gap: 10px; }
 .brand { display: flex; flex-direction: column; justify-content: center; }
 .brand strong { font-size: 20px; letter-spacing: 1px; color: #fff; font-weight: 700; }
-.brand small { font-size: 10px; opacity: 0.7; letter-spacing: 2px; color: #a7f3d0; }
+.brand small { font-size: 10px; opacity: 0.85; letter-spacing: 2px; color: #ffffff; }
 
 .menu { display: flex; gap: 20px; align-items: center; }
-.menu a { color: #d1fae5; text-decoration: none; font-size: 14px; font-weight: 500; padding: 10px 0; position: relative; transition: var(--transition); display: flex; align-items: center; gap: 6px; }
+.menu a { color: rgba(255, 255, 255, 0.85); text-decoration: none; font-size: 14px; font-weight: 500; padding: 10px 0; position: relative; transition: var(--transition); display: flex; align-items: center; gap: 6px; }
 .menu a:hover { color: #ffffff; }
-.menu a.active { color: #14b8a6; font-weight: 600; }
-.menu a.active::after { content: ""; position: absolute; left: 0; bottom: 0; width: 100%; height: 3px; background: #14b8a6; border-radius: 3px 3px 0 0; }
+.menu a.active { color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+.menu a.active::after { content: ""; position: absolute; left: 0; bottom: 0; width: 100%; height: 3px; background: #ffffff; border-radius: 3px 3px 0 0; box-shadow: 0 -2px 8px rgba(255,255,255,0.5); }
 .menu i.ph { font-size: 18px; }
 
 .user-section { display: flex; align-items: center; gap: 15px; position: relative; cursor: pointer; padding: 6px 16px; border-radius: 50px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); transition: var(--transition); }
 .user-section:hover { background: rgba(255, 255, 255, 0.15); }
 
-.profile-card { background: linear-gradient(135deg, #14b8a6, #0f766e); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid rgba(255,255,255,0.5); font-size: 14px; }
+.profile-card { background: linear-gradient(135deg, #1aa353, #13783d); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid rgba(255,255,255,0.8); font-size: 14px; }
 
 .profile-dropdown { position: absolute; top: calc(100% + 10px); right: 0; background: var(--light-surface); min-width: 220px; border-radius: 16px; box-shadow: var(--card-shadow); border: 1px solid var(--border-light); display: none; overflow: hidden; z-index: 10000; }
 body.dark-mode .profile-dropdown { background: var(--dark-surface); border-color: #334155; }
@@ -65,7 +65,7 @@ body.dark-mode .profile-dropdown a:hover { background: #1e293b; }
 
 <div class="topbar no-print">
     <div class="brand-section">
-        <i class="ph ph-cpu" style="font-size: 32px; color: #14b8a6;"></i>
+        <i class="ph ph-cpu" style="font-size: 32px; color: #ffffff; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2));"></i>
         <div class="brand">
             <strong>MULTI 9</strong>
             <small>COMPUTER SYSTEM</small>
@@ -86,7 +86,7 @@ body.dark-mode .profile-dropdown a:hover { background: #1e293b; }
     </div>
 
     <div style="display: flex; align-items: center; gap: 15px;">
-        <button class="dark-toggle" onclick="toggleDarkMode()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); cursor:pointer; color: #d1fae5; font-size: 20px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s;" title="Toggle Dark/Light Mode">
+        <button class="dark-toggle" onclick="toggleDarkMode()" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); cursor:pointer; color: #ffffff; font-size: 20px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s;" title="Toggle Dark/Light Mode">
             <i class="ph ph-sun" id="themeIcon"></i>
         </button>
 

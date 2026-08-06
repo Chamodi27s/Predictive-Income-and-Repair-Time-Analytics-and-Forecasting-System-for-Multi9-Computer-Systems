@@ -56,10 +56,10 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
         input, select, textarea { padding: 12px 16px; border: 2px solid var(--border-light); border-radius: 10px; outline: none; font-size: 14px; transition: var(--transition); background: var(--light-bg); color: var(--text-dark); }
         input:focus, select:focus, textarea:focus { border-color: var(--primary-green); box-shadow: 0 0 0 3px var(--primary-green-light); }
         body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background: #0f172a; border-color: #334155; color: #f1f5f9; }
-        body.dark-mode input:focus, body.dark-mode select:focus, body.dark-mode textarea:focus { box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2); }
+        body.dark-mode input:focus, body.dark-mode select:focus, body.dark-mode textarea:focus { box-shadow: 0 0 0 3px rgba(4, 217, 146, 0.2); }
         
         .job-no-badge { background: var(--primary-green-light); border: 2px solid var(--primary-green); padding: 15px 20px; border-radius: 12px; text-align: center; margin-bottom: 25px; }
-        body.dark-mode .job-no-badge { background: rgba(20, 184, 166, 0.1); border-color: var(--primary-green); }
+        body.dark-mode .job-no-badge { background: rgba(4, 217, 146, 0.1); border-color: var(--primary-green); }
         .job-no-badge label { font-size: 11px; color: var(--primary-green-dark); margin-bottom: 5px; }
         body.dark-mode .job-no-badge label { color: var(--accent-green); }
         .job-no-badge .job-number { font-size: 24px; font-weight: 800; color: var(--primary-green); letter-spacing: 1px; }
@@ -67,8 +67,8 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
         .device-card { background: var(--light-bg); border: 2px solid var(--border-light); padding: 25px; border-radius: 15px; margin-bottom: 20px; position: relative; transition: var(--transition); }
         body.dark-mode .device-card { background: rgba(15, 23, 42, 0.5); border-color: #1e293b; }
         
-        .btn-primary { background: linear-gradient(135deg, var(--primary-green), var(--accent-green)); color: white; border: none; padding: 16px 32px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 700; font-size: 15px; box-shadow: 0 6px 20px rgba(20, 184, 166, 0.3); margin-top: 20px; transition: var(--transition); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(20, 184, 166, 0.4); }
+        .btn-primary { background: linear-gradient(135deg, var(--primary-green), var(--accent-green)); color: white; border: none; padding: 16px 32px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 700; font-size: 15px; box-shadow: 0 6px 20px rgba(4, 217, 146, 0.3); margin-top: 20px; transition: var(--transition); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(4, 217, 146, 0.4); }
         
         .btn-add { background: transparent; border: 2px solid var(--primary-green); color: var(--primary-green); padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; width: 100%; margin-bottom: 10px; transition: var(--transition); }
         .btn-add:hover { background: var(--primary-green); color: white; }
@@ -219,13 +219,17 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
                     <label>Device Type</label>
                     <select name="devices[]" required>
                         <option value="">-- Select Device --</option>
+                        <option value="Desktop PC">Desktop PC</option>
+                        <option value="UPS">UPS</option>
                         <option value="Printer">Printer</option>
                         <option value="Laptop">Laptop</option>
-                        <option value="Desktop">Desktop PC</option>
+                        <option value="POS PC">POS PC</option>
+                        <option value="Monitor">Monitor</option>
+                        <option value="All-in-One PC">All-in-One PC</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Issue Type</label>
+                    <label>Issue Type / Fault Description</label>
                     <select name="issues[]" onchange="toggleNewIssue(this)" required>
                         <option value="">-- Select Issue --</option>
                         <option value="Display Damage">Display Damage</option>
@@ -237,15 +241,30 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
                     <input type="text" name="new_issues[]" style="display:none; margin-top:10px;" placeholder="Enter New Issue">
                 </div>
                 <div class="form-group">
+                    <label>Item Model</label>
+                    <input type="text" name="item_models[]" placeholder="e.g. Dell XPS 15" required>
+                </div>
+                <div class="form-group">
                     <label>Warranty Status</label>
-                    <select name="warranty[]">
-                        <option value="No Warranty">No Warranty</option>
-                        <option value="Warranty">Warranty</option>
+                    <select name="warranty[]" required>
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Repair Path</label>
+                    <select name="repair_paths[]" required>
+                        <option value="In-House">In-House</option>
+                        <option value="Agent">Agent</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Device Image</label>
                     <input type="file" name="device_images[]" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>Expected Solution (Optional)</label>
+                    <input type="text" name="solutions[]" placeholder="e.g. Logic Board Repair">
                 </div>
             </div>
             <div class="form-grid" style="margin-top:15px;">

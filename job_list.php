@@ -94,7 +94,7 @@ $result = mysqli_query($conn, $sql);
         .status-table td { padding: 15px; border-bottom: 1px solid var(--border-light); text-align: center; color: var(--text-dark); transition: var(--transition); }
         
         .inline-input { width: 100%; border: 1px solid transparent; background: var(--light-bg); padding: 8px; border-radius: 8px; text-align: center; font-size: 13px; transition: var(--transition); color: var(--text-dark); }
-        .inline-input.editing { border-color: var(--primary-green); background: var(--light-surface); outline: none; box-shadow: 0 0 5px rgba(20, 184, 166, 0.2); }
+        .inline-input.editing { border-color: var(--primary-green); background: var(--light-surface); outline: none; box-shadow: 0 0 5px rgba(26, 163, 83, 0.2); }
         .badge { padding: 6px 14px; border-radius: 50px; font-size: 11px; font-weight: 800; }
         .bill-btn { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: 800; }
         .paid-badge { background: #ecfdf5; color: #059669; border: 1px solid #10b981; padding: 8px 15px; border-radius: 8px; font-weight: 800; }

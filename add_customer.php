@@ -38,10 +38,17 @@ SELECT
     customer.address,
     job.job_no, 
     job.job_date, 
-    GROUP_CONCAT(job_device.device_name SEPARATOR ', ') as all_devices
+    job.job_status,
+    technicians.name as tech_name,
+    GROUP_CONCAT(job_device.device_name SEPARATOR ', ') as all_devices,
+    GROUP_CONCAT(job_device.issue_name SEPARATOR ', ') as all_issues,
+    GROUP_CONCAT(job_device.item_model SEPARATOR ', ') as all_models,
+    GROUP_CONCAT(job_device.warranty_status SEPARATOR ', ') as all_warranties,
+    GROUP_CONCAT(job_device.repair_path SEPARATOR ', ') as all_paths
 FROM customer
 INNER JOIN job ON customer.phone_number = job.phone_number
 LEFT JOIN job_device ON job.job_no = job_device.job_no
+LEFT JOIN technicians ON job.technician_id = technicians.technician_id
 $where_clause
 GROUP BY job.job_no
 ORDER BY job.job_no DESC 
@@ -70,7 +77,7 @@ $total_pages = ceil($total_records / $records_per_page);
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         :root {
-            --primary-green: #14b8a6;
+            --primary-green: #04d992;
             --primary-green-dark: #0f766e;
             --primary-green-light: #ccfbf1;
             --accent-green: #2ecc71;
@@ -95,8 +102,8 @@ $total_pages = ceil($total_records / $records_per_page);
         body.dark-mode .stat-card { background: var(--dark-surface); border-color: #334155; }
         .stat-info .number { font-size: 36px; font-weight: 800; color: var(--text-dark); }
         body.dark-mode .stat-info .number { color: #f1f5f9; }
-        .add-btn { background: linear-gradient(135deg, var(--primary-green), var(--accent-green)); color: white; padding: 14px 35px; border-radius: 30px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 6px 15px rgba(20, 184, 166, 0.3); transition: var(--transition); }
-        .add-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(20, 184, 166, 0.4); color: white; }
+        .add-btn { background: linear-gradient(135deg, var(--primary-green), var(--accent-green)); color: white; padding: 14px 35px; border-radius: 30px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 6px 15px rgba(4, 217, 146, 0.3); transition: var(--transition); }
+        .add-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(4, 217, 146, 0.4); color: white; }
         
         .table-section { background: var(--light-surface); border-radius: 12px; padding: 25px; box-shadow: var(--card-shadow); transition: var(--transition); border: 1px solid var(--border-light); }
         body.dark-mode .table-section { background: var(--dark-surface); border-color: #334155; }
@@ -110,25 +117,35 @@ $total_pages = ceil($total_records / $records_per_page);
         .search-box input { padding: 12px 20px 12px 46px; border: 2px solid var(--border-light); border-radius: 12px; font-size: 14px; width: 320px; transition: var(--transition); background: var(--light-bg); color: var(--text-dark); font-weight: 500; }
         .search-box input:focus { outline: none; border-color: var(--primary-green); background: var(--light-surface); box-shadow: 0 0 0 4px var(--primary-green-light); }
         body.dark-mode .search-box input { background: #0f172a; border-color: #334155; color: #f1f5f9; }
-        body.dark-mode .search-box input:focus { box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.2); }
+        body.dark-mode .search-box input:focus { box-shadow: 0 0 0 4px rgba(4, 217, 146, 0.2); }
         .search-box i.ph { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--text-muted); }
         
         .customer-table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        .customer-table th { text-align: left; padding: 16px 15px; background: var(--light-bg); color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px; border-bottom: 2px solid var(--border-light); transition: var(--transition); }
+        .customer-table th { text-align: left; padding: 12px 10px; background: var(--light-bg); color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-light); transition: var(--transition); }
         .customer-table tbody tr { cursor: pointer; transition: var(--transition); background: var(--light-surface); }
-        .customer-table tbody tr:hover { background: var(--light-bg); transform: translateX(4px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
-        .customer-table td { padding: 16px 15px; font-size: 13px; color: var(--text-dark); border-bottom: 1px solid var(--border-light); transition: var(--transition); }
+        .customer-table tbody tr:hover { background: var(--light-bg); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
+        .customer-table td { padding: 12px 10px; font-size: 12px; color: var(--text-dark); border-bottom: 1px solid var(--border-light); transition: var(--transition); line-height: 1.4; }
         
         body.dark-mode .customer-table th { background: rgba(0,0,0,0.2); border-bottom-color: #334155; }
         body.dark-mode .customer-table tbody tr { background: var(--dark-surface); }
         body.dark-mode .customer-table tbody tr:hover { background: #1e293b; }
         body.dark-mode .customer-table td { border-bottom-color: #1e293b; color: #e2e8f0; }
         
-        .job-badge { background: var(--primary-green-light); color: var(--primary-green-dark); padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 12px; display: inline-block; border: 1px solid rgba(20, 184, 166, 0.2); }
-        body.dark-mode .job-badge { background: rgba(20, 184, 166, 0.1); color: var(--accent-green); }
+        .job-badge { background: var(--primary-green-light); color: var(--primary-green-dark); padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+        .device-badge { background: #f3e8ff; color: #7e22ce; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 13px; }
+        body.dark-mode .device-badge { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; }
+        .tech-badge { background: #e0f2fe; color: #0369a1; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 13px; }
+        body.dark-mode .tech-badge { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; }
         
-        .device-badge { background: #f3e8ff; color: #6b21a8; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; display: inline-block; border: 1px solid rgba(147, 51, 234, 0.2); }
-        body.dark-mode .device-badge { background: rgba(147, 51, 234, 0.1); color: #d8b4fe; }
+        .status-badge { padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 12px; text-transform: uppercase; }
+        .status-pending { background: #fef9c3; color: #854d0e; }
+        .status-approved { background: #dbeafe; color: #1e40af; }
+        .status-in-progress { background: #ffedd5; color: #9a3412; }
+        .status-completed { background: #dcfce7; color: #166534; }
+        body.dark-mode .status-pending { background: rgba(234, 179, 8, 0.2); color: #fef08a; }
+        body.dark-mode .status-approved { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+        body.dark-mode .status-in-progress { background: rgba(249, 115, 22, 0.2); color: #fdba74; }
+        body.dark-mode .status-completed { background: rgba(34, 197, 94, 0.2); color: #86efac; }
         
         .predict-btn { background: linear-gradient(135deg, var(--primary-green), var(--primary-green-dark)); color: white !important; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; transition: var(--transition); box-shadow: 0 3px 10px rgba(15, 118, 110, 0.3); }
         .predict-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(15, 118, 110, 0.4); }
@@ -173,41 +190,62 @@ $total_pages = ceil($total_records / $records_per_page);
             </div>
         </div>
         
-        <table class="customer-table">
+        <div style="overflow-x: auto; width: 100%;">
+        <table class="customer-table" style="width: 100%;">
             <thead>
                 <tr>
                     <th>Job No</th>
                     <th>Date</th>
-                    <th>Customer Name</th>
-                    <th>Contact</th>
+                    <th>Customer</th>
                     <th>Devices</th>
+                    <th>Model</th>
+                    <th>Issue</th>
+                    <th>Warranty</th>
+                    <th>Path</th>
+                    <th>Tech</th>
+                    <th>Status</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if(mysqli_num_rows($customers_result) > 0): ?>
                     <?php while($row = mysqli_fetch_assoc($customers_result)): ?>
-                        <tr onclick="window.location.href='customer_details.php?phone=<?= urlencode($row['phone_number']) ?>'">
+                        <?php 
+                            $status = $row['job_status'] ?? 'Pending';
+                            $status_class = 'status-pending';
+                            if (strtolower($status) == 'approved') $status_class = 'status-approved';
+                            else if (strtolower($status) == 'in progress') $status_class = 'status-in-progress';
+                            else if (strtolower($status) == 'completed') $status_class = 'status-completed';
+                        ?>
+                        <tr onclick="window.location.href='customer_details.php?phone=<?= urlencode($row['phone_number']) ?>'" style="cursor:pointer;">
                             <td><span class="job-badge"><?= htmlspecialchars($row['job_no']) ?></span></td>
                             <td><?= $row['job_date'] ? date('d/m/Y', strtotime($row['job_date'])) : '-' ?></td>
-                            <td style="font-weight: 600;"><?= htmlspecialchars($row['customer_name']) ?></td>
-                            <td><?= htmlspecialchars($row['phone_number']) ?></td>
-                            <td><span class="device-badge"><?= htmlspecialchars($row['all_devices']) ?></span></td>
+                            <td style="font-weight: 600;">
+                                <?= htmlspecialchars($row['customer_name']) ?><br>
+                                <span style="font-size:12px; color:var(--text-muted); font-weight:normal;"><?= htmlspecialchars($row['phone_number']) ?></span>
+                            </td>
+                            <td><span class="device-badge"><?= htmlspecialchars($row['all_devices'] ?? '-') ?></span></td>
+                            <td><?= htmlspecialchars($row['all_models'] ?? '-') ?></td>
+                            <td><span style="color:#ef4444; font-weight:600;"><?= htmlspecialchars($row['all_issues'] ?? '-') ?></span></td>
+                            <td><?= htmlspecialchars($row['all_warranties'] ?? '-') ?></td>
+                            <td><?= htmlspecialchars($row['all_paths'] ?? '-') ?></td>
+                            <td><span class="tech-badge">👨‍🔧 <?= htmlspecialchars($row['tech_name'] ?? 'Unassigned') ?></span></td>
+                            <td><span class="status-badge <?= $status_class ?>"><?= htmlspecialchars($status) ?></span></td>
                             <td onclick="event.stopPropagation();">
                                 <?php if($row['job_no']): ?>
-                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                    <div style="display: flex; gap: 8px; align-items: center; justify-content:center;">
                                         <button type="button" onclick="openPredictionModal('<?= htmlspecialchars($row['job_no']) ?>')" class="predict-btn" style="border:none; cursor:pointer;"><i class="ph ph-clock"></i> Predict</button>
-                                        <a href="cost_estimation.php?job_no=<?= urlencode($row['job_no']) ?>" class="cost-btn"><i class="ph ph-currency-circle-dollar"></i> Cost Est.</a>
                                     </div>
                                 <?php endif; ?>
                             </td>
                         </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="6" style="text-align:center;">No records found</td></tr>
+                    <tr><td colspan="11" style="text-align:center;">No records found</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
+        </div>
 
         <div class="pagination-container">
             <div class="showing-text">Showing page <?= $page ?> of <?= $total_pages ?></div>
@@ -238,35 +276,80 @@ $total_pages = ceil($total_records / $records_per_page);
 </script>
 
 <!-- Prediction Modal -->
-<div id="predictModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(5px); z-index:9999; justify-content:center; align-items:center;">
-    <div class="modal-content" style="background:var(--dark-surface); border:1px solid rgba(255,255,255,0.1); border-radius:20px; width:400px; padding:30px; box-shadow:0 20px 40px rgba(0,0,0,0.5); position:relative;">
-        <button onclick="closePredictionModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:var(--text-muted); font-size:24px; cursor:pointer;"><i class="ph ph-x"></i></button>
+<div id="predictModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); z-index:9999; justify-content:center; align-items:center;">
+    <div class="modal-content" style="background:linear-gradient(145deg, #1e293b, #0f172a); border:1px solid rgba(255,255,255,0.05); border-radius:24px; width:750px; max-width:95vw; padding:40px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); position:relative;">
+        <button onclick="closePredictionModal()" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.05); border:none; color:var(--text-muted); font-size:20px; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="ph ph-x"></i></button>
         
-        <div style="text-align:center; margin-bottom:20px;">
-            <i class="ph-fill ph-brain" style="font-size:48px; color:var(--primary-green); filter:drop-shadow(0 0 10px rgba(20, 184, 166, 0.4));"></i>
-            <h2 style="margin:10px 0 5px 0; font-size:20px;">AI Instant Prediction</h2>
-            <p id="predictJobNo" style="color:var(--text-muted); font-size:14px; margin:0;"></p>
-        </div>
-        
-        <div id="predictLoading" style="text-align:center; padding:30px 0;">
-            <i class="ph ph-spinner ph-spin" style="font-size:32px; color:var(--primary-green);"></i>
-            <p style="margin-top:15px; color:var(--text-muted);">Analyzing device data & calculating...</p>
-        </div>
-        
-        <div id="predictResults" style="display:none;">
-            <div style="background:rgba(20, 184, 166, 0.1); border:1px solid rgba(20,184,166,0.3); border-radius:12px; padding:20px; text-align:center; margin-bottom:15px;">
-                <h3 style="font-size:12px; text-transform:uppercase; color:var(--text-muted); margin:0 0 5px 0;">Estimated Repair Time</h3>
-                <div style="font-size:36px; font-weight:800; color:var(--primary-green); text-shadow:0 0 15px rgba(20, 184, 166, 0.4);"><span id="resDays"></span> Days</div>
+        <div style="display:flex; align-items:center; gap:15px; margin-bottom:30px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:20px;">
+            <div style="background:rgba(4, 217, 146, 0.1); width:60px; height:60px; border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 20px rgba(4,217,146,0.2);">
+                <i class="ph-fill ph-brain" style="font-size:36px; color:var(--primary-green);"></i>
             </div>
-            
-            <div style="background:rgba(59, 130, 246, 0.1); border:1px solid rgba(59,130,246,0.3); border-radius:12px; padding:20px; text-align:center;">
-                <h3 style="font-size:12px; text-transform:uppercase; color:var(--text-muted); margin:0 0 5px 0;">Estimated Repair Cost</h3>
-                <div style="font-size:32px; font-weight:700; color:#60a5fa;"><span id="resCost"></span></div>
-                <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">(Placeholder Formula)</div>
+            <div>
+                <h2 style="margin:0 0 5px 0; font-size:24px; color:#f8fafc; font-weight:700;">AI Instant Prediction</h2>
+                <p id="predictJobNo" style="color:#94a3b8; font-size:14px; margin:0; font-family:monospace;"></p>
             </div>
         </div>
         
-        <div id="predictError" style="display:none; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.3); color:#fca5a5; padding:15px; border-radius:12px; font-size:14px; text-align:center;">
+        <div id="predictLoading" style="text-align:center; padding:50px 0;">
+            <i class="ph ph-spinner ph-spin" style="font-size:40px; color:var(--primary-green);"></i>
+            <p style="margin-top:20px; color:#94a3b8; font-size:15px;">Analyzing historical repair data & calculating metrics...</p>
+        </div>
+        
+        <div id="predictResults" style="display:none; gap:25px; align-items:stretch;">
+            <!-- Left Column: Inputs -->
+            <div style="flex:1; background:rgba(255, 255, 255, 0.02); border:1px solid rgba(255,255,255,0.05); border-radius:16px; padding:25px;">
+                <h3 style="font-size:13px; text-transform:uppercase; letter-spacing:1px; color:#64748b; margin:0 0 20px 0; font-weight:600;">Prediction Parameters</h3>
+                
+                <div style="margin-bottom:16px;">
+                    <div style="font-size:12px; color:#64748b; margin-bottom:4px;">Reported Fault</div>
+                    <div id="resFault" style="color:#f1f5f9; font-size:15px; font-weight:500;"></div>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <div style="font-size:12px; color:#64748b; margin-bottom:4px;">Assigned Technician</div>
+                    <div id="resTech" style="color:#f1f5f9; font-size:15px; font-weight:500;"></div>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <div style="font-size:12px; color:#64748b; margin-bottom:4px;">Repair Pathway</div>
+                    <div id="resPath" style="color:#f1f5f9; font-size:15px; font-weight:500;"></div>
+                </div>
+                <div>
+                    <div style="font-size:12px; color:#64748b; margin-bottom:4px;">Expected Solution</div>
+                    <div id="resSolution" style="color:#f1f5f9; font-size:15px; font-weight:500;"></div>
+                </div>
+            </div>
+
+            <!-- Right Column: Outputs -->
+            <div style="flex:1; display:flex; flex-direction:column; gap:15px;">
+                <!-- Dates Card -->
+                <div style="background:rgba(4, 217, 146, 0.05); border:1px solid rgba(4,217,146,0.2); border-radius:16px; padding:25px; flex:1; display:flex; flex-direction:column; justify-content:center;">
+                    <h3 style="font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--primary-green); margin:0 0 15px 0; font-weight:700;">Completion Estimate</h3>
+                    
+                    <div style="display:flex; align-items:flex-end; gap:10px; margin-bottom:5px;">
+                        <span id="resDate" style="color:#f8fafc; font-size:32px; font-weight:800; line-height:1;"></span>
+                    </div>
+                    <div style="color:#94a3b8; font-size:14px;">Takes approx <span id="resRaw" style="color:var(--primary-green); font-weight:700;"></span> days to repair</div>
+                </div>
+
+                <!-- Cost Card -->
+                <div style="background:rgba(168, 85, 247, 0.05); border:1px solid rgba(168,85,247,0.2); border-radius:16px; padding:20px; display:flex; align-items:center; justify-content:space-between;">
+                    <div>
+                        <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#c084fc; margin-bottom:5px; font-weight:700;">Estimated Cost</div>
+                        <div id="resCost" style="color:#f8fafc; font-size:24px; font-weight:700;"></div>
+                    </div>
+                    <div style="width:40px; height:40px; border-radius:10px; background:rgba(168,85,247,0.1); display:flex; align-items:center; justify-content:center;">
+                        <i class="ph ph-currency-dollar" style="color:#c084fc; font-size:20px;"></i>
+                    </div>
+                </div>
+
+                <!-- Parts Card -->
+                <div style="background:rgba(59, 130, 246, 0.05); border:1px solid rgba(59,130,246,0.2); border-radius:16px; padding:20px;">
+                    <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#60a5fa; margin-bottom:5px; font-weight:700;">Required Parts</div>
+                    <div id="resParts" style="color:#f8fafc; font-size:16px; font-weight:600;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="predictError" style="display:none; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.3); color:#fca5a5; padding:15px; border-radius:12px; font-size:14px; text-align:center; margin-top:20px;">
         </div>
     </div>
 </div>
@@ -288,9 +371,17 @@ $total_pages = ceil($total_records / $records_per_page);
                 document.getElementById('predictLoading').style.display = 'none';
                 
                 if(data.status === 'success') {
-                    document.getElementById('predictResults').style.display = 'block';
-                    document.getElementById('resDays').innerText = data.days;
-                    document.getElementById('resCost').innerText = '$' + data.cost;
+                    document.getElementById('predictResults').style.display = 'flex';
+                    
+                    document.getElementById('resFault').innerText = data.issue;
+                    document.getElementById('resPath').innerText = data.repair_path;
+                    document.getElementById('resTech').innerText = data.technician;
+                    document.getElementById('resSolution').innerText = data.solution;
+                    document.getElementById('resRaw').innerText = data.days;
+                    document.getElementById('resDate').innerText = data.completion_date;
+
+                    document.getElementById('resCost').innerText = 'Rs. ' + data.cost;
+                    document.getElementById('resParts').innerText = data.parts;
                 } else {
                     document.getElementById('predictError').style.display = 'block';
                     document.getElementById('predictError').innerText = data.message;

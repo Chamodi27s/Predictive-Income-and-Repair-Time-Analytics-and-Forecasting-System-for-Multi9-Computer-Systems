@@ -97,10 +97,10 @@ $st = $res->fetch_assoc();
         
         .form-label { font-weight: 600; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
         .form-control { border-radius: 8px; padding: 10px; border: 1px solid var(--border-light); background: var(--light-bg); color: var(--text-dark); transition: var(--transition); }
-        .form-control:focus { border-color: var(--primary-green); box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15); }
+        .form-control:focus { border-color: var(--primary-green); box-shadow: 0 0 0 3px rgba(26, 163, 83, 0.15); }
 
         .btn-save-main { background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%); border: none; padding: 15px; border-radius: 10px; font-weight: 700; font-size: 1.1rem; width: 100%; transition: var(--transition); margin-top: 20px; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-save-main:hover { background: var(--primary-green-dark); transform: translateY(-1px); box-shadow: 0 5px 15px rgba(20, 184, 166, 0.3); color: white; }
+        .btn-save-main:hover { background: var(--primary-green-dark); transform: translateY(-1px); box-shadow: 0 5px 15px rgba(26, 163, 83, 0.3); color: white; }
         
         .btn-password { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
         .btn-password:hover { background: #dc2626; color: white; }

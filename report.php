@@ -259,12 +259,12 @@ body.dark-mode .stat-value, body.dark-mode .section-title { color: #f8fafc; }
 
 .analytics-box{
     background:var(--primary-green-light);
-    border:1px solid rgba(20, 184, 166, 0.2);
+    border:1px solid rgba(26, 163, 83, 0.2);
     border-radius:15px;
     padding:20px;
     margin-bottom:30px;
 }
-body.dark-mode .analytics-box { background: rgba(20, 184, 166, 0.1); border-color: var(--primary-green-dark); }
+body.dark-mode .analytics-box { background: rgba(26, 163, 83, 0.1); border-color: var(--primary-green-dark); }
 
 .pattern-chip{
     display:inline-block;
@@ -275,7 +275,7 @@ body.dark-mode .analytics-box { background: rgba(20, 184, 166, 0.1); border-colo
     font-size:13px;
     font-weight:700;
     margin:5px;
-    border:1px solid rgba(20, 184, 166, 0.2);
+    border:1px solid rgba(26, 163, 83, 0.2);
     box-shadow: var(--card-shadow);
 }
 body.dark-mode .pattern-chip { background: var(--dark-surface); border-color: #334155; color: var(--primary-green-light); }
@@ -432,7 +432,7 @@ body.dark-mode .item-name { color: #f8fafc; }
     align-items:center;
     gap:8px;
     text-decoration:none;
-    box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4);
+    box-shadow: 0 4px 12px rgba(26, 163, 83, 0.4);
     transition: var(--transition);
     z-index: 100;
 }

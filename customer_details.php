@@ -132,6 +132,9 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
 <body>
 
 <div class="container">
+    <a href="add_customer.php" style="display:inline-flex; align-items:center; gap:8px; margin-bottom:20px; color:var(--primary); font-weight:700; text-decoration:none; font-size:15px;">
+        <i class="ph ph-arrow-left"></i> Back to Dashboard
+    </a>
     <div class="page-header">
         <h1>👤 Customer Profile Details</h1>
         <p>Complete customer information and job history</p>
