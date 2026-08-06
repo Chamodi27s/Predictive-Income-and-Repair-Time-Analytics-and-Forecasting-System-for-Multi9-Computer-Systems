@@ -290,9 +290,43 @@ $total_pages = ceil($total_records / $records_per_page);
             </div>
         </div>
         
-        <div id="predictLoading" style="text-align:center; padding:50px 0;">
-            <i class="ph ph-spinner ph-spin" style="font-size:40px; color:var(--primary-green);"></i>
-            <p style="margin-top:20px; color:#94a3b8; font-size:15px;">Analyzing historical repair data & calculating metrics...</p>
+        <!-- Styled AI Loading Animation -->
+        <style>
+            @keyframes pulseGlow {
+                0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+                70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(16, 185, 129, 0); }
+                100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+            }
+            @keyframes spinRing {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            @keyframes progressSweep {
+                0% { width: 0%; left: 0; }
+                50% { width: 70%; left: 15%; }
+                100% { width: 100%; left: 0; }
+            }
+        </style>
+        
+        <div id="predictLoading" style="text-align:center; padding:45px 20px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+            <div style="position:relative; width:95px; height:95px; margin-bottom:22px; display:flex; align-items:center; justify-content:center;">
+                <!-- Outer Glowing Ring -->
+                <div style="position:absolute; width:95px; height:95px; border-radius:50%; border:3px solid transparent; border-top-color:#10b981; border-right-color:#3b82f6; animation: spinRing 1.2s linear infinite;"></div>
+                <!-- Inner Reverse Ring -->
+                <div style="position:absolute; width:70px; height:70px; border-radius:50%; border:3px solid transparent; border-bottom-color:#8b5cf6; border-left-color:#10b981; animation: spinRing 0.8s linear infinite reverse;"></div>
+                <!-- Glowing Center Orb -->
+                <div style="width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, #10b981, #059669); display:flex; align-items:center; justify-content:center; animation: pulseGlow 2s infinite;">
+                    <i class="ph-fill ph-brain" style="font-size:26px; color:#ffffff;"></i>
+                </div>
+            </div>
+
+            <h4 style="margin:0 0 8px 0; color:#f8fafc; font-size:18px; font-weight:700;">AI Engine Processing</h4>
+            <p id="predictLoadingText" style="color:#94a3b8; font-size:14px; margin:0 0 20px 0; min-height:22px; font-weight:500;">Analyzing historical repair data & calculating metrics...</p>
+
+            <!-- Animated Progress Line -->
+            <div style="width:240px; height:4px; background:rgba(255,255,255,0.08); border-radius:10px; overflow:hidden; position:relative;">
+                <div style="height:100%; background:linear-gradient(90deg, #10b981, #3b82f6, #8b5cf6); border-radius:10px; position:absolute; animation: progressSweep 1.5s ease-in-out infinite;"></div>
+            </div>
         </div>
         
         <div id="predictResults" style="display:none; gap:25px; align-items:stretch;">
@@ -355,19 +389,45 @@ $total_pages = ceil($total_records / $records_per_page);
 </div>
 
 <script>
+    let loadingTextInterval;
+    const loadingSteps = [
+        "Connecting to AI Prediction Backend...",
+        "Querying Random Forest Machine Learning Model...",
+        "Cross-referencing historical repair dataset...",
+        "Calculating estimated completion date & cost..."
+    ];
+
+    function startLoadingAnimation() {
+        let step = 0;
+        const txtEl = document.getElementById('predictLoadingText');
+        if (txtEl) txtEl.innerText = loadingSteps[0];
+        clearInterval(loadingTextInterval);
+        loadingTextInterval = setInterval(() => {
+            step = (step + 1) % loadingSteps.length;
+            if (txtEl) txtEl.innerText = loadingSteps[step];
+        }, 500);
+    }
+
+    function stopLoadingAnimation() {
+        clearInterval(loadingTextInterval);
+    }
+
     function openPredictionModal(jobNo) {
         document.getElementById('predictModal').style.display = 'flex';
         document.getElementById('predictJobNo').innerText = 'Job ID: ' + jobNo;
         
         // Reset states
-        document.getElementById('predictLoading').style.display = 'block';
+        document.getElementById('predictLoading').style.display = 'flex';
         document.getElementById('predictResults').style.display = 'none';
         document.getElementById('predictError').style.display = 'none';
+
+        startLoadingAnimation();
         
         // Call API
         fetch('api_predict.php?job_no=' + encodeURIComponent(jobNo))
             .then(response => response.json())
             .then(data => {
+                stopLoadingAnimation();
                 document.getElementById('predictLoading').style.display = 'none';
                 
                 if(data.status === 'success') {
@@ -388,6 +448,7 @@ $total_pages = ceil($total_records / $records_per_page);
                 }
             })
             .catch(err => {
+                stopLoadingAnimation();
                 document.getElementById('predictLoading').style.display = 'none';
                 document.getElementById('predictError').style.display = 'block';
                 document.getElementById('predictError').innerText = 'Network Error occurred.';
@@ -395,6 +456,7 @@ $total_pages = ceil($total_records / $records_per_page);
     }
     
     function closePredictionModal() {
+        stopLoadingAnimation();
         document.getElementById('predictModal').style.display = 'none';
     }
 </script>

@@ -18,46 +18,71 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
 
 <style>
 /* ---------------- NAVBAR STYLES ---------------- */
+:root {
+    --nav-bg: #043f2e;
+    --nav-accent: #10b981;
+}
+
 .topbar {
     position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height); z-index: 9999;
-    background: rgba(26, 163, 83, 0.9);
+    background: rgba(4, 63, 46, 0.98);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    color: white; padding: 0 45px; display: flex; align-items: center; justify-content: space-between;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); box-sizing: border-box;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 0 40px; display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); box-sizing: border-box;
+    transition: 0.3s;
 }
 
 body.dark-mode .topbar { 
-    background: rgba(2, 6, 23, 0.85) !important;
+    background: rgba(2, 6, 23, 0.95) !important;
     border-bottom: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
 }
 
-.brand-section { display: flex; align-items: center; gap: 10px; }
+.brand-section { display: flex; align-items: center; gap: 14px; }
 .brand { display: flex; flex-direction: column; justify-content: center; }
-.brand strong { font-size: 20px; letter-spacing: 1px; color: #fff; font-weight: 700; }
-.brand small { font-size: 10px; opacity: 0.85; letter-spacing: 2px; color: #ffffff; }
+.brand strong { font-size: 20px; letter-spacing: 1.5px; color: #ffffff; font-weight: 800; line-height: 1.2; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+.brand small { font-size: 10px; letter-spacing: 3px; color: #6ee7b7; font-weight: 700; opacity: 0.9; }
 
-.menu { display: flex; gap: 20px; align-items: center; }
-.menu a { color: rgba(255, 255, 255, 0.85); text-decoration: none; font-size: 14px; font-weight: 500; padding: 10px 0; position: relative; transition: var(--transition); display: flex; align-items: center; gap: 6px; }
-.menu a:hover { color: #ffffff; }
-.menu a.active { color: #ffffff; font-weight: 700; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
-.menu a.active::after { content: ""; position: absolute; left: 0; bottom: 0; width: 100%; height: 3px; background: #ffffff; border-radius: 3px 3px 0 0; box-shadow: 0 -2px 8px rgba(255,255,255,0.5); }
-.menu i.ph { font-size: 18px; }
+.menu { display: flex; gap: 12px; align-items: center; height: 100%; }
+.menu a { 
+    color: #a7f3d0; text-decoration: none; font-size: 14px; font-weight: 500; 
+    padding: 0 14px; position: relative; transition: 0.3s; 
+    display: flex; align-items: center; gap: 8px; height: var(--nav-height); 
+    opacity: 0.8;
+}
+.menu a:hover { color: #ffffff; opacity: 1; }
+.menu a.active { color: #ffffff; font-weight: 700; opacity: 1; }
+.menu a::after { 
+    content: ""; position: absolute; left: 50%; bottom: 0; width: 0; height: 3px; 
+    background: var(--nav-accent); border-radius: 4px 4px 0 0; 
+    transition: 0.3s ease-out; transform: translateX(-50%); box-shadow: 0 -2px 10px rgba(16,185,129,0.6);
+}
+.menu a:hover::after { width: 60%; }
+.menu a.active::after { width: 100%; }
 
-.user-section { display: flex; align-items: center; gap: 15px; position: relative; cursor: pointer; padding: 6px 16px; border-radius: 50px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); transition: var(--transition); }
-.user-section:hover { background: rgba(255, 255, 255, 0.15); }
+.menu i.ph { font-size: 18px; transition: 0.3s; }
+.menu a:hover i.ph { transform: translateY(-2px); color: var(--nav-accent); }
+.menu a.active i.ph { color: var(--nav-accent); }
 
-.profile-card { background: linear-gradient(135deg, #1aa353, #13783d); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid rgba(255,255,255,0.8); font-size: 14px; }
+.user-section { display: flex; align-items: center; gap: 14px; position: relative; cursor: pointer; padding: 6px 8px 6px 20px; border-radius: 50px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); transition: 0.3s; }
+body.dark-mode .user-section { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.05); }
+.user-section:hover { background: rgba(255, 255, 255, 0.15); border-color: rgba(255,255,255,0.25); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 
-.profile-dropdown { position: absolute; top: calc(100% + 10px); right: 0; background: var(--light-surface); min-width: 220px; border-radius: 16px; box-shadow: var(--card-shadow); border: 1px solid var(--border-light); display: none; overflow: hidden; z-index: 10000; }
-body.dark-mode .profile-dropdown { background: var(--dark-surface); border-color: #334155; }
-.profile-dropdown.active { display: block; animation: slideDown 0.2s ease-out; }
-.profile-dropdown a { display: flex; align-items: center; gap: 10px; padding: 14px 20px; color: var(--text-dark); text-decoration: none; font-size: 14px; border-bottom: 1px solid var(--border-light); transition: var(--transition); }
-.profile-dropdown a:hover { background: var(--light-bg); padding-left: 25px; }
-body.dark-mode .profile-dropdown a { color: #f1f5f9; border-color: #1e293b; }
-body.dark-mode .profile-dropdown a:hover { background: #1e293b; }
-.profile-dropdown a i.ph { font-size: 18px; color: var(--primary-green); }
+.user-name-text { font-size: 13px; font-weight: 600; color: #ffffff; display: block; letter-spacing: 0.5px; }
+
+.profile-card { background: linear-gradient(135deg, #10b981, #047857); color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; box-shadow: 0 4px 10px rgba(16,185,129,0.4); }
+
+.profile-dropdown { position: absolute; top: calc(100% + 15px); right: 0; background: #ffffff; min-width: 230px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.05); display: none; overflow: hidden; z-index: 10000; padding:8px; }
+body.dark-mode .profile-dropdown { background: #1e293b; border-color: #334155; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+.profile-dropdown.active { display: block; animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.profile-dropdown a { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #475569; text-decoration: none; font-size: 14px; font-weight:600; border-radius:10px; transition: 0.2s; }
+.profile-dropdown a:hover { background: #f8fafc; color:#0f172a; padding-left: 20px; }
+body.dark-mode .profile-dropdown a { color: #cbd5e1; }
+body.dark-mode .profile-dropdown a:hover { background: #334155; color:#f8fafc; }
+.profile-dropdown a i.ph { font-size: 20px; color: var(--nav-accent); transition:0.2s; }
+.profile-dropdown a:hover i.ph { transform:scale(1.1); }
 
 
 @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -65,7 +90,7 @@ body.dark-mode .profile-dropdown a:hover { background: #1e293b; }
 
 <div class="topbar no-print">
     <div class="brand-section">
-        <i class="ph ph-cpu" style="font-size: 32px; color: #ffffff; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2));"></i>
+        <i class="ph ph-cpu" style="font-size: 32px; color: #04d992;"></i>
         <div class="brand">
             <strong>MULTI 9</strong>
             <small>COMPUTER SYSTEM</small>
@@ -86,19 +111,19 @@ body.dark-mode .profile-dropdown a:hover { background: #1e293b; }
     </div>
 
     <div style="display: flex; align-items: center; gap: 15px;">
-        <button class="dark-toggle" onclick="toggleDarkMode()" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); cursor:pointer; color: #ffffff; font-size: 20px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s;" title="Toggle Dark/Light Mode">
-            <i class="ph ph-sun" id="themeIcon"></i>
+        <button class="dark-toggle" onclick="toggleDarkMode()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); cursor:pointer; color: #ffffff; font-size: 20px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s;" title="Toggle Dark/Light Mode">
+            <i class="ph-bold ph-sun" id="themeIcon"></i>
         </button>
 
         <div class="user-section" id="userMenuTrigger">
             <div class="user-info" style="text-align: right;">
-                <span style="font-size: 13px; font-weight: 600; color:white; display: block;"><?= $user_name ?></span>
+                <span class="user-name-text"><?= $user_name ?></span>
             </div>
             <div class="profile-card"><?= $user_initial ?></div>
             <div class="profile-dropdown" id="userDropdown">
-                <a href="profile_settings.php"><i class="ph ph-gear"></i> System Settings</a>
-                <a href="backup_db.php"><i class="ph ph-database"></i> Database Backup</a>
-                <a href="logout.php" style="color: #ef4444; font-weight: 600;"><i class="ph ph-sign-out"></i> Log Out</a>
+                <a href="profile_settings.php"><i class="ph-fill ph-gear"></i> System Settings</a>
+                <a href="backup_db.php"><i class="ph-fill ph-database"></i> Database Backup</a>
+                <a href="logout.php" style="color: #ef4444; font-weight: 700;"><i class="ph-bold ph-sign-out"></i> Log Out</a>
             </div>
         </div>
     </div>
