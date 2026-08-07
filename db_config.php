@@ -34,4 +34,19 @@ if (!$conn || $conn->connect_error) {
 
 // Sync MySQL session time with the PHP timezone (+05:30 for Sri Lanka)
 $conn->query("SET time_zone = '+05:30'");
+
+// Auto-migrate missing columns in job_device table if not present
+$migrations = [
+    "ALTER TABLE job_device ADD COLUMN item_model VARCHAR(255) DEFAULT NULL",
+    "ALTER TABLE job_device ADD COLUMN repair_path VARCHAR(255) DEFAULT 'Carry-In'",
+    "ALTER TABLE job_device ADD COLUMN solution VARCHAR(255) DEFAULT NULL"
+];
+
+foreach ($migrations as $sql) {
+    try {
+        $conn->query($sql);
+    } catch (Throwable $e) {
+        // Ignore if column already exists
+    }
+}
 ?>
