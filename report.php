@@ -182,12 +182,7 @@ if ($failureResult) {
 .page-container {
     max-width: 1200px;
     margin: 0 auto;
-    margin-top: 25px;
-}
-
-.page-container{
-    max-width:1200px;
-    margin:0 auto;
+    padding-top: 35px;
 }
 
 .page-header{
