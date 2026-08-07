@@ -187,13 +187,13 @@ body{
 }
 
 .page-header{
-    background:linear-gradient(135deg,var(--primary-green) 0%,var(--accent-green) 100%);
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
     padding:40px;
     border-radius:24px;
     margin-bottom:40px;
     color:white;
     text-align:center;
-    box-shadow: 0 10px 30px rgba(15, 118, 110, 0.4);
+    box-shadow: 0 10px 30px rgba(46, 204, 113, 0.35);
 }
 
 /* --- NEW EXECUTIVE LAYOUT --- */
@@ -345,7 +345,7 @@ td{
 }
 
 .inventory-table th{
-    background:linear-gradient(135deg,var(--primary-green) 0%,var(--accent-green) 100%);
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
     color:white;
     padding:16px;
     font-size:13px;
@@ -420,7 +420,7 @@ td{
     position:fixed;
     bottom:30px;
     left:30px;
-    background:var(--primary-green);
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
     color:white;
     border:none;
     padding:12px 20px;
@@ -430,7 +430,7 @@ td{
     display:flex;
     align-items:center;
     gap:8px;
-    box-shadow: 0 4px 12px rgba(4, 217, 146, 0.4);
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4);
     transition: var(--transition);
     z-index: 1000;
 }
