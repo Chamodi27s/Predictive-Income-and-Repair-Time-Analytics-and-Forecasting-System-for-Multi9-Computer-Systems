@@ -281,27 +281,14 @@ $total_pages = ceil($total_records / $records_per_page);
     <div class="modal-content" style="background:linear-gradient(145deg, #1e293b, #0f172a); border:1px solid rgba(255,255,255,0.05); border-radius:24px; width:750px; max-width:95vw; padding:40px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); position:relative;">
         <button onclick="closePredictionModal()" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.05); border:none; color:var(--text-muted); font-size:20px; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="ph ph-x"></i></button>
         
-        <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:18px;">
-            <div style="background:rgba(4, 217, 146, 0.1); width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 20px rgba(4,217,146,0.2);">
-                <i class="ph-fill ph-brain" style="font-size:32px; color:var(--primary-green);"></i>
+        <div style="display:flex; align-items:center; gap:15px; margin-bottom:25px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:18px;">
+            <div id="predictHeaderIcon" style="background:rgba(4, 217, 146, 0.1); width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 20px rgba(4,217,146,0.2);">
+                <i id="predictIcon" class="ph-fill ph-clock" style="font-size:32px; color:var(--primary-green);"></i>
             </div>
             <div>
-                <h2 style="margin:0 0 4px 0; font-size:22px; color:#f8fafc; font-weight:700;">AI Instant Prediction</h2>
+                <h2 id="predictTitleText" style="margin:0 0 4px 0; font-size:22px; color:#f8fafc; font-weight:700;">AI Date Prediction</h2>
                 <p id="predictJobNo" style="color:#94a3b8; font-size:14px; margin:0; font-family:monospace;"></p>
             </div>
-        </div>
-
-        <!-- Prediction Mode Selector Tabs -->
-        <div class="prediction-type-selector" style="display:flex; gap:10px; margin-bottom:25px; background:rgba(255,255,255,0.03); padding:6px; border-radius:14px; border:1px solid rgba(255,255,255,0.05);">
-            <button type="button" id="tabPredictDate" onclick="setPredictionMode('date')" style="flex:1; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:13px; cursor:pointer; transition:0.3s; background:transparent; color:#94a3b8;">
-                <i class="ph-bold ph-clock"></i> Predict Completion Date
-            </button>
-            <button type="button" id="tabPredictCost" onclick="setPredictionMode('cost')" style="flex:1; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:13px; cursor:pointer; transition:0.3s; background:transparent; color:#94a3b8;">
-                <i class="ph-bold ph-currency-dollar"></i> Predict Cost & Parts
-            </button>
-            <button type="button" id="tabPredictAll" onclick="setPredictionMode('all')" style="flex:1; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:13px; cursor:pointer; transition:0.3s; background:var(--primary-green); color:white;">
-                <i class="ph-bold ph-sparkle"></i> Predict All
-            </button>
         </div>
         
         <!-- Styled AI Loading Animation -->
@@ -404,47 +391,44 @@ $total_pages = ceil($total_records / $records_per_page);
 
 <script>
     let loadingTextInterval;
-    let currentPredictionMode = 'all';
     const loadingSteps = [
         "Connecting to AI Prediction Backend...",
-        "Querying Random Forest Machine Learning Model...",
+        "Querying Machine Learning Model...",
         "Cross-referencing historical repair dataset...",
-        "Calculating estimated metrics..."
+        "Calculating prediction result..."
     ];
 
-    function setPredictionMode(mode) {
-        currentPredictionMode = mode;
-        const btnDate = document.getElementById('tabPredictDate');
-        const btnCost = document.getElementById('tabPredictCost');
-        const btnAll = document.getElementById('tabPredictAll');
+    function applyPredictionView(mode) {
+        const titleEl = document.getElementById('predictTitleText');
+        const iconEl = document.getElementById('predictIcon');
+        const iconBox = document.getElementById('predictHeaderIcon');
 
         const cardDate = document.getElementById('cardPredictDate');
         const cardCost = document.getElementById('cardPredictCost');
         const cardParts = document.getElementById('cardPredictParts');
 
-        // Reset Tab Styles
-        [btnDate, btnCost, btnAll].forEach(btn => {
-            if (btn) {
-                btn.style.background = 'transparent';
-                btn.style.color = '#94a3b8';
+        if (mode === 'cost') {
+            if (titleEl) titleEl.innerText = "AI Cost & Parts Prediction";
+            if (iconEl) iconEl.className = "ph-fill ph-currency-dollar";
+            if (iconEl) iconEl.style.color = "#c084fc";
+            if (iconBox) {
+                iconBox.style.background = "rgba(168, 85, 247, 0.1)";
+                iconBox.style.boxShadow = "0 0 20px rgba(168, 85, 247, 0.2)";
             }
-        });
-
-        if (mode === 'date') {
-            if (btnDate) { btnDate.style.background = 'var(--primary-green)'; btnDate.style.color = 'white'; }
-            if (cardDate) cardDate.style.display = 'flex';
-            if (cardCost) cardCost.style.display = 'none';
-            if (cardParts) cardParts.style.display = 'none';
-        } else if (mode === 'cost') {
-            if (btnCost) { btnCost.style.background = '#3b82f6'; btnCost.style.color = 'white'; }
             if (cardDate) cardDate.style.display = 'none';
             if (cardCost) cardCost.style.display = 'flex';
             if (cardParts) cardParts.style.display = 'block';
         } else {
-            if (btnAll) { btnAll.style.background = 'var(--primary-green)'; btnAll.style.color = 'white'; }
+            if (titleEl) titleEl.innerText = "AI Date Prediction";
+            if (iconEl) iconEl.className = "ph-fill ph-clock";
+            if (iconEl) iconEl.style.color = "var(--primary-green)";
+            if (iconBox) {
+                iconBox.style.background = "rgba(4, 217, 146, 0.1)";
+                iconBox.style.boxShadow = "0 0 20px rgba(4, 217, 146, 0.2)";
+            }
             if (cardDate) cardDate.style.display = 'flex';
-            if (cardCost) cardCost.style.display = 'flex';
-            if (cardParts) cardParts.style.display = 'block';
+            if (cardCost) cardCost.style.display = 'none';
+            if (cardParts) cardParts.style.display = 'none';
         }
     }
 
@@ -463,7 +447,7 @@ $total_pages = ceil($total_records / $records_per_page);
         clearInterval(loadingTextInterval);
     }
 
-    function openPredictionModal(jobNo, initialMode = 'all') {
+    function openPredictionModal(jobNo, initialMode = 'date') {
         document.getElementById('predictModal').style.display = 'flex';
         document.getElementById('predictJobNo').innerText = 'Job ID: ' + jobNo;
         
@@ -472,7 +456,7 @@ $total_pages = ceil($total_records / $records_per_page);
         document.getElementById('predictResults').style.display = 'none';
         document.getElementById('predictError').style.display = 'none';
 
-        setPredictionMode(initialMode);
+        applyPredictionView(initialMode);
         startLoadingAnimation();
         
         // Call API
@@ -495,7 +479,7 @@ $total_pages = ceil($total_records / $records_per_page);
                     document.getElementById('resCost').innerText = 'Rs. ' + data.cost;
                     document.getElementById('resParts').innerText = data.parts;
                     
-                    setPredictionMode(initialMode);
+                    applyPredictionView(initialMode);
                 } else {
                     document.getElementById('predictError').style.display = 'block';
                     document.getElementById('predictError').innerText = data.message;
