@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-green: #14b8a6;
+            --primary-green: #04d992;
             --primary-green-dark: #0f766e;
             --dark-bg: #0f172a;
             --dark-surface: #1e293b;
@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-image: radial-gradient(circle at 50% -20%, #14b8a620, transparent 40%);
+            background-image: radial-gradient(circle at 50% -20%, #04d99220, transparent 40%);
         }
 
         .container {
@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 48px;
             color: var(--primary-green);
             margin-bottom: 15px;
-            filter: drop-shadow(0 0 10px rgba(20, 184, 166, 0.5));
+            filter: drop-shadow(0 0 10px rgba(4, 217, 146, 0.5));
         }
 
         .header h1 {
@@ -169,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .form-control:focus {
             outline: none;
             border-color: var(--primary-green);
-            box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.15);
+            box-shadow: 0 0 0 4px rgba(4, 217, 146, 0.15);
         }
 
         .btn-predict {
@@ -188,12 +188,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             align-items: center;
             gap: 10px;
             transition: all 0.3s ease;
-            box-shadow: 0 10px 20px -5px rgba(20, 184, 166, 0.4);
+            box-shadow: 0 10px 20px -5px rgba(4, 217, 146, 0.4);
         }
 
         .btn-predict:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 25px -5px rgba(20, 184, 166, 0.5);
+            box-shadow: 0 15px 25px -5px rgba(4, 217, 146, 0.5);
         }
         
         .btn-back {
@@ -212,8 +212,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .result-card {
-            background: rgba(20, 184, 166, 0.1);
-            border: 1px solid rgba(20, 184, 166, 0.3);
+            background: rgba(4, 217, 146, 0.1);
+            border: 1px solid rgba(4, 217, 146, 0.3);
             border-radius: 16px;
             padding: 25px;
             text-align: center;
@@ -234,7 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-weight: 800;
             color: var(--primary-green);
             margin: 0;
-            text-shadow: 0 0 20px rgba(20, 184, 166, 0.4);
+            text-shadow: 0 0 20px rgba(4, 217, 146, 0.4);
         }
         
         .error-card {

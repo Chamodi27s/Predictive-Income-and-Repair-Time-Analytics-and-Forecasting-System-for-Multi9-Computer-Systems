@@ -76,33 +76,110 @@ $result = mysqli_query($conn, $sql);
     <link rel="stylesheet" href="CSS/global.css">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        .page-container { max-width: 1400px; margin: 0 auto; margin-top: 25px; }
-        .page-header { background: linear-gradient(135deg, var(--primary-green), var(--accent-green)); padding: 30px; border-radius: 20px; margin-bottom: 30px; color: white; text-align: center; box-shadow: 0 10px 20px rgba(15, 118, 110, 0.2); }
-        .search-container { display: flex; justify-content: center; margin-bottom: 25px; align-items: center; gap: 15px; }
-        .search-box { display: flex; background: var(--light-surface); padding: 5px; border-radius: 12px; box-shadow: var(--card-shadow); width: 100%; max-width: 500px; border: 1px solid var(--border-light); }
-        .search-box input { flex: 1; border: none; padding: 10px 15px; outline: none; border-radius: 8px; background: transparent; color: var(--text-dark); }
-        .search-box button { background: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: var(--transition); display: flex; align-items: center; gap: 5px; }
-        .search-box button:hover { background: var(--primary-green-dark); }
-        
-        .filter-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
-        .filter-tag { padding: 12px 22px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 13px; color: white; transition: var(--transition); border: 2px solid transparent; }
-        .active-tag { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: rgba(255,255,255,0.8); }
-        
-        .table-container { background: var(--light-surface); border-radius: 15px; box-shadow: var(--card-shadow); overflow-x: auto; border: 1px solid var(--border-light); }
+        :root {
+            --btn-blue: #2563eb;
+            --btn-blue-hover: #1d4ed8;
+            --btn-green: #059669;
+            --btn-purple: #7c3aed;
+            --btn-amber: #d97706;
+        }
+
+        .page-container { max-width: 1400px; margin: 0 auto; margin-top: 25px; padding: 0 15px; }
+        .page-header { background: linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%); padding: 30px; border-radius: 20px; margin-bottom: 30px; color: white; text-align: center; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.25); }
+        .page-header h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .page-header p { font-size: 14px; opacity: 0.9; }
+
+        .search-container { display: flex; justify-content: center; margin-bottom: 25px; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .search-box { display: flex; background: var(--light-surface, #ffffff); padding: 6px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); width: 100%; max-width: 550px; border: 1px solid var(--border-light, #e2e8f0); }
+        .search-box input { flex: 1; border: none; padding: 10px 18px; outline: none; border-radius: 10px; background: transparent; color: var(--text-dark, #0f172a); font-size: 14px; }
+        .search-box button { background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 10px 22px; border-radius: 10px; cursor: pointer; font-weight: 700; transition: all 0.2s ease; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+        .search-box button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4); }
+
+        .history-link { background: var(--dark-surface, #1e293b); color: white; padding: 12px 22px; border-radius: 14px; text-decoration: none; font-weight: 700; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.2s; }
+        .history-link:hover { background: #0f172a; transform: translateY(-1px); }
+
+        .filter-container { display: flex; justify-content: center; gap: 12px; margin-bottom: 25px; flex-wrap: wrap; }
+        .filter-tag { padding: 10px 20px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 13px; color: white; transition: all 0.2s; border: 2px solid transparent; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .filter-tag:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
+        .active-tag { transform: scale(1.05); box-shadow: 0 6px 18px rgba(0,0,0,0.2) !important; border-color: #ffffff !important; }
+
+        .table-container { background: var(--light-surface, #ffffff); border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); overflow-x: auto; border: 1px solid var(--border-light, #e2e8f0); }
         .status-table { width: 100%; border-collapse: collapse; min-width: 1100px; }
-        .status-table th { background: var(--light-bg); color: var(--text-muted); padding: 15px; font-size: 12px; text-transform: uppercase; border-bottom: 2px solid var(--border-light); }
-        .status-table td { padding: 15px; border-bottom: 1px solid var(--border-light); text-align: center; color: var(--text-dark); transition: var(--transition); }
-        
-        .inline-input { width: 100%; border: 1px solid transparent; background: var(--light-bg); padding: 8px; border-radius: 8px; text-align: center; font-size: 13px; transition: var(--transition); color: var(--text-dark); }
-        .inline-input.editing { border-color: var(--primary-green); background: var(--light-surface); outline: none; box-shadow: 0 0 5px rgba(20, 184, 166, 0.2); }
-        .badge { padding: 6px 14px; border-radius: 50px; font-size: 11px; font-weight: 800; }
-        .bill-btn { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: 800; }
-        .paid-badge { background: #ecfdf5; color: #059669; border: 1px solid #10b981; padding: 8px 15px; border-radius: 8px; font-weight: 800; }
-        .sms-btn { background: #3b82f6; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: 900; margin-top: 5px; width: 100%; }
-        #smsModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; }
-        .modal-content { background:white; width:90%; max-width:600px; margin:80px auto; padding:20px; border-radius:15px; position:relative; box-shadow:0 5px 25px rgba(0,0,0,0.2); }
-        .close-modal { position:absolute; right:20px; top:15px; font-size:24px; cursor:pointer; font-weight:bold; }
-        .advance-amount { color: var(--danger); font-weight: 800; font-size: 14px; }
+        .status-table th { background: var(--light-bg, #f8fafc); color: var(--text-muted, #64748b); padding: 16px 18px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 800; border-bottom: 2px solid var(--border-light, #e2e8f0); }
+        .status-table td { padding: 16px 18px; border-bottom: 1px solid var(--border-light, #e2e8f0); text-align: center; color: var(--text-dark, #0f172a); font-size: 13px; vertical-align: middle; }
+        .status-table tr:hover td { background: rgba(241, 245, 249, 0.5); }
+
+        .job-badge { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 6px 14px; border-radius: 50px; font-weight: 800; font-size: 12px; display: inline-block; }
+
+        .inline-input { width: 100%; border: 1px solid #cbd5e1; background: var(--light-bg, #f8fafc); padding: 10px 12px; border-radius: 10px; font-size: 13px; color: var(--text-dark, #0f172a); transition: all 0.2s; }
+        .inline-input[readonly] { background: rgba(241, 245, 249, 0.6); border-color: #e2e8f0; cursor: not-allowed; }
+        .inline-input.editing { border-color: #2563eb !important; background: #ffffff !important; outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important; cursor: text !important; }
+
+        /* Action Buttons with High Visibility */
+        .btn-action-edit {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+            color: #ffffff !important;
+            border: none;
+            padding: 9px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+            transition: all 0.2s;
+        }
+        .btn-action-edit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5);
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
+        }
+
+        .btn-action-sms {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%) !important;
+            color: #ffffff !important;
+            border: none;
+            padding: 9px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+            transition: all 0.2s;
+        }
+        .btn-action-sms:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5);
+        }
+
+        .bill-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 9px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 800;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+            transition: all 0.2s;
+        }
+        .bill-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(245, 158, 11, 0.5); }
+
+        .paid-badge { background: #ecfdf5; color: #059669; border: 1px solid #10b981; padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; }
+
+        .sms-btn { background: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: 900; margin-top: 5px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        #smsModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index:9999; }
+        .modal-content { background:white; width:90%; max-width:600px; margin:80px auto; padding:25px; border-radius:20px; position:relative; box-shadow:0 20px 40px rgba(0,0,0,0.25); }
+        .close-modal { position:absolute; right:20px; top:18px; font-size:24px; cursor:pointer; font-weight:bold; color: #64748b; }
+        .advance-amount { color: #e11d48; font-weight: 800; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -110,14 +187,14 @@ $result = mysqli_query($conn, $sql);
 <div id="smsModal">
     <div class="modal-content">
         <span class="close-modal" onclick="document.getElementById('smsModal').style.display='none'">&times;</span>
-        <h2 style="margin-bottom:15px;">SMS History</h2>
-        <div id="historyBody" style="max-height:400px; overflow-y:auto;">Loading...</div>
+        <h2 style="margin-bottom:15px; font-size:20px; color:#0f172a;">SMS History</h2>
+        <div id="historyBody" style="max-height:400px; overflow-y:auto; font-size:14px; color:#334155;">Loading...</div>
     </div>
 </div>
 
 <div class="page-container">
     <div class="page-header">
-        <h1> Job Management System</h1>
+        <h1><i class="ph ph-wrench"></i> Job Management System</h1>
         <p>Track repair status, manage billing, and automate notifications</p>
     </div>
 
@@ -125,16 +202,17 @@ $result = mysqli_query($conn, $sql);
         <form action="" method="GET" class="search-box">
             <input type="hidden" name="status" value="<?= htmlspecialchars($filter_status) ?>">
             <input type="text" name="search" placeholder="Search by Job No, Phone, Name..." value="<?= htmlspecialchars($search) ?>">
-            <button type="submit"><i class="ph ph-magnifying-glass"></i> Search</button>
+            <button type="submit"><i class="ph ph-magnifying-glass" style="font-size:16px;"></i> Search</button>
         </form>
-        <a href="returned_jobs.php" style="background: var(--dark-surface); color: white; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 5px; border: 1px solid var(--border-light);"><i class="ph ph-clock-counter-clockwise"></i> History</a>
+        <a href="returned_jobs.php" class="history-link"><i class="ph ph-clock-counter-clockwise" style="font-size:18px;"></i> History</a>
     </div>
 
     <div class="filter-container">
-        <a href="?search=<?= $search ?>" class="filter-tag <?= $filter_status == '' ? 'active-tag' : '' ?>" style="background: var(--secondary)"> All Jobs</a>
-        <?php foreach (['Pending' => '--warning', 'In Progress' => '--blue', 'Completed' => '--success', 'Returned' => '#10b981'] as $st => $col): ?>
-            <a href="?status=<?= $st ?>&search=<?= $search ?>" class="filter-tag <?= $filter_status == $st ? 'active-tag' : '' ?>" style="background: var(<?= $col ?>, <?= $col ?>)"><?= $st ?></a>
-        <?php endforeach; ?>
+        <a href="?search=<?= $search ?>" class="filter-tag <?= $filter_status == '' ? 'active-tag' : '' ?>" style="background: #334155;">All Jobs</a>
+        <a href="?status=Pending&search=<?= $search ?>" class="filter-tag <?= $filter_status == 'Pending' ? 'active-tag' : '' ?>" style="background: #f59e0b;">Pending</a>
+        <a href="?status=In Progress&search=<?= $search ?>" class="filter-tag <?= $filter_status == 'In Progress' ? 'active-tag' : '' ?>" style="background: #2563eb;">In Progress</a>
+        <a href="?status=Completed&search=<?= $search ?>" class="filter-tag <?= $filter_status == 'Completed' ? 'active-tag' : '' ?>" style="background: #059669;">Completed</a>
+        <a href="?status=Returned&search=<?= $search ?>" class="filter-tag <?= $filter_status == 'Returned' ? 'active-tag' : '' ?>" style="background: #64748b;">Returned</a>
     </div>
 
     <div class="table-container">
@@ -145,7 +223,7 @@ $result = mysqli_query($conn, $sql);
                     <th>CUSTOMER DETAILS</th>
                     <th>DEVICE</th>
                     <th>ISSUE</th>
-                    <th style="color: var(--danger);">ADVANCE (Rs.)</th>
+                    <th style="color: #e11d48;">ADVANCE (RS.)</th>
                     <th>SOLUTION</th> 
                     <th>STATUS</th>
                     <th>ACTIONS</th>
@@ -154,7 +232,7 @@ $result = mysqli_query($conn, $sql);
             <tbody>
                 <?php if(mysqli_num_rows($result) > 0): ?>
                     <?php while($row = mysqli_fetch_assoc($result)): 
-                        $id = $row['job_device_id']; // මෙන්න මේ Unique ID එක භාවිතා කරනවා
+                        $id = $row['job_device_id'];
                         $current_status = $row['device_status'];
                         $is_paid = ($row['payment_status'] == 'Paid');
                         $current_idx = array_search($current_status, $status_flow);
@@ -170,10 +248,10 @@ $result = mysqli_query($conn, $sql);
                         }
                     ?>
                     <tr id="row-<?= $id ?>">
-                        <td><span class="badge" style="background:#f1f5f9; color:#475569;">#<?= $row['job_no'] ?></span></td>
+                        <td><span class="job-badge">#<?= $row['job_no'] ?></span></td>
                         <td style="text-align: left;">
-                            <b style="font-size:14px;"><?= htmlspecialchars($row['customer_name']) ?></b><br>
-                            <small style="color:var(--text-muted);"><?= $row['phone_number'] ?></small>
+                            <b style="font-size:14px; color:#0f172a;"><?= htmlspecialchars($row['customer_name']) ?></b><br>
+                            <small style="color:#64748b; font-weight:500;"><?= $row['phone_number'] ?></small>
                         </td>
                         
                         <td><input type="text" id="dev-<?= $id ?>" class="inline-input" value="<?= htmlspecialchars($row['device_name']) ?>" readonly></td>
@@ -183,11 +261,13 @@ $result = mysqli_query($conn, $sql);
                             Rs. <?= number_format($row['advance_paid'], 2) ?>
                         </td>
 
-                        <td><textarea id="sol-<?= $id ?>" class="inline-input" readonly style="min-height:45px;"><?= htmlspecialchars($row['solution'] ?? '') ?></textarea></td>
+                        <td style="min-width:180px;">
+                            <textarea id="sol-<?= $id ?>" class="inline-input" readonly rows="2" style="resize:vertical; min-height:48px;" placeholder="Click Edit button to enter solution..."><?= htmlspecialchars($row['solution'] ?? '') ?></textarea>
+                        </td>
                         
-                        <td style="vertical-align: top;">
+                        <td style="vertical-align: middle; min-width: 140px;">
                             <select id="stat-<?= $id ?>" onchange="updateStatusAndSMS(<?= $id ?>)" <?= $current_status == 'Returned' ? 'disabled' : '' ?> 
-                                    style="padding:8px; border-radius:8px; border:1px solid var(--border); font-weight:600; width: 100%;">
+                                    style="padding:10px 12px; border-radius:10px; border:1px solid #cbd5e1; font-weight:700; font-size:13px; width: 100%; cursor:pointer; background:#ffffff; color:#0f172a;">
                                 <?php foreach ($status_flow as $idx => $opt): ?>
                                     <?php if ($idx >= $current_idx): ?>
                                         <option value="<?= $opt ?>" <?= $current_status == $opt ? 'selected' : '' ?>><?= $opt ?></option>
@@ -200,28 +280,30 @@ $result = mysqli_query($conn, $sql);
                                     <div style="color: #dc2626; font-weight: 900; font-size: 11px; margin-bottom: 4px;">
                                          RENT: Rs. <?= $delay_fee ?>
                                     </div>
-                                    <button class="sms-btn" onclick="sendManualSMS(<?= $id ?>)" style="background: #ef4444; border-radius: 5px; padding: 5px; font-size: 10px; display:flex; align-items:center; justify-content:center; gap:3px;"><i class="ph ph-paper-plane-tilt"></i> RENT SMS</button>
+                                    <button class="sms-btn" onclick="sendManualSMS(<?= $id ?>)"><i class="ph ph-paper-plane-tilt"></i> RENT SMS</button>
                                 </div>
                             <?php elseif($current_status == 'Completed'): ?>
-                                <div style="font-size: 9px; color: #94a3b8; margin-top: 5px;">Collection: <?= $days_passed ?> days</div>
+                                <div style="font-size: 10px; color: #64748b; font-weight:600; margin-top: 5px;">Collection: <?= $days_passed ?> days</div>
                             <?php endif; ?>
                         </td>
 
                         <td>
-                            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-                                <button onclick="viewSMSHistory(<?= $id ?>)" title="View SMS History" style="background:var(--secondary); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;"><i class="ph ph-chat-text"></i></button>
+                            <div style="display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                                <button onclick="viewSMSHistory(<?= $id ?>)" title="View SMS History" class="btn-action-sms">
+                                    <i class="ph ph-chat-text" style="font-size:15px;"></i> <span>SMS</span>
+                                </button>
                                 
-                                <?php if($current_status != 'Completed' && $current_status != 'Returned'): ?>
-                                    <button id="btn-edit-<?= $id ?>" onclick="toggleEdit(<?= $id ?>)" style="background: var(--blue); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;"><i class="ph ph-pencil-simple"></i></button>
-                                <?php else: ?>
-                                    <span style="opacity:0.3; font-size:16px;"></span>
+                                <?php if($current_status != 'Returned'): ?>
+                                    <button id="btn-edit-<?= $id ?>" onclick="toggleEdit(<?= $id ?>)" class="btn-action-edit" title="Click to edit details & solution">
+                                        <i class="ph ph-pencil-simple" style="font-size:15px;"></i> <span>Edit</span>
+                                    </button>
                                 <?php endif; ?>
 
                                 <?php if($current_status == 'Completed' || $current_status == 'Returned'): ?>
                                     <?php if(!$is_paid): ?>
-                                        <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&fee=<?= $delay_fee ?>" class="bill-btn"><i class="ph ph-receipt"></i> BILL</a>
+                                        <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&fee=<?= $delay_fee ?>" class="bill-btn"><i class="ph ph-receipt" style="font-size:15px;"></i> BILL</a>
                                     <?php else: ?>
-                                        <span class="paid-badge"><i class="ph ph-check-circle"></i> PAID</span>
+                                        <span class="paid-badge"><i class="ph ph-check-circle" style="font-size:15px;"></i> PAID</span>
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </div>
@@ -229,7 +311,7 @@ $result = mysqli_query($conn, $sql);
                     </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="8" style="padding: 60px; color: var(--text-muted);">No active jobs found.</td></tr>
+                    <tr><td colspan="8" style="padding: 60px; color: var(--text-muted, #64748b); font-size:15px; font-weight:600;">No active jobs found.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -291,9 +373,9 @@ function toggleEdit(id) {
         dev.classList.add('editing'); 
         iss.classList.add('editing'); 
         sol.classList.add('editing');
-        dev.focus();
-        btn.innerHTML = "<i class='ph ph-floppy-disk'></i>";
-        btn.style.background = "var(--success)";
+        sol.focus();
+        btn.innerHTML = "<i class='ph ph-floppy-disk' style='font-size:15px;'></i> <span>Save</span>";
+        btn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
     } else {
         // Save Mode
         updateStatusAndSMS(id);

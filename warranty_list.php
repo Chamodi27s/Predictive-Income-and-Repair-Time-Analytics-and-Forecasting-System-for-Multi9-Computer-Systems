@@ -80,7 +80,7 @@ if(isset($_GET['range'])) {
             <h2> Warranty Devices</h2>
             <div class="search-box">
                 <input type="text" id="warrantySearch" class="search-input" placeholder="🔍 Search Job, Name, Phone..." onkeyup="filterWarranty()">
-                <button class="btn-edit" style="background:var(--danger);" onclick="window.location.href='?'">✕</button>
+                <button class="btn-edit" style="background:var(--danger);" onclick="window.location.href='?'"><i class="ph-bold ph-x"></i></button>
             </div>
         </div>
 
@@ -150,7 +150,7 @@ if(isset($_GET['range'])) {
                         <td>
                             <div style="display:flex; gap:5px;">
                                 <input type="text" id="sup-<?= $id ?>" class="supplier-input" value="<?= htmlspecialchars($row['supplier_name'] ?? '') ?>" readonly>
-                                <button id="btn-<?= $id ?>" class="btn-edit" onclick="toggleSupplier(<?= $id ?>)">✏️</button>
+                                <button id="btn-<?= $id ?>" class="btn-edit" onclick="toggleSupplier(<?= $id ?>)"><i class="ph-bold ph-pencil-simple"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -208,19 +208,19 @@ function toggleSupplier(id) {
     if (input.readOnly) {
         input.readOnly = false;
         input.classList.add('editing');
-        btn.innerHTML = "💾";
+        btn.innerHTML = '<i class="ph-bold ph-floppy-disk"></i>';
         input.focus();
     } else {
         saveAll(id);
         input.readOnly = true;
         input.classList.remove('editing');
-        btn.innerHTML = "✏️";
+        btn.innerHTML = '<i class="ph-bold ph-pencil-simple"></i>';
     }
 }
 
 function showToast(text) {
     let toast = document.getElementById('saveMsg');
-    toast.innerText = "✅ " + text;
+    toast.innerHTML = '<i class="ph-bold ph-check-circle"></i> ' + text;
     toast.style.display = 'block';
     setTimeout(() => { toast.style.display = 'none'; }, 2000);
 }

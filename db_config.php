@@ -5,17 +5,29 @@ date_default_timezone_set('Asia/Colombo');
 // 2. Database Connection Details
 $servername = "localhost";
 $username = "root";
-$password = "admin123";
 $dbname = "servidedb";
 
-// 3. Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+// Try connecting with 'admin123' first, then fallback to empty string '' (XAMPP default)
+$passwords_to_try = ["admin123", ""];
+$conn = null;
 
-// 4. Check connection
-if ($conn->connect_error) {
-    die("Database Connection Failed: " . $conn->connect_error);
+foreach ($passwords_to_try as $password) {
+    try {
+        $test_conn = @new mysqli($servername, $username, $password, $dbname);
+        if (!$test_conn->connect_error) {
+            $conn = $test_conn;
+            break;
+        }
+    } catch (Throwable $e) {
+        // Continue to try next password
+    }
 }
 
-// 5. Sync MySQL session time with the PHP timezone (+05:30 for Sri Lanka)
+// Check connection
+if (!$conn || $conn->connect_error) {
+    die("Database Connection Failed. Please check MySQL server status and root password in db_config.php.");
+}
+
+// Sync MySQL session time with the PHP timezone (+05:30 for Sri Lanka)
 $conn->query("SET time_zone = '+05:30'");
 ?>
