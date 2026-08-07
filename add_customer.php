@@ -233,8 +233,9 @@ $total_pages = ceil($total_records / $records_per_page);
                             <td><span class="status-badge <?= $status_class ?>"><?= htmlspecialchars($status) ?></span></td>
                             <td onclick="event.stopPropagation();">
                                 <?php if($row['job_no']): ?>
-                                    <div style="display: flex; gap: 8px; align-items: center; justify-content:center;">
-                                        <button type="button" onclick="openPredictionModal('<?= htmlspecialchars($row['job_no']) ?>')" class="predict-btn" style="border:none; cursor:pointer;"><i class="ph ph-clock"></i> Predict</button>
+                                    <div style="display: flex; gap: 6px; align-items: center; justify-content:center;">
+                                        <button type="button" onclick="openPredictionModal('<?= htmlspecialchars($row['job_no']) ?>', 'date')" class="predict-btn" style="border:none; cursor:pointer;" title="Predict Completion Date"><i class="ph ph-clock"></i> Date</button>
+                                        <button type="button" onclick="openPredictionModal('<?= htmlspecialchars($row['job_no']) ?>', 'cost')" class="cost-btn" style="border:none; cursor:pointer;" title="Predict Cost & Parts"><i class="ph ph-currency-dollar"></i> Cost</button>
                                     </div>
                                 <?php endif; ?>
                             </td>
@@ -280,14 +281,27 @@ $total_pages = ceil($total_records / $records_per_page);
     <div class="modal-content" style="background:linear-gradient(145deg, #1e293b, #0f172a); border:1px solid rgba(255,255,255,0.05); border-radius:24px; width:750px; max-width:95vw; padding:40px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); position:relative;">
         <button onclick="closePredictionModal()" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.05); border:none; color:var(--text-muted); font-size:20px; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="ph ph-x"></i></button>
         
-        <div style="display:flex; align-items:center; gap:15px; margin-bottom:30px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:20px;">
-            <div style="background:rgba(4, 217, 146, 0.1); width:60px; height:60px; border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 20px rgba(4,217,146,0.2);">
-                <i class="ph-fill ph-brain" style="font-size:36px; color:var(--primary-green);"></i>
+        <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:18px;">
+            <div style="background:rgba(4, 217, 146, 0.1); width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 20px rgba(4,217,146,0.2);">
+                <i class="ph-fill ph-brain" style="font-size:32px; color:var(--primary-green);"></i>
             </div>
             <div>
-                <h2 style="margin:0 0 5px 0; font-size:24px; color:#f8fafc; font-weight:700;">AI Instant Prediction</h2>
+                <h2 style="margin:0 0 4px 0; font-size:22px; color:#f8fafc; font-weight:700;">AI Instant Prediction</h2>
                 <p id="predictJobNo" style="color:#94a3b8; font-size:14px; margin:0; font-family:monospace;"></p>
             </div>
+        </div>
+
+        <!-- Prediction Mode Selector Tabs -->
+        <div class="prediction-type-selector" style="display:flex; gap:10px; margin-bottom:25px; background:rgba(255,255,255,0.03); padding:6px; border-radius:14px; border:1px solid rgba(255,255,255,0.05);">
+            <button type="button" id="tabPredictDate" onclick="setPredictionMode('date')" style="flex:1; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:13px; cursor:pointer; transition:0.3s; background:transparent; color:#94a3b8;">
+                <i class="ph-bold ph-clock"></i> Predict Completion Date
+            </button>
+            <button type="button" id="tabPredictCost" onclick="setPredictionMode('cost')" style="flex:1; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:13px; cursor:pointer; transition:0.3s; background:transparent; color:#94a3b8;">
+                <i class="ph-bold ph-currency-dollar"></i> Predict Cost & Parts
+            </button>
+            <button type="button" id="tabPredictAll" onclick="setPredictionMode('all')" style="flex:1; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:13px; cursor:pointer; transition:0.3s; background:var(--primary-green); color:white;">
+                <i class="ph-bold ph-sparkle"></i> Predict All
+            </button>
         </div>
         
         <!-- Styled AI Loading Animation -->
@@ -355,7 +369,7 @@ $total_pages = ceil($total_records / $records_per_page);
             <!-- Right Column: Outputs -->
             <div style="flex:1; display:flex; flex-direction:column; gap:15px;">
                 <!-- Dates Card -->
-                <div style="background:rgba(4, 217, 146, 0.05); border:1px solid rgba(4,217,146,0.2); border-radius:16px; padding:25px; flex:1; display:flex; flex-direction:column; justify-content:center;">
+                <div id="cardPredictDate" style="background:rgba(4, 217, 146, 0.05); border:1px solid rgba(4,217,146,0.2); border-radius:16px; padding:25px; flex:1; display:flex; flex-direction:column; justify-content:center;">
                     <h3 style="font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--primary-green); margin:0 0 15px 0; font-weight:700;">Completion Estimate</h3>
                     
                     <div style="display:flex; align-items:flex-end; gap:10px; margin-bottom:5px;">
@@ -365,7 +379,7 @@ $total_pages = ceil($total_records / $records_per_page);
                 </div>
 
                 <!-- Cost Card -->
-                <div style="background:rgba(168, 85, 247, 0.05); border:1px solid rgba(168,85,247,0.2); border-radius:16px; padding:20px; display:flex; align-items:center; justify-content:space-between;">
+                <div id="cardPredictCost" style="background:rgba(168, 85, 247, 0.05); border:1px solid rgba(168,85,247,0.2); border-radius:16px; padding:20px; display:flex; align-items:center; justify-content:space-between;">
                     <div>
                         <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#c084fc; margin-bottom:5px; font-weight:700;">Estimated Cost</div>
                         <div id="resCost" style="color:#f8fafc; font-size:24px; font-weight:700;"></div>
@@ -376,7 +390,7 @@ $total_pages = ceil($total_records / $records_per_page);
                 </div>
 
                 <!-- Parts Card -->
-                <div style="background:rgba(59, 130, 246, 0.05); border:1px solid rgba(59,130,246,0.2); border-radius:16px; padding:20px;">
+                <div id="cardPredictParts" style="background:rgba(59, 130, 246, 0.05); border:1px solid rgba(59,130,246,0.2); border-radius:16px; padding:20px;">
                     <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#60a5fa; margin-bottom:5px; font-weight:700;">Required Parts</div>
                     <div id="resParts" style="color:#f8fafc; font-size:16px; font-weight:600;"></div>
                 </div>
@@ -390,12 +404,49 @@ $total_pages = ceil($total_records / $records_per_page);
 
 <script>
     let loadingTextInterval;
+    let currentPredictionMode = 'all';
     const loadingSteps = [
         "Connecting to AI Prediction Backend...",
         "Querying Random Forest Machine Learning Model...",
         "Cross-referencing historical repair dataset...",
-        "Calculating estimated completion date & cost..."
+        "Calculating estimated metrics..."
     ];
+
+    function setPredictionMode(mode) {
+        currentPredictionMode = mode;
+        const btnDate = document.getElementById('tabPredictDate');
+        const btnCost = document.getElementById('tabPredictCost');
+        const btnAll = document.getElementById('tabPredictAll');
+
+        const cardDate = document.getElementById('cardPredictDate');
+        const cardCost = document.getElementById('cardPredictCost');
+        const cardParts = document.getElementById('cardPredictParts');
+
+        // Reset Tab Styles
+        [btnDate, btnCost, btnAll].forEach(btn => {
+            if (btn) {
+                btn.style.background = 'transparent';
+                btn.style.color = '#94a3b8';
+            }
+        });
+
+        if (mode === 'date') {
+            if (btnDate) { btnDate.style.background = 'var(--primary-green)'; btnDate.style.color = 'white'; }
+            if (cardDate) cardDate.style.display = 'flex';
+            if (cardCost) cardCost.style.display = 'none';
+            if (cardParts) cardParts.style.display = 'none';
+        } else if (mode === 'cost') {
+            if (btnCost) { btnCost.style.background = '#3b82f6'; btnCost.style.color = 'white'; }
+            if (cardDate) cardDate.style.display = 'none';
+            if (cardCost) cardCost.style.display = 'flex';
+            if (cardParts) cardParts.style.display = 'block';
+        } else {
+            if (btnAll) { btnAll.style.background = 'var(--primary-green)'; btnAll.style.color = 'white'; }
+            if (cardDate) cardDate.style.display = 'flex';
+            if (cardCost) cardCost.style.display = 'flex';
+            if (cardParts) cardParts.style.display = 'block';
+        }
+    }
 
     function startLoadingAnimation() {
         let step = 0;
@@ -412,7 +463,7 @@ $total_pages = ceil($total_records / $records_per_page);
         clearInterval(loadingTextInterval);
     }
 
-    function openPredictionModal(jobNo) {
+    function openPredictionModal(jobNo, initialMode = 'all') {
         document.getElementById('predictModal').style.display = 'flex';
         document.getElementById('predictJobNo').innerText = 'Job ID: ' + jobNo;
         
@@ -421,6 +472,7 @@ $total_pages = ceil($total_records / $records_per_page);
         document.getElementById('predictResults').style.display = 'none';
         document.getElementById('predictError').style.display = 'none';
 
+        setPredictionMode(initialMode);
         startLoadingAnimation();
         
         // Call API
@@ -442,6 +494,8 @@ $total_pages = ceil($total_records / $records_per_page);
 
                     document.getElementById('resCost').innerText = 'Rs. ' + data.cost;
                     document.getElementById('resParts').innerText = data.parts;
+                    
+                    setPredictionMode(initialMode);
                 } else {
                     document.getElementById('predictError').style.display = 'block';
                     document.getElementById('predictError').innerText = data.message;
