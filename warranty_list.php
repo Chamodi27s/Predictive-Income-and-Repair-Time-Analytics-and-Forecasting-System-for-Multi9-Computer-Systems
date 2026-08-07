@@ -3,7 +3,7 @@ include 'db_config.php';
 include 'navbar.php'; 
 
 // Date Range Filters
-$filter_query = " WHERE jd.warranty_status = 'Warranty' ";
+$filter_query = " WHERE (jd.warranty_status = 'Yes' OR jd.warranty_status = 'Warranty') ";
 if(isset($_GET['range'])) {
     if($_GET['range'] == 'today') {
         $filter_query .= " AND DATE(j.job_date) = CURDATE() ";

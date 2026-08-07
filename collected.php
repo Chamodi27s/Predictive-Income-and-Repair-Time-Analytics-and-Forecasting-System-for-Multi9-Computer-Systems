@@ -2,7 +2,7 @@
 include 'db_config.php';
 include 'navbar.php'; 
 
-$filter_query = " WHERE jd.warranty_status = 'No Warranty' AND j.job_status != 'Approved' ";
+$filter_query = " WHERE (jd.warranty_status = 'No' OR jd.warranty_status = 'No Warranty' OR jd.warranty_status IS NULL OR jd.warranty_status = '') ";
 
 if(isset($_GET['range'])) {
     if($_GET['range'] == 'today') {
