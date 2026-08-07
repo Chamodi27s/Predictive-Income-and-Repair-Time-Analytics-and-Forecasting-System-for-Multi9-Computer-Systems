@@ -29,11 +29,15 @@ while($auto_row = mysqli_fetch_assoc($auto_res)) {
     $msg = "Hi $customer, your $device (Job #$job_no) is ready at Multi9. Please collect it soon.";
     $safe_msg = mysqli_real_escape_string($conn, $msg);
     
-    $history_sql = "INSERT INTO sms_history (job_device_id, phone_number, message, status) 
-                    VALUES ('$j_id', '$phone', '$safe_msg', 'Sent (Auto)')";
-    
-    if(mysqli_query($conn, $history_sql)) {
-        mysqli_query($conn, "UPDATE job_device SET last_sms_sent_date = CURDATE() WHERE job_device_id = $j_id");
+    try {
+        $history_sql = "INSERT INTO sms_history (job_device_id, phone_number, message, status) 
+                        VALUES ('$j_id', '$phone', '$safe_msg', 'Sent (Auto)')";
+        
+        if(@mysqli_query($conn, $history_sql)) {
+            @mysqli_query($conn, "UPDATE job_device SET last_sms_sent_date = CURDATE() WHERE job_device_id = $j_id");
+        }
+    } catch (Throwable $e) {
+        // Safe fallback if sms_history table issue occurs
     }
 }
 
