@@ -57,15 +57,15 @@ include_once 'navbar.php';
         .page-container {
             max-width: 1200px;
             margin: 0 auto;
-            margin-top: 25px;
+            padding-top: 35px;
         }
 
         .page-header {
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%);
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
             padding: 36px 40px;
             border-radius: 20px;
             margin-bottom: 32px;
-            box-shadow: 0 10px 30px rgba(15, 118, 110, 0.4);
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.35);
             color: white;
             text-align: center;
         }
@@ -131,7 +131,7 @@ include_once 'navbar.php';
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%);
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
             color: white;
             border: none;
             padding: 16px 24px;
@@ -139,7 +139,7 @@ include_once 'navbar.php';
             cursor: pointer;
             font-weight: 700;
             transition: var(--transition);
-            box-shadow: 0 4px 12px rgba(4, 217, 146, 0.3);
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
             display: flex; align-items: center; justify-content: center; gap: 8px;
         }
 
