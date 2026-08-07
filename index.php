@@ -60,7 +60,7 @@ $returned_count = $conn->query("SELECT COUNT(*) c FROM invoice WHERE payment_sta
 body { background: var(--bg-light, #f8fafc); }
 body.dark-mode { background: var(--bg-dark, #0f172a) !important; }
 
-.main-container { max-width: 1400px; width: 96%; margin: 0 auto; padding-bottom: 50px; }
+.main-container { max-width: 1400px; width: 96%; margin: 0 auto; padding-top: 35px; padding-bottom: 50px; }
 
 .welcome-section { margin-bottom: 40px; display:flex; align-items:center; gap:20px; }
 .welcome-icon { width:64px; height:64px; border-radius:20px; background:linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05)); display:flex; align-items:center; justify-content:center; color:#10b981; font-size:36px; border:1px solid rgba(16,185,129,0.3); }
