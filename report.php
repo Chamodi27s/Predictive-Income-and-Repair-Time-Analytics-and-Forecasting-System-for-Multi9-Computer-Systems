@@ -191,13 +191,13 @@ if ($failureResult) {
 }
 
 .page-header{
-    background:linear-gradient(135deg,var(--primary-green) 0%,var(--accent-green) 100%);
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
     padding:40px;
     border-radius:24px;
     margin-bottom:40px;
     color:white;
     text-align:center;
-    box-shadow: 0 10px 30px rgba(15, 118, 110, 0.4);
+    box-shadow: 0 10px 30px rgba(46, 204, 113, 0.35);
 }
 
 .stats-grid{
@@ -347,7 +347,7 @@ body.dark-mode .inventory-table-wrapper { border-color: #334155; }
 body.dark-mode .inventory-table { background: var(--dark-surface); }
 
 .inventory-table thead{
-    background:linear-gradient(135deg,var(--primary-green) 0%,var(--accent-green) 100%);
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
 }
 
 .inventory-table th{
