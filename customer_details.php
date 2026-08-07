@@ -103,23 +103,55 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
         body { background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); font-family: 'Inter', sans-serif; padding: 120px 40px 40px 40px; color: var(--text-main); line-height: 1.6; transition: background 0.3s ease; }
 
         body.dark-mode {
-            background: #0f172a !important;
-            color: #f1f5f9 !important;
+            --bg-main: #0b1329;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-dark: #ffffff;
+            --text-muted: #cbd5e1;
+            --secondary: #94a3b8;
+            --border: #334155;
+            background: #0b1329 !important;
+            color: #f8fafc !important;
         }
 
         body.dark-mode .card {
             background: #1e293b !important;
             border-color: #334155 !important;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
         }
 
         body.dark-mode .card-header { border-bottom-color: #334155 !important; }
-        body.dark-mode h2, body.dark-mode h3, body.dark-mode .device-name, body.dark-mode label { color: #ffffff !important; }
-        body.dark-mode input, body.dark-mode textarea, body.dark-mode select { background: #0f172a !important; border-color: #334155 !important; color: #ffffff !important; }
-        body.dark-mode input[readonly], body.dark-mode textarea[readonly] { background: #1e293b !important; opacity: 0.8; }
-        body.dark-mode .device-box { background: rgba(255,255,255,0.02) !important; border-color: rgba(255,255,255,0.05) !important; }
+        body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode .device-name { color: #ffffff !important; }
+        body.dark-mode label { color: #94a3b8 !important; }
+        body.dark-mode p { color: #cbd5e1 !important; }
+        body.dark-mode input, body.dark-mode textarea, body.dark-mode select {
+            background: #0f172a !important;
+            border-color: #334155 !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+        }
+        body.dark-mode input[readonly], body.dark-mode textarea[readonly] {
+            background: #0f172a !important;
+            border-color: #334155 !important;
+            color: #f1f5f9 !important;
+            opacity: 1 !important;
+        }
+        body.dark-mode .device-box {
+            background: #0f172a !important;
+            border-color: #334155 !important;
+        }
         body.dark-mode .action-bar { background: #1e293b !important; border-color: #334155 !important; }
-        body.dark-mode .page-header h1 { color: #f8fafc; }
+        body.dark-mode .page-header h1 { color: #ffffff !important; }
+        body.dark-mode .page-header p { color: #94a3b8 !important; }
+        body.dark-mode .btn-outline {
+            border-color: #475569 !important;
+            color: #f8fafc !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+        body.dark-mode .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.15) !important;
+            color: #ffffff !important;
+        }
 
         .container { max-width: 1400px; margin: 0 auto; padding-bottom: 50px; }
         .back-link { display:inline-flex; align-items:center; gap:8px; margin-bottom:30px; color:var(--primary); font-weight:700; text-decoration:none; font-size:15px; transition:0.3s; padding:10px 20px; background:rgba(46,204,113,0.1); border-radius:100px; }

@@ -2,10 +2,10 @@
 
 :root {
     /* Premium Green Palette */
-    --primary-green: #1aa353;
-    --primary-green-dark: #13783d;
+    --primary-green: #0f766e;
+    --primary-green-dark: #0f4f46;
     --primary-green-light: #ccfbf1;
-    --accent-green: #1aa353;
+    --accent-green: #04d992;
     --dark-surface: #0f172a;
     --dark-bg: #020617;
     --light-bg: #f8fafc;
@@ -74,7 +74,7 @@ body.dark-mode .premium-card {
     font-weight: 600;
     font-size: 14px;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(26, 163, 83, 0.3);
+    box-shadow: 0 4px 15px rgba(4, 217, 146, 0.3);
     transition: var(--transition);
     display: inline-flex;
     align-items: center;
@@ -85,7 +85,7 @@ body.dark-mode .premium-card {
 
 .premium-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(26, 163, 83, 0.4);
+    box-shadow: 0 8px 25px rgba(4, 217, 146, 0.4);
     background: linear-gradient(135deg, var(--accent-green), var(--primary-green));
     color: white;
 }
@@ -113,7 +113,7 @@ body.dark-mode .premium-input {
 }
 
 body.dark-mode .premium-input:focus {
-    box-shadow: 0 0 0 4px rgba(26, 163, 83, 0.2);
+    box-shadow: 0 0 0 4px rgba(4, 217, 146, 0.2);
 }
 
 /* Base Headings */

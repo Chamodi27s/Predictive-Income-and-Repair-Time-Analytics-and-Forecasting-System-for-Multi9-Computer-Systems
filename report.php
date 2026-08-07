@@ -12,8 +12,16 @@ if (file_exists(__DIR__ . "/db_config.php")) {
     die("db_config.php not found");
 }
 
+/*
+ * Capture the navbar HTML instead of printing it before <!DOCTYPE html>.
+ * It will be displayed inside a .no-print wrapper in the <body>.
+ */
+$navbarHtml = '';
+
 if (file_exists(__DIR__ . "/navbar.php")) {
+    ob_start();
     include __DIR__ . "/navbar.php";
+    $navbarHtml = ob_get_clean();
 }
 
 /* ---------------- DB CHECK ---------------- */
@@ -259,12 +267,12 @@ body.dark-mode .stat-value, body.dark-mode .section-title { color: #f8fafc; }
 
 .analytics-box{
     background:var(--primary-green-light);
-    border:1px solid rgba(26, 163, 83, 0.2);
+    border:1px solid rgba(4, 217, 146, 0.2);
     border-radius:15px;
     padding:20px;
     margin-bottom:30px;
 }
-body.dark-mode .analytics-box { background: rgba(26, 163, 83, 0.1); border-color: var(--primary-green-dark); }
+body.dark-mode .analytics-box { background: rgba(4, 217, 146, 0.1); border-color: var(--primary-green-dark); }
 
 .pattern-chip{
     display:inline-block;
@@ -275,7 +283,7 @@ body.dark-mode .analytics-box { background: rgba(26, 163, 83, 0.1); border-color
     font-size:13px;
     font-weight:700;
     margin:5px;
-    border:1px solid rgba(26, 163, 83, 0.2);
+    border:1px solid rgba(4, 217, 146, 0.2);
     box-shadow: var(--card-shadow);
 }
 body.dark-mode .pattern-chip { background: var(--dark-surface); border-color: #334155; color: var(--primary-green-light); }
@@ -432,7 +440,7 @@ body.dark-mode .item-name { color: #f8fafc; }
     align-items:center;
     gap:8px;
     text-decoration:none;
-    box-shadow: 0 4px 12px rgba(26, 163, 83, 0.4);
+    box-shadow: 0 4px 12px rgba(4, 217, 146, 0.4);
     transition: var(--transition);
     z-index: 100;
 }
@@ -467,19 +475,47 @@ body.dark-mode .item-name { color: #f8fafc; }
 
 @media print{
 
+    .no-print,
     .btn-export,
     .topbar,
-    .no-print,
     .chat-trigger,
     .chat-box,
+    #report-navbar,
     nav,
-    .navbar{
+    .navbar,
+    .sidebar,
+    [class*="navbar"],
+    [id*="navbar"]{
         display:none !important;
     }
 
     body{
-        padding:0;
+        background:#ffffff !important;
+        padding:0 !important;
+        -webkit-print-color-adjust:exact;
+        print-color-adjust:exact;
     }
+
+    .page-container{
+        width:100%;
+        max-width:none;
+        margin:0;
+    }
+
+    .page-header,
+    .stat-card,
+    .main-card,
+    .analytics-box,
+    table,
+    tr{
+        break-inside:avoid;
+        page-break-inside:avoid;
+    }
+}
+
+@page{
+    size:A4;
+    margin:12mm;
 }
 
 </style>
@@ -487,6 +523,12 @@ body.dark-mode .item-name { color: #f8fafc; }
 </head>
 
 <body>
+
+<?php if ($navbarHtml !== ''): ?>
+<div id="report-navbar" class="no-print">
+<?php echo $navbarHtml; ?>
+</div>
+<?php endif; ?>
 
 <a href="report_print.php" target="_blank" class="btn-export">
  <i class="ph ph-printer"></i> Export to PDF / Print
@@ -797,12 +839,12 @@ new Chart(ctx, {
 
 </script>
 
-</body>
+<?php if (file_exists(__DIR__ . "/chatbot.php")): ?>
+<div class="no-print">
+<?php include __DIR__ . "/chatbot.php"; ?>
+</div>
+<?php endif; ?>
 
-<?php
-if (file_exists(__DIR__ . "/chatbot.php")) {
-    include __DIR__ . "/chatbot.php";
-}
-?>
+</body>
 
 </html>

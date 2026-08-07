@@ -271,7 +271,7 @@ body{
 
 .analytics-box{
     background:var(--primary-green-light);
-    border:1px solid rgba(26, 163, 83, 0.2);
+    border:1px solid rgba(4, 217, 146, 0.2);
     border-radius:15px;
     padding:20px;
     margin-bottom:30px;
@@ -286,7 +286,7 @@ body{
     font-size:13px;
     font-weight:700;
     margin:5px;
-    border:1px solid rgba(26, 163, 83, 0.2);
+    border:1px solid rgba(4, 217, 146, 0.2);
     box-shadow: var(--card-shadow);
 }
 
@@ -430,7 +430,7 @@ td{
     display:flex;
     align-items:center;
     gap:8px;
-    box-shadow: 0 4px 12px rgba(26, 163, 83, 0.4);
+    box-shadow: 0 4px 12px rgba(4, 217, 146, 0.4);
     transition: var(--transition);
     z-index: 1000;
 }

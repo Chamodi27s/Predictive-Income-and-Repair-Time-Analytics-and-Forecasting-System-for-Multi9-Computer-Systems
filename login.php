@@ -129,7 +129,7 @@ if (isset($_POST['login'])) {
         input[type="text"]:focus, input[type="password"]:focus {
             border-color: var(--primary-green);
             background: rgba(0,0,0,0.3);
-            box-shadow: 0 0 0 4px rgba(26, 163, 83, 0.2);
+            box-shadow: 0 0 0 4px rgba(4, 217, 146, 0.2);
         }
 
         .password-wrapper { position: relative; width: 100%; }
@@ -158,12 +158,12 @@ if (isset($_POST['login'])) {
             cursor: pointer; 
             transition: var(--transition); 
             margin-top: 5px;
-            box-shadow: 0 4px 15px rgba(26, 163, 83, 0.3);
+            box-shadow: 0 4px 15px rgba(4, 217, 146, 0.3);
         }
         input[type="submit"]:hover { 
             background: linear-gradient(135deg, var(--accent-green), var(--primary-green)); 
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(26, 163, 83, 0.4); 
+            box-shadow: 0 8px 25px rgba(4, 217, 146, 0.4); 
         }
 
         .error { 
