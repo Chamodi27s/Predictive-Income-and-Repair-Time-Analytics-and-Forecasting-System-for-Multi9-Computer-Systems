@@ -78,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     move_uploaded_file($_FILES['device_images']['tmp_name'][$key], $target_file);
                 }
 
-                // job_device table එකට ඇතුළත් කිරීම
+                // job_device table add
                 $sql_device = "INSERT INTO job_device (job_no, device_name, issue_name, device_status, warranty_status, description, another_note, device_image) 
                                VALUES ('$job_no', '$device_name', '$final_issue_name', 'Pending', '$warranty', '$description', '$another_note', '$img_name')";
                 
