@@ -27,6 +27,7 @@ $result = mysqli_query($conn, $sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Returned Jobs - Multi9</title>
+    <link rel="stylesheet" href="CSS/global.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -48,13 +49,13 @@ $result = mysqli_query($conn, $sql);
             --border: #334155;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-main);
             color: var(--text-main);
-            padding: 120px 20px 40px;
+            padding: var(--nav-height) 20px 40px;
             transition: all 0.3s ease;
         }
 

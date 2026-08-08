@@ -6,7 +6,7 @@ include 'navbar.php';
 $id = isset($_GET['id']) ? mysqli_real_escape_string($conn, $_GET['id']) : '';
 
 if (empty($id)) {
-    echo "<div style='margin-top:150px; text-align:center;'><h3>Invalid Request!</h3></div>";
+    echo "<div style='margin-top:20px; text-align:center;'><h3>Invalid Request!</h3></div>";
     exit;
 }
 
@@ -21,7 +21,7 @@ $result = mysqli_query($conn, $sql);
 $data = mysqli_fetch_assoc($result);
 
 if (!$data) {
-    echo "<div style='margin-top:150px; text-align:center;'><h3>Device Not Found!</h3></div>";
+    echo "<div style='margin-top:20px; text-align:center;'><h3>Device Not Found!</h3></div>";
     exit;
 }
 
@@ -58,9 +58,11 @@ if (isset($_POST['confirm_destroy'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Destroy Confirmation - Multi9</title>
+    <link rel="stylesheet" href="CSS/global.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding-top: 150px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding-top: var(--nav-height); }
         .destroy-container { 
             max-width: 550px; 
             margin: auto; 

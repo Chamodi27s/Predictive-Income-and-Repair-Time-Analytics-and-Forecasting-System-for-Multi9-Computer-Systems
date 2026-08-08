@@ -1,17 +1,10 @@
 <?php
 session_start();
-// if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
-//     header("Location: login.php");
-//     exit();
-// }
+include 'db_config.php';
+include 'navbar.php';
 
 date_default_timezone_set("Asia/Colombo");
 $dbname = "servidedb";
-
-// Navbar 
-$current_page = basename($_SERVER['PHP_SELF']);
-$user_name = isset($_SESSION['username']) ? $_SESSION['username'] : 'User';
-$user_initial = strtoupper(substr($user_name, 0, 1));
 ?>
 
 <!DOCTYPE html>
@@ -27,7 +20,6 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
     <style>
         /* --- THEME VARIABLES --- */
         :root {
-            /* Light Mode Colors (Default) */
             --primary: #2ea043;
             --bg-color: #f4f7f6;
             --card-bg: #ffffff;
@@ -38,7 +30,6 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         }
 
         body.dark-mode {
-            /* Dark Mode Colors */
             --bg-color: #0d1117;
             --card-bg: #161b22;
             --text-main: #ffffff;
@@ -50,43 +41,19 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         /* --- GLOBAL STYLES --- */
         body {
             margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             transition: background-color 0.3s, color 0.3s;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
+            padding-top: var(--nav-height);
         }
-
-        /* --- NAVBAR --- */
-        .topbar {
-            position: fixed; top: 0; left: 0; width: 100%; z-index: 9999;
-            background: linear-gradient(90deg, #043f2e, #065f46);
-            color: white; padding: 12px 45px;
-            display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); box-sizing: border-box;
-        }
-        .brand strong { font-size: 20px; letter-spacing: 1px; color: white !important; }
-        .menu { display: flex; gap: 20px; }
-        .menu a { color: #d1fae5 !important; text-decoration: none; font-size: 14px; font-weight: 500; transition: 0.3s; }
-        .menu a:hover, .menu a.active { color: #ffffff !important; }
-        
-        .user-section { display: flex; align-items: center; gap: 10px; }
-        .profile-card { background: #22c55e; color: #064e3b; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid white; }
-
-        /* --- THEME SWITCH 
-        .theme-switch-wrapper { display: flex; align-items: center; margin-right: 15px; }
-        .theme-switch { display: inline-block; height: 20px; position: relative; width: 40px; cursor: pointer; }
-        .theme-switch input { display: none; }
-        .slider { background-color: #ccc; bottom: 0; left: 0; position: absolute; right: 0; top: 0; transition: .4s; border-radius: 34px; }
-        .slider:before { background-color: #fff; bottom: 3px; content: ""; height: 14px; left: 4px; position: absolute; transition: .4s; width: 14px; border-radius: 50%; }
-        input:checked + .slider { background-color: #2ea043; }
-        input:checked + .slider:before { transform: translateX(18px); }
 
         /* --- BACKUP CARD --- */
-        .container { width: 100%; max-width: 500px; padding: 20px; margin-top: 60px; }
+        .container { width: 100%; max-width: 500px; padding: 20px; }
         
         .backup-card {
             background-color: var(--card-bg);
@@ -100,24 +67,26 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         body.dark-mode .backup-card { box-shadow: 0 10px 35px rgba(0,0,0,0.5); }
 
         .icon-circle {
-            width: 80px; height: 80px; border-radius: 50%;
-            background: rgba(46, 160, 67, 0.1);
-            display: flex; justify-content: center; align-items: center;
-            margin: 0 auto 20px; font-size: 35px; color: var(--primary);
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2ea043, #3fb950);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 6px 20px rgba(46,160,67,0.4);
         }
+        .icon-circle i { font-size: 30px; color: white; }
 
-        h2 { margin: 10px 0; font-weight: 600; color: var(--text-main); }
-        .subtitle { color: var(--text-sub); font-size: 14px; margin-bottom: 25px; }
+        h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; color: var(--text-main); }
+        .subtitle { font-size: 13px; color: var(--text-sub); margin-bottom: 25px; }
 
         .status-box {
-            background-color: var(--status-bg);
-            border-radius: 12px; padding: 20px;
-            text-align: left; border-left: 4px solid var(--primary);
-            margin-bottom: 25px; border-top: 1px solid var(--border-color);
-            border-right: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
+            background: var(--status-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: left;
         }
-
         .status-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
         .status-row:last-child { margin-bottom: 0; }
         .status-row span { color: var(--text-sub); }
@@ -142,28 +111,6 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
 </head>
 
 <body>
-
-<div class="topbar no-print">
-    <div class="brand"><strong>MULTI 9</strong></div>
-    
-    <div class="menu">
-        <a href="index.php">Dashboard </a> /
-        <a href="backup_db.php" class="active">Backup</a>
-    </div>
-
-    <div style="display: flex; align-items: center;">
-        <div class="theme-switch-wrapper">
-            <span style="margin-right: 8px; font-size: 14px;">🌙</span>
-            <label class="theme-switch">
-                <input type="checkbox" id="darkToggle">
-                <span class="slider"></span>
-            </label>
-        </div>
-        <div class="user-section">
-            <div class="profile-card"><?= $user_initial ?></div>
-        </div>
-    </div>
-</div>
 
 <div class="container">
     <div class="backup-card">
@@ -204,26 +151,14 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
 </div>
 
 <script>
-    const darkToggle = document.getElementById('darkToggle');
-    const body = document.body;
-
-    // Theme පරීක්ෂාව
-    if (localStorage.getItem('theme') === 'dark') {
-        body.classList.add('dark-mode');
-        darkToggle.checked = true;
-    }
-
-    darkToggle.addEventListener('change', () => {
-        if (darkToggle.checked) {
-            body.classList.add('dark-mode');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            body.classList.remove('dark-mode');
-            localStorage.setItem('theme', 'light');
+    // Sync dark mode with the rest of the app (uses 'darkMode' key like all pages)
+    (function() {
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
         }
-    });
+    })();
 
-    // වෙලාව Update කිරීම
+    // Clock update
     function updateClock(){
         let now = new Date();
         let str = now.getFullYear() + "-" + 
