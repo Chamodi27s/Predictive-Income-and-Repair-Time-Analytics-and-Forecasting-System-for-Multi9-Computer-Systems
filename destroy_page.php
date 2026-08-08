@@ -58,44 +58,48 @@ if (isset($_POST['confirm_destroy'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Destroy Confirmation - Multi9</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding-top: 150px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 140px 16px 60px; color: #333; }
         .destroy-container { 
             max-width: 550px; 
             margin: auto; 
             background: white; 
             padding: 30px; 
-            border-radius: 15px; 
+            border-radius: 18px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-            border-top: 10px solid #000; 
+            border-top: 10px solid #e53935; 
         }
-        h2 { color: #e53935; text-align: center; margin-bottom: 10px; text-transform: uppercase; }
+        h2 { color: #e53935; text-align: center; margin-bottom: 10px; text-transform: uppercase; font-size: 24px; }
         .device-info { 
             background: #fffafa; 
             border: 1px solid #ffebee; 
             padding: 20px; 
-            border-radius: 10px; 
+            border-radius: 12px; 
             margin: 20px 0; 
         }
         .info-row { 
             display: flex; 
             justify-content: space-between; 
+            align-items: center;
             padding: 10px 0; 
             border-bottom: 1px solid #eee; 
             font-size: 15px;
+            gap: 10px;
         }
         .info-row:last-child { border-bottom: none; }
         .label { font-weight: bold; color: #333; }
-        .val { color: #555; }
+        .val { color: #555; text-align: right; word-break: break-word; }
         .warning-box { 
-            background: #000; 
+            background: #111; 
             color: #fff; 
             padding: 15px; 
             text-align: center; 
-            border-radius: 8px; 
+            border-radius: 10px; 
             font-size: 13px; 
             margin-bottom: 20px;
+            line-height: 1.5;
         }
         .btn-confirm { 
             width: 100%; 
@@ -103,13 +107,13 @@ if (isset($_POST['confirm_destroy'])) {
             background: #e53935; 
             color: white; 
             border: none; 
-            border-radius: 8px; 
+            border-radius: 12px; 
             font-size: 16px; 
             font-weight: bold; 
             cursor: pointer; 
             transition: 0.3s;
         }
-        .btn-confirm:hover { background: #b71c1c; transform: scale(1.02); }
+        .btn-confirm:hover { background: #b71c1c; transform: translateY(-2px); }
         .btn-back { 
             display: block; 
             text-align: center; 
@@ -117,6 +121,31 @@ if (isset($_POST['confirm_destroy'])) {
             text-decoration: none; 
             color: #777; 
             font-size: 14px; 
+            font-weight: 600;
+        }
+
+        /* Dark mode compatibility */
+        body.dark-mode { background: #0f172a !important; color: #f1f5f9 !important; }
+        body.dark-mode .destroy-container { background: #1e293b !important; border-color: #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        body.dark-mode .device-info { background: #0f172a !important; border-color: #334155; }
+        body.dark-mode .info-row { border-bottom-color: #334155; }
+        body.dark-mode .label { color: #e2e8f0; }
+        body.dark-mode .val { color: #cbd5e1; }
+        body.dark-mode .btn-back { color: #94a3b8; }
+
+        @media (max-width: 768px) {
+            body { padding: 115px 12px 80px; }
+            .destroy-container { padding: 22px 16px; border-radius: 16px; margin-top: 10px; }
+            h2 { font-size: 20px; }
+            .info-row { font-size: 13.5px; padding: 8px 0; }
+            .btn-confirm { padding: 13px; font-size: 14.5px; border-radius: 10px; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 95px 8px 80px; }
+            .destroy-container { padding: 18px 12px; }
+            .info-row { flex-direction: column; align-items: flex-start; gap: 2px; }
+            .val { text-align: left; }
         }
     </style>
 </head>
