@@ -1,16 +1,33 @@
 <?php
+declare(strict_types=1);
 
-include 'db_config.php';
-include 'navbar.php';
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
+require_once __DIR__ . '/db_config.php';
+
+if (!isset($conn) || !($conn instanceof mysqli)) {
+    die('Database connection is not available. Check db_config.php.');
+}
+
+$conn->set_charset('utf8mb4');
+
+/* Load navbar PHP before output, but render its HTML inside <body>. */
+ob_start();
+require __DIR__ . '/navbar.php';
+$navbar_html = (string) ob_get_clean();
 
 /* =========================================================
    RENDER ML API CONFIGURATION
 ========================================================= */
 
-define(
-    'ML_API',
-    'https://predictive-income-and-repair-time-pcrr.onrender.com'
-);
+if (!defined('ML_API')) {
+    define(
+        'ML_API',
+        'https://predictive-income-and-repair-time-pcrr.onrender.com'
+    );
+}
 
 
 /* =========================================================
@@ -21,7 +38,14 @@ function call_ml_api(
     string $endpoint,
     array $payload = [],
     string $method = 'GET'
-) {
+): array {
+    if (!function_exists('curl_init')) {
+        return [
+            'success' => false,
+            'error' => 'PHP cURL extension is not enabled.'
+        ];
+    }
+
     $url = rtrim(ML_API, '/') . '/' . ltrim($endpoint, '/');
 
     $ch = curl_init($url);
@@ -37,13 +61,18 @@ function call_ml_api(
         CURLOPT_CONNECTTIMEOUT => 8,
         CURLOPT_TIMEOUT => 25,
         CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS => 3,
+        CURLOPT_ENCODING => '',
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_SSL_VERIFYHOST => 2,
         CURLOPT_USERAGENT => 'Multi9-Repair-System/1.0'
     ];
 
     if (strtoupper($method) === 'POST') {
-        $jsonPayload = json_encode($payload);
+        $jsonPayload = json_encode(
+            $payload,
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        );
 
         if ($jsonPayload === false) {
             return [
@@ -68,21 +97,23 @@ function call_ml_api(
 
     curl_close($ch);
 
-    if ($rawResponse === false || !empty($curlError)) {
+    if ($rawResponse === false) {
         return [
             'success' => false,
-            'error' => 'cURL error: ' . $curlError
-        ];
-    }
-
-    if ($httpCode < 200 || $httpCode >= 300) {
-        return [
-            'success' => false,
-            'error' => 'ML API returned HTTP status ' . $httpCode
+            'error' => 'Unable to contact the ML API: ' . ($curlError ?: 'Unknown cURL error')
         ];
     }
 
     $decodedResponse = json_decode($rawResponse, true);
+
+    if ($httpCode < 200 || $httpCode >= 300) {
+        return [
+            'success' => false,
+            'error' => is_array($decodedResponse) && !empty($decodedResponse['error'])
+                ? (string) $decodedResponse['error']
+                : 'ML API returned HTTP status ' . $httpCode
+        ];
+    }
 
     if (!is_array($decodedResponse)) {
         return [
@@ -104,6 +135,11 @@ function call_ml_api(
 ========================================================= */
 
 $api_alive = true;
+
+if (empty($_SESSION['duration_csrf'])) {
+    $_SESSION['duration_csrf'] = bin2hex(random_bytes(32));
+}
+$csrf_token = (string) $_SESSION['duration_csrf'];
 
 
 /* =========================================================
@@ -161,6 +197,7 @@ if (!empty($job_no)) {
     $deviceQuery = "
         SELECT
             device_name,
+            model,
             issue_name,
             warranty_status,
             solution,
@@ -213,128 +250,85 @@ $predict_err = '';
    GENERATE PREDICTIONS
 ========================================================= */
 
-if (
-    isset($_POST['predict']) &&
-    !empty($job_no) &&
-    !empty($job_data)
-) {
-    if (!$api_alive) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['predict'])) {
+    $postedToken = isset($_POST['csrf_token']) ? (string) $_POST['csrf_token'] : '';
+
+    if (!hash_equals($csrf_token, $postedToken)) {
+        $predict_err = 'Invalid request token. Refresh the page and try again.';
+    } elseif (empty($job_no) || empty($job_data)) {
+        $predict_err = 'The selected job could not be found.';
+    } elseif (empty($devices)) {
+        $predict_err = 'No devices found for this job.';
+    } elseif (!$api_alive) {
         $predict_err = 'ML prediction service is temporarily unavailable. Please try again.';
     } else {
-        $date_in = $job_data['job_date'];
-
+        $date_in = (string) $job_data['job_date'];
         $warranty_days = [];
         $non_warranty_days = [];
+        $predictionErrors = [];
 
         foreach ($devices as $device) {
-
-            /*
-             * Database to ML model mapping:
-             *
-             * issue_name + description -> fault_description
-             * device_name             -> device_type
-             * device_name             -> item_model
-             * tech_name               -> technician
-             * warranty_status         -> warranty
-             * solution                -> solution
-             */
+            $deviceName = trim((string) ($device['device_name'] ?? ''));
+            $deviceModel = trim((string) ($device['model'] ?? ''));
+            $warrantyStatus = strtolower(trim((string) ($device['warranty_status'] ?? '')));
+            $isWarrantyDevice = $warrantyStatus === 'warranty';
 
             $faultDescription = trim(
-                ($device['issue_name'] ?? '') . ' ' .
-                ($device['description'] ?? '')
+                (string) ($device['issue_name'] ?? '') . ' ' .
+                (string) ($device['description'] ?? '')
             );
 
+            /* Map database values to the categories used to train the model. */
             $payload = [
-                'fault_description' => $faultDescription,
-                'device_type' => $device['device_name'] ?? '',
-                'item_model' => $device['device_name'] ?? '',
-                'technician' => $job_data['tech_name'] ?? '',
-                'repair_path' => 'Carry-In',
-                'warranty' => $device['warranty_status'] ?? '',
-                'solution' => $device['solution'] ?? '',
+                'fault_description' => $faultDescription !== '' ? $faultDescription : 'Unknown fault',
+                'device_type' => $deviceName !== '' ? $deviceName : 'Unknown',
+                'item_model' => $deviceModel !== '' ? $deviceModel : $deviceName,
+                'technician' => trim((string) ($job_data['tech_name'] ?? '')),
+                'repair_path' => $isWarrantyDevice ? 'Agent' : 'In-House',
+                'warranty' => $isWarrantyDevice ? 'Yes' : 'No',
+                'solution' => trim((string) ($device['solution'] ?? '')),
                 'date_in' => $date_in
             ];
 
-            $result = call_ml_api(
-                '/predict',
-                $payload,
-                'POST'
-            );
+            $result = call_ml_api('/predict', $payload, 'POST');
 
-            if (
-                !empty($result['success']) &&
-                isset($result['predicted_days'])
-            ) {
-                $predictedDays = (int) $result['predicted_days'];
+            if (!empty($result['success']) && isset($result['predicted_days'])) {
+                $predictedDays = max(0, (int) round((float) $result['predicted_days']));
 
-                $warrantyStatus = strtolower(
-                    trim($device['warranty_status'] ?? '')
-                );
-
-                if ($warrantyStatus === 'warranty') {
+                if ($isWarrantyDevice) {
                     $warranty_days[] = $predictedDays;
                 } else {
                     $non_warranty_days[] = $predictedDays;
                 }
             } else {
-                $predict_err = 'Prediction error: ' .
-                    ($result['error'] ?? 'Unknown error');
+                $predictionErrors[] = $deviceName . ': ' . ($result['error'] ?? 'Unknown prediction error');
             }
         }
 
-
-        /* Calculate warranty-device result */
-
         if (!empty($warranty_days)) {
-            $maximumWarrantyDays = max(
-                $warranty_days
-            );
-
-            $predicted_warranty =
-                $maximumWarrantyDays .
-                ' Working Day' .
-                ($maximumWarrantyDays !== 1 ? 's' : '');
-
+            $maximumWarrantyDays = max($warranty_days);
+            $predicted_warranty = $maximumWarrantyDays . ' Day' . ($maximumWarrantyDays !== 1 ? 's' : '');
             $warranty_date = date(
                 'M d, Y',
-                strtotime(
-                    $date_in .
-                    " +{$maximumWarrantyDays} days"
-                )
+                strtotime($date_in . " +{$maximumWarrantyDays} days")
             );
         }
-
-
-        /* Calculate non-warranty-device result */
 
         if (!empty($non_warranty_days)) {
-            $maximumNonWarrantyDays = max(
-                $non_warranty_days
-            );
-
-            $predicted_non_warranty =
-                $maximumNonWarrantyDays .
-                ' Working Day' .
-                ($maximumNonWarrantyDays !== 1 ? 's' : '');
-
+            $maximumNonWarrantyDays = max($non_warranty_days);
+            $predicted_non_warranty = $maximumNonWarrantyDays . ' Day' . ($maximumNonWarrantyDays !== 1 ? 's' : '');
             $non_warranty_date = date(
                 'M d, Y',
-                strtotime(
-                    $date_in .
-                    " +{$maximumNonWarrantyDays} days"
-                )
+                strtotime($date_in . " +{$maximumNonWarrantyDays} days")
             );
         }
 
+        if (!empty($predictionErrors)) {
+            $predict_err = 'Some predictions failed: ' . implode(' | ', $predictionErrors);
+        }
 
-        /* No device result */
-
-        if (
-            empty($warranty_days) &&
-            empty($non_warranty_days) &&
-            empty($predict_err)
-        ) {
-            $predict_err = 'No devices found for this job.';
+        if (empty($warranty_days) && empty($non_warranty_days) && $predict_err === '') {
+            $predict_err = 'The ML API did not return a prediction.';
         }
     }
 }
@@ -797,11 +791,7 @@ if (
         }
 
         body.dark-mode .api-err {
-        
-        }
-
-        body.dark-mode .api-err {
- background: rgba(239, 68, 68, 0.15);
+            background: rgba(239, 68, 68, 0.15);
             color: #f87171;
             border-color: #7f1d1d;
         }
@@ -842,6 +832,8 @@ if (
 </head>
 
 <body>
+
+<?= $navbar_html ?>
 
 <div class="container">
 
@@ -982,6 +974,12 @@ if (
 
             <form method="POST">
 
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>"
+                >
+
                 <button
                     type="submit"
                     name="predict"
@@ -995,7 +993,6 @@ if (
                         Checking ML API...
                     </span>
                 </button>
-                </button>
 
             </form>
 
@@ -1004,7 +1001,6 @@ if (
 
                 <div class="error-box">
                     <?= htmlspecialchars($predict_err) ?>
-                </div>
                 </div>
 
             <?php endif; ?>
@@ -1188,6 +1184,8 @@ if (
 
     checkMLApi();
 </script>
+
+<?php include_once __DIR__ . '/chatbot.php'; ?>
 
 </body>
 </html>

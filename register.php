@@ -46,75 +46,249 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
             --accent-hover: #059669;
         }
 
-        body { font-family: 'Inter', sans-serif; background: var(--bg-light); color: var(--text-light); transition: background 0.3s, color 0.3s; padding-bottom: 50px; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-light);
+            transition: background 0.3s, color 0.3s;
+            padding-bottom: 50px;
+        }
         body.dark-mode { background: linear-gradient(135deg, #020617, #0f172a); color: #f1f5f9; }
 
-        .container { max-width: 900px; margin: 0 auto; margin-top: 20px; }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            margin-top: 20px;
+            padding: 0 20px;
+        }
         .page-title { text-align: center; margin-bottom: 20px; }
-        .page-title h1 { font-size: 28px; font-weight: 800; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .page-title h1 {
+            font-size: clamp(20px, 4vw, 28px);
+            font-weight: 800;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
         .page-title p { color: #64748b; font-size: 14px; margin: 0; }
         body.dark-mode .page-title h1 { color: white; }
 
-        .form-card { 
-            background: var(--card-light); padding: 30px; border-radius: 24px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.05); border: 1px solid var(--border-light); 
+        .form-card {
+            background: var(--card-light);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-light);
         }
-        body.dark-mode .form-card { 
-            background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(20px); border-color: rgba(255,255,255,0.05); 
+        body.dark-mode .form-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-color: rgba(255,255,255,0.05);
         }
 
         .step-progress { display: none; }
         .step-content { display: block !important; animation: none; margin-bottom: 30px; }
 
-        /* Compact Grid */
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+        /* Responsive Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
         .form-group { display: flex; flex-direction: column; }
-        label { font-weight: 700; margin-bottom: 6px; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        input, select, textarea { 
-            padding: 10px 14px; border: 1.5px solid var(--border-light); border-radius: 10px; 
-            outline: none; font-size: 13px; transition: 0.3s; background: #f8fafc; color: var(--text-light); 
+        label {
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(16,185,129,0.2); background: white; }
-        
-        body.dark-mode input, body.dark-mode select, body.dark-mode textarea { 
-            background: rgba(15, 23, 42, 0.6); border-color: rgba(255,255,255,0.1); color: white; 
-        }
-        body.dark-mode input:focus, body.dark-mode select:focus, body.dark-mode textarea:focus { background: rgba(15,23,42,0.9); }
 
-        .job-no-badge { 
-            background: rgba(16,185,129,0.1); border: 1.5px dashed var(--accent); padding: 12px; 
-            border-radius: 12px; text-align: center; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 15px;
+        input, select, textarea {
+            padding: 10px 14px;
+            border: 1.5px solid var(--border-light);
+            border-radius: 10px;
+            outline: none;
+            font-size: 13px;
+            transition: 0.3s;
+            background: #f8fafc;
+            color: var(--text-light);
+            width: 100%;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.2);
+            background: white;
+        }
+        body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
+            background: rgba(15, 23, 42, 0.6);
+            border-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+        body.dark-mode input:focus, body.dark-mode select:focus, body.dark-mode textarea:focus {
+            background: rgba(15,23,42,0.9);
+        }
+
+        .job-no-badge {
+            background: rgba(16,185,129,0.1);
+            border: 1.5px dashed var(--accent);
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
         }
         .job-no-badge label { margin: 0; color: var(--accent); }
         .job-no-badge .job-number { font-size: 20px; font-weight: 800; color: var(--accent); }
-        
-        .device-card { 
-            background: #ffffff; border: 1.5px solid var(--border-light); padding: 20px; 
-            border-radius: 16px; margin-bottom: 15px; position: relative; transition: 0.3s; 
+
+        .device-card {
+            background: #ffffff;
+            border: 1.5px solid var(--border-light);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            position: relative;
+            transition: 0.3s;
         }
         body.dark-mode .device-card { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); }
 
-        .form-actions { display: flex; justify-content: space-between; margin-top: 30px; gap: 15px; }
-        
-        .btn { 
-            padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; 
-            cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; border: none;
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
+            text-align: center;
         }
         .btn-prev { background: #e2e8f0; color: #475569; }
         body.dark-mode .btn-prev { background: rgba(255,255,255,0.1); color: white; }
         .btn-prev:hover { background: #cbd5e1; }
-        
-        .btn-next, .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-hover)); color: white; box-shadow: 0 4px 15px rgba(16,185,129,0.3); }
-        .btn-next:hover, .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
 
-        .btn-add { background: transparent; border: 1.5px dashed var(--accent); color: var(--accent); width: 100%; margin-bottom: 10px; }
+        .btn-next, .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: white;
+            box-shadow: 0 4px 15px rgba(16,185,129,0.3);
+        }
+        .btn-next:hover, .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16,185,129,0.4);
+        }
+
+        .btn-add {
+            background: transparent;
+            border: 1.5px dashed var(--accent);
+            color: var(--accent);
+            width: 100%;
+            margin-bottom: 10px;
+        }
         .btn-add:hover { background: rgba(16,185,129,0.1); }
-        
-        .remove-btn { color: #ef4444; cursor: pointer; font-size: 12px; font-weight: 700; border: none; background: rgba(239, 68, 68, 0.1); padding: 6px 12px; border-radius: 8px; }
+
+        .remove-btn {
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            border: none;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
         .remove-btn:hover { background: #ef4444; color: white; }
-        
+
         .loading-text { font-size: 11px; color: var(--accent); display: none; margin-left: 8px; font-weight: 600; }
+
+        /* ==================== RESPONSIVE QUERIES ==================== */
+
+        /* Tablet */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+                margin-top: 15px;
+            }
+            .form-card {
+                padding: 20px 16px;
+                border-radius: 18px;
+            }
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            .job-no-badge {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .job-no-badge .job-number { font-size: 24px; }
+            .form-actions {
+                flex-direction: column;
+            }
+            .form-actions button {
+                width: 100%;
+            }
+            .device-card {
+                padding: 15px;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 10px;
+                margin-top: 10px;
+            }
+            .form-card {
+                padding: 16px 12px;
+                border-radius: 16px;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .page-title h1 {
+                font-size: 20px;
+            }
+            .page-title p {
+                font-size: 13px;
+            }
+            input, select, textarea {
+                font-size: 15px; /* prevent iOS zoom */
+                padding: 11px 12px;
+            }
+            .btn {
+                padding: 13px 18px;
+                font-size: 14px;
+                width: 100%;
+            }
+            .btn-primary {
+                font-size: 15px;
+                padding: 15px;
+            }
+            .device-card {
+                padding: 12px 10px;
+            }
+        }
     </style>
 </head>
 <body class="<?= (isset($_COOKIE['darkMode']) && $_COOKIE['darkMode'] == 'enabled') ? 'dark-mode' : '' ?>">
