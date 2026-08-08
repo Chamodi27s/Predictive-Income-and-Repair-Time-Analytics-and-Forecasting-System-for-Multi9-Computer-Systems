@@ -33,9 +33,9 @@ if(isset($_GET['range'])) {
             --border: #e2e8f0; --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
             --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); padding: var(--nav-height) 20px 40px 20px; color: var(--text-main); transition: background 0.3s ease; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); padding: 140px 20px 40px 20px; color: var(--text-main); transition: background 0.3s ease; }
         .page-container { max-width: 1200px; margin: 0 auto; }
-        .page-header { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); padding: 36px 40px; border-radius: 20px; margin-bottom: 32px; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4); color: white; text-align: center; }
+        .page-header { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); padding: 36px 40px; border-radius: 20px; margin-top: 15px; margin-bottom: 32px; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4); color: white; text-align: center; }
         .page-header h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 12px; }
         .container { background: var(--card-bg); padding: 36px; border-radius: 20px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); animation: fadeIn 0.5s ease-out; transition: background 0.3s ease, border-color 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -58,6 +58,224 @@ if(isset($_GET['range'])) {
         .save-toast { position: fixed; bottom: 30px; right: 30px; background: #1e293b; color: white; padding: 16px 28px; border-radius: 12px; display: none; z-index: 1000; box-shadow: var(--shadow-lg); }
         body.dark-mode { background: #0f172a; color: #f8fafc; }
         body.dark-mode .container { background: #1e293b; border-color: #334155; }
+
+        /* ==================== RESPONSIVE MEDIA QUERIES ==================== */
+
+        @media (max-width: 1024px) {
+            body {
+                padding: 120px 16px 40px;
+            }
+
+            .page-header {
+                margin-top: 15px;
+                padding: 28px 24px;
+                margin-bottom: 24px;
+            }
+
+            .page-header h1 {
+                font-size: 26px;
+            }
+
+            .container {
+                padding: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 115px 12px 100px;
+            }
+
+            .page-header {
+                margin-top: 15px;
+                padding: 22px 16px;
+                border-radius: 18px;
+                margin-bottom: 18px;
+            }
+
+            .page-header h1 {
+                font-size: 22px;
+            }
+
+            .page-header p {
+                font-size: 13px;
+            }
+
+            .container {
+                padding: 16px 12px;
+                border-radius: 18px;
+            }
+
+            /* 2x2 Filter Buttons Grid */
+            .filter-buttons {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                margin-bottom: 16px;
+            }
+
+            .filter-btn {
+                width: 100%;
+                text-align: center;
+                padding: 11px 8px;
+                font-size: 13px;
+                border-radius: 12px;
+            }
+
+            .header-flex {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 14px;
+                margin-bottom: 20px;
+                padding-bottom: 16px;
+            }
+
+            .header-flex h2 {
+                font-size: 20px;
+                text-align: center;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .search-input {
+                width: 100%;
+                flex: 1;
+            }
+
+            /* Transform Table into Cards */
+            .table-container {
+                border: none;
+                background: transparent;
+                border-radius: 0;
+                overflow: visible;
+            }
+
+            table#warrantyTable,
+            table#warrantyTable tbody,
+            table#warrantyTable tr,
+            table#warrantyTable td {
+                display: block;
+                width: 100%;
+            }
+
+            table#warrantyTable {
+                min-width: 0 !important;
+            }
+
+            table#warrantyTable thead {
+                display: none;
+            }
+
+            table#warrantyTable tbody tr {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px 10px;
+                background: var(--card-bg);
+                border: 1px solid var(--border);
+                border-radius: 20px;
+                margin-bottom: 16px;
+                padding: 16px;
+                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+                position: relative;
+            }
+
+            body.dark-mode table#warrantyTable tbody tr {
+                background: rgba(30, 41, 59, 0.9) !important;
+                border-color: rgba(255, 255, 255, 0.1);
+                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+            }
+
+            table#warrantyTable td {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+                padding: 0;
+                border: none;
+                font-size: 14px;
+            }
+
+            table#warrantyTable td::before {
+                content: attr(data-label);
+                font-weight: 800;
+                font-size: 11px;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            body.dark-mode table#warrantyTable td::before {
+                color: #94a3b8;
+            }
+
+            /* Row 1: Job No (Left) & Status (Right) */
+            table#warrantyTable td:nth-child(1) {
+                grid-column: 1 / 2;
+                grid-row: 1;
+                padding-bottom: 8px;
+                border-bottom: 1.5px dashed var(--border);
+                justify-content: center;
+            }
+            table#warrantyTable td:nth-child(1)::before {
+                display: none;
+            }
+
+            table#warrantyTable td:nth-child(4) {
+                grid-column: 2 / 3;
+                grid-row: 1;
+                align-items: flex-end;
+                padding-bottom: 8px;
+                border-bottom: 1.5px dashed var(--border);
+            }
+            table#warrantyTable td:nth-child(4)::before {
+                display: none;
+            }
+
+            /* Row 2: Device & Category */
+            table#warrantyTable td:nth-child(2) {
+                grid-column: 1 / -1;
+                grid-row: 2;
+            }
+
+            /* Row 3: Customer / Phone */
+            table#warrantyTable td:nth-child(3) {
+                grid-column: 1 / -1;
+                grid-row: 3;
+            }
+
+            /* Row 4: Supplier Control */
+            table#warrantyTable td:nth-child(5) {
+                grid-column: 1 / -1;
+                grid-row: 4;
+                padding-top: 4px;
+            }
+
+            .supplier-input {
+                width: 100% !important;
+                flex: 1;
+            }
+
+            .status-select {
+                width: 100%;
+                font-size: 13.5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 80px 8px 100px;
+            }
+
+            .container {
+                padding: 12px 10px;
+            }
+
+            table#warrantyTable tbody tr {
+                padding: 14px 12px;
+            }
+        }
     </style>
 </head>
 <body id="warrantyBody">
@@ -111,8 +329,8 @@ if(isset($_GET['range'])) {
                         $cat_val = $row['issue_category'] ?? 'Hardware';
                     ?>
                     <tr>
-                        <td><span class="job-badge">#<?= $row['job_no'] ?></span></td>
-                        <td>
+                        <td data-label="Job No"><span class="job-badge">#<?= $row['job_no'] ?></span></td>
+                        <td data-label="Device & Category">
                             <strong> <?= htmlspecialchars($row['device_name']) ?></strong><br>
                             <small><?= htmlspecialchars($row['issue_name']) ?></small><br>
                             <select id="cat-<?= $id ?>" class="status-select" style="margin-top:5px; height:30px; font-size:11px;" onchange="saveAll(<?= $id ?>)">
@@ -120,11 +338,11 @@ if(isset($_GET['range'])) {
                                 <option value="Software" <?= $cat_val=='Software'?'selected':'' ?>> Software</option>
                             </select>
                         </td>
-                        <td>
+                        <td data-label="Customer / Phone">
                             <strong><?= htmlspecialchars($row['customer_name']) ?></strong><br>
                             <span style="color:var(--text-muted); font-size:12px;"><?= htmlspecialchars($row['phone_number']) ?></span>
                         </td>
-                        <td>
+                        <td data-label="Status">
                             <select class="status-select" id="stat-<?= $id ?>" onchange="saveAll(<?= $id ?>)" 
                                 <?= ($current_status == 'Completed' || $current_status == 'Returned') ? 'disabled' : ''; ?>>
                                 
@@ -147,8 +365,8 @@ if(isset($_GET['range'])) {
                                     <?= $current_status =='Rejected'?'selected':'' ?>> Rejected</option>
                             </select>
                         </td>
-                        <td>
-                            <div style="display:flex; gap:5px;">
+                        <td data-label="Supplier Control">
+                            <div style="display:flex; gap:5px; width:100%;">
                                 <input type="text" id="sup-<?= $id ?>" class="supplier-input" value="<?= htmlspecialchars($row['supplier_name'] ?? '') ?>" readonly>
                                 <button id="btn-<?= $id ?>" class="btn-edit" onclick="toggleSupplier(<?= $id ?>)"><i class="ph-bold ph-pencil-simple"></i></button>
                             </div>
