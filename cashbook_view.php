@@ -1,42 +1,42 @@
 <?php 
 include 'db_config.php';
 
-// --- Manual Entry සේව් කිරීමේ කොටස ---
+// --- Manual Entry 
 if (isset($_POST['add_manual_transaction'])) {
-    // Inputs ආරක්ෂිතව ලබාගැනීම
+    
     $date = $conn->real_escape_string($_POST['date']);
     $amount = floatval($_POST['amount']);
     $acc_id = $conn->real_escape_string($_POST['acc_id']);
     $ref = $conn->real_escape_string($_POST['reference']);
 
-    // Database එකේ වැඩ දෙකක් එකවර සිදුවන බැවින් Transaction එකක් ආරම්භ කිරීම
+    
     $conn->begin_transaction();
 
     try {
-        // 1. අන්තිම Cashbook Balance එක ලබාගැනීම
+        // 1.  Cashbook Balance 
         $res = $conn->query("SELECT balance FROM cashbook ORDER BY cashid DESC LIMIT 1");
         $row = $res->fetch_assoc();
         $last_balance = ($row) ? floatval($row['balance']) : 0;
         
         $new_balance = $last_balance + $amount;
 
-        // 2. Cashbook එකට ඇතුළත් කිරීම
+        // 2. add Cashbook 
         $sql = "INSERT INTO cashbook (date, invoice_no, income, balance, acc_id) 
                 VALUES ('$date', '$ref', '$amount', '$new_balance', '$acc_id')";
         $conn->query($sql);
 
-        // 3. අදාළ Account එකේ balance එක update කිරීම
+        //3.update account balance
         $update_acc_sql = "UPDATE accounts SET balance = balance + $amount WHERE acc_id = '$acc_id'";
         $conn->query($update_acc_sql);
 
-        // සියල්ල සාර්ථක නම් පමණක් Database එක ස්ථිරවම Update කරන්න
+        
         $conn->commit();
         
         header("Location: cashbook_view.php?status=success");
         exit();
 
     } catch (Exception $e) {
-        // කිසියම් දෝෂයක් ආවොත් කළ වෙනස්කම් සියල්ල අවලංගු කරන්න
+
         $conn->rollback();
         $error_msg = "Error: Something went wrong!";
     }
@@ -51,52 +51,21 @@ include_once 'navbar.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cashbook Management | Smart Finance</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="CSS/global.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        /* --- උඹේ මුල් CSS Design එක ඒ විදිහටම මෙතන තියෙනවා --- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #2ecc71;
-            --primary-hover: #27ae60;
-            --primary-dark: #229954;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --secondary: #64748b;
-            --bg-main: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1a202c;
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
-            padding: 140px 20px 40px 20px;
-            color: var(--text-main);
-            transition: background 0.3s ease, color 0.3s ease;
-        }
-
         .page-container {
             max-width: 1200px;
             margin: 0 auto;
+            padding-top: 35px;
         }
 
         .page-header {
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
             padding: 36px 40px;
             border-radius: 20px;
             margin-bottom: 32px;
-            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.35);
             color: white;
             text-align: center;
         }
@@ -112,11 +81,11 @@ include_once 'navbar.php';
         }
 
         .container {
-            background: var(--card-bg);
+            background: var(--light-surface);
             padding: 36px;
             border-radius: 20px;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-light);
             margin-bottom: 32px;
             animation: fadeIn 0.5s ease-out;
             transition: all 0.3s ease;
@@ -128,11 +97,11 @@ include_once 'navbar.php';
         }
 
         .form-section {
-            background: linear-gradient(135deg, #e8f5e9 0%, #d4edda 100%);
+            background: var(--primary-green-light);
             padding: 28px;
             border-radius: 12px;
             margin-bottom: 32px;
-            border: 2px solid #c8e6c9;
+            border: 2px solid rgba(4, 217, 146, 0.2);
         }
 
         .grid-form {
@@ -143,38 +112,40 @@ include_once 'navbar.php';
         }
 
         .form-group { display: flex; flex-direction: column; }
-        .form-group label { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+        .form-group label { font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-dark); }
 
         .form-control {
             padding: 14px 16px;
-            border: 2px solid var(--border);
+            border: 2px solid var(--border-light);
             border-radius: 12px;
             font-size: 15px;
             outline: none;
-            transition: all 0.3s ease;
-            background: white;
+            transition: var(--transition);
+            background: var(--light-bg);
+            color: var(--text-dark);
         }
 
         .form-control:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.15);
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 4px rgba(4, 217, 146, 0.15);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
             color: white;
             border: none;
             padding: 16px 24px;
             border-radius: 12px;
             cursor: pointer;
             font-weight: 700;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(46, 204, 113, 0.4);
+            box-shadow: 0 6px 16px rgba(4, 217, 146, 0.4);
         }
 
         .success-banner {
@@ -193,98 +164,107 @@ include_once 'navbar.php';
             align-items: center;
             margin-bottom: 28px;
             padding-bottom: 20px;
-            border-bottom: 2px solid var(--border);
+            border-bottom: 2px solid var(--border-light);
         }
 
         .section-header h3 {
             font-size: 26px;
             font-weight: 800;
-            border-left: 5px solid var(--primary);
+            border-left: 5px solid var(--primary-green);
             padding-left: 16px;
+            color: var(--text-dark);
+            display: flex; align-items: center; gap: 10px;
         }
 
         .search-input {
             padding: 12px 20px;
-            border: 2px solid var(--border);
+            border: 2px solid var(--border-light);
             border-radius: 12px;
             width: 280px;
-            background: #f8fafc;
+            background: var(--light-bg);
+            color: var(--text-dark);
             outline: none;
         }
 
-        .table-container { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+        .table-container { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-light); }
         table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1000px; }
         th {
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            background: var(--light-bg);
             padding: 16px 18px;
-            color: white;
+            color: var(--text-muted);
             font-size: 13px;
             text-transform: uppercase;
+            border-bottom: 2px solid var(--border-light);
         }
 
-        tbody tr:hover { background: #f8f9fa; transform: translateX(4px); transition: 0.3s; }
-        td { padding: 16px 18px; border-bottom: 1px solid #f0f2f5; }
+        tbody tr { background: var(--light-surface); }
+        tbody tr:hover { background: var(--light-bg); transform: translateX(4px); transition: var(--transition); }
+        td { padding: 16px 18px; border-bottom: 1px solid var(--border-light); color: var(--text-dark); }
 
         .amount-positive {
-            color: #155724;
+            color: #15803d;
             font-weight: 800;
-            background: #d4edda;
+            background: #dcfce7;
             padding: 6px 12px;
             border-radius: 20px;
         }
 
         .balance-bold {
             font-weight: 800;
-            background: #f8fafc;
+            background: var(--light-bg);
             padding: 8px 16px;
             border-radius: 8px;
-            border-left: 4px solid var(--primary);
+            border-left: 4px solid var(--primary-green);
         }
 
         .account-badge {
-            background: #e3f2fd;
-            color: #1976d2;
+            background: rgba(4, 217, 146, 0.1);
+            color: var(--primary-green-dark);
             padding: 6px 12px;
             border-radius: 8px;
             font-weight: 800;
         }
 
         /* --- Dark Mode Fixing Styles --- */
-        body.dark-mode {
-            background: linear-gradient(135deg, #020617 0%, #0f172a 100%) !important;
-            color: #e2e8f0 !important;
-        }
-
         body.dark-mode .container {
-            background: rgba(30, 41, 59, 0.7) !important;
-            backdrop-filter: blur(12px);
-            border-color: rgba(255, 255, 255, 0.1);
+            background: var(--dark-surface) !important;
+            border-color: #334155;
         }
 
         body.dark-mode .form-section {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border-color: #2e7d32;
+            background: rgba(4, 217, 146, 0.1);
+            border-color: var(--primary-green-dark);
         }
         
         body.dark-mode .form-section h3 {
-            color: #2ecc71;
+            color: var(--accent-green);
         }
 
         body.dark-mode .form-control, body.dark-mode .search-input {
-            background: rgba(15, 23, 42, 0.8) !important;
-            color: white !important;
-            border-color: rgba(255, 255, 255, 0.1);
+            background: #0f172a !important;
+            color: #f1f5f9 !important;
+            border-color: #334155;
+        }
+
+        body.dark-mode .section-header h3 {
+            color: #f1f5f9;
         }
 
         /* Hover fix in Dark Mode */
+        body.dark-mode th {
+            background: rgba(0,0,0,0.2);
+            color: #94a3b8;
+            border-bottom-color: #334155;
+        }
+        body.dark-mode tbody tr { background: var(--dark-surface); }
         body.dark-mode tbody tr:hover {
-            background: rgba(255, 255, 255, 0.05) !important;
+            background: #1e293b !important;
             color: white !important;
         }
 
         body.dark-mode td { 
-            border-bottom-color: rgba(255, 255, 255, 0.05);
-            color: #cbd5e1; /* Default text color in table */
+            border-bottom-color: #334155;
+            color: #cbd5e1;
         }
         
         body.dark-mode td strong {
@@ -292,13 +272,13 @@ include_once 'navbar.php';
         }
 
         body.dark-mode .balance-bold { 
-            background: rgba(15, 23, 42, 0.6); 
-            color: #2ecc71; 
+            background: #1e293b; 
+            color: var(--accent-green); 
         }
 
         body.dark-mode .account-badge {
-            background: rgba(25, 118, 210, 0.2);
-            color: #90caf9;
+            background: rgba(4, 217, 146, 0.1);
+            color: var(--accent-green);
         }
 
         @media (max-width: 768px) {
@@ -312,13 +292,13 @@ include_once 'navbar.php';
 
 <div class="page-container">
     <div class="page-header">
-        <h1>💰 Cashbook Management</h1>
+        <h1><i class="ph-fill ph-book-open-text"></i> Cashbook Management</h1>
         <p>Track all bank transactions and financial records</p>
     </div>
 
     <div class="container">
         <div class="form-section">
-            <h3>➕ Add New Transaction</h3>
+            <h3><i class="ph-fill ph-plus-circle"></i> Add New Transaction</h3>
             
             <?php if(isset($_GET['status']) && $_GET['status'] == 'success'): ?>
                 <div id="success-msg" class="success-banner">✓ Transaction Successfully Added!</div>
@@ -332,12 +312,12 @@ include_once 'navbar.php';
 
             <form method="POST" class="grid-form">
                 <div class="form-group">
-                    <label>📅 Date</label>
+                    <label> Date</label>
                     <input type="date" name="date" value="<?= date('Y-m-d') ?>" class="form-control" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>🏦 Account Name</label>
+                    <label> Account Name</label>
                     <select name="acc_id" id="acc_select" class="form-control" onchange="showAccNo()" required>
                         <option value="">-- Select Account --</option>
                         <?php 
@@ -349,30 +329,30 @@ include_once 'navbar.php';
                 </div>
                 
                 <div class="form-group">
-                    <label>🔢 Account Number</label>
+                    <label> Account Number</label>
                     <input type="text" id="display_acc_no" class="form-control" placeholder="Auto-filled" readonly>
                 </div>
                 
                 <div class="form-group">
-                    <label>📝 Reference</label>
+                    <label> Reference</label>
                     <input type="text" name="reference" class="form-control" placeholder="e.g. Deposit" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>💵 Amount (Rs.)</label>
+                    <label> Amount (Rs.)</label>
                     <input type="number" name="amount" class="form-control" step="0.01" min="0.01" required placeholder="0.00">
                 </div>
                 
                 <div class="form-group">
-                    <button type="submit" name="add_manual_transaction" class="btn-primary">ADD TRANSACTION</button>
+                    <button type="submit" name="add_manual_transaction" class="btn-primary"><i class="ph ph-paper-plane-right"></i> ADD TRANSACTION</button>
                 </div>
             </form>
         </div>
 
         <div class="section-header">
-            <h3> Transaction History</h3>
+            <h3><i class="ph-fill ph-clock-counter-clockwise"></i> Transaction History</h3>
             <div class="search-box">
-                <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search records..." onkeyup="filterTable()">
+                <input type="text" id="searchInput" class="search-input" placeholder=" Search records..." onkeyup="filterTable()">
             </div>
         </div>
 
@@ -464,6 +444,7 @@ function filterTable() {
     }
 }
 </script>
+<?php include_once __DIR__ . '/chatbot.php'; ?>
 
 </body>
 

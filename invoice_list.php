@@ -362,7 +362,7 @@ body.dark-mode .final-badge {
 <div class="page-container">
 
     <div class="page-header">
-        <h1>🧾 Invoice Management</h1>
+        <h1> Invoice Management</h1>
         <p>View invoices, payment status, late rent and final bill details</p>
     </div>
 
@@ -372,7 +372,7 @@ body.dark-mode .final-badge {
 
             <form method="GET" class="search-box">
                 <input type="text" name="search" placeholder="Search invoice, job, customer..." value="<?= htmlspecialchars($search) ?>">
-                <button type="submit" class="search-btn">🔍 Search</button>
+                <button type="submit" class="search-btn"> Search</button>
             </form>
         </div>
 
@@ -432,7 +432,7 @@ body.dark-mode .final-badge {
                         </td>
 
                         <td>
-                            <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&view_only=true" class="action-btn">👁️ View Bill</a>
+                            <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&view_only=true" class="action-btn"> View Bill</a>
                         </td>
                     </tr>
                     <?php endwhile; ?>
@@ -463,6 +463,6 @@ function syncTheme() {
 syncTheme();
 setInterval(syncTheme, 1000);
 </script>
-
+<?php include_once __DIR__ . '/chatbot.php'; ?>
 </body>
 </html>

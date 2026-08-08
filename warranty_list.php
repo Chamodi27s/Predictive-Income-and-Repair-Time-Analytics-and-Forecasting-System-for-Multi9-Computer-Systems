@@ -3,7 +3,7 @@ include 'db_config.php';
 include 'navbar.php'; 
 
 // Date Range Filters
-$filter_query = " WHERE jd.warranty_status = 'Warranty' ";
+$filter_query = " WHERE (jd.warranty_status = 'Yes' OR jd.warranty_status = 'Warranty') ";
 if(isset($_GET['range'])) {
     if($_GET['range'] == 'today') {
         $filter_query .= " AND DATE(j.job_date) = CURDATE() ";
@@ -64,7 +64,7 @@ if(isset($_GET['range'])) {
 
 <div class="page-container">
     <div class="page-header">
-        <h1>🛡️ Warranty Management</h1>
+        <h1> Warranty Management</h1>
         <p>Track and manage warranty devices efficiently</p>
     </div>
 
@@ -77,10 +77,10 @@ if(isset($_GET['range'])) {
         </div>
 
         <div class="header-flex">
-            <h2>📋 Warranty Devices</h2>
+            <h2> Warranty Devices</h2>
             <div class="search-box">
                 <input type="text" id="warrantySearch" class="search-input" placeholder="🔍 Search Job, Name, Phone..." onkeyup="filterWarranty()">
-                <button class="btn-edit" style="background:var(--danger);" onclick="window.location.href='?'">✕</button>
+                <button class="btn-edit" style="background:var(--danger);" onclick="window.location.href='?'"><i class="ph-bold ph-x"></i></button>
             </div>
         </div>
 
@@ -113,11 +113,11 @@ if(isset($_GET['range'])) {
                     <tr>
                         <td><span class="job-badge">#<?= $row['job_no'] ?></span></td>
                         <td>
-                            <strong>📱 <?= htmlspecialchars($row['device_name']) ?></strong><br>
+                            <strong> <?= htmlspecialchars($row['device_name']) ?></strong><br>
                             <small><?= htmlspecialchars($row['issue_name']) ?></small><br>
                             <select id="cat-<?= $id ?>" class="status-select" style="margin-top:5px; height:30px; font-size:11px;" onchange="saveAll(<?= $id ?>)">
-                                <option value="Hardware" <?= $cat_val=='Hardware'?'selected':'' ?>>⚙️ Hardware</option>
-                                <option value="Software" <?= $cat_val=='Software'?'selected':'' ?>>💻 Software</option>
+                                <option value="Hardware" <?= $cat_val=='Hardware'?'selected':'' ?>> Hardware</option>
+                                <option value="Software" <?= $cat_val=='Software'?'selected':'' ?>> Software</option>
                             </select>
                         </td>
                         <td>
@@ -130,27 +130,27 @@ if(isset($_GET['range'])) {
                                 
                                 <option value="Pending" 
                                     <?= $current_status =='Pending'?'selected':'' ?> 
-                                    <?= ($current_status != 'Pending') ? 'disabled' : ''; ?>>⏳ Pending</option>
+                                    <?= ($current_status != 'Pending') ? 'disabled' : ''; ?>> Pending</option>
                                 
                                 <option value="Sent to Warranty" 
                                     <?= $current_status =='Sent to Warranty'?'selected':'' ?> 
-                                    <?= ($current_status == 'Completed' || $current_status == 'Returned' || $current_status == 'Rejected') ? 'disabled' : ''; ?>>📦 Sent</option>
+                                    <?= ($current_status == 'Completed' || $current_status == 'Returned' || $current_status == 'Rejected') ? 'disabled' : ''; ?>> Sent</option>
                                 
                                 
                                 <option value="Completed" 
-                                    <?= $current_status =='Completed'?'selected':'' ?>>✅ Completed</option>
+                                    <?= $current_status =='Completed'?'selected':'' ?>> Completed</option>
                                 <option value="Returned" 
                                     <?= $current_status =='Returned'?'selected':'' ?>
-                                    style="color: var(--info);">🚚 Returned</option>
+                                    style="color: var(--info);"> Returned</option>
 
                                 <option value="Rejected" 
-                                    <?= $current_status =='Rejected'?'selected':'' ?>>❌ Rejected</option>
+                                    <?= $current_status =='Rejected'?'selected':'' ?>> Rejected</option>
                             </select>
                         </td>
                         <td>
                             <div style="display:flex; gap:5px;">
                                 <input type="text" id="sup-<?= $id ?>" class="supplier-input" value="<?= htmlspecialchars($row['supplier_name'] ?? '') ?>" readonly>
-                                <button id="btn-<?= $id ?>" class="btn-edit" onclick="toggleSupplier(<?= $id ?>)">✏️</button>
+                                <button id="btn-<?= $id ?>" class="btn-edit" onclick="toggleSupplier(<?= $id ?>)"><i class="ph-bold ph-pencil-simple"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -161,7 +161,7 @@ if(isset($_GET['range'])) {
     </div>
 </div>
 
-<div id="saveMsg" class="save-toast">✅ Saved!</div>
+<div id="saveMsg" class="save-toast"> Saved!</div>
 
 <script>
 function saveAll(id) {
@@ -208,23 +208,24 @@ function toggleSupplier(id) {
     if (input.readOnly) {
         input.readOnly = false;
         input.classList.add('editing');
-        btn.innerHTML = "💾";
+        btn.innerHTML = '<i class="ph-bold ph-floppy-disk"></i>';
         input.focus();
     } else {
         saveAll(id);
         input.readOnly = true;
         input.classList.remove('editing');
-        btn.innerHTML = "✏️";
+        btn.innerHTML = '<i class="ph-bold ph-pencil-simple"></i>';
     }
 }
 
 function showToast(text) {
     let toast = document.getElementById('saveMsg');
-    toast.innerText = "✅ " + text;
+    toast.innerHTML = '<i class="ph-bold ph-check-circle"></i> ' + text;
     toast.style.display = 'block';
     setTimeout(() => { toast.style.display = 'none'; }, 2000);
 }
 </script>
+<?php include_once __DIR__ . '/chatbot.php'; ?>
 </body>
 
 </html>

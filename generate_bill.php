@@ -37,7 +37,7 @@ function sendSMS($mobile, $message) {
     return ($http_code == 200 || $http_code == 201);
 }
 
-// --- 1. දත්ත ලබා ගැනීම (Job Info & Late Fee Calculation) ---
+// Job Info & Late Fee Calculation
 $job_no_param = $_GET['job_no'] ?? ($_POST['job_no'] ?? '');
 if (!empty($job_no_param)) {
     $job_res = $conn->query("
@@ -55,7 +55,7 @@ if (!empty($job_no_param)) {
         $completion_date = $job_info['completed_date'];
         $customer_mobile = $job_info['phone_number'];
 
-        // අද දිනට සාපේක්ෂව Rent එක ගණනය කිරීම
+        // Rent calculte
         if (!empty($completion_date)) {
             $comp_dt = new DateTime($completion_date);
             $today_dt = new DateTime();
@@ -72,7 +72,7 @@ if (!empty($job_no_param)) {
     }
 }
 
-// --- 2. View Only Mode (සහ Auto Update Logic) ---
+// --- 2. View Only Mode (Auto Update Logic) ---
 if (isset($_GET['view_only']) && $_GET['view_only'] == 'true' && isset($_GET['job_no'])) {
     $v_job_no = $_GET['job_no'];
     $check_inv = $conn->query("SELECT * FROM invoice WHERE job_no = '$v_job_no'");
@@ -83,20 +83,20 @@ if (isset($_GET['view_only']) && $_GET['view_only'] == 'true' && isset($_GET['jo
         $saved_parts_total = floatval($inv_data['parts_total']);
         $saved_late_fee = floatval($inv_data['late_fee'] ?? 0);
         
-        // 🔔 බිල්පත බලන විට තවදුරටත් කාලය ගතවී ඇත්නම් Rent එක Update කිරීම
+        //bill save with rent fees
         if ($delay_fee > $saved_late_fee) {
             $new_grand_total = $saved_parts_total + $service_charge_val + $delay_fee;
             $new_balance = $new_grand_total - $advance_paid;
             if($new_balance < 0) $new_balance = 0;
 
-            // Database එකේ සේව් කර ඇති අගයන් අලුත් ගණනය කිරීමට අනුව Update කිරීම
+            
             $conn->query("UPDATE invoice SET 
                             late_fee = '$delay_fee', 
                             grand_total = '$new_grand_total', 
                             balance_due = '$new_balance' 
                           WHERE invoice_no = '$current_invoice_no'");
         } else {
-            // පරණ Rent එකම පාවිච්චි කිරීම (අඩු වී නැතිනම්)
+            
             $delay_fee = $saved_late_fee;
         }
 
@@ -261,14 +261,14 @@ foreach($saved_items as $it) { $parts_sum += floatval($it['sub']); }
 
         <div class="no-print" style="margin-top: 30px; display: flex; gap: 10px; justify-content: flex-end;">
             <?php if (!$invoice_saved): ?>
-                <button type="submit" name="save_invoice" class="btn" style="background:#065f46; color:white; flex:1;">💾 SAVE & SEND SMS</button>
+                <button type="submit" name="save_invoice" class="btn" style="background:#065f46; color:white; flex:1;"> SAVE & SEND SMS</button>
             <?php else: ?>
-                <button type="button" onclick="window.print()" class="btn" style="background:#3498db; color:white;">🖨️ PRINT INVOICE</button>
+                <button type="button" onclick="window.print()" class="btn" style="background:#3498db; color:white;"> PRINT INVOICE</button>
                 <?php if ($pay_status !== 'Paid'): ?>
-                    <button type="button" onclick="document.getElementById('payForm').submit();" class="btn btn-paid">✅ MARK AS PAID</button>
+                    <button type="button" onclick="document.getElementById('payForm').submit();" class="btn btn-paid"> MARK AS PAID</button>
                 <?php endif; ?>
             <?php endif; ?>
-            <a href="invoice_list.php" class="btn" style="background:#6c757d; color:white;">⬅ BACK</a>
+            <a href="invoice_list.php" class="btn" style="background:#6c757d; color:white;"> BACK</a>
         </div>
     </form>
     

@@ -2,7 +2,6 @@
 include 'db_config.php';
 include 'navbar.php';
 
-// 'Destroyed' තත්ත්වයේ ඇති දත්ත පමණක් ලබා ගැනීම
 $sql = "SELECT jd.*, j.job_no, c.customer_name 
         FROM job_device jd
         INNER JOIN job j ON jd.job_no = j.job_no
@@ -273,14 +272,14 @@ $result = mysqli_query($conn, $sql);
 
 <div class="page-container">
     <div class="page-header">
-        <h1>🗑️ Destroyed Items</h1>
+        <h1> Destroyed Items</h1>
         <p>Records of permanently destroyed devices</p>
     </div>
 </div>
 
 <div class="container">
     <div class="table-header-flex">
-        <h2 class="header-title">📋 Destroyed Items Records</h2>
+        <h2 class="header-title"> Destroyed Items Records</h2>
         <div class="search-container">
             <span class="search-icon">🔍</span>
             <input type="text" id="searchInput" class="search-input" placeholder="Search by Job No, Customer, Device...">
@@ -310,7 +309,7 @@ $result = mysqli_query($conn, $sql);
                         </td>
                         <td>
                             <div class="device-info">
-                                <span class="device-name">📱 <?= htmlspecialchars($row['device_name']) ?></span><br>
+                                <span class="device-name"> <?= htmlspecialchars($row['device_name']) ?></span><br>
                                 <span class="device-issue" style="font-size: 12px; opacity: 0.8;"><?= htmlspecialchars($row['issue_name']) ?></span>
                             </div>
                         </td>
@@ -379,7 +378,7 @@ const observer = new MutationObserver(() => {
 });
 observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 </script>
-
+<?php include_once __DIR__ . '/chatbot.php'; ?>
 </body>
 
 </html>

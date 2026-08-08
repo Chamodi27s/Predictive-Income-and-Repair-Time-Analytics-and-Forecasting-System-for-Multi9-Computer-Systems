@@ -4,9 +4,9 @@ include 'navbar.php';
 
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 
-// Query එකේ i.invoice_no සහ i.grand_total එලෙසම තබා ගත්තේ backend logic සඳහා පමණි
+// grand total
 $sql = "SELECT i.invoice_no, i.job_no, i.invoice_date, c.customer_name, j.phone_number, 
-               jd.device_name, jd.issue_name, i.solution, i.grand_total
+               jd.device_name, jd.issue_name, i.grand_total
         FROM invoice i
         INNER JOIN job j ON i.job_no = j.job_no
         INNER JOIN customer c ON j.phone_number = c.phone_number
@@ -160,7 +160,7 @@ $result = mysqli_query($conn, $sql);
 
 <div class="container">
     <div class="page-header">
-        <h1 style="font-size: 32px; font-weight: 800;">📦 Returned Jobs History</h1>
+        <h1 style="font-size: 32px; font-weight: 800;"> Returned Jobs History</h1>
         <p style="opacity: 0.9; margin-top: 8px;">List of all devices successfully returned to customers</p>
     </div>
 
@@ -178,7 +178,6 @@ $result = mysqli_query($conn, $sql);
                     <th>Job No</th>
                     <th>Customer Details</th>
                     <th>Device & Issue</th>
-                    <th>Repair Solution</th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -197,17 +196,12 @@ $result = mysqli_query($conn, $sql);
                             <b><?= htmlspecialchars($row['device_name']) ?></b><br>
                             <small style="color: #ef4444;"><?= htmlspecialchars($row['issue_name']) ?></small>
                         </td>
-                        <td>
-                            <div class="solution-text">
-                                <?= $row['solution'] ? htmlspecialchars($row['solution']) : '<i>No solution recorded</i>' ?>
-                            </div>
-                        </td>
                         <td><span class="status-pill">RETURNED</span></td>
                     </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="5" style="padding: 100px; color: var(--text-muted);">
+                        <td colspan="4" style="padding: 100px; color: var(--text-muted);">
                             No returned jobs found in the database.
                         </td>
                     </tr>
@@ -226,6 +220,6 @@ $result = mysqli_query($conn, $sql);
     }
     applyTheme();
 </script>
-
+<?php include_once __DIR__ . '/chatbot.php'; ?>
 </body>
 </html>

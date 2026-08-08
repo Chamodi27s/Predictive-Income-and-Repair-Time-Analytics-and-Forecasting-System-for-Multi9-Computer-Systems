@@ -106,26 +106,34 @@ body {
     line-height: 1;
 }
 
-/* ENHANCED SOLID COLORS */
-.total {
+/* ENHANCED SOLID COLORS WITH HIGH CONTRAST TEXT */
+.card.total {
     background: #dbeafe;
     border-color: #bfdbfe;
 }
+.card.total h3 { color: #1e40af !important; }
+.card.total h1 { color: #1e3a8a !important; }
 
-.in {
+.card.in {
     background: #dcfce7;
     border-color: #bbf7d0;
 }
+.card.in h3 { color: #15803d !important; }
+.card.in h1 { color: #14532d !important; }
 
-.out {
+.card.out {
     background: #fee2e2;
     border-color: #fecaca;
 }
+.card.out h3 { color: #b91c1c !important; }
+.card.out h1 { color: #7f1d1d !important; }
 
-.low {
+.card.low {
     background: #ffedd5;
     border-color: #fed7aa;
 }
+.card.low h3 { color: #c2410c !important; }
+.card.low h1 { color: #7c2d12 !important; }
 
 /* ===== MAIN BOX ===== */
 .content-box {
@@ -344,25 +352,25 @@ body.dark-mode .table-box {
 
     <div class="cards">
         <div class="card total" onclick="showAll()">
-            <span>📦</span>
+            <span></span>
             <h3>Total Items</h3>
             <h1><?= $totalItems ?></h1>
         </div>
 
         <div class="card in" onclick="filterIn()">
-            <span>✅</span>
+            <span></span>
             <h3>In Stock</h3>
             <h1><?= $inStock ?></h1>
         </div>
 
         <div class="card out" onclick="filterOut()">
-            <span>❌</span>
+            <span></span>
             <h3>Out Stock</h3>
             <h1><?= $outStock ?></h1>
         </div>
 
         <div class="card low" onclick="filterLow()">
-            <span>⚠️</span>
+            <span></span>
             <h3>Low Stock</h3>
             <h1><?= $lowStock ?></h1>
         </div>
@@ -533,6 +541,6 @@ function toggleEdit(btn) {
     }
 }
 </script>
-
+<?php include_once __DIR__ . '/chatbot.php'; ?>
 </body>
 </html>
