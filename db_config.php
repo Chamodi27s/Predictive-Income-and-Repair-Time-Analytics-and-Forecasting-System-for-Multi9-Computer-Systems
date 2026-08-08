@@ -35,8 +35,16 @@ if (!$conn || $conn->connect_error) {
 // Sync MySQL session time with the PHP timezone (+05:30 for Sri Lanka)
 $conn->query("SET time_zone = '+05:30'");
 
-// Auto-migrate missing columns in job_device table if not present
+// Auto-migrate missing tables and columns if not present
 $migrations = [
+    "CREATE TABLE IF NOT EXISTS sms_history (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        job_device_id INT,
+        phone_number VARCHAR(20),
+        message TEXT,
+        status VARCHAR(50),
+        sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )",
     "ALTER TABLE job_device ADD COLUMN item_model VARCHAR(255) DEFAULT NULL",
     "ALTER TABLE job_device ADD COLUMN repair_path VARCHAR(255) DEFAULT 'Carry-In'",
     "ALTER TABLE job_device ADD COLUMN solution VARCHAR(255) DEFAULT NULL"
@@ -46,7 +54,7 @@ foreach ($migrations as $sql) {
     try {
         $conn->query($sql);
     } catch (Throwable $e) {
-        // Ignore if column already exists
+        // Ignore if already exists
     }
 }
 ?>

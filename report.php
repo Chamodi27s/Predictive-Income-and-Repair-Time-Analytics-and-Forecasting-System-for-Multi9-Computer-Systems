@@ -346,14 +346,16 @@ body.dark-mode .inventory-table { background: var(--dark-surface); }
 }
 
 .inventory-table th{
-    color:white;
+    background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
+    color: #ffffff !important;
     padding:16px;
     font-size:13px;
+    font-weight: 700;
     letter-spacing:0.5px;
     text-transform:uppercase;
     border:none;
 }
-body.dark-mode .inventory-table th { color: white; background: transparent; }
+body.dark-mode .inventory-table th { color: #ffffff !important; background: linear-gradient(135deg, #2ecc71, #27ae60) !important; }
 
 .inventory-table td{
     padding:18px 16px;
