@@ -64,6 +64,7 @@ body {
     background: linear-gradient(135deg, #2ecc71, #27ae60);
     padding: 36px 40px;
     border-radius: 22px;
+    margin-top: 15px;
     margin-bottom: 32px;
     box-shadow: 0 12px 30px rgba(46,204,113,0.35);
     color: white;
@@ -352,11 +353,11 @@ body.dark-mode .advance-badge {
 /* Mobile & Small Tablets (Max-width: 768px) */
 @media (max-width: 768px) {
     body {
-        padding: 115px 12px 100px; /* Top spacing above header and bottom protection for chatbot */
+        padding: 80px 12px 100px; /* Top spacing above header and bottom protection for chatbot */
     }
 
     .page-header {
-        margin-top: 15px;
+        margin-top: 10px;
         padding: 22px 16px;
         border-radius: 18px;
         margin-bottom: 18px;
