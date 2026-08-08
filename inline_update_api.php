@@ -6,7 +6,7 @@ $api_key = "391|gyFVyQXSWNywx289bNDJdCkdKcOVRcPqyiUQzXzb";
 $sender_id = "SMSAPI Demo"; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // දත්ත ලබා ගැනීම සහ Clean කිරීම
+    // to gete data
     $id = isset($_POST['id']) ? mysqli_real_escape_string($conn, trim($_POST['id'])) : '';
     $device_name = isset($_POST['device_name']) ? mysqli_real_escape_string($conn, trim($_POST['device_name'])) : '';
     $issue_name = isset($_POST['issue_name']) ? mysqli_real_escape_string($conn, trim($_POST['issue_name'])) : '';
@@ -14,21 +14,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $solution = isset($_POST['solution']) ? mysqli_real_escape_string($conn, trim($_POST['solution'])) : '';
 
     if (!empty($id)) {
-        // 1. කලින් තිබුණු status එක පරීක්ෂා කිරීම (SMS යැවීමට සහ Date එකට අවශ්‍යයි)
+        
         $check_query = "SELECT device_status FROM job_device WHERE job_device_id = '$id'";
         $check_res = mysqli_query($conn, $check_query);
         $old_data = mysqli_fetch_assoc($check_res);
         $old_status = $old_data['device_status'] ?? '';
 
-        // 2. Database එක Update කිරීමේ ප්‍රධාන Query එක සෑදීම
-        // වැදගත්: මෙහි හිස්තැන් (Spaces) නිවැරදිව තබා ඇත.
+        
         $sql = "UPDATE job_device SET 
                 device_name = '$device_name', 
                 issue_name = '$issue_name', 
                 solution = '$solution', 
                 device_status = '$status'";
         
-        // අලුතින් 'Completed' කරනවා නම් පමණක් දිනය ඇතුළත් කරන්න
+        
         if ($status === 'Completed' && $old_status !== 'Completed') { 
             $sql .= ", completed_date = NOW()"; 
         }
@@ -37,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if (mysqli_query($conn, $sql)) {
             
-            // 3. SMS එක යැවිය යුත්තේ Status එක සැබෑ ලෙසම වෙනස් වුනොත් පමණයි
+            
             if ($old_status !== $status) {
                 $query = "SELECT j.job_no, j.phone_number FROM job j 
                           INNER JOIN job_device jd ON j.job_no = jd.job_no 
@@ -47,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $job_data = mysqli_fetch_assoc($res);
                 
                 if ($job_data) {
-                    // දුරකථන අංකය නිවැරදි Format එකට සකස් කිරීම
+                
                     $phone = "94" . ltrim(ltrim($job_data['phone_number'], '94'), '0');
                     $msg = "Multi9: Your $device_name (Job #".$job_data['job_no'].") is now $status.";
 
@@ -73,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                     curl_close($ch);
 
-                    // --- SMS History එකට Save කිරීම ---
+                    // --- SMS History save
                     $sms_status = ($http_code == 200 || $http_code == 201) ? 'Success' : 'Failed';
                     $safe_msg = mysqli_real_escape_string($conn, $msg);
                     
@@ -83,7 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
             }
             
-            // සාර්ථක නම් "Success" පමණක් Echo කරන්න (හිස්තැන් නැතිව)
+            
             echo "Success"; 
             
         } else {

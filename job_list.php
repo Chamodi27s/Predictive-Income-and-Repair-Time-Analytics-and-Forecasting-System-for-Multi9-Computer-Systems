@@ -2,13 +2,13 @@
 include 'db_config.php';
 include 'navbar.php';
 
-// --- 1. Auto Status Update (Destroyed) ---
+//  Auto Status Update (Destroyed) ---
 mysqli_query($conn, "UPDATE job_device SET device_status = 'Destroyed' 
                      WHERE destroy_notice_sent_date IS NOT NULL 
                      AND DATEDIFF(NOW(), destroy_notice_sent_date) >= 7 
                      AND device_status != 'Destroyed'");
 
-// --- 2. Auto SMS Logic (Ready to collect) ---
+// Auto SMS Logic (Ready to collect) ---
 $auto_sms_query = "SELECT jd.job_device_id, j.phone_number, c.customer_name, jd.device_name, j.job_no 
                    FROM job_device jd
                    INNER JOIN job j ON jd.job_no = j.job_no
@@ -37,7 +37,7 @@ while($auto_row = mysqli_fetch_assoc($auto_res)) {
     }
 }
 
-// --- 3. Data Fetching and Filtering ---
+//  Data Fetching and Filtering ---
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 $filter_status = isset($_GET['status']) ? mysqli_real_escape_string($conn, $_GET['status']) : '';
 
@@ -157,7 +157,7 @@ $result = mysqli_query($conn, $sql);
             <tbody>
                 <?php if(mysqli_num_rows($result) > 0): ?>
                     <?php while($row = mysqli_fetch_assoc($result)): 
-                        $id = $row['job_device_id']; // මෙන්න මේ Unique ID එක භාවිතා කරනවා
+                        $id = $row['job_device_id']; 
                         $current_status = $row['device_status'];
                         $is_paid = ($row['payment_status'] == 'Paid');
                         $current_idx = array_search($current_status, $status_flow);
