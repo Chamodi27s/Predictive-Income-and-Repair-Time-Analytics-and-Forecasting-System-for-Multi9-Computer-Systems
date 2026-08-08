@@ -42,9 +42,16 @@ SELECT
     technicians.name as tech_name,
     GROUP_CONCAT(job_device.device_name SEPARATOR ', ') as all_devices,
     GROUP_CONCAT(job_device.issue_name SEPARATOR ', ') as all_issues,
-    GROUP_CONCAT(job_device.item_model SEPARATOR ', ') as all_models,
+    GROUP_CONCAT(job_device.model SEPARATOR ', ') as all_models,
     GROUP_CONCAT(job_device.warranty_status SEPARATOR ', ') as all_warranties,
-    GROUP_CONCAT(job_device.repair_path SEPARATOR ', ') as all_paths
+    GROUP_CONCAT(
+        CASE
+            WHEN LOWER(TRIM(job_device.warranty_status)) = 'warranty'
+                THEN 'Agent'
+            ELSE 'In-House'
+        END
+        SEPARATOR ', '
+    ) as all_paths
 FROM customer
 INNER JOIN job ON customer.phone_number = job.phone_number
 LEFT JOIN job_device ON job.job_no = job_device.job_no
@@ -55,6 +62,10 @@ ORDER BY job.job_no DESC
 LIMIT $records_per_page OFFSET $offset
 ";
 $customers_result = mysqli_query($conn, $customers_query);
+
+if (!$customers_result) {
+    die('Unable to load customer jobs: ' . htmlspecialchars(mysqli_error($conn)));
+}
 
 // 6. Total Pages Calculation
 $total_pages_query = "
@@ -424,7 +435,7 @@ $total_pages = ceil($total_records / $records_per_page);
                             <td onclick="event.stopPropagation();">
                                 <?php if($row['job_no']): ?>
                                     <div style="display: flex; gap: 6px; align-items: center; justify-content:center;">
-                                        <button type="button" onclick="openPredictionModal('<?= htmlspecialchars($row['job_no']) ?>', 'date')" class="predict-btn" style="border:none; cursor:pointer;" title="Predict Completion Date"><i class="ph ph-clock"></i> Date</button>
+                                        <a href="duration.php?job_no=<?= rawurlencode((string) $row['job_no']) ?>" class="predict-btn" title="Predict Completion Date"><i class="ph ph-clock"></i> Date</a>
                                         <button type="button" onclick="openPredictionModal('<?= htmlspecialchars($row['job_no']) ?>', 'cost')" class="cost-btn" style="border:none; cursor:pointer;" title="Predict Cost & Parts"><i class="ph ph-currency-dollar"></i> Cost</button>
                                     </div>
                                 <?php endif; ?>
