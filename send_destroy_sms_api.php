@@ -15,7 +15,7 @@ if(isset($_POST['id'])) {
     
     $sms_msg = "FINAL NOTICE: Job #$job_no වසරකට වඩා පරණ බැවින් සතියක් ඇතුළත රැගෙන නොගියහොත් විනාශ කරනු ලැබේ. Multi9 Repair.";
 
-    // SMS API Curl කොටස (කලින් විදිහටම)
+    // SMS API Curl 
     $api_key = "391|gyFVyQXSWNywx289bNDJdCkdKcOVRcPqyiUQzXzb";
     $sender_id = "SMSAPI Demo"; 
     $url = "https://dashboard.smsapi.lk/api/v3/sms/send";
