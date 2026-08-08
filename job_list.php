@@ -87,6 +87,8 @@ $result = mysqli_query($conn, $sql);
             --btn-purple: #7c3aed;
             --btn-amber: #d97706;
         }
+        
+        body { padding-top: var(--nav-height, 100px); }
 
         .page-container { max-width: 1400px; margin: 0 auto; margin-top: 25px; padding: 0 15px; }
         .page-header { background: linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%); padding: 30px; border-radius: 20px; margin-bottom: 30px; color: white; text-align: center; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.25); }
@@ -107,7 +109,38 @@ $result = mysqli_query($conn, $sql);
         .filter-tag:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
         .active-tag { transform: scale(1.05); box-shadow: 0 6px 18px rgba(0,0,0,0.2) !important; border-color: #ffffff !important; }
 
-        .table-container { background: var(--light-surface, #ffffff); border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); overflow-x: auto; border: 1px solid var(--border-light, #e2e8f0); }
+        .table-container { 
+            background: var(--light-surface, #ffffff); 
+            border-radius: 18px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06); 
+            overflow-x: auto; 
+            border: 1px solid var(--border-light, #e2e8f0);
+            -webkit-overflow-scrolling: touch; 
+        }
+
+        /* ==================== RESPONSIVE QUERIES ==================== */
+        @media (max-width: 768px) {
+            .page-container { margin-top: 15px; padding: 0 10px; }
+            .page-header { padding: 20px 15px; border-radius: 16px; margin-bottom: 20px; }
+            .page-header h1 { font-size: 22px; }
+            
+            .search-container { flex-direction: column; align-items: stretch; gap: 10px; }
+            .search-box { max-width: 100%; border-radius: 12px; flex-direction: column; padding: 10px; }
+            .search-box input { width: 100%; margin-bottom: 10px; padding: 12px; }
+            .search-box button { width: 100%; justify-content: center; padding: 12px; }
+            .history-link { width: 100%; justify-content: center; border-radius: 12px; }
+            
+            .filter-container { gap: 8px; }
+            .filter-tag { padding: 8px 12px; font-size: 11px; flex: 1 1 calc(33.333% - 8px); text-align: center; }
+
+            .status-table { min-width: 900px; }
+            .status-table th { padding: 12px 10px; font-size: 10px; }
+            .status-table td { padding: 12px 10px; }
+
+            .inline-input { font-size: 14px; padding: 10px; }
+            .btn-action-sms, .btn-action-edit, .bill-btn { padding: 8px 12px; font-size: 11px; }
+        }
+
         .status-table { width: 100%; border-collapse: collapse; min-width: 1100px; }
         .status-table th { background: var(--light-bg, #f8fafc); color: var(--text-muted, #64748b); padding: 16px 18px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 800; border-bottom: 2px solid var(--border-light, #e2e8f0); }
         .status-table td { padding: 16px 18px; border-bottom: 1px solid var(--border-light, #e2e8f0); text-align: center; color: var(--text-dark, #0f172a); font-size: 13px; vertical-align: middle; }
