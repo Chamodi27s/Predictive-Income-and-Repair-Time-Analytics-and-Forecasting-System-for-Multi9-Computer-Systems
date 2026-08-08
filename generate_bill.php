@@ -72,7 +72,7 @@ if (!empty($job_no_param)) {
     }
 }
 
-// --- 2. View Only Mode (සහ Auto Update Logic) ---
+// --- 2. View Only Mode (Auto Update Logic) ---
 if (isset($_GET['view_only']) && $_GET['view_only'] == 'true' && isset($_GET['job_no'])) {
     $v_job_no = $_GET['job_no'];
     $check_inv = $conn->query("SELECT * FROM invoice WHERE job_no = '$v_job_no'");

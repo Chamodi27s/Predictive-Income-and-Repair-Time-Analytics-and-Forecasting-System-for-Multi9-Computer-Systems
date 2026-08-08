@@ -13,7 +13,7 @@ if(isset($_POST['id'])) {
     $phone = "94" . ltrim(ltrim($row['phone_number'], '94'), '0');
     $job_no = $row['job_no'];
     
-    $sms_msg = "FINAL NOTICE: Job #$job_no වසරකට වඩා පරණ බැවින් සතියක් ඇතුළත රැගෙන නොගියහොත් විනාශ කරනු ලැබේ. Multi9 Repair.";
+    $sms_msg = "FINAL NOTICE: Job #$job_no As these are over a year old, they will be destroyed if not collected within a week. Multi9 Repair.";
 
     // SMS API Curl 
     $api_key = "391|gyFVyQXSWNywx289bNDJdCkdKcOVRcPqyiUQzXzb";

@@ -332,7 +332,7 @@ function viewSMSHistory(id) {
 }
 
 function sendManualSMS(id) {
-    if(confirm("මෙම පාරිභෝගිකයාට Rent එක පිළිබඳව මතක් කිරීමේ SMS පණිවිඩයක් යවන්නද?")) {
+    if(confirm("Should I send an SMS reminder about the rent to this customer?")) {
         fetch('./send_sms_api.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
