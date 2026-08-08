@@ -2,7 +2,7 @@
 include 'db_config.php';
 include 'navbar.php'; 
 
-$filter_query = " WHERE jd.warranty_status = 'No Warranty' AND j.job_status != 'Approved' ";
+$filter_query = " WHERE (jd.warranty_status = 'No' OR jd.warranty_status = 'No Warranty' OR jd.warranty_status IS NULL OR jd.warranty_status = '') ";
 
 if(isset($_GET['range'])) {
     if($_GET['range'] == 'today') {
@@ -329,7 +329,7 @@ body.dark-mode .advance-badge {
 
 <div class="page-container">
     <div class="page-header">
-        <h1>🛠️ Jobs Management</h1>
+        <h1> Jobs Management</h1>
         <p>Manage non-warranty jobs, estimates and approvals</p>
     </div>
 
@@ -411,8 +411,8 @@ body.dark-mode .advance-badge {
                         <td>
                             <select id="cat-<?= $row_uid ?>" class="status-select"
                             onchange="saveToDB('<?= $row_uid ?>', '<?= $id ?>')">
-                                <option value="Hardware" <?= $cat_val == 'Hardware' ? 'selected' : ''; ?>>⚙️ Hardware</option>
-                                <option value="Software" <?= $cat_val == 'Software' ? 'selected' : ''; ?>>💻 Software</option>
+                                <option value="Hardware" <?= $cat_val == 'Hardware' ? 'selected' : ''; ?>> Hardware</option>
+                                <option value="Software" <?= $cat_val == 'Software' ? 'selected' : ''; ?>> Software</option>
                             </select>
                         </td>
 
@@ -424,15 +424,15 @@ body.dark-mode .advance-badge {
                         <td>
                             <select id="stat-<?= $row_uid ?>" class="status-select <?= $status_class ?>"
                             onchange="updateStatusOnly('<?= $row_uid ?>', '<?= $id ?>')">
-                                <option value="Pending" <?= $status_val == 'Pending' ? 'selected' : ''; ?>>⏳ Pending</option>
-                                <option value="Approved" <?= $status_val == 'Approved' ? 'selected' : ''; ?>>✅ Approved</option>
+                                <option value="Pending" <?= $status_val == 'Pending' ? 'selected' : ''; ?>> Pending</option>
+                                <option value="Approved" <?= $status_val == 'Approved' ? 'selected' : ''; ?>> Approved</option>
                             </select>
-                            <span id="msg-<?= $row_uid ?>" class="save-msg">✓ Saved</span>
+                            <span id="msg-<?= $row_uid ?>" class="save-msg"> Saved</span>
                         </td>
 
                         <td>
-                            <button class="btn-sms" onclick="sendEstimateSMS('<?= $row_uid ?>', '<?= $id ?>')">📩 Send Estimate</button>
-                            <button id="btn-edit-<?= $row_uid ?>" class="btn-edit" onclick="toggleEdit('<?= $row_uid ?>', '<?= $id ?>')">✏️ Edit</button>
+                            <button class="btn-sms" onclick="sendEstimateSMS('<?= $row_uid ?>', '<?= $id ?>')"> Send Estimate</button>
+                            <button id="btn-edit-<?= $row_uid ?>" class="btn-edit" onclick="toggleEdit('<?= $row_uid ?>', '<?= $id ?>')">Edit</button>
                             <input type="hidden" id="email-<?= $row_uid ?>" value="<?= $row['email']; ?>">
                         </td>
                     </tr>
@@ -566,7 +566,7 @@ function toggleEdit(row_uid, job_no) {
             el.classList.add('editing-active');
         });
 
-        btn.innerHTML = "💾 Save";
+        btn.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Save';
     } else {
         saveToDB(row_uid, job_no, 0, () => {
             fields.forEach(f => {
@@ -575,7 +575,7 @@ function toggleEdit(row_uid, job_no) {
                 el.classList.remove('editing-active');
             });
 
-            btn.innerHTML = "✏️ Edit";
+            btn.innerHTML = '<i class="ph-bold ph-pencil-simple"></i> Edit';
         });
     }
 }
