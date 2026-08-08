@@ -63,11 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         window.location.href='customer_details.php?phone=" . urlencode($phone) . "';
     </script>";
     exit();
-}
+    //FETCH DATA
 
-/* ===============================
-    FETCH DATA
-================================ */
 $customer_res = mysqli_query($conn,"SELECT * FROM customer WHERE phone_number='$phone'");
 $customer = mysqli_fetch_assoc($customer_res);
 

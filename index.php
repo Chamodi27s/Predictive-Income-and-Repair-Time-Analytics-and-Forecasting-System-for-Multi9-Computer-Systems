@@ -1,5 +1,5 @@
 <?php
-// Session එක දැනටමත් active ද කියා පරීක්ෂා කර පසුව start කරයි
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -43,7 +43,7 @@ $completed_count = $conn->query("
 $total_customers = $conn->query("SELECT COUNT(*) c FROM customer")->fetch_assoc()['c'];
 $revenue_today = $conn->query("SELECT SUM(income) total FROM cashbook WHERE DATE(date)='$today'")->fetch_assoc()['total'] ?? 0;
 
-// Returned Orders logic - Paid වූ ඉන්වොයිස් ගණන (අද දිනට අදාළව හෝ සමස්තය පෙන්විය හැක)
+// Returned Orders logic 
 $returned_count = $conn->query("SELECT COUNT(*) c FROM invoice WHERE payment_status='Paid'")->fetch_assoc()['c'];
 ?>
 

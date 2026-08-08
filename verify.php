@@ -1,7 +1,6 @@
 <?php
 session_start();
-include 'db_config.php'; // Ensure your db_config.php has the Sri Lanka timezone set
-
+include 'db_config.php'; 
 // Redirect if the session is not set
 if (!isset($_SESSION['reset_email'])) {
     header("Location: forgot.php");

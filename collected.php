@@ -464,7 +464,7 @@ syncTheme();
 setInterval(syncTheme, 1000);
 
 function sendEstimateSMS(row_uid, job_no) {
-    let parts = prompt("අලුත්වැඩියාව සඳහා අවශ්‍ය බඩු සහ මිල ඇතුළත් කරන්න:", "Service Charge Only");
+    let parts = prompt("Inclusion of items and prices required for repair:", "Service Charge Only");
     if (parts === null) return;
 
     const data = {
@@ -485,7 +485,7 @@ function sendEstimateSMS(row_uid, job_no) {
             if (this.responseText.trim().includes("success")) {
                 alert("Estimate SMS එක සාර්ථකව යවන ලදී!");
             } else {
-                alert("SMS යැවීමේදී දෝෂයක් ඇති විය: " + this.responseText);
+                alert("Error sending SMS: " + this.responseText);
             }
         }
     };
@@ -498,8 +498,8 @@ function updateStatusOnly(row_uid, job_no) {
     let advanceAmount = 0;
 
     if (statSelect.value === 'Approved') {
-        if (confirm("පාරිභෝගිකයා මෙය ස්ථිර කළාද? Approved කළ පසු මෙය මෙම ලැයිස්තුවෙන් ඉවත් වේ.")) {
-            let userInput = prompt("ලැබුණු අත්තිකාරම් මුදල ඇතුළත් කරන්න:", "0");
+        if (confirm("Did the customer confirm this? Once approved, it will be removed from this list..")) {
+            let userInput = prompt("Enter the advance amount paid by the customer:", "0");
 
             if (userInput === null) {
                 statSelect.value = 'Pending';

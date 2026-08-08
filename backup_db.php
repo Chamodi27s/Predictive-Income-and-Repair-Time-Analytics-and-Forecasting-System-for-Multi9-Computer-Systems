@@ -8,7 +8,7 @@ session_start();
 date_default_timezone_set("Asia/Colombo");
 $dbname = "servidedb";
 
-// Navbar දත්ත
+// Navbar 
 $current_page = basename($_SERVER['PHP_SELF']);
 $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : 'User';
 $user_initial = strtoupper(substr($user_name, 0, 1));
@@ -76,7 +76,7 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         .user-section { display: flex; align-items: center; gap: 10px; }
         .profile-card { background: #22c55e; color: #064e3b; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid white; }
 
-        /* --- THEME SWITCH --- */
+        /* --- THEME SWITCH 
         .theme-switch-wrapper { display: flex; align-items: center; margin-right: 15px; }
         .theme-switch { display: inline-block; height: 20px; position: relative; width: 40px; cursor: pointer; }
         .theme-switch input { display: none; }

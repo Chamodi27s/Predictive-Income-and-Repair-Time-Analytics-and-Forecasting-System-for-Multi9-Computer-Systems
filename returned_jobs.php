@@ -4,7 +4,7 @@ include 'navbar.php';
 
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 
-// Query එකේ i.invoice_no සහ i.grand_total එලෙසම තබා ගත්තේ backend logic සඳහා පමණි
+// grand total
 $sql = "SELECT i.invoice_no, i.job_no, i.invoice_date, c.customer_name, j.phone_number, 
                jd.device_name, jd.issue_name, i.grand_total
         FROM invoice i

@@ -4,7 +4,7 @@ include 'db_config.php';
 if(isset($_POST['id'])) {
     $id = $_POST['id'];
     
-    // දත්ත ලබා ගැනීම
+    // add data
     $sql = "SELECT jd.job_no, j.phone_number FROM job_device jd 
             JOIN job j ON jd.job_no = j.job_no 
             WHERE jd.job_device_id = '$id'";
@@ -14,10 +14,10 @@ if(isset($_POST['id'])) {
     $phone = "94" . ltrim(ltrim($row['phone_number'], '94'), '0');
     $job_no = $row['job_no'];
     
-    // ඔයාට අවශ්‍ය මැසේජ් එක
-    $sms_msg = "Multi9 Alert: Job #$job_no සූදානම් කර මාස 3ක් ගතවී ඇත. අද සිට ඉදිරි මාස 12 සඳහා මසකට Rs.100 බැගින් Rent එකක් එකතු වේ. ස්තූතියි!";
+    
+    $sms_msg = "Multi9 Alert: Job #$job_no 3 months have passed since preparation. Starting today, a monthly rent of Rs. 100 will be added for the next 12 months. Thank you!";
 
-    // SMS API Curl කොටස
+    
     $api_key = "391|gyFVyQXSWNywx289bNDJdCkdKcOVRcPqyiUQzXzb";
     $sender_id = "SMSAPI Demo"; 
     $url = "https://dashboard.smsapi.lk/api/v3/sms/send";
@@ -31,7 +31,7 @@ if(isset($_POST['id'])) {
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
     
     if(curl_exec($ch)) {
-        // මැසේජ් එක ගිය බව සටහන් කිරීම
+        
         $conn->query("UPDATE job_device SET rent_warning_sent = 1 WHERE job_device_id = '$id'");
         echo "Rent Warning Sent";
     } else {

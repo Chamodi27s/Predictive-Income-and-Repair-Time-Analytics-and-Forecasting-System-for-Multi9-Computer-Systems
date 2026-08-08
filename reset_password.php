@@ -1,5 +1,5 @@
 <?php
-// Browser caching නිසා පරණ දත්ත පෙන්වීම වැළැක්වීමට headers එක් කිරීම
+ 
 header("Cache-Control: no-cache, no-store, must-revalidate"); 
 header("Pragma: no-cache"); 
 header("Expires: 0"); 
@@ -7,7 +7,7 @@ header("Expires: 0");
 session_start();
 include 'db_config.php';
 
-// 1. forgot.php හරහා ආපු කෙනෙක්ද කියලා බලනවා
+
 if (!isset($_SESSION['reset_email'])) {
     header("Location: forgot.php");
     exit();
@@ -21,16 +21,16 @@ if (isset($_POST['update_password'])) {
     $email = $_SESSION['reset_email'];
 
     if ($new_pass === $confirm_pass) {
-        // 2. Password එක Database එකේ Auto Update කිරීම
-        // reset_token සහ expiry දත්තද මෙහිදීම ඉවත් කරනු ලබයි
+        
+        
         $update_query = "UPDATE login_users SET password='$new_pass', reset_token=NULL, token_expiry=NULL WHERE email='$email'";
         
         if (mysqli_query($conn, $update_query)) {
-            // 3. සාර්ථක නම් Session එක ඉවත් කර අලුත් password එක පාවිච්චි කිරීමට ඉඩ සැලසීම
+            
             unset($_SESSION['reset_email']); 
             session_destroy();
             
-            // සාර්ථක පණිවිඩය පෙන්වා වහාම login පිටුවට යොමු කිරීම (Auto Update/Refresh)
+            
             echo "<script>
                 alert('Password updated successfully!');
                 window.location.replace('login.php'); 

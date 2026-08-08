@@ -1,42 +1,42 @@
 <?php 
 include 'db_config.php';
 
-// --- Manual Entry සේව් කිරීමේ කොටස ---
+// --- Manual Entry 
 if (isset($_POST['add_manual_transaction'])) {
-    // Inputs ආරක්ෂිතව ලබාගැනීම
+    
     $date = $conn->real_escape_string($_POST['date']);
     $amount = floatval($_POST['amount']);
     $acc_id = $conn->real_escape_string($_POST['acc_id']);
     $ref = $conn->real_escape_string($_POST['reference']);
 
-    // Database එකේ වැඩ දෙකක් එකවර සිදුවන බැවින් Transaction එකක් ආරම්භ කිරීම
+    
     $conn->begin_transaction();
 
     try {
-        // 1. අන්තිම Cashbook Balance එක ලබාගැනීම
+        // 1.  Cashbook Balance 
         $res = $conn->query("SELECT balance FROM cashbook ORDER BY cashid DESC LIMIT 1");
         $row = $res->fetch_assoc();
         $last_balance = ($row) ? floatval($row['balance']) : 0;
         
         $new_balance = $last_balance + $amount;
 
-        // 2. Cashbook එකට ඇතුළත් කිරීම
+        // 2. add Cashbook 
         $sql = "INSERT INTO cashbook (date, invoice_no, income, balance, acc_id) 
                 VALUES ('$date', '$ref', '$amount', '$new_balance', '$acc_id')";
         $conn->query($sql);
 
-        // 3. අදාළ Account එකේ balance එක update කිරීම
+        //3.update account balance
         $update_acc_sql = "UPDATE accounts SET balance = balance + $amount WHERE acc_id = '$acc_id'";
         $conn->query($update_acc_sql);
 
-        // සියල්ල සාර්ථක නම් පමණක් Database එක ස්ථිරවම Update කරන්න
+        
         $conn->commit();
         
         header("Location: cashbook_view.php?status=success");
         exit();
 
     } catch (Exception $e) {
-        // කිසියම් දෝෂයක් ආවොත් කළ වෙනස්කම් සියල්ල අවලංගු කරන්න
+
         $conn->rollback();
         $error_msg = "Error: Something went wrong!";
     }

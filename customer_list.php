@@ -5,7 +5,7 @@ include 'navbar.php';
 
 
 
-// Search query එක ලබා ගැනීම
+// Search query 
 $q = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
 ?>
 
@@ -165,8 +165,7 @@ $q = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
         </thead>
         <tbody>
             <?php
-            // SQL Query: Job, Customer සහ Job_Device වගු JOIN කර ඇත
-           // නිවැරදි කළ SQL Query එක
+
 $sql = "SELECT j.job_no, c.customer_name, jd.device_name, jd.issue_name, j.job_date, j.job_status 
         FROM job j 
         LEFT JOIN customer c ON j.phone_number = c.phone_number 
