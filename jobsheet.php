@@ -1,10 +1,10 @@
 <?php 
 include 'db_config.php';
 
-// ශ්‍රී ලංකා වේලාව නිවැරදිව ලබා ගැනීමට
+
 date_default_timezone_set('Asia/Colombo');
 
-// URL එකෙන් job_no එක ලබා ගැනීම
+// to gete job usisng URL
 $job_no_param = isset($_GET['job_no']) ? $conn->real_escape_string($_GET['job_no']) : '';
 
 if (!empty($job_no_param)) {
@@ -39,7 +39,7 @@ $devices_res = $conn->query("SELECT * FROM job_device WHERE job_no = '$job_no'")
 <title>JobSheet_<?= $job_no ?></title>
 
 <style>
-/* මෙතැනින් Browser එකේ Headers සහ Footers ඉවත් කරයි */
+
 @page {
     margin: 5mm; 
     size: auto;
@@ -97,9 +97,9 @@ body{margin:0;background:#f6f4ef;color:#083024;font-size:13px; padding: 20px; tr
 .bottom{display:flex;justify-content:flex-end;margin-top:15px}
 .print{padding:10px 25px;font-size:15px;font-weight:700;border:none;border-radius:8px;background:linear-gradient(#0aa37a,#056d52);color:#fff;cursor:pointer}
 
-/* ===============================
-    DARK MODE SCREEN STYLES
-================================ */
+
+   // DARK MODE SCREEN STYLES
+
 body.dark-mode {
     background: #0f172a !important;
     color: #f1f5f9 !important;
@@ -117,17 +117,16 @@ body.dark-mode .pill input { color: #ffffff !important; }
 body.dark-mode .sign .body { background: #1e293b !important; color: #f1f5f9 !important; }
 body.dark-mode .terms { background: #0f172a !important; border-color: #334155 !important; color: #cbd5e1 !important; }
 
-/* ===============================
-    PRINT STYLES (ENHANCED)
-================================ */
+    //PRINT STYLES (ENHANCED)
+
 @media print {
-    /* Print එකේදී Dark mode අක්‍රිය කර සම්පූර්ණයෙන්ම සුදු පැහැති පසුබිමක් ලබා දෙයි */
+    
     body, body.dark-mode { 
         background: white !important; 
         color: black !important; 
         padding: 0 !important; 
         margin: 0 !important;
-        -webkit-print-color-adjust: exact; /* Background වර්ණ ලබා ගැනීමට මෙය අත්‍යවශ්‍යයි */
+        -webkit-print-color-adjust: exact; 
         print-color-adjust: exact;
     }
     
@@ -143,12 +142,11 @@ body.dark-mode .terms { background: #0f172a !important; border-color: #334155 !i
 
     .no-print, .print, .bottom { display: none !important; }
 
-    /* Headers සහ Text පැහැදිලි කිරීමට */
     .company-header, body.dark-mode .company-header { border-bottom: 2px solid #083024 !important; }
     .company-details strong, body.dark-mode .company-details strong, 
     .dt-label, .dt-value, body.dark-mode .dt-value { color: #083024 !important; }
     
-    /* Input field අකුරු නොපෙනී යාම වැළැක්වීමට */
+    
     .card, body.dark-mode .card { background: #fdeff0 !important; border: 1.5px solid #7fd0b9 !important; }
     .compact-form label { color: black !important; }
     .compact-form input, body.dark-mode .compact-form input { 
@@ -158,17 +156,17 @@ body.dark-mode .terms { background: #0f172a !important; border-color: #334155 !i
         opacity: 1 !important;
     }
     
-    /* Pill වර්ණ මුද්‍රණයේදී පවත්වා ගැනීම */
+    
     .pill.device, body.dark-mode .pill.device { background: #e8faf2 !important; border: 1px solid #7fd0b9 !important; }
     .pill.service, body.dark-mode .pill.service { background: #fdeef0 !important; border: 1px solid #f3a5b5 !important; }
     .pill label { color: black !important; }
     .pill input, body.dark-mode .pill input { color: black !important; font-weight: bold !important; }
     
-    /* අත්සන් සඳහා කොටස් */
+    
     .sign .body, body.dark-mode .sign .body { background: white !important; color: black !important; border-top: 1px solid #bbb !important; }
     .sig-line { border-bottom: 1px dotted #000 !important; }
 
-    /* කොන්දේසි (Terms) */
+
     .terms, body.dark-mode .terms { background: #f1fff9 !important; border: 1px dashed #9fd9c6 !important; color: black !important; }
 }
 
@@ -266,7 +264,7 @@ function applySystemTheme() {
 }
 applySystemTheme();
 
-// මුද්‍රණයෙන් පසු Redirect කිරීම
+
 window.onafterprint = function() {
     window.location.href = "customer_details.php?phone=<?= urlencode($job_main['phone_number']) ?>";
 };

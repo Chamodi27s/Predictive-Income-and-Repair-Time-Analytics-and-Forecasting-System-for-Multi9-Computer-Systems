@@ -1,13 +1,13 @@
 <?php
-// Session එක දැනටමත් active ද කියා පරීක්ෂා කර පසුව start කරයි
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// වර්තමාන පිටුව හඳුනා ගැනීම
+
 $current_page = basename($_SERVER['PHP_SELF']);
 
-// පරිශීලක තොරතුරු
+
 $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : 'User';
 $user_initial = strtoupper(substr($user_name, 0, 1));
 ?>
@@ -19,7 +19,7 @@ body.dark-mode {
     color:#e2e8f0 !important;
 }
 
-/* Glass Effect Cards - Dark Mode එකේදී පමණක් වැඩ කරයි */
+//Glass Effect Cards
 body.dark-mode .card, 
 body.dark-mode .dashboard-card, 
 body.dark-mode .stat-card {

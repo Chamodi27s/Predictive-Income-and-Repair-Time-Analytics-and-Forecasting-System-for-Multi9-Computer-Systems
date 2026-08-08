@@ -12,10 +12,7 @@ if (file_exists(__DIR__ . "/db_config.php")) {
     die("db_config.php not found");
 }
 
-/*
- * Capture the navbar HTML instead of printing it before <!DOCTYPE html>.
- * It will be displayed inside a .no-print wrapper in the <body>.
- */
+
 $navbarHtml = '';
 
 if (file_exists(__DIR__ . "/navbar.php")) {
