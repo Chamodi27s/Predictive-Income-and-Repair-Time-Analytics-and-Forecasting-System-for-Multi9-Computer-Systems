@@ -9,7 +9,7 @@ if (isset($_POST['id']) && isset($_POST['data'])) {
         die("Invalid JSON format");
     }
 
-    // පාරිභෝගිකයාගේ දුරකථන අංකය ලබා ගැනීම
+    
     $stmt_get_phone = $conn->prepare("SELECT phone_number FROM job WHERE job_no = ?");
     $stmt_get_phone->bind_param("s", $id);
     $stmt_get_phone->execute();
@@ -26,7 +26,7 @@ if (isset($_POST['id']) && isset($_POST['data'])) {
     $clean_phone = preg_replace('/[^0-9]/', '', $current_phone);
     $phone = "94" . ltrim($clean_phone, '0');
 
-    // --- පියවර A: Estimate SMS යැවීමේ Logic එක ---
+    
     if (isset($data['action']) && $data['action'] === 'send_estimate_sms') {
         $total_cost = number_format($data['estimated_cost'], 2);
         $parts_with_prices = $data['parts_details']; 
@@ -66,7 +66,7 @@ if (isset($_POST['id']) && isset($_POST['data'])) {
         exit; 
     }
 
-    // --- පියවර B: සාමාන්‍ය Update (Approved/Pending) සහ Advance Save කිරීම ---
+    
     
     // 1. Customer table update 
     $sql1 = "UPDATE customer SET customer_name = ?, email = ? WHERE phone_number = ?";
@@ -74,7 +74,7 @@ if (isset($_POST['id']) && isset($_POST['data'])) {
     $stmt1->bind_param("sss", $data['customer_name'], $data['email'], $current_phone);
     $stmt1->execute();
 
-    // 2. Job table update (මෙතැනට advance_paid එකතු කළා)
+    // 2. Job table update 
     $advance = isset($data['advance_paid']) ? $data['advance_paid'] : 0;
     $sql2 = "UPDATE job SET job_status = ?, estimated_cost = ?, advance_paid = ? WHERE job_no = ?";
     $stmt2 = $conn->prepare($sql2);

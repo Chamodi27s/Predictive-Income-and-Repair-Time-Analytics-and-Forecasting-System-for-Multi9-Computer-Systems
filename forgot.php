@@ -1,5 +1,5 @@
 <?php
-// Error පෙන්වීමට (Development අවධියේදී පමණක්)
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -11,23 +11,23 @@ require 'PHPMailer/PHPMailer.php';
 require 'PHPMailer/SMTP.php';
 
 session_start();
-include 'db_config.php'; // Screenshot එකට අනුව නිවැරදි නම
+include 'db_config.php'; 
 
 $error = '';
 
 if (isset($_POST['reset'])) {
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     
-    // Database එකේ user ඉන්නවාදැයි බැලීම
+    
     $query = "SELECT * FROM login_users WHERE email='$email'";
     $result = mysqli_query($conn, $query);
 
     if (mysqli_num_rows($result) > 0) {
         $otp = rand(100000, 999999);
-        // විනාඩි 5කින් කල් ඉකුත් වන ලෙස සකස් කිරීම
+        
         $expiry = date("Y-m-d H:i:s", strtotime('+5 minutes'));
 
-        // Database එකට OTP එක Update කිරීම
+        
         $update = "UPDATE login_users SET reset_token='$otp', token_expiry='$expiry' WHERE email='$email'";
         mysqli_query($conn, $update);
 

@@ -372,7 +372,7 @@ body.dark-mode .final-badge {
 
             <form method="GET" class="search-box">
                 <input type="text" name="search" placeholder="Search invoice, job, customer..." value="<?= htmlspecialchars($search) ?>">
-                <button type="submit" class="search-btn">🔍 Search</button>
+                <button type="submit" class="search-btn"> Search</button>
             </form>
         </div>
 
