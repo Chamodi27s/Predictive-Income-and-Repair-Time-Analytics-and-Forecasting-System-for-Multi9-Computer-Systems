@@ -253,7 +253,7 @@ body.dark-mode .terms { background: #0f172a !important; border-color: #334155 !i
 </div>
 
 <script>
-// Dark Mode පරීක්ෂාව සහ යෙදීම
+// Dark Mode 
 function applySystemTheme() {
     const isDark = localStorage.getItem('darkMode') === 'enabled';
     if (isDark) {
