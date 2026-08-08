@@ -29,7 +29,7 @@ $q = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
             font-family: 'Inter', sans-serif;
             background: var(--bg-light);
             color: var(--text-light);
-            padding: 100px 20px 20px; /* Offset for fixed navbar */
+            padding: var(--nav-height) 20px 20px; /* Offset for fixed navbar */
             margin: 0;
             transition: background 0.3s, color 0.3s;
         }

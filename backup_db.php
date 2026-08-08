@@ -1,17 +1,10 @@
 <?php
 session_start();
-// if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
-//     header("Location: login.php");
-//     exit();
-// }
+include 'db_config.php';
+include 'navbar.php';
 
 date_default_timezone_set("Asia/Colombo");
 $dbname = "servidedb";
-
-// Navbar 
-$current_page = basename($_SERVER['PHP_SELF']);
-$user_name = isset($_SESSION['username']) ? $_SESSION['username'] : 'User';
-$user_initial = strtoupper(substr($user_name, 0, 1));
 ?>
 
 <!DOCTYPE html>
@@ -67,150 +60,11 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 110px 16px 50px;
+            padding: 120px 16px 50px;
         }
 
         body.dark-mode {
             background: linear-gradient(135deg, #0b0f19 0%, #020617 100%);
-        }
-
-        /* --- NAVBAR --- */
-        .topbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 9999;
-            background: rgba(4, 63, 46, 0.95);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            color: white;
-            padding: 12px 30px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        body.dark-mode .topbar {
-            background: rgba(2, 6, 23, 0.95);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .brand-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .brand strong {
-            font-size: 18px;
-            letter-spacing: 1px;
-            color: #ffffff;
-            font-weight: 800;
-        }
-
-        .online-pulse {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #10b981;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #10b981;
-            margin-left: 6px;
-        }
-
-        .menu {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .menu a {
-            color: #a7f3d0 !important;
-            text-decoration: none;
-            font-size: 13.5px;
-            font-weight: 600;
-            padding: 6px 12px;
-            border-radius: 8px;
-            transition: 0.3s;
-        }
-
-        .menu a:hover,
-        .menu a.active {
-            color: #ffffff !important;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .user-controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .theme-switch-wrapper {
-            display: flex;
-            align-items: center;
-        }
-
-        .theme-switch {
-            display: inline-block;
-            height: 22px;
-            position: relative;
-            width: 44px;
-            cursor: pointer;
-        }
-
-        .theme-switch input {
-            display: none;
-        }
-
-        .slider {
-            background-color: rgba(255, 255, 255, 0.2);
-            bottom: 0;
-            left: 0;
-            position: absolute;
-            right: 0;
-            top: 0;
-            transition: .3s;
-            border-radius: 34px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .slider:before {
-            background-color: #fff;
-            bottom: 3px;
-            content: "";
-            height: 14px;
-            left: 4px;
-            position: absolute;
-            transition: .3s;
-            width: 14px;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: var(--primary);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(20px);
-        }
-
-        .profile-card {
-            background: linear-gradient(135deg, #10b981, #047857);
-            color: white;
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 13px;
-            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         /* --- BACKUP CARD --- */
@@ -426,24 +280,7 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
         /* ==================== RESPONSIVE MEDIA QUERIES ==================== */
         @media (max-width: 768px) {
             body {
-                padding: 95px 12px 40px;
-            }
-
-            .topbar {
-                padding: 10px 16px;
-            }
-
-            .brand strong {
-                font-size: 16px;
-            }
-
-            .menu {
-                display: flex;
-            }
-
-            .menu a {
-                font-size: 12.5px;
-                padding: 5px 8px;
+                padding: 115px 12px 60px;
             }
 
             .backup-card {
@@ -486,11 +323,7 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
 
         @media (max-width: 480px) {
             body {
-                padding: 85px 8px 30px;
-            }
-
-            .topbar {
-                padding: 8px 12px;
+                padding: 100px 8px 50px;
             }
 
             .backup-card {
@@ -509,48 +342,11 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
                 width: 100%;
                 word-break: break-all;
             }
-
-            .menu {
-                gap: 4px;
-            }
-
-            .menu a {
-                font-size: 12px;
-                padding: 4px 6px;
-            }
         }
     </style>
 </head>
 
 <body>
-
-<div class="topbar no-print">
-    <div class="brand-section">
-        <i class="fas fa-database" style="color: #10b981; font-size: 20px;"></i>
-        <div class="brand">
-            <strong>MULTI 9</strong>
-            <span class="online-pulse" title="System Online"></span>
-        </div>
-    </div>
-    
-    <div class="menu">
-        <a href="index.php"><i class="fas fa-home"></i> Dashboard</a>
-        <a href="backup_db.php" class="active"><i class="fas fa-shield-alt"></i> Backup</a>
-    </div>
-
-    <div class="user-controls">
-        <div class="theme-switch-wrapper">
-            <span style="margin-right: 6px; font-size: 13px;">🌙</span>
-            <label class="theme-switch">
-                <input type="checkbox" id="darkToggle">
-                <span class="slider"></span>
-            </label>
-        </div>
-        <div class="user-section">
-            <div class="profile-card"><?= $user_initial ?></div>
-        </div>
-    </div>
-</div>
 
 <div class="container">
     <div class="backup-card">
@@ -595,26 +391,14 @@ $user_initial = strtoupper(substr($user_name, 0, 1));
 </div>
 
 <script>
-    const darkToggle = document.getElementById('darkToggle');
-    const body = document.body;
-
-    // Theme පරීක්ෂාව
-    if (localStorage.getItem('theme') === 'dark') {
-        body.classList.add('dark-mode');
-        darkToggle.checked = true;
-    }
-
-    darkToggle.addEventListener('change', () => {
-        if (darkToggle.checked) {
-            body.classList.add('dark-mode');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            body.classList.remove('dark-mode');
-            localStorage.setItem('theme', 'light');
+    // Sync dark mode with the rest of the app
+    (function() {
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
         }
-    });
+    })();
 
-    // වෙලාව Update කිරීම
+    // Clock update
     function updateClock(){
         let now = new Date();
         let str = now.getFullYear() + "-" + 

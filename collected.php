@@ -21,14 +21,10 @@ if(isset($_GET['range'])) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jobs Management | Smart Repair</title>
+<link rel="stylesheet" href="CSS/global.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
 
 :root {
     --primary: #2ecc71;
@@ -51,7 +47,7 @@ if(isset($_GET['range'])) {
 body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
-    padding: 140px 20px 40px;
+    padding: var(--nav-height) 20px 40px;
     color: var(--text-main);
 }
 
