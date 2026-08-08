@@ -54,7 +54,7 @@ $result = $conn->query($query);
 body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
-    padding: var(--nav-height) 20px 40px;
+    padding: 125px 20px 40px;
     color: var(--text-main);
 }
 
@@ -67,6 +67,7 @@ body {
     background: linear-gradient(135deg, #2ecc71, #27ae60);
     padding: 36px 40px;
     border-radius: 22px;
+    margin-top: 15px;
     margin-bottom: 32px;
     box-shadow: 0 12px 30px rgba(46,204,113,0.35);
     color: white;
@@ -329,26 +330,219 @@ body.dark-mode .final-badge {
     color: #86efac;
 }
 
-@media(max-width: 768px) {
+/* ==================== RESPONSIVE MEDIA QUERIES ==================== */
+
+@media(max-width: 1024px) {
     body {
-        padding: 110px 15px 30px;
+        padding: 115px 16px 40px;
     }
 
     .page-header {
-        padding: 28px 20px;
-    }
-
-    .page-header h1 {
-        font-size: 25px;
+        margin-top: 15px;
+        padding: 28px 24px;
+        margin-bottom: 24px;
     }
 
     .container {
-        padding: 20px;
+        padding: 24px;
+    }
+}
+
+@media(max-width: 768px) {
+    body {
+        padding: 110px 12px 100px; /* Floating chatbot protection */
+    }
+
+    .page-header {
+        margin-top: 15px;
+        padding: 22px 16px;
+        border-radius: 18px;
+        margin-bottom: 18px;
+    }
+
+    .page-header h1 {
+        font-size: 22px;
+    }
+
+    .page-header p {
+        font-size: 13px;
+    }
+
+    .container {
+        padding: 16px 12px;
+        border-radius: 18px;
+    }
+
+    .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        font-size: 20px;
+        text-align: center;
+    }
+
+    .search-box {
+        width: 100%;
+        flex-direction: column;
+        gap: 10px;
     }
 
     .search-box input,
     .search-btn {
         width: 100%;
+    }
+
+    /* Transform Table into Responsive Cards */
+    .table-container {
+        border: none;
+        background: transparent;
+        border-radius: 0;
+        overflow: visible;
+    }
+
+    table,
+    tbody,
+    tr,
+    td {
+        display: block;
+        width: 100%;
+    }
+
+    table {
+        min-width: 0 !important;
+    }
+
+    thead {
+        display: none;
+    }
+
+    tbody tr {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px 10px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        margin-bottom: 16px;
+        padding: 16px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+        position: relative;
+    }
+
+    tbody tr:hover {
+        transform: none;
+    }
+
+    body.dark-mode tbody tr {
+        background: rgba(30, 41, 59, 0.9) !important;
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+    }
+
+    td {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 0;
+        border: none;
+        font-size: 14px;
+        text-align: left !important;
+    }
+
+    td::before {
+        content: attr(data-label);
+        font-weight: 800;
+        font-size: 11px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    body.dark-mode td::before {
+        color: #94a3b8;
+    }
+
+    /* Row 1: Inv No (Left) & Status (Right) */
+    td:nth-child(1) {
+        grid-column: 1 / 2;
+        grid-row: 1;
+        padding-bottom: 6px;
+        border-bottom: 1.5px dashed var(--border);
+    }
+    td:nth-child(1)::before {
+        display: none;
+    }
+
+    td:nth-child(8) {
+        grid-column: 2 / 3;
+        grid-row: 1;
+        align-items: flex-end;
+        padding-bottom: 6px;
+        border-bottom: 1.5px dashed var(--border);
+    }
+    td:nth-child(8)::before {
+        display: none;
+    }
+
+    /* Row 2: Customer Details */
+    td:nth-child(3) {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
+
+    /* Row 3: Device (Left) & Job No (Right) */
+    td:nth-child(4) {
+        grid-column: 1 / 2;
+        grid-row: 3;
+    }
+
+    td:nth-child(2) {
+        grid-column: 2 / 3;
+        grid-row: 3;
+        align-items: flex-end;
+    }
+
+    /* Row 4: Subtotal (Left) & Late Rent (Right) */
+    td:nth-child(5) {
+        grid-column: 1 / 2;
+        grid-row: 4;
+    }
+
+    td:nth-child(6) {
+        grid-column: 2 / 3;
+        grid-row: 4;
+        align-items: flex-end;
+    }
+
+    /* Row 5: Final Amount (Left) & View Bill Button (Right) */
+    td:nth-child(7) {
+        grid-column: 1 / 2;
+        grid-row: 5;
+        padding-top: 6px;
+        border-top: 1.5px dashed var(--border);
+    }
+
+    td:nth-child(9) {
+        grid-column: 2 / 3;
+        grid-row: 5;
+        align-items: flex-end;
+        justify-content: flex-end;
+        padding-top: 6px;
+        border-top: 1.5px dashed var(--border);
+    }
+    td:nth-child(9)::before {
+        display: none;
+    }
+
+    .action-btn {
+        width: 100%;
+        text-align: center;
+        padding: 10px 14px;
     }
 }
 </style>
@@ -396,21 +590,21 @@ body.dark-mode .final-badge {
                         $grand_total = floatval($row['grand_total']);
                     ?>
                     <tr>
-                        <td><span class="inv-badge">#<?= $row['invoice_no'] ?></span></td>
-                        <td><strong><?= $row['job_no'] ?></strong></td>
+                        <td data-label="Inv No"><span class="inv-badge">#<?= $row['invoice_no'] ?></span></td>
+                        <td data-label="Job No"><strong>#<?= $row['job_no'] ?></strong></td>
 
-                        <td>
+                        <td data-label="Customer Details">
                             <span class="customer-name"><?= $row['customer_name'] ?></span><br>
                             <span class="customer-phone"><?= $row['phone_number'] ?></span>
                         </td>
 
-                        <td><?= $row['device_name'] ?></td>
+                        <td data-label="Device"><?= $row['device_name'] ?></td>
 
-                        <td style="text-align:right;">
+                        <td data-label="Subtotal" style="text-align:right;">
                             <span class="subtotal-badge">Rs. <?= number_format($grand_total - $late_fee, 2) ?></span>
                         </td>
 
-                        <td style="text-align:right;">
+                        <td data-label="Late Rent" style="text-align:right;">
                             <?php if ($late_fee > 0): ?>
                                 <span class="late-badge">Rs. <?= number_format($late_fee, 2) ?></span>
                             <?php else: ?>
@@ -418,17 +612,17 @@ body.dark-mode .final-badge {
                             <?php endif; ?>
                         </td>
 
-                        <td style="text-align:right;">
+                        <td data-label="Final Amount" style="text-align:right;">
                             <span class="final-badge">Rs. <?= number_format($grand_total, 2) ?></span>
                         </td>
 
-                        <td>
+                        <td data-label="Status">
                             <span class="status <?= ($row['payment_status'] == 'Paid') ? 'status-paid' : 'status-pending' ?>">
                                 <?= $row['payment_status'] ?>
                             </span>
                         </td>
 
-                        <td>
+                        <td data-label="Actions">
                             <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&view_only=true" class="action-btn"> View Bill</a>
                         </td>
                     </tr>
