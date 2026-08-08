@@ -2,7 +2,7 @@
 include 'db_config.php';
 include 'navbar.php'; 
 
-// Date Range Filters
+
 $filter_query = " WHERE jd.warranty_status = 'Warranty' ";
 if(isset($_GET['range'])) {
     if($_GET['range'] == 'today') {
