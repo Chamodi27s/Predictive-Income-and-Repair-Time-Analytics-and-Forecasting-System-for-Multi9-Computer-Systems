@@ -83,13 +83,13 @@ if (isset($_GET['view_only']) && $_GET['view_only'] == 'true' && isset($_GET['jo
         $saved_parts_total = floatval($inv_data['parts_total']);
         $saved_late_fee = floatval($inv_data['late_fee'] ?? 0);
         
-        // 🔔 බිල්පත බලන විට තවදුරටත් කාලය ගතවී ඇත්නම් Rent එක Update කිරීම
+        //bill save with rent fees
         if ($delay_fee > $saved_late_fee) {
             $new_grand_total = $saved_parts_total + $service_charge_val + $delay_fee;
             $new_balance = $new_grand_total - $advance_paid;
             if($new_balance < 0) $new_balance = 0;
 
-            // Database එකේ සේව් කර ඇති අගයන් අලුත් ගණනය කිරීමට අනුව Update කිරීම
+            
             $conn->query("UPDATE invoice SET 
                             late_fee = '$delay_fee', 
                             grand_total = '$new_grand_total', 
