@@ -1,82 +1,281 @@
 <?php
-include 'db_config.php';
-include 'navbar.php';
+declare(strict_types=1);
 
-// 1. Get Phone Number from URL
-$phone = isset($_GET['phone']) ? mysqli_real_escape_string($conn, $_GET['phone']) : '';
-if (!$phone) {
-    echo "<script>window.location='job_list.php';</script>";
-    exit();
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
 }
 
-$is_edit = isset($_GET['edit']); 
+require_once __DIR__ . '/db_config.php';
+
+if (!isset($conn) || !($conn instanceof mysqli)) {
+    die('Database connection is not available. Check db_config.php.');
+}
+
+$conn->set_charset('utf8mb4');
+
+/* Keep navbar output inside <body>, while still loading its PHP before output. */
+ob_start();
+require __DIR__ . '/navbar.php';
+$navbar_html = (string) ob_get_clean();
+
+function customerPageRedirect(string $url, ?string $message = null): void
+{
+    if ($message === null) {
+        header('Location: ' . $url);
+        exit;
+    }
+
+    $messageJson = json_encode($message, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    $urlJson = json_encode($url, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    echo "<script>alert($messageJson); window.location.href=$urlJson;</script>";
+    exit;
+}
+
+$phone = isset($_GET['phone']) ? trim((string) $_GET['phone']) : '';
+if ($phone === '') {
+    customerPageRedirect('job_list.php');
+}
+
+$is_edit = isset($_GET['edit']) && $_GET['edit'] === 'true';
+
+if (empty($_SESSION['customer_details_csrf'])) {
+    $_SESSION['customer_details_csrf'] = bin2hex(random_bytes(32));
+}
+$csrf_token = (string) $_SESSION['customer_details_csrf'];
 
 /* ===============================
-    DATA UPDATE & DELETE SECTION
+   DATA UPDATE & DELETE SECTION
 ================================ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['action']) && $_POST['action'] === 'delete') {
-        // Find all jobs for this customer to delete their devices first
-        $job_res = mysqli_query($conn, "SELECT job_no FROM job WHERE phone_number='$phone'");
-        while($row = mysqli_fetch_assoc($job_res)) {
-            $jno = $row['job_no'];
-            // Optionally delete images from server here if needed
-            mysqli_query($conn, "DELETE FROM job_device WHERE job_no='$jno'");
-        }
-        mysqli_query($conn, "DELETE FROM job WHERE phone_number='$phone'");
-        mysqli_query($conn, "DELETE FROM customer WHERE phone_number='$phone'");
-        
-        echo "<script>
-            alert('Customer and all related jobs deleted successfully!');
-            window.location.href='add_customer.php';
-        </script>";
-        exit();
+    $postedToken = isset($_POST['csrf_token']) ? (string) $_POST['csrf_token'] : '';
+    if (!hash_equals($csrf_token, $postedToken)) {
+        http_response_code(403);
+        die('Invalid request token. Refresh the page and try again.');
     }
 
-    $name = mysqli_real_escape_string($conn, $_POST['customer_name']);
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $address = mysqli_real_escape_string($conn, $_POST['address']);
+    if (isset($_POST['action']) && $_POST['action'] === 'delete') {
+        $deviceImages = [];
 
-    mysqli_query($conn,"UPDATE customer SET customer_name='$name', email='$email', address='$address' WHERE phone_number='$phone'");
+        try {
+            $conn->begin_transaction();
 
-    if (isset($_POST['warranty_status'])) {
-        foreach ($_POST['warranty_status'] as $id => $status) {
-            $id = mysqli_real_escape_string($conn, $id);
-            $status = mysqli_real_escape_string($conn, $status);
-            $desc = mysqli_real_escape_string($conn, $_POST['device_desc'][$id]);
-            
-            $image_sql = "";
-            if (!empty($_FILES['device_image']['name'][$id])) {
-                $target_dir = "uploads/devices/";
-                if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
-                $img_name = time() . "_" . preg_replace("/[^a-zA-Z0-9.]/", "_", $_FILES['device_image']['name'][$id]);
-                move_uploaded_file($_FILES['device_image']['tmp_name'][$id], $target_dir . $img_name);
-                $image_sql = ", device_image='$img_name'";
+            $imageStmt = $conn->prepare(
+                'SELECT jd.device_image
+                 FROM job_device jd
+                 INNER JOIN job j ON j.job_no = jd.job_no
+                 WHERE j.phone_number = ? AND jd.device_image IS NOT NULL AND jd.device_image <> ""'
+            );
+            $imageStmt->bind_param('s', $phone);
+            $imageStmt->execute();
+            $imageResult = $imageStmt->get_result();
+            while ($imageRow = $imageResult->fetch_assoc()) {
+                $deviceImages[] = basename((string) $imageRow['device_image']);
+            }
+            $imageStmt->close();
+
+            /* sms_history has no ON DELETE CASCADE, so remove it first. */
+            $smsStmt = $conn->prepare(
+                'DELETE sh FROM sms_history sh
+                 INNER JOIN job_device jd ON jd.job_device_id = sh.job_device_id
+                 INNER JOIN job j ON j.job_no = jd.job_no
+                 WHERE j.phone_number = ?'
+            );
+            $smsStmt->bind_param('s', $phone);
+            $smsStmt->execute();
+            $smsStmt->close();
+
+            /* Related jobs, devices, invoices and payments are removed by foreign-key cascades. */
+            $deleteStmt = $conn->prepare('DELETE FROM customer WHERE phone_number = ?');
+            $deleteStmt->bind_param('s', $phone);
+            $deleteStmt->execute();
+
+            if ($deleteStmt->affected_rows !== 1) {
+                throw new RuntimeException('Customer was not found.');
             }
 
-            mysqli_query($conn,"UPDATE job_device SET warranty_status='$status', description='$desc' $image_sql WHERE job_device_id='$id'");
+            $deleteStmt->close();
+            $conn->commit();
+
+            $imageDirectory = __DIR__ . '/uploads/devices/';
+            foreach ($deviceImages as $imageName) {
+                $imagePath = $imageDirectory . $imageName;
+                if (is_file($imagePath)) {
+                    @unlink($imagePath);
+                }
+            }
+
+            customerPageRedirect('add_customer.php', 'Customer and all related jobs deleted successfully!');
+        } catch (Throwable $error) {
+            $conn->rollback();
+            error_log('Customer delete failed: ' . $error->getMessage());
+            customerPageRedirect(
+                'customer_details.php?phone=' . rawurlencode($phone),
+                'Unable to delete this customer. Please try again.'
+            );
         }
     }
-    
-    echo "<script>
-        alert('Changes saved successfully!');
-        window.location.href='customer_details.php?phone=" . urlencode($phone) . "';
-    </script>";
-    exit();
-    //FETCH DATA
 
-$customer_res = mysqli_query($conn,"SELECT * FROM customer WHERE phone_number='$phone'");
-$customer = mysqli_fetch_assoc($customer_res);
+    $name = trim((string) ($_POST['customer_name'] ?? ''));
+    $email = trim((string) ($_POST['email'] ?? ''));
+    $address = trim((string) ($_POST['address'] ?? ''));
 
-$latest_job_res = mysqli_query($conn, "SELECT job_no FROM job WHERE phone_number='$phone' ORDER BY job_no DESC LIMIT 1");
-$latest_job_data = mysqli_fetch_assoc($latest_job_res);
-$current_job_no = isset($latest_job_data['job_no']) ? $latest_job_data['job_no'] : '';
+    if ($name === '') {
+        customerPageRedirect(
+            'customer_details.php?phone=' . rawurlencode($phone) . '&edit=true',
+            'Customer name is required.'
+        );
+    }
 
-$jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech 
-                            FROM job 
-                            LEFT JOIN technicians ON job.technician_id = technicians.technician_id 
-                            WHERE job.phone_number='$phone' 
-                            ORDER BY job.job_no DESC");
+    if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        customerPageRedirect(
+            'customer_details.php?phone=' . rawurlencode($phone) . '&edit=true',
+            'Please enter a valid email address.'
+        );
+    }
+
+    $uploadedFiles = [];
+
+    try {
+        $conn->begin_transaction();
+
+        $customerStmt = $conn->prepare(
+            'UPDATE customer SET customer_name = ?, email = ?, address = ? WHERE phone_number = ?'
+        );
+        $customerStmt->bind_param('ssss', $name, $email, $address, $phone);
+        $customerStmt->execute();
+        $customerStmt->close();
+
+        $warrantyStatuses = $_POST['warranty_status'] ?? [];
+        $deviceDescriptions = $_POST['device_desc'] ?? [];
+
+        if (is_array($warrantyStatuses)) {
+            foreach ($warrantyStatuses as $rawId => $rawStatus) {
+                $deviceId = filter_var($rawId, FILTER_VALIDATE_INT);
+                if ($deviceId === false || $deviceId < 1) {
+                    continue;
+                }
+
+                $status = (string) $rawStatus;
+                if (!in_array($status, ['Warranty', 'No Warranty'], true)) {
+                    $status = 'No Warranty';
+                }
+
+                $description = isset($deviceDescriptions[$rawId])
+                    ? trim((string) $deviceDescriptions[$rawId])
+                    : '';
+                $imageName = null;
+
+                $uploadError = $_FILES['device_image']['error'][$rawId] ?? UPLOAD_ERR_NO_FILE;
+                if ($uploadError !== UPLOAD_ERR_NO_FILE) {
+                    if ($uploadError !== UPLOAD_ERR_OK) {
+                        throw new RuntimeException('Device image upload failed.');
+                    }
+
+                    $tmpName = (string) ($_FILES['device_image']['tmp_name'][$rawId] ?? '');
+                    $fileSize = (int) ($_FILES['device_image']['size'][$rawId] ?? 0);
+                    if ($fileSize < 1 || $fileSize > 5 * 1024 * 1024) {
+                        throw new RuntimeException('Device image must be smaller than 5 MB.');
+                    }
+
+                    $mimeType = (new finfo(FILEINFO_MIME_TYPE))->file($tmpName);
+                    $allowedTypes = [
+                        'image/jpeg' => 'jpg',
+                        'image/png' => 'png',
+                        'image/webp' => 'webp'
+                    ];
+
+                    if (!isset($allowedTypes[$mimeType])) {
+                        throw new RuntimeException('Only JPG, PNG and WEBP images are allowed.');
+                    }
+
+                    $targetDirectory = __DIR__ . '/uploads/devices/';
+                    if (!is_dir($targetDirectory) && !mkdir($targetDirectory, 0755, true)) {
+                        throw new RuntimeException('Unable to create the image upload directory.');
+                    }
+
+                    $imageName = bin2hex(random_bytes(16)) . '.' . $allowedTypes[$mimeType];
+                    $targetPath = $targetDirectory . $imageName;
+                    if (!move_uploaded_file($tmpName, $targetPath)) {
+                        throw new RuntimeException('Unable to save the uploaded device image.');
+                    }
+                    $uploadedFiles[] = $targetPath;
+                }
+
+                if ($imageName !== null) {
+                    $deviceStmt = $conn->prepare(
+                        'UPDATE job_device jd
+                         INNER JOIN job j ON j.job_no = jd.job_no
+                         SET jd.warranty_status = ?, jd.description = ?, jd.device_image = ?
+                         WHERE jd.job_device_id = ? AND j.phone_number = ?'
+                    );
+                    $deviceStmt->bind_param('sssis', $status, $description, $imageName, $deviceId, $phone);
+                } else {
+                    $deviceStmt = $conn->prepare(
+                        'UPDATE job_device jd
+                         INNER JOIN job j ON j.job_no = jd.job_no
+                         SET jd.warranty_status = ?, jd.description = ?
+                         WHERE jd.job_device_id = ? AND j.phone_number = ?'
+                    );
+                    $deviceStmt->bind_param('ssis', $status, $description, $deviceId, $phone);
+                }
+
+                $deviceStmt->execute();
+                $deviceStmt->close();
+            }
+        }
+
+        $conn->commit();
+        customerPageRedirect(
+            'customer_details.php?phone=' . rawurlencode($phone),
+            'Changes saved successfully!'
+        );
+    } catch (Throwable $error) {
+        $conn->rollback();
+        foreach ($uploadedFiles as $uploadedFile) {
+            if (is_file($uploadedFile)) {
+                @unlink($uploadedFile);
+            }
+        }
+        error_log('Customer update failed: ' . $error->getMessage());
+        customerPageRedirect(
+            'customer_details.php?phone=' . rawurlencode($phone) . '&edit=true',
+            'Unable to save the changes. Please check the details and try again.'
+        );
+    }
+}
+
+/* ===============================
+   FETCH PAGE DATA
+================================ */
+$customerStmt = $conn->prepare('SELECT * FROM customer WHERE phone_number = ? LIMIT 1');
+$customerStmt->bind_param('s', $phone);
+$customerStmt->execute();
+$customer = $customerStmt->get_result()->fetch_assoc();
+$customerStmt->close();
+
+if (!$customer) {
+    customerPageRedirect('add_customer.php', 'Customer not found.');
+}
+
+$latestJobStmt = $conn->prepare(
+    'SELECT job_no FROM job WHERE phone_number = ? ORDER BY job_date DESC, job_no DESC LIMIT 1'
+);
+$latestJobStmt->bind_param('s', $phone);
+$latestJobStmt->execute();
+$latestJobData = $latestJobStmt->get_result()->fetch_assoc();
+$latestJobStmt->close();
+$current_job_no = $latestJobData['job_no'] ?? '';
+
+$jobsStmt = $conn->prepare(
+    'SELECT job.*, technicians.name AS tech
+     FROM job
+     LEFT JOIN technicians ON job.technician_id = technicians.technician_id
+     WHERE job.phone_number = ?
+     ORDER BY job.job_date DESC, job.job_no DESC'
+);
+$jobsStmt->bind_param('s', $phone);
+$jobsStmt->execute();
+$jobs = $jobsStmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -196,6 +395,8 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
 </head>
 <body>
 
+<?= $navbar_html ?>
+
 <div class="container">
     <a href="add_customer.php" class="back-link">
         <i class="ph-bold ph-arrow-left"></i> Back to Dashboard
@@ -209,20 +410,21 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
         
         <div class="top-actions" style="display:flex; gap:12px; flex-wrap:wrap;">
             <?php if(!empty($current_job_no)): ?>
-                <a href="jobsheet.php?job_no=<?= $current_job_no ?>" class="btn btn-outline" target="_blank"><i class="ph-bold ph-printer"></i> Print Job Sheet</a>
+                <a href="jobsheet.php?job_no=<?= rawurlencode((string) $current_job_no) ?>" class="btn btn-outline" target="_blank"><i class="ph-bold ph-printer"></i> Print Job Sheet</a>
             <?php endif; ?>
 
             <?php if($is_edit): ?>
                 <button type="submit" form="customerForm" class="btn btn-success"><i class="ph-bold ph-floppy-disk"></i> Save Changes</button>
-                <a href="?phone=<?= $phone ?>" class="btn btn-secondary"><i class="ph-bold ph-x"></i> Cancel</a>
+                <a href="?phone=<?= rawurlencode($phone) ?>" class="btn btn-secondary"><i class="ph-bold ph-x"></i> Cancel</a>
             <?php else: ?>
-                <a href="?phone=<?= $phone ?>&edit=true" class="btn btn-outline" style="background: var(--card-bg); border-color:var(--primary); color:var(--primary);"><i class="ph-bold ph-pencil-simple"></i> Edit Details</a>
+                <a href="?phone=<?= rawurlencode($phone) ?>&edit=true" class="btn btn-outline" style="background: var(--card-bg); border-color:var(--primary); color:var(--primary);"><i class="ph-bold ph-pencil-simple"></i> Edit Details</a>
                 <button type="button" onclick="confirmDelete()" class="btn" style="background:var(--danger); color:white;"><i class="ph-bold ph-trash"></i> Delete</button>
             <?php endif; ?>
         </div>
     </div>
 
     <form method="POST" enctype="multipart/form-data" id="customerForm">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
         <div class="profile-layout">
             
             <!-- Left Column: Sticky Profile Card -->
@@ -234,19 +436,19 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
                     
                     <div class="form-group" style="text-align:left;">
                         <label>Full Name</label>
-                        <input type="text" name="customer_name" value="<?= htmlspecialchars($customer['customer_name'] ?? '') ?>" <?= !$is_edit?'readonly':'' ?> style="font-weight:700; font-size:18px;">
+                        <input type="text" name="customer_name" value="<?= htmlspecialchars($customer['customer_name'] ?? '', ENT_QUOTES, 'UTF-8') ?>" <?= !$is_edit?'readonly':'' ?> style="font-weight:700; font-size:18px;" required>
                     </div>
                     <div class="form-group" style="text-align:left;">
                         <label>Phone Number (Primary ID)</label>
-                        <input type="text" value="<?= htmlspecialchars($phone) ?>" readonly style="font-family:monospace; font-size:16px;">
+                        <input type="text" value="<?= htmlspecialchars($phone, ENT_QUOTES, 'UTF-8') ?>" readonly style="font-family:monospace; font-size:16px;">
                     </div>
                     <div class="form-group" style="text-align:left;">
                         <label>Email Address</label>
-                        <input type="email" name="email" value="<?= htmlspecialchars($customer['email'] ?? '') ?>" <?= !$is_edit?'readonly':'' ?>>
+                        <input type="email" name="email" value="<?= htmlspecialchars($customer['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>" <?= !$is_edit?'readonly':'' ?>>
                     </div>
                     <div class="form-group" style="text-align:left; margin-bottom:0;">
                         <label>Residential Address</label>
-                        <textarea name="address" <?= !$is_edit?'readonly':'' ?> style="resize:none; height:100px; line-height:1.6;"><?= htmlspecialchars($customer['address'] ?? '') ?></textarea>
+                        <textarea name="address" <?= !$is_edit?'readonly':'' ?> style="resize:none; height:100px; line-height:1.6;"><?= htmlspecialchars($customer['address'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
                     </div>
                 </div>
             </div>
@@ -266,7 +468,7 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
                 <div class="card">
                     <div class="card-header">
                         <div>
-                            <h3 style="font-size:18px; margin-bottom:8px;"><i class="ph-fill ph-file-text" style="color:var(--primary);"></i> Job #<?= $job['job_no'] ?></h3>
+                            <h3 style="font-size:18px; margin-bottom:8px;"><i class="ph-fill ph-file-text" style="color:var(--primary);"></i> Job #<?= htmlspecialchars((string) $job['job_no'], ENT_QUOTES, 'UTF-8') ?></h3>
                             <div style="display: flex; gap: 20px; font-size:14px;">
                                 <span style="display:flex; align-items:center; gap:6px; color:var(--text-muted);"><i class="ph-fill ph-calendar-blank"></i> <strong><?= date("M d, Y", strtotime($job['job_date'])) ?></strong></span>
                                 <span style="display:flex; align-items:center; gap:6px; color:var(--text-muted);"><i class="ph-fill ph-wrench"></i> Tech: <strong style="color:var(--text-main);"><?= htmlspecialchars($job['tech'] ?? 'Not Assigned') ?></strong></span>
@@ -275,16 +477,20 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
                     </div>
 
                     <?php
-                    $jno = $job['job_no'];
-                    $devices_res = mysqli_query($conn,"SELECT * FROM job_device WHERE job_no='$jno'");
+                    $jno = (string) $job['job_no'];
+                    $devicesStmt = $conn->prepare('SELECT * FROM job_device WHERE job_no = ? ORDER BY job_device_id ASC');
+                    $devicesStmt->bind_param('s', $jno);
+                    $devicesStmt->execute();
+                    $devices_res = $devicesStmt->get_result();
                     while($d = mysqli_fetch_assoc($devices_res)):
                         $is_warranty = (strtolower($d['warranty_status'] ?? '') == 'warranty');
+                        $deviceId = (int) $d['job_device_id'];
                     ?>
                     <div class="device-box">
                         <div class="device-header">
                             <div class="device-info">
-                                <div class="device-name" style="display:flex; align-items:center; gap:10px;"><i class="ph-fill ph-device-mobile" style="color:var(--primary); font-size:28px; background:rgba(46,204,113,0.1); padding:8px; border-radius:12px;"></i> <?= htmlspecialchars($d['device_name']) ?></div>
-                                <div style="margin-top:12px; color:var(--secondary); font-size:14px;"><strong style="color:var(--text-main);">Reported Issue:</strong> <?= htmlspecialchars($d['issue_name']) ?></div>
+                                <div class="device-name" style="display:flex; align-items:center; gap:10px;"><i class="ph-fill ph-device-mobile" style="color:var(--primary); font-size:28px; background:rgba(46,204,113,0.1); padding:8px; border-radius:12px;"></i> <?= htmlspecialchars((string) $d['device_name'], ENT_QUOTES, 'UTF-8') ?></div>
+                                <div style="margin-top:12px; color:var(--secondary); font-size:14px;"><strong style="color:var(--text-main);">Reported Issue:</strong> <?= htmlspecialchars((string) ($d['issue_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
                             </div>
                             <span class="status-badge <?= $is_warranty ? 'status-warranty' : 'status-no-warranty' ?>">
                                 <?php if($is_warranty): ?>
@@ -292,41 +498,43 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
                                 <?php else: ?>
                                     <i class="ph-bold ph-shield-warning"></i>
                                 <?php endif; ?>
-                                <?= htmlspecialchars($d['warranty_status']) ?>
+                                <?= htmlspecialchars((string) ($d['warranty_status'] ?? 'No Warranty'), ENT_QUOTES, 'UTF-8') ?>
                             </span>
                         </div>
 
                         <?php if(!empty($d['device_image'])): ?>
+                        <?php $deviceImageUrl = 'uploads/devices/' . rawurlencode(basename((string) $d['device_image'])); ?>
                         <div class="img-preview-container" style="margin-bottom: 24px;">
                             <label>Device Photo</label>
-                            <a href="uploads/devices/<?= $d['device_image'] ?>" target="_blank">
-                                <img src="uploads/devices/<?= $d['device_image'] ?>" class="device-img" alt="Device Image">
+                            <a href="<?= htmlspecialchars($deviceImageUrl, ENT_QUOTES, 'UTF-8') ?>" target="_blank">
+                                <img src="<?= htmlspecialchars($deviceImageUrl, ENT_QUOTES, 'UTF-8') ?>" class="device-img" alt="Device Image">
                             </a>
                         </div>
                         <?php endif; ?>
                         
                         <div class="form-group">
                             <label>Service Notes & Description</label>
-                            <textarea name="device_desc[<?= $d['job_device_id'] ?>]" <?= !$is_edit?'readonly':'' ?> style="min-height:80px;"><?= htmlspecialchars($d['description']) ?></textarea>
+                            <textarea name="device_desc[<?= $deviceId ?>]" <?= !$is_edit?'readonly':'' ?> style="min-height:80px;"><?= htmlspecialchars((string) ($d['description'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
                         </div>
                         
                         <?php if($is_edit): ?>
                             <div class="grid-2">
                                 <div class="form-group">
                                     <label>Warranty Status</label>
-                                    <select name="warranty_status[<?= $d['job_device_id'] ?>]">
+                                    <select name="warranty_status[<?= $deviceId ?>]">
                                         <option value="Warranty" <?= ($d['warranty_status']=='Warranty')?'selected':'' ?>>Warranty</option>
                                         <option value="No Warranty" <?= ($d['warranty_status']=='No Warranty')?'selected':'' ?>>No Warranty</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label><?= !empty($d['device_image']) ? 'Update' : 'Upload' ?> Device Image</label>
-                                    <input type="file" name="device_image[<?= $d['job_device_id'] ?>]" accept="image/*" style="padding:10px;">
+                                    <input type="file" name="device_image[<?= $deviceId ?>]" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" style="padding:10px;">
                                 </div>
                             </div>
                         <?php endif; ?>
                     </div>
                     <?php endwhile; ?>
+                    <?php $devicesStmt->close(); ?>
                 </div>
                 <?php endwhile; ?>
             </div>
@@ -336,6 +544,7 @@ $jobs = mysqli_query($conn,"SELECT job.*, technicians.name AS tech
     <!-- Hidden Delete Form -->
     <form id="deleteForm" method="POST" style="display:none;">
         <input type="hidden" name="action" value="delete">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
     </form>
 </div>
 
@@ -355,6 +564,11 @@ const observer = new MutationObserver(() => {
 });
 observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 </script>
+
+<?php
+$jobsStmt->close();
+include_once __DIR__ . '/chatbot.php';
+?>
 
 </body>
 
