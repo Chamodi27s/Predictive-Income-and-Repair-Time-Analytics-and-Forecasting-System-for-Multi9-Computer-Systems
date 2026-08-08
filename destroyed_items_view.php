@@ -2,7 +2,6 @@
 include 'db_config.php';
 include 'navbar.php';
 
-// 'Destroyed' තත්ත්වයේ ඇති දත්ත පමණක් ලබා ගැනීම
 $sql = "SELECT jd.*, j.job_no, c.customer_name 
         FROM job_device jd
         INNER JOIN job j ON jd.job_no = j.job_no
