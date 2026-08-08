@@ -531,56 +531,168 @@ $total_pages = ceil($total_records / $records_per_page);
             </div>
         </div>
         
-        <div id="predictResults" style="display:none; gap:25px; align-items:stretch;">
-            <!-- Left Column: Inputs -->
-            <div style="flex:1; background:rgba(255, 255, 255, 0.02); border:1px solid rgba(255,255,255,0.05); border-radius:16px; padding:25px;">
-                <h3 style="font-size:13px; text-transform:uppercase; letter-spacing:1px; color:#64748b; margin:0 0 20px 0; font-weight:600;">Prediction Parameters</h3>
-                
-                <div style="margin-bottom:16px;">
-                    <div style="font-size:12px; color:#64748b; margin-bottom:4px;">Reported Fault</div>
-                    <div id="resFault" style="color:#f1f5f9; font-size:15px; font-weight:500;"></div>
+        <style>
+            @keyframes timelineFadeIn {
+                from { opacity: 0; transform: translateX(-15px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes resultCardPop {
+                from { opacity: 0; transform: scale(0.92); }
+                to { opacity: 1; transform: scale(1); }
+            }
+            @keyframes glowPulse {
+                0%, 100% { box-shadow: 0 0 15px rgba(16,185,129,0.3); }
+                50% { box-shadow: 0 0 30px rgba(16,185,129,0.5); }
+            }
+            @keyframes dotPulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.3); }
+            }
+            .timeline-step { 
+                display: flex; gap: 18px; align-items: flex-start; 
+                animation: timelineFadeIn 0.4s ease-out both;
+                position: relative;
+            }
+            .timeline-step:nth-child(1) { animation-delay: 0.1s; }
+            .timeline-step:nth-child(2) { animation-delay: 0.2s; }
+            .timeline-step:nth-child(3) { animation-delay: 0.3s; }
+            .timeline-step:nth-child(4) { animation-delay: 0.4s; }
+            .timeline-dot-wrap {
+                display: flex; flex-direction: column; align-items: center; min-width: 20px; padding-top: 2px;
+            }
+            .timeline-dot {
+                width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+                animation: dotPulse 2s ease-in-out infinite;
+            }
+            .timeline-line {
+                width: 2px; flex: 1; min-height: 28px; background: rgba(255,255,255,0.08); margin-top: 4px;
+            }
+            .timeline-card {
+                background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 12px; padding: 14px 18px; flex: 1; transition: 0.3s;
+            }
+            .timeline-card:hover {
+                background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12);
+            }
+            .timeline-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; margin-bottom: 4px; }
+            .timeline-value { color: #f1f5f9; font-size: 15px; font-weight: 600; }
+            .ai-divider {
+                display: flex; align-items: center; gap: 12px; margin: 22px 0;
+                animation: timelineFadeIn 0.5s ease-out 0.5s both;
+            }
+            .ai-divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(16,185,129,0.4), transparent); }
+            .ai-divider-badge {
+                display: flex; align-items: center; gap: 6px; background: rgba(16,185,129,0.1);
+                border: 1px solid rgba(16,185,129,0.25); border-radius: 20px; padding: 6px 16px;
+                color: #10b981; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+            }
+            .result-card {
+                border-radius: 16px; padding: 22px 24px; transition: 0.3s;
+                animation: resultCardPop 0.5s ease-out both;
+            }
+            .result-card:hover { transform: translateY(-2px); }
+        </style>
+
+        <div id="predictResults" style="display:none; flex-direction:column; gap:0;">
+            <!-- Timeline Steps -->
+            <div style="display:flex; flex-direction:column; gap:0;">
+                <!-- Step 1: Reported Fault -->
+                <div class="timeline-step">
+                    <div class="timeline-dot-wrap">
+                        <div class="timeline-dot" style="background: linear-gradient(135deg, #f87171, #ef4444); box-shadow: 0 0 10px rgba(239,68,68,0.4);"></div>
+                        <div class="timeline-line"></div>
+                    </div>
+                    <div class="timeline-card" style="border-left: 3px solid #ef4444;">
+                        <div class="timeline-label" style="color: #f87171;">Reported Fault</div>
+                        <div class="timeline-value" id="resFault"></div>
+                    </div>
                 </div>
-                <div style="margin-bottom:16px;">
-                    <div style="font-size:12px; color:#64748b; margin-bottom:4px;">Assigned Technician</div>
-                    <div id="resTech" style="color:#f1f5f9; font-size:15px; font-weight:500;"></div>
+                <!-- Step 2: Assigned Technician -->
+                <div class="timeline-step">
+                    <div class="timeline-dot-wrap">
+                        <div class="timeline-dot" style="background: linear-gradient(135deg, #60a5fa, #3b82f6); box-shadow: 0 0 10px rgba(59,130,246,0.4);"></div>
+                        <div class="timeline-line"></div>
+                    </div>
+                    <div class="timeline-card" style="border-left: 3px solid #3b82f6;">
+                        <div class="timeline-label" style="color: #60a5fa;">Assigned Technician</div>
+                        <div class="timeline-value" id="resTech"></div>
+                    </div>
                 </div>
-                <div style="margin-bottom:16px;">
-                    <div style="font-size:12px; color:#64748b; margin-bottom:4px;">Repair Pathway</div>
-                    <div id="resPath" style="color:#f1f5f9; font-size:15px; font-weight:500;"></div>
+                <!-- Step 3: Repair Pathway -->
+                <div class="timeline-step">
+                    <div class="timeline-dot-wrap">
+                        <div class="timeline-dot" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); box-shadow: 0 0 10px rgba(245,158,11,0.4);"></div>
+                        <div class="timeline-line"></div>
+                    </div>
+                    <div class="timeline-card" style="border-left: 3px solid #f59e0b;">
+                        <div class="timeline-label" style="color: #fbbf24;">Repair Pathway</div>
+                        <div class="timeline-value" id="resPath"></div>
+                    </div>
                 </div>
-                <div>
-                    <div style="font-size:12px; color:#64748b; margin-bottom:4px;">Expected Solution</div>
-                    <div id="resSolution" style="color:#f1f5f9; font-size:15px; font-weight:500;"></div>
+                <!-- Step 4: Expected Solution -->
+                <div class="timeline-step">
+                    <div class="timeline-dot-wrap">
+                        <div class="timeline-dot" style="background: linear-gradient(135deg, #2dd4bf, #14b8a6); box-shadow: 0 0 10px rgba(20,184,166,0.4);"></div>
+                    </div>
+                    <div class="timeline-card" style="border-left: 3px solid #14b8a6;">
+                        <div class="timeline-label" style="color: #2dd4bf;">Expected Solution</div>
+                        <div class="timeline-value" id="resSolution"></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Right Column: Outputs -->
-            <div style="flex:1; display:flex; flex-direction:column; gap:15px;">
-                <!-- Dates Card -->
-                <div id="cardPredictDate" style="background:rgba(4, 217, 146, 0.05); border:1px solid rgba(4,217,146,0.2); border-radius:16px; padding:25px; flex:1; display:flex; flex-direction:column; justify-content:center;">
-                    <h3 style="font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--primary-green); margin:0 0 15px 0; font-weight:700;">Completion Estimate</h3>
-                    
-                    <div style="display:flex; align-items:flex-end; gap:10px; margin-bottom:5px;">
-                        <span id="resDate" style="color:#f8fafc; font-size:32px; font-weight:800; line-height:1;"></span>
+            <!-- AI Processing Divider -->
+            <div class="ai-divider">
+                <div class="ai-divider-line"></div>
+                <div class="ai-divider-badge">
+                    <i class="ph-fill ph-brain" style="font-size:14px;"></i>
+                    AI Prediction Output
+                </div>
+                <div class="ai-divider-line"></div>
+            </div>
+
+            <!-- Result Cards -->
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <!-- Date Result -->
+                <div id="cardPredictDate" class="result-card" style="background:linear-gradient(135deg, rgba(4,217,146,0.08), rgba(16,185,129,0.04)); border:1px solid rgba(4,217,146,0.25); animation-delay:0.6s;">
+                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                        <div>
+                            <div style="font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:#10b981; margin-bottom:8px; font-weight:700;">Completion Estimate</div>
+                            <div style="display:flex; align-items:baseline; gap:10px;">
+                                <span id="resDate" style="color:#f8fafc; font-size:28px; font-weight:800; line-height:1;"></span>
+                            </div>
+                            <div style="color:#94a3b8; font-size:13px; margin-top:6px;">Takes approx <span id="resRaw" style="color:#10b981; font-weight:700;"></span> days to repair</div>
+                        </div>
+                        <div style="width:48px; height:48px; border-radius:14px; background:rgba(16,185,129,0.15); display:flex; align-items:center; justify-content:center; animation: glowPulse 2.5s ease-in-out infinite;">
+                            <i class="ph-fill ph-calendar-check" style="color:#10b981; font-size:24px;"></i>
+                        </div>
                     </div>
-                    <div style="color:#94a3b8; font-size:14px;">Takes approx <span id="resRaw" style="color:var(--primary-green); font-weight:700;"></span> days to repair</div>
                 </div>
 
-                <!-- Cost Card -->
-                <div id="cardPredictCost" style="background:rgba(168, 85, 247, 0.05); border:1px solid rgba(168,85,247,0.2); border-radius:16px; padding:20px; display:flex; align-items:center; justify-content:space-between;">
-                    <div>
-                        <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#c084fc; margin-bottom:5px; font-weight:700;">Estimated Cost</div>
-                        <div id="resCost" style="color:#f8fafc; font-size:24px; font-weight:700;"></div>
-                    </div>
-                    <div style="width:40px; height:40px; border-radius:10px; background:rgba(168,85,247,0.1); display:flex; align-items:center; justify-content:center;">
-                        <i class="ph ph-currency-dollar" style="color:#c084fc; font-size:20px;"></i>
+                <!-- Cost Result -->
+                <div id="cardPredictCost" class="result-card" style="background:linear-gradient(135deg, rgba(168,85,247,0.08), rgba(139,92,246,0.04)); border:1px solid rgba(168,85,247,0.25); animation-delay:0.7s;">
+                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                        <div>
+                            <div style="font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:#c084fc; margin-bottom:8px; font-weight:700;">Estimated Cost</div>
+                            <div id="resCost" style="color:#f8fafc; font-size:26px; font-weight:800;"></div>
+                        </div>
+                        <div style="width:48px; height:48px; border-radius:14px; background:rgba(168,85,247,0.15); display:flex; align-items:center; justify-content:center;">
+                            <i class="ph-fill ph-currency-dollar" style="color:#c084fc; font-size:24px;"></i>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Parts Card -->
-                <div id="cardPredictParts" style="background:rgba(59, 130, 246, 0.05); border:1px solid rgba(59,130,246,0.2); border-radius:16px; padding:20px;">
-                    <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#60a5fa; margin-bottom:5px; font-weight:700;">Required Parts</div>
-                    <div id="resParts" style="color:#f8fafc; font-size:16px; font-weight:600;"></div>
+                <!-- Parts Result -->
+                <div id="cardPredictParts" class="result-card" style="background:linear-gradient(135deg, rgba(59,130,246,0.08), rgba(37,99,235,0.04)); border:1px solid rgba(59,130,246,0.25); animation-delay:0.8s;">
+                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                        <div>
+                            <div style="font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:#60a5fa; margin-bottom:8px; font-weight:700;">Required Parts</div>
+                            <div id="resParts" style="color:#f8fafc; font-size:17px; font-weight:700;"></div>
+                        </div>
+                        <div style="width:48px; height:48px; border-radius:14px; background:rgba(59,130,246,0.15); display:flex; align-items:center; justify-content:center;">
+                            <i class="ph-fill ph-wrench" style="color:#60a5fa; font-size:24px;"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
