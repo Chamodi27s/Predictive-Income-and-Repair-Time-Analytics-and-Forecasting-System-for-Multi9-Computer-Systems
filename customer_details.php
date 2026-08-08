@@ -11,9 +11,9 @@ if (!$phone) {
 
 $is_edit = isset($_GET['edit']); 
 
-/* ===============================
-    DATA UPDATE (SAVE) SECTION
-================================ */
+
+    //DATA UPDATE (SAVE) SECTION
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = mysqli_real_escape_string($conn, $_POST['customer_name']);
     $email = mysqli_real_escape_string($conn, $_POST['email']);
@@ -45,11 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         window.location.href='customer_details.php?phone=" . urlencode($phone) . "';
     </script>";
     exit();
-}
+    //FETCH DATA
 
-/* ===============================
-    FETCH DATA
-================================ */
 $customer_res = mysqli_query($conn,"SELECT * FROM customer WHERE phone_number='$phone'");
 $customer = mysqli_fetch_assoc($customer_res);
 
