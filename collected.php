@@ -485,7 +485,7 @@ function sendEstimateSMS(row_uid, job_no) {
             if (this.responseText.trim().includes("success")) {
                 alert("Estimate SMS එක සාර්ථකව යවන ලදී!");
             } else {
-                alert("SMS යැවීමේදී දෝෂයක් ඇති විය: " + this.responseText);
+                alert("Error sending SMS: " + this.responseText);
             }
         }
     };
