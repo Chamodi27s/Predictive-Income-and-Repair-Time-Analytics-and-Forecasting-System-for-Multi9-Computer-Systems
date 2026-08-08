@@ -323,5 +323,5 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
 
     window.onload = addDevice;
 </script>
-
+<?php include_once __DIR__ . '/chatbot.php'; ?>
 </body>
