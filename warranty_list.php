@@ -83,11 +83,11 @@ if(isset($_GET['range'])) {
 
         @media (max-width: 768px) {
             body {
-                padding: 115px 12px 100px;
+                padding: 80px 12px 100px;
             }
 
             .page-header {
-                margin-top: 15px;
+                margin-top: 10px;
                 padding: 22px 16px;
                 border-radius: 18px;
                 margin-bottom: 18px;
