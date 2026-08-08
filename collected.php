@@ -464,7 +464,7 @@ syncTheme();
 setInterval(syncTheme, 1000);
 
 function sendEstimateSMS(row_uid, job_no) {
-    let parts = prompt("අලුත්වැඩියාව සඳහා අවශ්‍ය බඩු සහ මිල ඇතුළත් කරන්න:", "Service Charge Only");
+    let parts = prompt("Inclusion of items and prices required for repair:", "Service Charge Only");
     if (parts === null) return;
 
     const data = {
