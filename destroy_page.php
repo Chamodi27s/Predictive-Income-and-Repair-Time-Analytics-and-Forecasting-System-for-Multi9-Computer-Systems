@@ -2,7 +2,7 @@
 include 'db_config.php';
 include 'navbar.php';
 
-// URL එකෙන් ID එක ලබා ගැනීම
+
 $id = isset($_GET['id']) ? mysqli_real_escape_string($conn, $_GET['id']) : '';
 
 if (empty($id)) {
