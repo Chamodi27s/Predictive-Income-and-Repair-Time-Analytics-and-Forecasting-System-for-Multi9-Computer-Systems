@@ -260,11 +260,204 @@ $result = mysqli_query($conn, $sql);
             font-weight: 600;
         }
 
+        @media (max-width: 1024px) {
+            body {
+                padding: 120px 16px 40px;
+            }
+
+            .page-header {
+                margin-top: 15px;
+                padding: 28px 24px;
+                margin-bottom: 24px;
+            }
+
+            .page-header h1 {
+                font-size: 26px;
+            }
+
+            .container {
+                padding: 24px;
+            }
+        }
+
         @media (max-width: 768px) {
-            body { padding-top: 120px; }
-            .report-table { font-size: 12px; }
-            .search-container { width: 100%; }
-            .table-header-flex { justify-content: center; text-align: center; }
+            body {
+                padding: 115px 12px 100px;
+            }
+
+            .page-header {
+                margin-top: 15px;
+                padding: 22px 16px;
+                border-radius: 18px;
+                margin-bottom: 18px;
+            }
+
+            .page-header h1 {
+                font-size: 22px;
+            }
+
+            .page-header p {
+                font-size: 13px;
+            }
+
+            .container {
+                padding: 16px 12px;
+                border-radius: 18px;
+            }
+
+            .table-header-flex {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 14px;
+                margin-bottom: 20px;
+                padding-bottom: 16px;
+            }
+
+            .header-title {
+                font-size: 20px;
+                justify-content: center;
+            }
+
+            .search-container {
+                width: 100%;
+            }
+
+            /* Transform Table into Responsive Cards on Mobile */
+            .table-container {
+                border: none;
+                background: transparent;
+                border-radius: 0;
+                overflow: visible;
+            }
+
+            table.report-table,
+            table.report-table tbody,
+            table.report-table tr,
+            table.report-table td {
+                display: block;
+                width: 100%;
+            }
+
+            table.report-table {
+                min-width: 0 !important;
+            }
+
+            table.report-table thead {
+                display: none;
+            }
+
+            table.report-table tbody tr {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px 10px;
+                background: var(--card-bg);
+                border: 1px solid var(--border);
+                border-radius: 20px;
+                margin-bottom: 16px;
+                padding: 16px;
+                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+                position: relative;
+            }
+
+            body.dark-mode table.report-table tbody tr {
+                background: rgba(30, 41, 59, 0.9) !important;
+                border-color: rgba(255, 255, 255, 0.1);
+                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+            }
+
+            table.report-table td {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: left !important;
+                gap: 5px;
+                padding: 0;
+                border: none;
+                font-size: 14px;
+            }
+
+            table.report-table td::before {
+                content: attr(data-label);
+                font-weight: 800;
+                font-size: 11px;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            body.dark-mode table.report-table td::before {
+                color: #94a3b8;
+            }
+
+            /* Card Row 1: Job No (Left) & Destroyed Date Badge (Right) */
+            table.report-table td:nth-child(1) {
+                grid-column: 1 / 2;
+                grid-row: 1;
+                padding-bottom: 8px;
+                border-bottom: 1.5px dashed var(--border);
+            }
+
+            table.report-table td:nth-child(1)::before {
+                display: none;
+            }
+
+            table.report-table td:nth-child(5) {
+                grid-column: 2 / 3;
+                grid-row: 1;
+                align-items: flex-end;
+                padding-bottom: 8px;
+                border-bottom: 1.5px dashed var(--border);
+            }
+
+            table.report-table td:nth-child(5)::before {
+                display: none;
+            }
+
+            /* Card Row 2: Customer */
+            table.report-table td:nth-child(2) {
+                grid-column: 1 / -1;
+                grid-row: 2;
+            }
+
+            /* Card Row 3: Device Details */
+            table.report-table td:nth-child(3) {
+                grid-column: 1 / -1;
+                grid-row: 3;
+            }
+
+            /* Card Row 4: Completion Date */
+            table.report-table td:nth-child(4) {
+                grid-column: 1 / -1;
+                grid-row: 4;
+                background: #f8fafc;
+                padding: 10px;
+                border-radius: 12px;
+                border: 1px solid var(--border);
+            }
+
+            body.dark-mode table.report-table td:nth-child(4) {
+                background: rgba(15, 23, 42, 0.6);
+                border-color: rgba(255, 255, 255, 0.08);
+            }
+
+            .badge-date {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 80px 8px 100px;
+            }
+
+            .container {
+                padding: 12px 10px;
+            }
+
+            table.report-table tbody tr {
+                padding: 14px 12px;
+            }
         }
     </style>
 </head>
@@ -301,22 +494,22 @@ $result = mysqli_query($conn, $sql);
                 <?php if(mysqli_num_rows($result) > 0): ?>
                     <?php while($row = mysqli_fetch_assoc($result)): ?>
                     <tr>
-                        <td>
+                        <td data-label="Job No">
                             <span class="job-badge">#<?= $row['job_no'] ?></span>
                         </td>
-                        <td>
+                        <td data-label="Customer">
                             <b><?= htmlspecialchars($row['customer_name']) ?></b>
                         </td>
-                        <td>
+                        <td data-label="Device Details">
                             <div class="device-info">
                                 <span class="device-name"> <?= htmlspecialchars($row['device_name']) ?></span><br>
                                 <span class="device-issue" style="font-size: 12px; opacity: 0.8;"><?= htmlspecialchars($row['issue_name']) ?></span>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="Completion Date">
                             <b><?= date('M d, Y', strtotime($row['completed_date'])) ?></b>
                         </td>
-                        <td>
+                        <td data-label="Destroyed Date">
                             <span class="badge-date"><?= date('M d, Y', strtotime($row['destroy_notice_sent_date'])) ?></span>
                         </td>
                     </tr>
