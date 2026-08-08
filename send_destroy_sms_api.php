@@ -29,7 +29,7 @@ if(isset($_POST['id'])) {
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
     
     if(curl_exec($ch)) {
-        // Destroy Warning දිනේ සටහන් කිරීම (මෙතන සිට දින 7ක් ගණන් කරලා Destroy වෙනවා)
+
         $conn->query("UPDATE job_device SET destroy_notice_sent_date = NOW() WHERE job_device_id = '$id'");
         echo "Destroy Notice Sent Successfully";
     }
