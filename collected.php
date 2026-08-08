@@ -19,6 +19,7 @@ if(isset($_GET['range'])) {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jobs Management | Smart Repair</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -124,6 +125,7 @@ body {
     overflow-x: auto;
     border-radius: 16px;
     border: 1px solid var(--border);
+    -webkit-overflow-scrolling: touch;
 }
 
 table {
@@ -200,6 +202,7 @@ tbody tr:hover {
     font-size: 13px;
     display: inline-block;
     box-shadow: 0 4px 10px rgba(124,58,237,0.15);
+    white-space: nowrap;
 }
 
 /* selects */
@@ -223,6 +226,12 @@ tbody tr:hover {
 }
 
 /* buttons */
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .btn-edit,
 .btn-sms {
     border: none;
@@ -236,12 +245,12 @@ tbody tr:hover {
     align-items: center;
     justify-content: center;
     gap: 6px;
+    font-size: 13px;
 }
 
 .btn-sms {
     background: linear-gradient(135deg, #fbbf24, #f97316);
     color: #1f2937;
-    margin-bottom: 8px;
     box-shadow: 0 5px 12px rgba(249,115,22,0.28);
 }
 
@@ -264,12 +273,19 @@ tbody tr:hover {
     box-shadow: 0 8px 18px rgba(59,130,246,0.38);
 }
 
+.status-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .save-msg {
     font-size: 13px;
     color: var(--success);
     display: none;
     font-weight: 800;
     margin-left: 6px;
+    white-space: nowrap;
 }
 
 /* dark mode */
@@ -305,21 +321,299 @@ body.dark-mode .advance-badge {
     color: #c4b5fd;
 }
 
-@media(max-width: 768px) {
+/* ==================== RESPONSIVE MEDIA QUERIES ==================== */
+
+/* Tablet & Medium Screens (Max-width: 1024px) */
+@media (max-width: 1024px) {
     body {
-        padding: 110px 15px 30px;
+        padding: 120px 16px 40px;
     }
 
     .page-header {
-        padding: 28px 20px;
+        margin-top: 15px;
+        padding: 28px 24px;
+        margin-bottom: 24px;
     }
 
     .page-header h1 {
-        font-size: 25px;
+        font-size: 26px;
     }
 
     .container {
-        padding: 20px;
+        padding: 24px;
+    }
+
+    .filter-btn {
+        padding: 9px 14px;
+        font-size: 13px;
+    }
+}
+
+/* Mobile & Small Tablets (Max-width: 768px) */
+@media (max-width: 768px) {
+    body {
+        padding: 115px 12px 100px; /* Top spacing above header and bottom protection for chatbot */
+    }
+
+    .page-header {
+        margin-top: 15px;
+        padding: 22px 16px;
+        border-radius: 18px;
+        margin-bottom: 18px;
+    }
+
+    .page-header h1 {
+        font-size: 22px;
+    }
+
+    .page-header p {
+        font-size: 13px;
+    }
+
+    .container {
+        padding: 14px 10px;
+        border-radius: 18px;
+    }
+
+    /* Filter Buttons in 2x2 Compact Grid */
+    .filter-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .filter-btn {
+        width: 100%;
+        text-align: center;
+        padding: 11px 8px;
+        font-size: 13px;
+        border-radius: 12px;
+    }
+
+    /* Transform Table into Responsive Cards on Mobile */
+    .table-container {
+        border: none;
+        background: transparent;
+        border-radius: 0;
+        overflow: visible;
+    }
+
+    table#jobsTable,
+    table#jobsTable tbody,
+    table#jobsTable tr,
+    table#jobsTable td {
+        display: block;
+        width: 100%;
+    }
+
+    table#jobsTable {
+        min-width: 0 !important;
+    }
+
+    table#jobsTable thead {
+        display: none;
+    }
+
+    table#jobsTable tbody tr {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px 10px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        margin-bottom: 16px;
+        padding: 16px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+        position: relative;
+    }
+
+    table#jobsTable tbody tr:hover {
+        transform: none;
+    }
+
+    body.dark-mode table#jobsTable tbody tr {
+        background: rgba(30, 41, 59, 0.9) !important;
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Card Field Cells */
+    table#jobsTable td {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        padding: 0;
+        border: none;
+        font-size: 14px;
+    }
+
+    /* Labels for mobile cards */
+    table#jobsTable td::before {
+        content: attr(data-label);
+        font-weight: 800;
+        font-size: 11px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    body.dark-mode table#jobsTable td::before {
+        color: #94a3b8;
+    }
+
+    /* Row 1: Header - Job No (Left) & Status (Right) */
+    table#jobsTable td:nth-child(1) {
+        grid-column: 1 / 2;
+        grid-row: 1;
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--primary-hover);
+        padding-bottom: 8px;
+        border-bottom: 1.5px dashed var(--border);
+        justify-content: center;
+    }
+
+    table#jobsTable td:nth-child(1)::before {
+        display: none;
+    }
+
+    table#jobsTable td:nth-child(8) {
+        grid-column: 2 / 3;
+        grid-row: 1;
+        align-items: flex-end;
+        padding-bottom: 8px;
+        border-bottom: 1.5px dashed var(--border);
+    }
+
+    table#jobsTable td:nth-child(8)::before {
+        display: none;
+    }
+
+    table#jobsTable td:nth-child(8) .status-wrapper {
+        justify-content: flex-end;
+        width: 100%;
+    }
+
+    /* Row 2: Customer Name */
+    table#jobsTable td:nth-child(2) {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
+
+    /* Row 3: Issue Name */
+    table#jobsTable td:nth-child(3) {
+        grid-column: 1 / -1;
+        grid-row: 3;
+    }
+
+    /* Row 4: Phone Number */
+    table#jobsTable td:nth-child(7) {
+        grid-column: 1 / -1;
+        grid-row: 4;
+    }
+
+    /* Row 5: Financial Stats - Estimate (Left) & Advance (Right) */
+    table#jobsTable td:nth-child(4) {
+        grid-column: 1 / 2;
+        grid-row: 5;
+        background: #f8fafc;
+        padding: 10px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+    }
+
+    table#jobsTable td:nth-child(5) {
+        grid-column: 2 / 3;
+        grid-row: 5;
+        background: #f8fafc;
+        padding: 10px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+    }
+
+    body.dark-mode table#jobsTable td:nth-child(4),
+    body.dark-mode table#jobsTable td:nth-child(5) {
+        background: rgba(15, 23, 42, 0.6);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Row 6: Category */
+    table#jobsTable td:nth-child(6) {
+        grid-column: 1 / -1;
+        grid-row: 6;
+    }
+
+    /* Row 7: Action Buttons */
+    table#jobsTable td:nth-child(9) {
+        grid-column: 1 / -1;
+        grid-row: 7;
+        padding-top: 4px;
+    }
+
+    table#jobsTable td:nth-child(9)::before {
+        display: none;
+    }
+
+    /* Controls inside mobile cards */
+    .table-input,
+    .est-input,
+    .status-select {
+        width: 100% !important;
+        max-width: 100% !important;
+        font-size: 14px;
+        padding: 9px 12px;
+        border-radius: 10px;
+        text-align: left;
+    }
+
+    .advance-badge {
+        width: 100%;
+        text-align: center;
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .btn-sms,
+    .btn-edit {
+        flex: 1;
+        padding: 11px 10px;
+        font-size: 13px;
+        border-radius: 12px;
+    }
+}
+
+/* Extra Small Phones (Max-width: 480px) */
+@media (max-width: 480px) {
+    body {
+        padding: 80px 8px 100px;
+    }
+
+    .container {
+        padding: 10px 8px;
+    }
+
+    table#jobsTable tbody tr {
+        padding: 14px 12px;
+        gap: 10px 8px;
+    }
+
+    .action-buttons {
+        flex-direction: row;
+    }
+
+    .btn-sms,
+    .btn-edit {
+        padding: 10px;
+        font-size: 12.5px;
     }
 }
 </style>
@@ -386,29 +680,29 @@ body.dark-mode .advance-badge {
                         $status_class = ($status_val == 'Approved') ? 'status-approved' : 'status-pending';
                 ?>
                     <tr id="row-<?= $row_uid ?>">
-                        <td><strong>#<?= $id ?></strong></td>
+                        <td data-label="Job No"><strong>#<?= $id ?></strong></td>
 
-                        <td>
+                        <td data-label="Customer">
                             <input type="text" id="name-<?= $row_uid ?>" class="table-input"
                             value="<?= htmlspecialchars($row['customer_name']); ?>" readonly>
                         </td>
 
-                        <td>
+                        <td data-label="Issue">
                             <input type="text" id="issue-<?= $row_uid ?>" class="table-input"
                             value="<?= htmlspecialchars($row['issue_name']); ?>" readonly>
                         </td>
 
-                        <td>
+                        <td data-label="Estimate">
                             <input type="number" id="est-<?= $row_uid ?>" class="est-input"
                             value="<?= $est_cost ?>"
                             onchange="saveToDB('<?= $row_uid ?>', '<?= $id ?>')">
                         </td>
 
-                        <td>
+                        <td data-label="Advance">
                             <span class="advance-badge">Rs. <?= number_format($adv_paid, 2); ?></span>
                         </td>
 
-                        <td>
+                        <td data-label="Category">
                             <select id="cat-<?= $row_uid ?>" class="status-select"
                             onchange="saveToDB('<?= $row_uid ?>', '<?= $id ?>')">
                                 <option value="Hardware" <?= $cat_val == 'Hardware' ? 'selected' : ''; ?>> Hardware</option>
@@ -416,23 +710,27 @@ body.dark-mode .advance-badge {
                             </select>
                         </td>
 
-                        <td>
+                        <td data-label="Phone">
                             <input type="text" id="phone-<?= $row_uid ?>" class="table-input"
                             value="<?= htmlspecialchars($row['phone_number']); ?>" readonly>
                         </td>
 
-                        <td>
-                            <select id="stat-<?= $row_uid ?>" class="status-select <?= $status_class ?>"
-                            onchange="updateStatusOnly('<?= $row_uid ?>', '<?= $id ?>')">
-                                <option value="Pending" <?= $status_val == 'Pending' ? 'selected' : ''; ?>> Pending</option>
-                                <option value="Approved" <?= $status_val == 'Approved' ? 'selected' : ''; ?>> Approved</option>
-                            </select>
-                            <span id="msg-<?= $row_uid ?>" class="save-msg"> Saved</span>
+                        <td data-label="Status">
+                            <div class="status-wrapper">
+                                <select id="stat-<?= $row_uid ?>" class="status-select <?= $status_class ?>"
+                                onchange="updateStatusOnly('<?= $row_uid ?>', '<?= $id ?>')">
+                                    <option value="Pending" <?= $status_val == 'Pending' ? 'selected' : ''; ?>> Pending</option>
+                                    <option value="Approved" <?= $status_val == 'Approved' ? 'selected' : ''; ?>> Approved</option>
+                                </select>
+                                <span id="msg-<?= $row_uid ?>" class="save-msg"> Saved</span>
+                            </div>
                         </td>
 
-                        <td>
-                            <button class="btn-sms" onclick="sendEstimateSMS('<?= $row_uid ?>', '<?= $id ?>')"> Send Estimate</button>
-                            <button id="btn-edit-<?= $row_uid ?>" class="btn-edit" onclick="toggleEdit('<?= $row_uid ?>', '<?= $id ?>')">Edit</button>
+                        <td data-label="Action">
+                            <div class="action-buttons">
+                                <button class="btn-sms" onclick="sendEstimateSMS('<?= $row_uid ?>', '<?= $id ?>')"> Send Estimate</button>
+                                <button id="btn-edit-<?= $row_uid ?>" class="btn-edit" onclick="toggleEdit('<?= $row_uid ?>', '<?= $id ?>')">Edit</button>
+                            </div>
                             <input type="hidden" id="email-<?= $row_uid ?>" value="<?= $row['email']; ?>">
                         </td>
                     </tr>
