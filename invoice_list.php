@@ -463,6 +463,6 @@ function syncTheme() {
 syncTheme();
 setInterval(syncTheme, 1000);
 </script>
-
+<?php include_once __DIR__ . '/chatbot.php'; ?>
 </body>
 </html>

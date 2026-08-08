@@ -225,6 +225,7 @@ function showToast(text) {
     setTimeout(() => { toast.style.display = 'none'; }, 2000);
 }
 </script>
+<?php include_once __DIR__ . '/chatbot.php'; ?>
 </body>
 
 </html>
