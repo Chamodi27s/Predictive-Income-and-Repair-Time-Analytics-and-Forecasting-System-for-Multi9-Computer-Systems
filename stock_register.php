@@ -306,6 +306,7 @@ document.getElementById('category_name').addEventListener('input',function(){
     }
 });
 </script>
+<?php include_once __DIR__ . '/chatbot.php'; ?>
 </body>
 
 </html>

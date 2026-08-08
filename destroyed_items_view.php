@@ -378,7 +378,7 @@ const observer = new MutationObserver(() => {
 });
 observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 </script>
-
+<?php include_once __DIR__ . '/chatbot.php'; ?>
 </body>
 
 </html>

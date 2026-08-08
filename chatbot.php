@@ -290,9 +290,150 @@ if (!function_exists('m9_json')) {
         return $shop;
     }
 
+    function m9_module_overview($language)
+    {
+        if ($language === 'si') {
+            return "Multi9 system එකේ මේ navigation buttons ගැන මට උදව් කළ හැක:\n"
+                . "• Dashboard\n"
+                . "• Register – customer registration\n"
+                . "• Warranty\n"
+                . "• Collected\n"
+                . "• Order – repair jobs\n"
+                . "• Payment – cashbook/income\n"
+                . "• Report\n"
+                . "• Stock\n"
+                . "• Invoice\n"
+                . "• Destroy Items\n"
+                . "• User menu → System Settings\n"
+                . "• User menu → Database Backup\n"
+                . "\nඅවශ්‍ය module එකේ නම හෝ 'Customer registration කොහොමද?' වගේ ප්‍රශ්නයක් අහන්න.";
+        }
+
+        return "I can guide you through these Multi9 navigation buttons:\n"
+            . "• Dashboard\n"
+            . "• Register – customer registration\n"
+            . "• Warranty\n"
+            . "• Collected\n"
+            . "• Order – repair jobs\n"
+            . "• Payment – cashbook/income\n"
+            . "• Report\n"
+            . "• Stock\n"
+            . "• Invoice\n"
+            . "• Destroy Items\n"
+            . "• User menu → System Settings\n"
+            . "• User menu → Database Backup\n"
+            . "\nAsk for a module or a question such as 'How do I register a customer?'";
+    }
+
     function m9_faq($conn, $message, $language)
     {
         $shop = m9_shop($conn);
+
+        if (m9_contains($message, array(
+            'system help', 'all features', 'all modules', 'main menu', 'what can you do',
+            'how can you help', 'system eke', 'හැමදේම', 'modules', 'features'
+        ))) {
+            return m9_module_overview($language);
+        }
+
+        if (m9_contains($message, array(
+            'customer registration', 'register customer', 'add customer', 'new customer',
+            'customer register', 'register a customer', 'register new customer',
+            'how to register a customer', 'පාරිභෝගික ලියාපදිංචි',
+            'customer ekak add', 'customer add'
+        ))) {
+            return $language === 'si'
+                ? "Customer කෙනෙක් register කිරීමට:\n1. Screen එකේ උඩ Navigation Bar එකට යන්න.\n2. Register button එක click කරන්න.\n3. Customer name සහ phone number ඇතුළත් කරන්න.\n4. අවශ්‍ය නම් address සහ email ඇතුළත් කරන්න.\n5. Save/Register button එක click කරන්න."
+                : "To register a customer:\n1. Go to the navigation bar at the top of the screen.\n2. Click the Register button.\n3. Enter the customer name and phone number.\n4. Add the address and email if available.\n5. Click the Save/Register button.";
+        }
+
+        if (m9_contains($message, array(
+            'customer list', 'view customer', 'find customer', 'search customer',
+            'customer details', 'customersලා', 'customer බලන්න'
+        ))) {
+            return $language === 'si'
+                ? "Registered customers බලන්න Customer List page එක open කරන්න. එතැනින් customer records search/view කළ හැක.\nPage: customer_list.php"
+                : "Open Customer List to view or search registered customer records.\nPage: customer_list.php";
+        }
+
+        if (m9_contains($message, array('dashboard', 'home page', 'overview', 'summary', 'මුල් පිටුව'))) {
+            return $language === 'si'
+                ? "Dashboard එකෙන් pending repairs, in-progress jobs, completed jobs, customers, revenue සහ returned orders summary බලන්න පුළුවන්.\nPage: index.php"
+                : "The dashboard shows pending repairs, in-progress jobs, completed jobs, customers, revenue and returned-order summaries.\nPage: index.php";
+        }
+
+        if (m9_contains($message, array('warranty', 'වගකීම්', 'waranti'))) {
+            return $language === 'si'
+                ? "Warranty module එකෙන් warranty devices සහ supplier handling බලන්න පුළුවන්. Warranty job එකකට job number, purchase proof සහ supplier details අවශ්‍ය විය හැක.\nPage: warranty_list.php"
+                : "Use the Warranty module to manage warranty devices and supplier handling. Keep the job number, proof of purchase and supplier details available.\nPage: warranty_list.php";
+        }
+
+        if (m9_contains($message, array('collected', 'handed over', 'customer collected', 'භාර දුන්න', 'ලබාගත්'))) {
+            return $language === 'si'
+                ? "Customerට භාරදුන්/collected repair items බලන්න Collected page එක භාවිතා කරන්න.\nPage: collected.php"
+                : "Use the Collected page to view repaired items that have been handed over to customers.\nPage: collected.php";
+        }
+
+        if (m9_contains($message, array(
+            'order list', 'repair order', 'job list', 'new order', 'add order',
+            'create order', 'repair job', 'orders', 'order එක', 'job එක'
+        ))) {
+            return $language === 'si'
+                ? "Order module එකෙන් repair jobs create, search සහ manage කළ හැක. Customer registration කරලා තිබේ නම් Order page එකෙන් අදාළ customer සහ device details භාවිතා කරන්න.\nPage: job_list.php"
+                : "Use the Order module to create, search and manage repair jobs. Register the customer first, then use the customer and device details for the order.\nPage: job_list.php";
+        }
+
+        if (m9_contains($message, array('invoice', 'bill', 'billing', 'receipt', 'ඉන්වොයිස්', 'බිල්'))) {
+            return $language === 'si'
+                ? "Invoices බලන්න, print කරන්න හෝ payment status පරීක්ෂා කරන්න Invoice List page එක භාවිතා කරන්න.\nPage: invoice_list.php"
+                : "Use Invoice List to view or print invoices and check their payment status.\nPage: invoice_list.php";
+        }
+
+        if (m9_contains($message, array(
+            'payment', 'cashbook', 'cash', 'card payment', 'revenue', 'income',
+            'ගෙවීම', 'ආදායම', 'මුදල්'
+        ))) {
+            return $language === 'si'
+                ? "Payments, daily income සහ account entries බලන්න Payment/Cashbook page එක භාවිතා කරන්න. Verified job cost එක Repair Status option එකෙන් බලන්නත් පුළුවන්.\nPage: cashbook_view.php"
+                : "Use Payment/Cashbook to view payments, daily income and account entries. You can also use Repair Status for verified job-cost details.\nPage: cashbook_view.php";
+        }
+
+        if (m9_contains($message, array('report', 'reports', 'analytics', 'summary report', 'වාර්තාව'))) {
+            return $language === 'si'
+                ? "System reports සහ business summaries බලන්න Report page එක open කරන්න.\nPage: report.php"
+                : "Open Reports to view system reports and business summaries.\nPage: report.php";
+        }
+
+        if (m9_contains($message, array('stock', 'inventory', 'spare part', 'parts', 'item quantity', 'තොග', 'අමතර කොටස්'))) {
+            return $language === 'si'
+                ? "Stock module එකෙන් items, quantities, prices සහ stock status manage කරන්න පුළුවන්.\nPage: stock.php"
+                : "Use Stock to manage items, quantities, prices and stock status.\nPage: stock.php";
+        }
+
+        if (m9_contains($message, array('destroyed item', 'destroy item', 'disposal', 'destroyed device', 'විනාශ'))) {
+            return $language === 'si'
+                ? "Destroyed/disposal items සහ notices බලන්න Destroy Items page එක භාවිතා කරන්න.\nPage: destroyed_items_view.php"
+                : "Use Destroy Items to view destroyed/disposal items and related notices.\nPage: destroyed_items_view.php";
+        }
+
+        if (m9_contains($message, array('backup', 'database backup', 'backup database', 'දත්ත උපස්ථ'))) {
+            return $language === 'si'
+                ? "Database backup එකක් සෑදීමට user menu එකෙන් Database Backup තෝරන්න. Backup එක ආරක්ෂිත ස්ථානයක තබන්න.\nPage: backup_db.php"
+                : "Select Database Backup from the user menu to create a backup, then store it safely.\nPage: backup_db.php";
+        }
+
+        if (m9_contains($message, array('settings', 'profile settings', 'system settings', 'change password', 'shop settings', 'සැකසුම්'))) {
+            return $language === 'si'
+                ? "Shop/system details සහ profile settings වෙනස් කිරීමට user menu එකෙන් System Settings තෝරන්න.\nPage: profile_settings.php"
+                : "Select System Settings from the user menu to manage shop, system and profile settings.\nPage: profile_settings.php";
+        }
+
+        if (m9_contains($message, array('logout', 'log out', 'sign out', 'ඉවත් වන්න'))) {
+            return $language === 'si'
+                ? "System එකෙන් ආරක්ෂිතව ඉවත් වීමට user menu එකේ Log Out තෝරන්න.\nPage: logout.php"
+                : "Select Log Out from the user menu to leave the system securely.\nPage: logout.php";
+        }
+
         if (m9_contains($message, array('contact', 'phone', 'email', 'support', 'call', 'අමතන්න', 'දුරකථන'))) {
             return ($language === 'si' ? 'Multi9 support:' : 'Contact Multi9 support:')
                 . "\nPhone: " . m9_clean($shop['shop_phone'])
@@ -305,25 +446,16 @@ if (!function_exists('m9_json')) {
             return ($language === 'si' ? 'Opening hours දැනගැනීමට call කරන්න: ' : 'Call to confirm opening hours: ')
                 . m9_clean($shop['shop_phone']);
         }
-        if (m9_contains($message, array('warranty', 'වගකීම්', 'waranti'))) {
-            return $language === 'si'
-                ? 'Warranty repair සඳහා job number, purchase proof සහ supplier details සූදානම් කරගන්න. අවසන් තීරණය inspection එකෙන් පසුව ලබාදේ.'
-                : 'For warranty repair, keep the job number, proof of purchase and supplier details ready. Eligibility is confirmed after inspection.';
-        }
-        if (m9_contains($message, array('payment', 'invoice', 'cash', 'card', 'ගෙවීම', 'bill'))) {
-            return $language === 'si'
-                ? 'Payment details job එක අනුව වෙනස් වේ. Repair Status option එකෙන් verified cost details බලන්න.'
-                : 'Payment details vary by job. Use Repair Status to view verified cost details.';
-        }
         return null;
     }
 
     function m9_gemini($message, $language)
     {
         if (M9_GEMINI_API_KEY === '' || M9_GEMINI_API_KEY === 'PASTE_YOUR_GEMINI_API_KEY_HERE') {
-            return $language === 'si'
-                ? 'Repair status, duration, warranty, payment, location සහ support ගැන මට උදව් කළ හැක. AI troubleshooting සඳහා Gemini API key එක chatbot.php file එකට දාන්න.'
-                : 'I can help with repair status, duration, warranty, payments, location and support. Add the Gemini API key to chatbot.php for AI troubleshooting.';
+            return ($language === 'si'
+                ? "මේ ප්‍රශ්නයට AI answer එකක් ලබාදීමට Gemini API key එක configure කර නැහැ. System Help තෝරලා system modules ගැන අහන්න පුළුවන්.\n\n"
+                : "A Gemini API key is not configured for an AI answer to this question. Select System Help to ask about system modules.\n\n")
+                . m9_module_overview($language);
         }
         if (!function_exists('curl_init')) {
             return $language === 'si' ? 'Server cURL extension එක අවශ්‍යයි.' : 'The server cURL extension is required.';
@@ -331,7 +463,9 @@ if (!function_exists('m9_json')) {
 
         $system = 'You are Multi9 Assistant for Multi9 Computer Systems, a repair shop. '
             . ($language === 'si' ? 'Reply in simple natural Sinhala; technical words may be English. ' : 'Reply in simple English. ')
-            . 'Keep answers under 130 words. Give only safe general troubleshooting. '
+            . 'Keep answers under 130 words. Do not use Markdown, bold markers, backticks, or code formatting. Give only safe general troubleshooting. '
+            . 'Known system pages: Dashboard index.php; Register Customer add_customer.php; Customers customer_list.php; Orders job_list.php; Warranty warranty_list.php; Collected collected.php; Payments cashbook_view.php; Reports report.php; Stock stock.php; Invoices invoice_list.php; Destroy Items destroyed_items_view.php; Settings profile_settings.php; Backup backup_db.php. '
+            . 'For system guidance, tell the user which visible navigation button to click. Prefer labels such as Register, Order, Warranty, Payment, Report, Stock and Invoice instead of showing PHP filenames. '
             . 'Never claim to check the database, invent job details, prices, dates, opening hours or warranty decisions. '
             . 'For job status, ask the user to use Repair Status. '
             . 'For smoke, burning smell, liquid damage, swollen batteries or electric risk, tell the user to switch off and unplug if safe and contact a technician. '
@@ -371,6 +505,8 @@ if (!function_exists('m9_json')) {
         $text = isset($data['candidates'][0]['content']['parts'][0]['text'])
             ? trim($data['candidates'][0]['content']['parts'][0]['text'])
             : '';
+        $text = preg_replace('/\*\*(.*?)\*\*/s', '$1', $text);
+        $text = str_replace('`', '', $text);
         return $text !== '' ? $text : ($language === 'si' ? 'ප්‍රශ්නය වෙනත් විදිහකට අහන්න.' : 'Please rephrase the question.');
     }
 }
@@ -482,7 +618,7 @@ if ($m9DocumentRoot !== '' && strpos($m9FilePath, $m9DocumentRoot) === 0) {
     .m9-close{width:34px;height:34px;border:0;border-radius:50%;background:#ffffff1f;color:#fff;font-size:25px;cursor:pointer}
     .m9-messages{overflow-y:auto;padding:18px 14px;background:var(--m9-bg);scroll-behavior:smooth}
     .m9-msg{width:fit-content;max-width:84%;margin-bottom:11px;padding:10px 13px;border-radius:16px;font-size:14px;line-height:1.52;overflow-wrap:anywhere;white-space:pre-wrap}
-    .m9-bot{margin-right:auto;border:1px solid var(--m9-border);border-bottom-left-radius:5px;background:#fff;box-shadow:0 3px 10px #0f172a0d}.m9-user{margin-left:auto;border-bottom-right-radius:5px;background:var(--m9-blue);color:#fff}.m9-error{border-color:#fecaca;background:#fee2e2;color:#991b1b}
+    .m9-bot{margin-right:auto;border:1px solid var(--m9-border);border-bottom-left-radius:5px;background:#fff;box-shadow:0 3px 10px #0f172a0d}.m9-user{margin-left:auto;border-bottom-right-radius:5px;background:var(--m9-blue);color:#fff}.m9-error{border-color:#fecaca;background:#fee2e2;color:#991b1b}.m9-bot a{color:var(--m9-dark);font-weight:700;text-decoration:underline;text-underline-offset:2px}.m9-bot a:hover{color:var(--m9-blue)}
     .m9-actions{display:flex;flex-wrap:wrap;gap:7px;margin:4px 0 14px}.m9-actions button{padding:7px 10px;border:1px solid #b7dfc7;border-radius:999px;background:#effbf3;color:var(--m9-dark);font-size:12px;cursor:pointer}.m9-actions button:hover{background:var(--m9-blue);color:#fff}
     .m9-input{display:flex;align-items:center;gap:10px;padding:12px;border-top:1px solid var(--m9-border);background:#fff}.m9-input input{flex:1;min-width:0;height:44px;padding:0 14px;border:1px solid var(--m9-border);border-radius:13px;outline:0;background:#f8fffa;font-size:14px}.m9-input input:focus{border-color:#78c596;box-shadow:0 0 0 3px #19875421}.m9-send{display:grid;place-items:center;width:44px;height:44px;flex:0 0 44px;border:0;border-radius:13px;background:var(--m9-blue);color:#fff;font-size:18px;cursor:pointer}.m9-send:disabled,.m9-input input:disabled{opacity:.6;cursor:not-allowed}
     .m9-typing{display:inline-flex;gap:4px}.m9-typing i{width:6px;height:6px;border-radius:50%;background:#94a3b8;animation:m9dot 1.1s infinite}.m9-typing i:nth-child(2){animation-delay:.14s}.m9-typing i:nth-child(3){animation-delay:.28s}@keyframes m9dot{0%,60%,100%{transform:none;opacity:.55}30%{transform:translateY(-4px);opacity:1}}
@@ -502,11 +638,12 @@ if ($m9DocumentRoot !== '' && strpos($m9FilePath, $m9DocumentRoot) === 0) {
     </header>
 
     <div class="m9-messages" id="chatBox" aria-live="polite">
-        <div class="m9-msg m9-bot">ආයුබෝවන්! 👋 මම Multi9 Assistant.
-Hi! I’m the Multi9 Assistant.
-ඔබට අද මම උදව් කරන්නේ කොහොමද?</div>
+        <div class="m9-msg m9-bot">Hi! 👋 I’m the Multi9 Assistant.
+How can I help you today?</div>
 
         <div class="m9-actions" id="m9Actions">
+            <button type="button" data-msg="Show all system modules">System Help</button>
+            <button type="button" data-msg="How to register a customer">Register Customer</button>
             <button type="button" data-msg="Check repair status">Repair Status</button>
             <button type="button" data-msg="Predict repair duration">Repair Duration</button>
             <button type="button" data-msg="I need troubleshooting help">Troubleshooting</button>
@@ -537,7 +674,29 @@ Hi! I’m the Multi9 Assistant.
     function openChat(){widget.hidden=false;toggle.style.display='none';setTimeout(function(){input.focus();},50)}
     function closeChat(){widget.hidden=true;toggle.style.display='';toggle.focus()}
     function bottom(){box.scrollTop=box.scrollHeight}
-    function add(text,type,extra){var d=document.createElement('div');d.className='m9-msg '+(type==='user'?'m9-user':'m9-bot')+(extra?' '+extra:'');d.textContent=text;box.appendChild(d);bottom();return d}
+    function showActionsAgain(){if(actions){box.appendChild(actions);bottom()}}
+    function renderBotText(element,text){
+        var pattern=/([A-Za-z0-9_-]+\.php(?:\?[A-Za-z0-9_=&%.-]+)?)/g;
+        var parts=text.split(pattern);
+        parts.forEach(function(part){
+            if(pattern.test(part)){
+                pattern.lastIndex=0;
+                var link=document.createElement('a');
+                link.href=part;
+                link.textContent=part;
+                element.appendChild(link);
+            }else{
+                pattern.lastIndex=0;
+                element.appendChild(document.createTextNode(part));
+            }
+        });
+    }
+    function add(text,type,extra){
+        var d=document.createElement('div');
+        d.className='m9-msg '+(type==='user'?'m9-user':'m9-bot')+(extra?' '+extra:'');
+        if(type==='bot'){renderBotText(d,text)}else{d.textContent=text}
+        box.appendChild(d);bottom();return d
+    }
     function typing(){var d=document.createElement('div');d.className='m9-msg m9-bot';d.innerHTML='<span class="m9-typing"><i></i><i></i><i></i></span>';box.appendChild(d);bottom();return d}
     function lock(value){sending=value;input.disabled=value;form.querySelector('button').disabled=value}
 
@@ -555,7 +714,8 @@ Hi! I’m the Multi9 Assistant.
             var data=await response.json();wait.remove();
             if(!response.ok||!data.success){throw new Error(data.message||'Request failed')}
             add(data.reply,'bot');
-        }catch(error){if(wait.isConnected){wait.remove()}add('Chatbot temporarily unavailable. කරුණාකර නැවත උත්සාහ කරන්න.\n'+error.message,'bot','m9-error')}
+            showActionsAgain();
+        }catch(error){if(wait.isConnected){wait.remove()}add('Chatbot temporarily unavailable. Please try again.\n'+error.message,'bot','m9-error');showActionsAgain()}
         finally{lock(false);input.focus()}
     }
 
