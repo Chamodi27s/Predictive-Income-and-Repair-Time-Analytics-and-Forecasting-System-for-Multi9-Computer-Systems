@@ -132,15 +132,142 @@ body.dark-mode .card-value { color:#f8fafc; }
 .accent-returned .card-footer i { color: #ec4899; }
 .dashboard-card.accent-returned:hover { border-bottom: 4px solid #ec4899; padding-bottom: 31px; }
 
-/* MOBILE RESPONSIVE */
+/* MOBILE & TABLET RESPONSIVE */
 @media screen and (max-width: 1024px) {
-    .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .main-container {
+        padding-top: 105px;
+        padding-bottom: 60px;
+        width: 94%;
+    }
+
+    .welcome-section {
+        margin-bottom: 30px;
+        gap: 16px;
+    }
+
+    .welcome-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 30px;
+        border-radius: 16px;
+    }
+
+    .welcome-text h1 {
+        font-size: 26px;
+    }
+
+    .welcome-text .sub-text {
+        font-size: 14px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .dashboard-card {
+        padding: 26px 22px;
+        border-radius: 20px;
+    }
+
+    .card-value {
+        font-size: 38px;
+        margin-top: 20px;
+    }
+
+    .icon-box {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        border-radius: 14px;
+    }
 }
 
 @media screen and (max-width: 768px) {
-    .dashboard-grid { grid-template-columns: 1fr; }
-    .welcome-section { flex-direction: column; align-items: flex-start; gap:15px; }
-    .welcome-text h1 { font-size: 26px; }
+    .main-container {
+        padding-top: 100px;
+        padding-bottom: 100px; /* Extra spacing so floating chatbot widget never covers content */
+        width: 92%;
+    }
+
+    .welcome-section {
+        flex-direction: row;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .welcome-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 26px;
+        border-radius: 14px;
+        flex-shrink: 0;
+    }
+
+    .welcome-text h1 {
+        font-size: 22px;
+        margin-bottom: 2px;
+    }
+
+    .welcome-text .sub-text {
+        font-size: 13px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .dashboard-card {
+        padding: 22px 18px;
+        border-radius: 18px;
+    }
+
+    .card-title {
+        font-size: 12px;
+    }
+
+    .card-value {
+        font-size: 34px;
+        margin-top: 16px;
+    }
+
+    .card-footer {
+        font-size: 12px;
+        padding-top: 12px;
+    }
+
+    .icon-box {
+        width: 46px;
+        height: 46px;
+        font-size: 22px;
+        border-radius: 12px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .main-container {
+        padding-top: 95px;
+        padding-bottom: 100px;
+        width: 94%;
+    }
+
+    .welcome-section {
+        gap: 12px;
+    }
+
+    .welcome-text h1 {
+        font-size: 20px;
+    }
+
+    .welcome-text .sub-text {
+        font-size: 12.5px;
+    }
+
+    .card-value {
+        font-size: 30px;
+    }
 }
 /* BACKGROUND ANIMATION */
 .bg-animation {
