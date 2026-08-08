@@ -1,7 +1,7 @@
 <?php
 session_start();
 include 'db_config.php'; 
-// Redirect if the session is not set
+
 if (!isset($_SESSION['reset_email'])) {
     header("Location: forgot.php");
     exit();
@@ -10,26 +10,19 @@ if (!isset($_SESSION['reset_email'])) {
 $error = '';
 
 if (isset($_POST['verify'])) {
-    // Sanitize input
     $otp = mysqli_real_escape_string($conn, $_POST['otp']);
     $email = $_SESSION['reset_email'];
 
-    // 1. Fetch the user's current token and expiry from the database
     $query = "SELECT reset_token, token_expiry FROM login_users WHERE email='$email'";
     $result = mysqli_query($conn, $query);
 
     if ($row = mysqli_fetch_assoc($result)) {
         $db_otp = $row['reset_token'];
         $db_expiry = $row['token_expiry'];
-        
-        // Current time in PHP (matches db_config.php timezone)
         $current_time = date("Y-m-d H:i:s");
 
-        // 2. Check if the OTP matches exactly
         if ($otp === $db_otp) {
-            // 3. Check if the current time is before the expiry time
             if ($db_expiry > $current_time) {
-                // Success: Redirect to reset page
                 header("Location: reset_password.php");
                 exit();
             } else {
@@ -50,78 +43,409 @@ if (isset($_POST['verify'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Verify OTP | Multi9 Systems</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        html { -webkit-text-size-adjust: 100%; }
-        body { font-family: 'Poppins', sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px; box-sizing: border-box; font-size:16px; }
-        .container { background: rgba(50,50,50,0.25); backdrop-filter: blur(16px); padding: 40px; border-radius: 16px; width: 100%; max-width: 420px; text-align: center; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
-        h2 { color: #00ffe0; margin-top: 0; font-size: 22px; }
-        .timer { font-size: 24px; font-weight: bold; color: #ff6b6b; margin: 20px 0; }
-        input[type="text"] { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #fff; text-align: center; font-size: 24px; letter-spacing: 8px; font-weight: bold; box-sizing: border-box; }
-        input[type="submit"] { width: 100%; padding: 14px; background: #1f7a63; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600; font-size: 16px; transition: 0.3s; }
-        input[type="submit"]:hover { background: #165e4d; }
-        .error-msg { color: #ff6b6b; background: rgba(255, 107, 107, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 15px; }
-        .resend-btn { color: #00ffe0; text-decoration: none; font-size: 14px; display: none; margin-top: 20px; font-weight: 500; }
-        .resend-btn:hover { text-decoration: underline; }
-
-        @media (max-width: 480px) {
-            body { align-items: flex-start; padding-top: 32px; }
-            .container { padding: 22px; max-width: 100%; border-radius: 12px; }
-            h2 { font-size: 20px; }
-            .timer { font-size: 22px; margin: 16px 0; }
-            input[type="text"] { padding: 14px; font-size: 20px; letter-spacing: 6px; }
-            input[type="submit"] { padding: 14px; font-size: 16px; }
-            .error-msg { font-size: 14px; }
-            .resend-btn { font-size: 14px; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        @media (min-width: 481px) and (max-width: 991px) {
-            .container { padding: 28px; max-width: 460px; }
-            input[type="text"] { padding: 15px; }
-            input[type="submit"] { padding: 14px; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #090d16; 
+            color: #fff; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding: 24px 16px; 
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        #particleCanvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .bg-orbs {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -2;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, #0f172a 0%, #060911 100%);
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.6;
+        }
+
+        .orb-1 {
+            width: 550px;
+            height: 550px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.45) 0%, rgba(16, 185, 129, 0) 70%);
+            top: -120px;
+            left: -120px;
+            animation: float1 10s infinite ease-in-out alternate;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, rgba(59, 130, 246, 0) 70%);
+            bottom: -100px;
+            right: -100px;
+            animation: float2 12s infinite ease-in-out alternate;
+        }
+
+        @keyframes float1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(100px, 70px) scale(1.15); }
+        }
+
+        @keyframes float2 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-90px, -80px) scale(1.1); }
+        }
+
+        .page-title { 
+            margin-bottom: 26px;
+            font-size: 30px; 
+            font-weight: 900; 
+            color: #ffffff; 
+            text-align: center; 
+            z-index: 1; 
+            letter-spacing: -0.5px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .page-title i {
+            color: #10b981;
+            font-size: 36px;
+        }
+
+        .container { 
+            background: rgba(15, 23, 42, 0.78); 
+            backdrop-filter: blur(24px); 
+            -webkit-backdrop-filter: blur(24px);
+            padding: 44px 38px; 
+            border-radius: 26px; 
+            width: 100%; 
+            max-width: 460px; 
+            text-align: center; 
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 40px rgba(16, 185, 129, 0.15); 
+            border: 1.5px solid rgba(255, 255, 255, 0.12); 
+            z-index: 1;
+            transition: all 0.4s ease;
+        }
+
+        .container:hover {
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 0 35px 90px rgba(0, 0, 0, 0.8), 0 0 55px rgba(16, 185, 129, 0.22);
+        }
+
+        .icon-header {
+            width: 64px;
+            height: 64px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: #10b981;
+            font-size: 32px;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+        }
+
+        h2 { 
+            color: #ffffff; 
+            margin-bottom: 6px; 
+            font-size: 22px; 
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+
+        .email-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: #34d399;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .timer-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: #fca5a5;
+            padding: 10px 16px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            letter-spacing: 1px;
+        }
+
+        .timer-box i {
+            font-size: 20px;
+        }
+
+        form {
+            text-align: left;
+        }
+
+        label {
+            font-size: 11.5px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            display: block;
+            color: #94a3b8;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        input[type="text"] { 
+            width: 100%; 
+            padding: 16px; 
+            margin-bottom: 22px; 
+            border-radius: 16px; 
+            border: 1.5px solid rgba(255, 255, 255, 0.14); 
+            font-size: 28px; 
+            letter-spacing: 12px;
+            font-weight: 800;
+            background: rgba(15, 23, 42, 0.65); 
+            color: #ffffff; 
+            text-align: center;
+            outline: none; 
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #10b981;
+            background: rgba(15, 23, 42, 0.9);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+        }
+
+        input[type="submit"] { 
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+            border: none; 
+            border-radius: 13px;
+            color: #ffffff;
+            font-size: 15.5px;
+            font-weight: 800; 
+            letter-spacing: 0.5px;
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
+        }
+
+        input[type="submit"]:hover { 
+            background: linear-gradient(135deg, #34d399 0%, #059669 100%); 
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.5); 
+        }
+
+        .error-msg { 
+            background: rgba(239, 68, 68, 0.18); 
+            color: #fca5a5; 
+            padding: 12px 16px; 
+            border-radius: 12px; 
+            font-size: 13.5px; 
+            font-weight: 700;
+            margin-bottom: 22px; 
+            text-align: center; 
+            border: 1px solid rgba(239, 68, 68, 0.35); 
+        }
+
+        .resend-btn { 
+            display: none; 
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 24px; 
+            color: #34d399; 
+            text-decoration: none; 
+            font-size: 13.5px; 
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .resend-btn:hover { 
+            color: #6ee7b7; 
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            .container { 
+                padding: 30px 22px; 
+                border-radius: 20px; 
+                max-width: 96%;
+            }
+
+            h2 { font-size: 20px; }
+            .email-badge { font-size: 12px; padding: 5px 12px; }
+            .timer-box { font-size: 16px; padding: 8px 14px; }
+            input[type="text"] { padding: 14px; font-size: 22px; letter-spacing: 8px; }
+            input[type="submit"] { padding: 13.5px; font-size: 14.5px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Verify OTP</h2>
-        <p style="color: #ccc; font-size: 14px; margin-bottom: 5px;">We sent a code to:</p>
-        <p style="color: #00ffe0; font-weight: 500; margin-top: 0;"><?php echo htmlspecialchars($_SESSION['reset_email']); ?></p>
-        
-        <div class="timer" id="timer">03:00</div>
 
-        <?php if ($error): ?>
-            <div class="error-msg"><?php echo $error; ?></div>
-        <?php endif; ?>
+<div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+</div>
 
-        <form method="POST">
-            <input type="text" name="otp" placeholder="••••••" maxlength="6" autocomplete="one-time-code" required autofocus>
-            <input type="submit" name="verify" value="Verify & Continue">
-        </form>
+<canvas id="particleCanvas"></canvas>
 
-        <a href="forgot.php" class="resend-btn" id="resendBtn">Didn't receive code? Resend Email</a>
+<div class="page-title">
+    <i class="ph-bold ph-cpu"></i> MULTI 9
+</div>
+
+<div class="container">
+    <div class="icon-header">
+        <i class="ph-bold ph-shield-check"></i>
     </div>
 
-    <script>
-        let time = 180; // 3 minutes
-        const timerElement = document.getElementById('timer');
-        const resendBtn = document.getElementById('resendBtn');
+    <h2>Verify Security Code</h2>
+    <div class="email-badge">
+        <i class="ph-bold ph-envelope-simple"></i>
+        <span><?= htmlspecialchars($_SESSION['reset_email']) ?></span>
+    </div>
 
-        let countdown = setInterval(function() {
-            let minutes = Math.floor(time / 60);
-            let seconds = time % 60;
-            seconds = seconds < 10 ? '0' + seconds : seconds;
-            timerElement.innerHTML = `0${minutes}:${seconds}`;
+    <div class="timer-box">
+        <i class="ph-bold ph-clock"></i>
+        <span id="timer">03:00</span>
+    </div>
 
-            if (time <= 0) {
-                clearInterval(countdown);
-                timerElement.innerHTML = "Expired!";
-                timerElement.style.color = "#888";
-                resendBtn.style.display = "inline-block"; 
-            } else {
-                time--;
+    <?php if ($error): ?>
+        <div class="error-msg"><?php echo $error; ?></div>
+    <?php endif; ?>
+
+    <form method="POST">
+        <label>6-Digit Security Code (OTP)</label>
+        <input type="text" name="otp" placeholder="••••••" maxlength="6" autocomplete="one-time-code" required autofocus>
+        <input type="submit" name="verify" value="Verify & Continue">
+    </form>
+
+    <a href="forgot.php" class="resend-btn" id="resendBtn"><i class="ph-bold ph-arrow-counter-clockwise"></i> Didn't receive code? Resend Email</a>
+</div>
+
+<script>
+    let time = 180; // 3 minutes
+    const timerElement = document.getElementById('timer');
+    const resendBtn = document.getElementById('resendBtn');
+
+    let countdown = setInterval(function() {
+        let minutes = Math.floor(time / 60);
+        let seconds = time % 60;
+        seconds = seconds < 10 ? '0' + seconds : seconds;
+        timerElement.innerHTML = `0${minutes}:${seconds}`;
+
+        if (time <= 0) {
+            clearInterval(countdown);
+            timerElement.innerHTML = "Expired!";
+            timerElement.style.color = "#f87171";
+            resendBtn.style.display = "inline-flex"; 
+        } else {
+            time--;
+        }
+    }, 1000);
+
+    /* ===== CANVAS PARTICLES ===== */
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2.5 + 1;
+            this.speedX = (Math.random() - 0.5) * 0.9;
+            this.speedY = (Math.random() - 0.5) * 0.9;
+            this.opacity = Math.random() * 0.6 + 0.3;
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+        }
+        draw() {
+            ctx.fillStyle = `rgba(16, 185, 129, ${this.opacity})`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    for (let i = 0; i < 35; i++) {
+        particles.push(new Particle());
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let a = 0; a < particles.length; a++) {
+            for (let b = a + 1; b < particles.length; b++) {
+                let dx = particles[a].x - particles[b].x;
+                let dy = particles[a].y - particles[b].y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 130) {
+                    ctx.strokeStyle = `rgba(16, 185, 129, ${0.2 * (1 - dist / 130)})`;
+                    ctx.lineWidth = 0.9;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[a].x, particles[a].y);
+                    ctx.lineTo(particles[b].x, particles[b].y);
+                    ctx.stroke();
+                }
             }
-        }, 1000);
-    </script>
+        }
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animate);
+    }
+    animate();
+</script>
 </body>
 </html>
