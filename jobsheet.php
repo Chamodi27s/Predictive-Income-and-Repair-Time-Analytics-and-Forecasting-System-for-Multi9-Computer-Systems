@@ -23,7 +23,7 @@ $result = $conn->query($query);
 $job_main = $result->fetch_assoc();
 
 if (!$job_main) {
-    die("දත්ත සොයාගත නොහැක.");
+    die("data is not found.");
 }
 
 $job_no = $job_main['job_no'];
