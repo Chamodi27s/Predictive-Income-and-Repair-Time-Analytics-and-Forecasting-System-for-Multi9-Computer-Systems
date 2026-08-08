@@ -220,6 +220,6 @@ $result = mysqli_query($conn, $sql);
     }
     applyTheme();
 </script>
-
+<?php include_once __DIR__ . '/chatbot.php'; ?>
 </body>
 </html>
