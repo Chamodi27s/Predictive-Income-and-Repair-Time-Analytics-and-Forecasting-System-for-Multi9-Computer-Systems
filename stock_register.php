@@ -69,6 +69,8 @@ $cat_items = [
 <html>
 <head>
     <title>Stock Register</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="CSS/global.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -86,30 +88,14 @@ $cat_items = [
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #f0fdf4 0%, #f3f4f6 100%);
             margin: 0;
-            /* Navbar එකේ පෙනුම අනුව padding සකස් කිරීම */
-            padding-top: 100px; 
+            /* Navbar height offset */
+            padding-top: var(--nav-height);
             padding-left: 20px;
             padding-right: 20px;
             min-height: 100vh;
             color: var(--text-dark);
             transition: all 0.3s ease;
         }
-
-        /* --- NAVBAR ALIGNMENT FIX --- */
-        
-        .topbar {
-            height: 70px !important;
-            padding: 0 50px !important;
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
         /* --- DARK MODE CSS --- */
         body.dark-mode {
             background: linear-gradient(135deg, #020617, #0f172a) !important;
