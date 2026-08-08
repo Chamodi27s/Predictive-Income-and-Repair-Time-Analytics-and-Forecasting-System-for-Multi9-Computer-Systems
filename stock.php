@@ -48,8 +48,7 @@ body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
     margin: 0;
-    /* Adjusted padding-top back to a clean level since popup is removed */
-    padding: 140px 25px 40px; 
+    padding: 125px 25px 40px; 
     color: var(--text-main);
 }
 
@@ -63,6 +62,7 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 16px;
+    margin-top: 15px;
     margin-bottom: 28px;
 }
 
@@ -325,13 +325,64 @@ body.dark-mode .table-box {
     border-color: rgba(255,255,255,0.08);
 }
 
-@media (max-width: 768px) {
+/* ==================== RESPONSIVE MEDIA QUERIES ==================== */
+
+@media (max-width: 1024px) {
     body {
-        padding: 120px 15px 30px;
+        padding: 115px 16px 40px;
+    }
+
+    .cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-top: 15px;
     }
 
     .content-box {
-        padding: 20px;
+        padding: 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 110px 12px 100px; /* Space below topbar and chatbot protection */
+    }
+
+    .cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 15px;
+        margin-bottom: 20px;
+    }
+
+    .card {
+        padding: 14px 10px;
+        border-radius: 14px;
+    }
+
+    .card span {
+        font-size: 22px;
+        margin-bottom: 4px;
+    }
+
+    .card h3 {
+        font-size: 10.5px;
+    }
+
+    .card h1 {
+        font-size: 24px;
+    }
+
+    .content-box {
+        padding: 16px 12px;
+        border-radius: 18px;
+    }
+
+    .search-add-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        margin-bottom: 18px;
     }
 
     .search-box {
@@ -341,6 +392,150 @@ body.dark-mode .table-box {
     .add-btn {
         width: 100%;
         text-align: center;
+        display: block;
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    /* Transform Table into Responsive Grid Cards */
+    .table-box {
+        border: none;
+        background: transparent;
+        border-radius: 0;
+        overflow: visible;
+    }
+
+    table,
+    tbody,
+    tr,
+    td {
+        display: block;
+        width: 100%;
+    }
+
+    table {
+        min-width: 0 !important;
+    }
+
+    thead {
+        display: none;
+    }
+
+    tbody tr {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        margin-bottom: 14px;
+        padding: 16px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+        position: relative;
+    }
+
+    tbody tr:hover {
+        transform: none;
+    }
+
+    body.dark-mode tbody tr {
+        background: rgba(30, 41, 59, 0.9) !important;
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+    }
+
+    td {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 0;
+        border: none;
+        font-size: 14px;
+    }
+
+    td::before {
+        content: attr(data-label);
+        font-weight: 800;
+        font-size: 11px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    body.dark-mode td::before {
+        color: #94a3b8;
+    }
+
+    /* Row 1: Code (Left) & Status (Right) */
+    td:nth-child(1) {
+        grid-column: 1 / 2;
+        grid-row: 1;
+        padding-bottom: 6px;
+        border-bottom: 1.5px dashed var(--border);
+    }
+    td:nth-child(1)::before {
+        display: none;
+    }
+
+    td:nth-child(6) {
+        grid-column: 2 / 3;
+        grid-row: 1;
+        align-items: flex-end;
+        padding-bottom: 6px;
+        border-bottom: 1.5px dashed var(--border);
+    }
+    td:nth-child(6)::before {
+        display: none;
+    }
+
+    /* Row 2: Item Name */
+    td:nth-child(2) {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        font-size: 15px;
+    }
+
+    /* Row 3: Category (Left) & Unit Price (Right) */
+    td:nth-child(3) {
+        grid-column: 1 / 2;
+        grid-row: 3;
+    }
+
+    td:nth-child(5) {
+        grid-column: 2 / 3;
+        grid-row: 3;
+        align-items: flex-end;
+        font-weight: 700;
+    }
+
+    /* Row 4: Quantity (Left) & Action Edit button (Right) */
+    td:nth-child(4) {
+        grid-column: 1 / 2;
+        grid-row: 4;
+        padding-top: 6px;
+    }
+
+    td:nth-child(7) {
+        grid-column: 2 / 3;
+        grid-row: 4;
+        align-items: flex-end;
+        justify-content: flex-end;
+        padding-top: 6px;
+    }
+    td:nth-child(7)::before {
+        display: none;
+    }
+
+    .qty-input {
+        width: 70px;
+        font-size: 14px;
+        padding: 6px 8px;
+    }
+
+    .edit-btn {
+        padding: 8px 18px;
+        font-size: 13px;
     }
 }
 </style>
@@ -411,15 +606,15 @@ body.dark-mode .table-box {
                     }
                 ?>
                     <tr>
-                        <td><strong><?= $r['item_code'] ?></strong></td>
-                        <td><?= $r['item_name'] ?></td>
-                        <td><?= $r['category_name'] ?></td>
-                        <td>
+                        <td data-label="Code"><strong><?= $r['item_code'] ?></strong></td>
+                        <td data-label="Item Name"><strong><?= $r['item_name'] ?></strong></td>
+                        <td data-label="Category"><?= $r['category_name'] ?></td>
+                        <td data-label="Quantity">
                             <input type="number" class="qty-input" value="<?= $r['quantity'] ?>" disabled>
                         </td>
-                        <td>Rs.<?= number_format($r['unit_price'], 2) ?></td>
-                        <td><span class="status <?= $cl ?>"><?= $st ?></span></td>
-                        <td>
+                        <td data-label="Unit Price">Rs.<?= number_format($r['unit_price'], 2) ?></td>
+                        <td data-label="Status"><span class="status <?= $cl ?>"><?= $st ?></span></td>
+                        <td data-label="Action">
                             <button class="edit-btn" onclick="toggleEdit(this)">Edit</button>
                         </td>
                     </tr>
