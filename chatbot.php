@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 <style>
-    /* 1. Floating Robot Button - සුදු පැහැති අයිකනය සහ Animation සහිතව */
+    /* 1. Floating Robot Button  */
     .chat-bubble-btn {
         position: fixed;
         bottom: 25px;
@@ -29,10 +29,7 @@
 
     .chat-bubble-btn:hover { 
         transform: scale(1.1);
-        background: #0d634f;
-    }
-
-    /* සුදු පැහැති අයිකනය සඳහා Style */
+        background: #0d6
     .chat-bubble-btn i {
         color: #ffffff;
         font-size: 32px;
