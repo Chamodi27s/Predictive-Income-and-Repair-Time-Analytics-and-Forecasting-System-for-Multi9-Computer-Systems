@@ -10,7 +10,7 @@ if (empty($id)) {
     exit;
 }
 
-// උපකරණයේ විස්තර සහ පාරිභෝගික විස්තර ලබා ගැනීම
+// to give description of device details
 $sql = "SELECT jd.*, j.job_no, j.job_date, c.customer_name, c.phone_number 
         FROM job_device jd
         INNER JOIN job j ON jd.job_no = j.job_no
@@ -25,18 +25,18 @@ if (!$data) {
     exit;
 }
 
-// දින ගණන ගණනය කිරීම
+// to calculate dte
 $days_passed = 0;
 if($data['completed_date']) {
     $days_passed = floor((time() - strtotime($data['completed_date'])) / 86400);
 }
 
-// Confirm බොත්තම එබූ විට ක්‍රියාත්මක වන කොටස
+// Confirm Destroy Button Clicked
 if (isset($_POST['confirm_destroy'])) {
-    // විනාශ කළ දිනය සටහන් කිරීම සඳහා අද දිනය ලබා ගැනීම
+    // Get the current date and time
     $current_date = date('Y-m-d H:i:s');
     
-    // Status එක 'Destroyed' කර එම දිනය destroy_notice_sent_date ලෙස සටහන් කිරීම
+    // Status update query to mark the device as destroyed
     $update_sql = "UPDATE job_device SET 
                    device_status = 'Destroyed', 
                    destroy_notice_sent_date = '$current_date' 
@@ -124,8 +124,7 @@ if (isset($_POST['confirm_destroy'])) {
 
 <div class="destroy-container">
     <h2>⚠️ Item Disposal</h2>
-    <p style="text-align:center; color:#777;">මෙම උපකරණය වසරකට වඩා පැරණි බැවින් විනාශ කිරීමට නිර්දේශිතයි.</p>
-
+    <p style="text-align:center; color:#777;">This equipment is more than a year old and should be destroyed as recommended</p>
     <div class="device-info">
         <div class="info-row"><span class="label">Job No:</span> <span class="val">#<?= $data['job_no'] ?></span></div>
         <div class="info-row"><span class="label">Customer:</span> <span class="val"><?= $data['customer_name'] ?></span></div>
