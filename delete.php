@@ -34,7 +34,7 @@ if (isset($_GET['job_no'])) {
     }
 
 } else {
-    // job_no eka natham ayeth dashboard ekata yanawa
+    // to not job_no go to dashboarad
     header("Location: collected.php");
     exit();
 }
