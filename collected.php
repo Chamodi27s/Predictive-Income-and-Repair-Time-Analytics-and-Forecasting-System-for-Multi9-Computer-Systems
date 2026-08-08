@@ -498,8 +498,8 @@ function updateStatusOnly(row_uid, job_no) {
     let advanceAmount = 0;
 
     if (statSelect.value === 'Approved') {
-        if (confirm("පාරිභෝගිකයා මෙය ස්ථිර කළාද? Approved කළ පසු මෙය මෙම ලැයිස්තුවෙන් ඉවත් වේ.")) {
-            let userInput = prompt("ලැබුණු අත්තිකාරම් මුදල ඇතුළත් කරන්න:", "0");
+        if (confirm("Did the customer confirm this? Once approved, it will be removed from this list..")) {
+            let userInput = prompt("Enter the advance amount paid by the customer:", "0");
 
             if (userInput === null) {
                 statSelect.value = 'Pending';
