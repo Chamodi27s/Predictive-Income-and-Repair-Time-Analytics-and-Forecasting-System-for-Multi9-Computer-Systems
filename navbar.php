@@ -281,16 +281,16 @@ body.dark-mode .chat-body { background: #020617; }
 
 <!-- Mobile dropdown nav -->
 <div class="mobile-menu" id="mobileMenu">
-    <a href="index.php" class="<?= $current_page=='index.php'?'active':'' ?>">🏠 Dashboard</a>
-    <a href="add_customer.php" class="<?= $current_page=='add_customer.php'?'active':'' ?>">📝 Register</a>
-    <a href="warranty_list.php" class="<?= $current_page=='warranty_list.php'?'active':'' ?>">🛡️ Warranty</a>
-    <a href="collected.php" class="<?= $current_page=='collected.php'?'active':'' ?>">📦 Collected</a>
-    <a href="job_list.php" class="<?= $current_page=='job_list.php'?'active':'' ?>">🧾 Order</a>
-    <a href="cashbook_view.php" class="<?= $current_page=='cashbook_view.php'?'active':'' ?>">💵 Payment</a>
-    <a href="report.php" class="<?= $current_page=='report.php'?'active':'' ?>">📊 Report</a>
-    <a href="stock.php" class="<?= $current_page=='stock.php'?'active':'' ?>">📦 Stock</a>
-    <a href="invoice_list.php" class="<?= $current_page=='invoice_list.php'?'active':'' ?>">🧮 Invoice</a>
-    <a href="destroyed_items_view.php" class="<?= $current_page=='destroyed_items_view.php'?'active':'' ?>">🗑️ Destroy Items</a>
+    <a href="index.php" class="<?= $current_page=='index.php'?'active':'' ?>"> Dashboard</a>
+    <a href="add_customer.php" class="<?= $current_page=='add_customer.php'?'active':'' ?>"> Register</a>
+    <a href="warranty_list.php" class="<?= $current_page=='warranty_list.php'?'active':'' ?>"> Warranty</a>
+    <a href="collected.php" class="<?= $current_page=='collected.php'?'active':'' ?>"> Collected</a>
+    <a href="job_list.php" class="<?= $current_page=='job_list.php'?'active':'' ?>"> Order</a>
+    <a href="cashbook_view.php" class="<?= $current_page=='cashbook_view.php'?'active':'' ?>"> Payment</a>
+    <a href="report.php" class="<?= $current_page=='report.php'?'active':'' ?>"> Report</a>
+    <a href="stock.php" class="<?= $current_page=='stock.php'?'active':'' ?>"> Stock</a>
+    <a href="invoice_list.php" class="<?= $current_page=='invoice_list.php'?'active':'' ?>"> Invoice</a>
+    <a href="destroyed_items_view.php" class="<?= $current_page=='destroyed_items_view.php'?'active':'' ?>"> Destroy Items</a>
 </div>
 
 <div class="chat-trigger" onclick="toggleChat()">🤖</div>
