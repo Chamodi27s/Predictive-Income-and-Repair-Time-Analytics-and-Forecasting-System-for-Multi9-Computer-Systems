@@ -478,17 +478,17 @@ $total_pages = ceil($total_records / $records_per_page);
 </script>
 
 <!-- Prediction Modal -->
-<div id="predictModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); z-index:9999; justify-content:center; align-items:center;">
-    <div class="modal-content" style="background:linear-gradient(145deg, #1e293b, #0f172a); border:1px solid rgba(255,255,255,0.05); border-radius:24px; width:750px; max-width:95vw; padding:40px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); position:relative;">
-        <button onclick="closePredictionModal()" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.05); border:none; color:var(--text-muted); font-size:20px; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="ph ph-x"></i></button>
+<div id="predictModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.35); backdrop-filter:blur(10px); z-index:9999; justify-content:center; align-items:center;">
+    <div class="modal-content" style="background:linear-gradient(145deg, #ffffff, #f1f5f9); border:1px solid rgba(0,0,0,0.08); border-radius:24px; width:750px; max-width:95vw; padding:40px; box-shadow:0 25px 60px -12px rgba(0,0,0,0.2); position:relative;">
+        <button onclick="closePredictionModal()" style="position:absolute; top:20px; right:20px; background:rgba(0,0,0,0.05); border:none; color:#64748b; font-size:20px; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="ph ph-x"></i></button>
         
-        <div style="display:flex; align-items:center; gap:15px; margin-bottom:25px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:18px;">
-            <div id="predictHeaderIcon" style="background:rgba(4, 217, 146, 0.1); width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 20px rgba(4,217,146,0.2);">
-                <i id="predictIcon" class="ph-fill ph-clock" style="font-size:32px; color:var(--primary-green);"></i>
+        <div style="display:flex; align-items:center; gap:15px; margin-bottom:25px; border-bottom:1px solid rgba(0,0,0,0.06); padding-bottom:18px;">
+            <div id="predictHeaderIcon" style="background:rgba(4, 217, 146, 0.1); width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 20px rgba(4,217,146,0.15);">
+                <i id="predictIcon" class="ph-fill ph-clock" style="font-size:32px; color:#10b981;"></i>
             </div>
             <div>
-                <h2 id="predictTitleText" style="margin:0 0 4px 0; font-size:22px; color:#f8fafc; font-weight:700;">AI Date Prediction</h2>
-                <p id="predictJobNo" style="color:#94a3b8; font-size:14px; margin:0; font-family:monospace;"></p>
+                <h2 id="predictTitleText" style="margin:0 0 4px 0; font-size:22px; color:#1e293b; font-weight:700;">AI Date Prediction</h2>
+                <p id="predictJobNo" style="color:#64748b; font-size:14px; margin:0; font-family:monospace;"></p>
             </div>
         </div>
         
@@ -522,11 +522,11 @@ $total_pages = ceil($total_records / $records_per_page);
                 </div>
             </div>
 
-            <h4 style="margin:0 0 8px 0; color:#f8fafc; font-size:18px; font-weight:700;">AI Engine Processing</h4>
-            <p id="predictLoadingText" style="color:#94a3b8; font-size:14px; margin:0 0 20px 0; min-height:22px; font-weight:500;">Analyzing historical repair data & calculating metrics...</p>
+            <h4 style="margin:0 0 8px 0; color:#1e293b; font-size:18px; font-weight:700;">AI Engine Processing</h4>
+            <p id="predictLoadingText" style="color:#64748b; font-size:14px; margin:0 0 20px 0; min-height:22px; font-weight:500;">Analyzing historical repair data & calculating metrics...</p>
 
             <!-- Animated Progress Line -->
-            <div style="width:240px; height:4px; background:rgba(255,255,255,0.08); border-radius:10px; overflow:hidden; position:relative;">
+            <div style="width:240px; height:4px; background:rgba(0,0,0,0.06); border-radius:10px; overflow:hidden; position:relative;">
                 <div style="height:100%; background:linear-gradient(90deg, #10b981, #3b82f6, #8b5cf6); border-radius:10px; position:absolute; animation: progressSweep 1.5s ease-in-out infinite;"></div>
             </div>
         </div>
@@ -565,22 +565,22 @@ $total_pages = ceil($total_records / $records_per_page);
                 animation: dotPulse 2s ease-in-out infinite;
             }
             .timeline-line {
-                width: 2px; flex: 1; min-height: 28px; background: rgba(255,255,255,0.08); margin-top: 4px;
+                width: 2px; flex: 1; min-height: 28px; background: rgba(0,0,0,0.08); margin-top: 4px;
             }
             .timeline-card {
-                background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+                background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06);
                 border-radius: 12px; padding: 14px 18px; flex: 1; transition: 0.3s;
             }
             .timeline-card:hover {
-                background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12);
+                background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.10);
             }
             .timeline-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; margin-bottom: 4px; }
-            .timeline-value { color: #f1f5f9; font-size: 15px; font-weight: 600; }
+            .timeline-value { color: #1e293b; font-size: 15px; font-weight: 600; }
             .ai-divider {
                 display: flex; align-items: center; gap: 12px; margin: 22px 0;
                 animation: timelineFadeIn 0.5s ease-out 0.5s both;
             }
-            .ai-divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(16,185,129,0.4), transparent); }
+            .ai-divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(16,185,129,0.35), transparent); }
             .ai-divider-badge {
                 display: flex; align-items: center; gap: 6px; background: rgba(16,185,129,0.1);
                 border: 1px solid rgba(16,185,129,0.25); border-radius: 20px; padding: 6px 16px;
@@ -654,14 +654,14 @@ $total_pages = ceil($total_records / $records_per_page);
             <!-- Result Cards -->
             <div style="display:flex; flex-direction:column; gap:12px;">
                 <!-- Date Result -->
-                <div id="cardPredictDate" class="result-card" style="background:linear-gradient(135deg, rgba(4,217,146,0.08), rgba(16,185,129,0.04)); border:1px solid rgba(4,217,146,0.25); animation-delay:0.6s;">
+                <div id="cardPredictDate" class="result-card" style="background:linear-gradient(135deg, rgba(4,217,146,0.06), rgba(16,185,129,0.02)); border:1px solid rgba(4,217,146,0.3); animation-delay:0.6s;">
                     <div style="display:flex; align-items:center; justify-content:space-between;">
                         <div>
-                            <div style="font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:#10b981; margin-bottom:8px; font-weight:700;">Completion Estimate</div>
+                            <div style="font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:#059669; margin-bottom:8px; font-weight:700;">Completion Estimate</div>
                             <div style="display:flex; align-items:baseline; gap:10px;">
-                                <span id="resDate" style="color:#f8fafc; font-size:28px; font-weight:800; line-height:1;"></span>
+                                <span id="resDate" style="color:#1e293b; font-size:28px; font-weight:800; line-height:1;"></span>
                             </div>
-                            <div style="color:#94a3b8; font-size:13px; margin-top:6px;">Takes approx <span id="resRaw" style="color:#10b981; font-weight:700;"></span> days to repair</div>
+                            <div style="color:#64748b; font-size:13px; margin-top:6px;">Takes approx <span id="resRaw" style="color:#059669; font-weight:700;"></span> days to repair</div>
                         </div>
                         <div style="width:48px; height:48px; border-radius:14px; background:rgba(16,185,129,0.15); display:flex; align-items:center; justify-content:center; animation: glowPulse 2.5s ease-in-out infinite;">
                             <i class="ph-fill ph-calendar-check" style="color:#10b981; font-size:24px;"></i>
@@ -670,11 +670,11 @@ $total_pages = ceil($total_records / $records_per_page);
                 </div>
 
                 <!-- Cost Result -->
-                <div id="cardPredictCost" class="result-card" style="background:linear-gradient(135deg, rgba(168,85,247,0.08), rgba(139,92,246,0.04)); border:1px solid rgba(168,85,247,0.25); animation-delay:0.7s;">
+                <div id="cardPredictCost" class="result-card" style="background:linear-gradient(135deg, rgba(168,85,247,0.06), rgba(139,92,246,0.02)); border:1px solid rgba(168,85,247,0.3); animation-delay:0.7s;">
                     <div style="display:flex; align-items:center; justify-content:space-between;">
                         <div>
-                            <div style="font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:#c084fc; margin-bottom:8px; font-weight:700;">Estimated Cost</div>
-                            <div id="resCost" style="color:#f8fafc; font-size:26px; font-weight:800;"></div>
+                            <div style="font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:#7c3aed; margin-bottom:8px; font-weight:700;">Estimated Cost</div>
+                            <div id="resCost" style="color:#1e293b; font-size:26px; font-weight:800;"></div>
                         </div>
                         <div style="width:48px; height:48px; border-radius:14px; background:rgba(168,85,247,0.15); display:flex; align-items:center; justify-content:center;">
                             <i class="ph-fill ph-currency-dollar" style="color:#c084fc; font-size:24px;"></i>
@@ -683,11 +683,11 @@ $total_pages = ceil($total_records / $records_per_page);
                 </div>
 
                 <!-- Parts Result -->
-                <div id="cardPredictParts" class="result-card" style="background:linear-gradient(135deg, rgba(59,130,246,0.08), rgba(37,99,235,0.04)); border:1px solid rgba(59,130,246,0.25); animation-delay:0.8s;">
+                <div id="cardPredictParts" class="result-card" style="background:linear-gradient(135deg, rgba(59,130,246,0.06), rgba(37,99,235,0.02)); border:1px solid rgba(59,130,246,0.3); animation-delay:0.8s;">
                     <div style="display:flex; align-items:center; justify-content:space-between;">
                         <div>
-                            <div style="font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:#60a5fa; margin-bottom:8px; font-weight:700;">Required Parts</div>
-                            <div id="resParts" style="color:#f8fafc; font-size:17px; font-weight:700;"></div>
+                            <div style="font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:#2563eb; margin-bottom:8px; font-weight:700;">Required Parts</div>
+                            <div id="resParts" style="color:#1e293b; font-size:17px; font-weight:700;"></div>
                         </div>
                         <div style="width:48px; height:48px; border-radius:14px; background:rgba(59,130,246,0.15); display:flex; align-items:center; justify-content:center;">
                             <i class="ph-fill ph-wrench" style="color:#60a5fa; font-size:24px;"></i>
