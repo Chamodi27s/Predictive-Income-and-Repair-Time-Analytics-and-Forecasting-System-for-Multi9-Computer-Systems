@@ -859,7 +859,6 @@ if (
         ⏳ Connecting to the ML prediction service...
     </div>
 
-
     <div class="predict-card">
 
         <?php if ($job_data): ?>
@@ -867,7 +866,6 @@ if (
             <div class="section-title">
                 📋 Job Information
             </div>
-
             <div class="info-grid">
 
                 <div class="info-item">
@@ -903,7 +901,6 @@ if (
 
 
             <div class="device-list">
-
                 <div class="device-list-title">
                     📱 Devices in This Job
                 </div>
@@ -949,7 +946,6 @@ if (
                                         ) ?>
                                     </div>
                                 </div>
-
                             </div>
 
                             <span class="badge <?= $badgeClass ?>">
@@ -984,7 +980,6 @@ if (
                 🤖 ML Prediction
             </div>
 
-
             <form method="POST">
 
                 <button
@@ -1000,6 +995,7 @@ if (
                         Checking ML API...
                     </span>
                 </button>
+                </button>
 
             </form>
 
@@ -1008,6 +1004,7 @@ if (
 
                 <div class="error-box">
                     <?= htmlspecialchars($predict_err) ?>
+                </div>
                 </div>
 
             <?php endif; ?>

@@ -272,14 +272,14 @@ $result = mysqli_query($conn, $sql);
 
 <div class="page-container">
     <div class="page-header">
-        <h1>🗑️ Destroyed Items</h1>
+        <h1> Destroyed Items</h1>
         <p>Records of permanently destroyed devices</p>
     </div>
 </div>
 
 <div class="container">
     <div class="table-header-flex">
-        <h2 class="header-title">📋 Destroyed Items Records</h2>
+        <h2 class="header-title"> Destroyed Items Records</h2>
         <div class="search-container">
             <span class="search-icon">🔍</span>
             <input type="text" id="searchInput" class="search-input" placeholder="Search by Job No, Customer, Device...">
@@ -309,7 +309,7 @@ $result = mysqli_query($conn, $sql);
                         </td>
                         <td>
                             <div class="device-info">
-                                <span class="device-name">📱 <?= htmlspecialchars($row['device_name']) ?></span><br>
+                                <span class="device-name"> <?= htmlspecialchars($row['device_name']) ?></span><br>
                                 <span class="device-issue" style="font-size: 12px; opacity: 0.8;"><?= htmlspecialchars($row['issue_name']) ?></span>
                             </div>
                         </td>

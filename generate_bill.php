@@ -261,14 +261,14 @@ foreach($saved_items as $it) { $parts_sum += floatval($it['sub']); }
 
         <div class="no-print" style="margin-top: 30px; display: flex; gap: 10px; justify-content: flex-end;">
             <?php if (!$invoice_saved): ?>
-                <button type="submit" name="save_invoice" class="btn" style="background:#065f46; color:white; flex:1;">💾 SAVE & SEND SMS</button>
+                <button type="submit" name="save_invoice" class="btn" style="background:#065f46; color:white; flex:1;"> SAVE & SEND SMS</button>
             <?php else: ?>
-                <button type="button" onclick="window.print()" class="btn" style="background:#3498db; color:white;">🖨️ PRINT INVOICE</button>
+                <button type="button" onclick="window.print()" class="btn" style="background:#3498db; color:white;"> PRINT INVOICE</button>
                 <?php if ($pay_status !== 'Paid'): ?>
-                    <button type="button" onclick="document.getElementById('payForm').submit();" class="btn btn-paid">✅ MARK AS PAID</button>
+                    <button type="button" onclick="document.getElementById('payForm').submit();" class="btn btn-paid"> MARK AS PAID</button>
                 <?php endif; ?>
             <?php endif; ?>
-            <a href="invoice_list.php" class="btn" style="background:#6c757d; color:white;">⬅ BACK</a>
+            <a href="invoice_list.php" class="btn" style="background:#6c757d; color:white;"> BACK</a>
         </div>
     </form>
     

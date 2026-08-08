@@ -56,10 +56,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $final_issue_name = $row ? $row['issue_name'] : $issue_val;
                 }
                 
-                // Warranty, Description and anothre notr
-                $warranty = isset($_POST['warranty'][$key]) ? mysqli_real_escape_string($conn, $_POST['warranty'][$key]) : 'No Warranty';
+                // Warranty, Description, Notes and New Fields
+                $warranty = isset($_POST['warranty'][$key]) ? mysqli_real_escape_string($conn, $_POST['warranty'][$key]) : 'No';
                 $description = isset($_POST['descriptions'][$key]) ? mysqli_real_escape_string($conn, $_POST['descriptions'][$key]) : '';
                 $another_note = isset($_POST['another_notes'][$key]) ? mysqli_real_escape_string($conn, $_POST['another_notes'][$key]) : '';
+                $item_model = isset($_POST['item_models'][$key]) ? mysqli_real_escape_string($conn, $_POST['item_models'][$key]) : '';
+                $repair_path = isset($_POST['repair_paths'][$key]) ? mysqli_real_escape_string($conn, $_POST['repair_paths'][$key]) : 'Carry-In';
+                $solution = isset($_POST['solutions'][$key]) ? mysqli_real_escape_string($conn, $_POST['solutions'][$key]) : '';
                 
                 $img_name = ""; 
 
@@ -75,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     move_uploaded_file($_FILES['device_images']['tmp_name'][$key], $target_file);
                 }
 
-                
+                // job_device table එකට ඇතුළත් කිරීම
                 $sql_device = "INSERT INTO job_device (job_no, device_name, issue_name, device_status, warranty_status, description, another_note, device_image) 
                                VALUES ('$job_no', '$device_name', '$final_issue_name', 'Pending', '$warranty', '$description', '$another_note', '$img_name')";
                 

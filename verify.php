@@ -48,20 +48,38 @@ if (isset($_POST['verify'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Verify OTP | Multi9 Systems</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background: rgba(50,50,50,0.25); backdrop-filter: blur(16px); padding: 40px; border-radius: 16px; width: 100%; max-width: 400px; text-align: center; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
-        h2 { color: #00ffe0; margin-top: 0; }
+        html { -webkit-text-size-adjust: 100%; }
+        body { font-family: 'Poppins', sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px; box-sizing: border-box; font-size:16px; }
+        .container { background: rgba(50,50,50,0.25); backdrop-filter: blur(16px); padding: 40px; border-radius: 16px; width: 100%; max-width: 420px; text-align: center; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+        h2 { color: #00ffe0; margin-top: 0; font-size: 22px; }
         .timer { font-size: 24px; font-weight: bold; color: #ff6b6b; margin: 20px 0; }
-        input[type="text"] { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #fff; text-align: center; font-size: 24px; letter-spacing: 8px; font-weight: bold; box-sizing: border-box; }
-        input[type="submit"] { width: 100%; padding: 12px; background: #1f7a63; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600; font-size: 16px; transition: 0.3s; }
+        input[type="text"] { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #fff; text-align: center; font-size: 24px; letter-spacing: 8px; font-weight: bold; box-sizing: border-box; }
+        input[type="submit"] { width: 100%; padding: 14px; background: #1f7a63; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600; font-size: 16px; transition: 0.3s; }
         input[type="submit"]:hover { background: #165e4d; }
-        .error-msg { color: #ff6b6b; background: rgba(255, 107, 107, 0.1); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; }
+        .error-msg { color: #ff6b6b; background: rgba(255, 107, 107, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 15px; }
         .resend-btn { color: #00ffe0; text-decoration: none; font-size: 14px; display: none; margin-top: 20px; font-weight: 500; }
         .resend-btn:hover { text-decoration: underline; }
+
+        @media (max-width: 480px) {
+            body { align-items: flex-start; padding-top: 32px; }
+            .container { padding: 22px; max-width: 100%; border-radius: 12px; }
+            h2 { font-size: 20px; }
+            .timer { font-size: 22px; margin: 16px 0; }
+            input[type="text"] { padding: 14px; font-size: 20px; letter-spacing: 6px; }
+            input[type="submit"] { padding: 14px; font-size: 16px; }
+            .error-msg { font-size: 14px; }
+            .resend-btn { font-size: 14px; }
+        }
+
+        @media (min-width: 481px) and (max-width: 991px) {
+            .container { padding: 28px; max-width: 460px; }
+            input[type="text"] { padding: 15px; }
+            input[type="submit"] { padding: 14px; }
+        }
     </style>
 </head>
 <body>
