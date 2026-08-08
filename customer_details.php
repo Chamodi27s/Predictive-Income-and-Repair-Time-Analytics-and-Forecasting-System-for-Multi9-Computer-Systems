@@ -284,9 +284,9 @@ $jobs = $jobsStmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Details - <?= htmlspecialchars($phone) ?></title>
+    <link rel="stylesheet" href="CSS/global.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #2ecc71; --primary-hover: #27ae60; --primary-dark: #229954;
             --success: #10b981; --success-hover: #059669; --danger: #ef4444;
@@ -296,7 +296,7 @@ $jobs = $jobsStmt->get_result();
             --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08); --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
-        body { background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); font-family: 'Inter', sans-serif; padding: 120px 40px 40px 40px; color: var(--text-main); line-height: 1.6; transition: background 0.3s ease; }
+        body { background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); font-family: 'Inter', sans-serif; padding: var(--nav-height, 100px) 40px 40px 40px; color: var(--text-main); line-height: 1.6; transition: background 0.3s ease; }
 
         body.dark-mode {
             --bg-main: #0b1329;
@@ -349,25 +349,27 @@ $jobs = $jobsStmt->get_result();
             color: #ffffff !important;
         }
 
-        .container { max-width: 1400px; margin: 0 auto; padding-bottom: 50px; }
-        .back-link { display:inline-flex; align-items:center; gap:8px; margin-bottom:30px; color:var(--primary); font-weight:700; text-decoration:none; font-size:15px; transition:0.3s; padding:10px 20px; background:rgba(46,204,113,0.1); border-radius:100px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; padding-bottom: 50px; }
+        .back-link { display:inline-flex; align-items:center; gap:8px; margin-bottom:30px; color:var(--primary); font-weight:700; text-decoration:none; font-size:15px; transition:0.3s; padding:10px 20px; background:rgba(46,204,113,0.1); border-radius:100px; margin-top: 15px; }
         .back-link:hover { background:rgba(46,204,113,0.2); }
         
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap:wrap; gap:20px; }
         .page-header h1 { font-size: 32px; font-weight: 800; display: flex; align-items: center; gap: 12px; margin-bottom:5px; color:var(--text-dark); }
         .page-header p { color:var(--text-muted); font-size:15px; margin-left:45px; }
         
+        .top-actions { display:flex; gap:12px; flex-wrap:wrap; }
+        
         .profile-layout { display: grid; grid-template-columns: 380px 1fr; gap: 40px; align-items: start; }
-        @media(max-width:992px) { .profile-layout { grid-template-columns: 1fr; } }
         
         .card { background: var(--card-bg); padding: 36px; border-radius: 24px; margin-bottom: 28px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); transition: all 0.3s ease; animation: fadeIn 0.5s ease-out; }
-        .profile-sidebar { position: sticky; top: 40px; }
+        .profile-sidebar { position: sticky; top: 120px; }
         
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 15px; }
         h2, h3 { font-weight: 800; color: var(--text-dark); display: flex; align-items: center; gap: 10px; }
         .form-group { margin-bottom: 24px; }
         label { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing:0.5px; color: var(--secondary); margin-bottom: 8px; display: block; }
-        input, textarea, select { width: 100%; padding: 14px 18px; border: 2px solid var(--border); border-radius: 14px; font-size: 15px; font-family: 'Inter', sans-serif; background: transparent; color:var(--text-main); transition:0.3s; }
+        
+        input, textarea, select { width: 100%; padding: 14px 18px; border: 2px solid var(--border); border-radius: 14px; font-size: 15px; font-family: 'Inter', sans-serif; background: transparent; color:var(--text-main); transition:0.3s; box-sizing: border-box; }
         input:focus, textarea:focus, select:focus { border-color:var(--primary); outline:none; box-shadow:0 0 0 4px rgba(46,204,113,0.1); }
         input[readonly], textarea[readonly] { border-color:transparent; background: rgba(0,0,0,0.02); }
         body.dark-mode input[readonly], body.dark-mode textarea[readonly] { background: rgba(255,255,255,0.02); }
@@ -377,11 +379,11 @@ $jobs = $jobsStmt->get_result();
         .device-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px; flex-wrap:wrap; gap:15px; }
         .device-name { font-size: 19px; font-weight: 800; }
         
-        .status-badge { padding: 8px 16px; border-radius: 100px; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing:0.5px; display:inline-flex; align-items:center; gap:6px; }
+        .status-badge { padding: 8px 16px; border-radius: 100px; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing:0.5px; display:inline-flex; align-items:center; gap:6px; white-space: nowrap; }
         .status-warranty { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
         .status-no-warranty { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
         
-        .btn { padding: 14px 28px; border-radius: 14px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; border: none; font-size:14px; transition:0.3s; }
+        .btn { padding: 14px 28px; border-radius: 14px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: none; font-size:14px; transition:0.3s; }
         .btn:hover { transform:translateY(-2px); box-shadow:0 10px 20px -10px rgba(0,0,0,0.3); }
         .btn-success { background: var(--success); color: white; }
         .btn-outline { border: 2px solid var(--border); color: var(--text-main); background: transparent; }
@@ -391,6 +393,72 @@ $jobs = $jobsStmt->get_result();
         .device-img:hover { transform: scale(1.05); }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ==================== RESPONSIVE QUERIES ==================== */
+
+        /* Tablet (≤ 1024px) */
+        @media (max-width: 1024px) {
+            .profile-layout { grid-template-columns: 1fr; gap: 20px; }
+            .profile-sidebar { position: static; }
+            body { padding-left: 20px; padding-right: 20px; }
+            .container { padding: 0 10px; }
+            .card { padding: 24px; margin-bottom: 20px; }
+        }
+
+        /* Mobile Landscape (≤ 768px) */
+        @media (max-width: 768px) {
+            body { padding: var(--nav-height, 100px) 15px 40px 15px; }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                margin-bottom: 25px;
+            }
+            .page-header h1 { font-size: 26px; margin-bottom: 0;}
+            .page-header p { margin-left: 0; margin-top: 5px; font-size: 14px; }
+            
+            .top-actions {
+                width: 100%;
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .top-actions .btn {
+                width: 100%;
+                justify-content: center;
+                padding: 12px;
+            }
+            
+            .card { padding: 20px; border-radius: 18px; }
+            
+            .grid-2 { grid-template-columns: 1fr; gap: 15px; }
+            
+            .device-box { padding: 20px; border-radius: 14px; }
+            
+            .device-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .card-header h3 { font-size: 16px; }
+            .card-header > div > div { flex-direction: column; gap: 5px !important; margin-top: 10px; }
+            
+            input, textarea, select { font-size: 15px; /* Prevent iOS zoom */ padding: 12px 14px; }
+        }
+
+        /* Mobile Portrait (≤ 480px) */
+        @media (max-width: 480px) {
+            body { padding: var(--nav-height, 100px) 10px 40px 10px; }
+            .container { padding: 0 5px; }
+            .page-header h1 { font-size: 22px; }
+            .card { padding: 16px; }
+            .device-box { padding: 16px; }
+            .device-name { font-size: 16px; }
+            .btn { padding: 12px; font-size: 13px; }
+            .back-link { margin-bottom: 20px; font-size: 14px; }
+        }
     </style>
 </head>
 <body>
