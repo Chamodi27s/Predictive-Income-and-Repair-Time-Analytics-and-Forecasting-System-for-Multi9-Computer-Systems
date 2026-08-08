@@ -677,7 +677,7 @@ $total_pages = ceil($total_records / $records_per_page);
                             <div id="resCost" style="color:#1e293b; font-size:26px; font-weight:800;"></div>
                         </div>
                         <div style="width:48px; height:48px; border-radius:14px; background:rgba(168,85,247,0.15); display:flex; align-items:center; justify-content:center;">
-                            <i class="ph-fill ph-currency-dollar" style="color:#c084fc; font-size:24px;"></i>
+                            <span style="color:#7c3aed; font-size:20px; font-weight:800; font-family:'Inter',sans-serif;">Rs</span>
                         </div>
                     </div>
                 </div>
