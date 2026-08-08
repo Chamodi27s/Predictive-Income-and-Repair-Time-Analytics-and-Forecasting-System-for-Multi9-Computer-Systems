@@ -498,7 +498,7 @@ $total_pages = ceil($total_records / $records_per_page);
         document.getElementById('predictModal').style.display = 'none';
     }
 </script>
-
+<?php include_once __DIR__ . '/chatbot.php'; ?>
 </body>
 
 </html>
