@@ -362,7 +362,7 @@ body.dark-mode .final-badge {
 <div class="page-container">
 
     <div class="page-header">
-        <h1>🧾 Invoice Management</h1>
+        <h1> Invoice Management</h1>
         <p>View invoices, payment status, late rent and final bill details</p>
     </div>
 
@@ -432,7 +432,7 @@ body.dark-mode .final-badge {
                         </td>
 
                         <td>
-                            <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&view_only=true" class="action-btn">👁️ View Bill</a>
+                            <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&view_only=true" class="action-btn"> View Bill</a>
                         </td>
                     </tr>
                     <?php endwhile; ?>
