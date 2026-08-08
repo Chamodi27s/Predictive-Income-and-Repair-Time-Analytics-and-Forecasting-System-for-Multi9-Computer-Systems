@@ -134,7 +134,7 @@ if (isset($_POST['confirm_destroy'])) {
     </div>
 
     <div class="warning-box">
-        මෙම පියවරෙන් පසු පද්ධතියේ මෙම දත්ත 'Destroyed' ලෙස සටහන් වන අතර නැවත සාමාන්‍ය ලැයිස්තුවට පෙන්වනු නොලැබේ.
+       After this step, this data will be marked as 'Destroyed' in the system and will no longer be shown in the normal list
     </div>
 
     <form method="POST">
