@@ -599,12 +599,12 @@ $total_pages = ceil($total_records / $records_per_page);
             }
         </style>
         <div id="predictResults" style="display:none; width:100%; margin-top:20px;">
-            <div id="cardPredictDate" class="minimal-summary-card" style="background: #ffffff; border: 1px solid #eaeaea; border-radius: 24px; padding: 40px; box-shadow: 0 12px 48px rgba(0,0,0,0.05); max-width: 550px; margin: 0 auto; width: 100%;">
+            <div id="cardPredictDate" class="minimal-summary-card" style="background: #ffffff; border: 1px solid #eaeaea; border-top: 5px solid #10b981; border-radius: 24px; padding: 40px; box-shadow: 0 12px 48px rgba(0,0,0,0.05); max-width: 550px; margin: 0 auto; width: 100%;">
                 
                 <div style="text-align: center; margin-bottom: 28px;">
-                    <div style="font-size: 13px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1.5px;">Completion Estimate</div>
-                    <div id="resDate" style="font-size: 48px; font-weight: 800; color: #111; margin-top: 8px; letter-spacing: -1px;"></div>
-                    <div style="font-size: 15px; color: #666; margin-top: 6px;">Takes approx <span id="resRaw" style="font-weight: 700; color: #111;"></span> days to repair</div>
+                    <div style="font-size: 13px; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 1.5px;">Completion Estimate</div>
+                    <div id="resDate" style="font-size: 48px; font-weight: 800; color: #064e3b; margin-top: 8px; letter-spacing: -1px;"></div>
+                    <div style="font-size: 15px; color: #047857; margin-top: 6px;">Takes approx <span id="resRaw" style="font-weight: 700; color: #064e3b;"></span> days to repair</div>
                 </div>
 
                 <div style="border-top: 1px dashed #e0e0e0; margin: 28px 0;"></div>
@@ -629,11 +629,11 @@ $total_pages = ceil($total_records / $records_per_page);
                 </div>
             </div>
 
-            <div id="cardPredictCost" class="minimal-summary-card" style="background: #ffffff; border: 1px solid #eaeaea; border-radius: 24px; padding: 40px; box-shadow: 0 12px 48px rgba(0,0,0,0.05); max-width: 550px; margin: 0 auto; width: 100%;">
+            <div id="cardPredictCost" class="minimal-summary-card" style="background: #ffffff; border: 1px solid #eaeaea; border-top: 5px solid #10b981; border-radius: 24px; padding: 40px; box-shadow: 0 12px 48px rgba(0,0,0,0.05); max-width: 550px; margin: 0 auto; width: 100%;">
                 
                 <div style="text-align: center; margin-bottom: 28px;">
-                    <div style="font-size: 13px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1.5px;">Estimated Cost</div>
-                    <div id="resCost" style="font-size: 54px; font-weight: 850; color: #111; margin-top: 8px; letter-spacing: -1.5px;"></div>
+                    <div style="font-size: 13px; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 1.5px;">Estimated Cost</div>
+                    <div id="resCost" style="font-size: 54px; font-weight: 850; color: #064e3b; margin-top: 8px; letter-spacing: -1.5px;"></div>
                 </div>
 
                 <div style="border-top: 1px dashed #e0e0e0; margin: 28px 0;"></div>
@@ -654,7 +654,7 @@ $total_pages = ceil($total_records / $records_per_page);
                     
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 20px; border-top: 1px solid #f0f0f0;">
                         <div style="font-size: 16px; font-weight: 600; color: #111;">Required Parts</div>
-                        <div id="resParts" style="font-size: 14px; font-weight: 700; color: #0f172a; background: #f1f5f9; padding: 8px 16px; border-radius: 8px;"></div>
+                        <div id="resParts" style="font-size: 14px; font-weight: 700; color: #047857; background: #d1fae5; padding: 8px 16px; border-radius: 8px;"></div>
                     </div>
                 </div>
             </div>
