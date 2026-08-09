@@ -691,7 +691,7 @@ $total_pages = ceil($total_records / $records_per_page);
             <div style="display:flex; flex-direction:column; gap:12px;">
                 <!-- Date Result -->
                 <div id="cardPredictDate" class="result-card" style="background:linear-gradient(135deg, rgba(4,217,146,0.06), rgba(16,185,129,0.02)); border:1px solid rgba(4,217,146,0.3); animation-delay:0.6s;">
-                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
                         <div>
                             <div style="font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:#059669; margin-bottom:8px; font-weight:700;">Completion Estimate</div>
                             <div style="display:flex; align-items:baseline; gap:10px;">
@@ -707,7 +707,7 @@ $total_pages = ceil($total_records / $records_per_page);
 
                 <!-- Cost Result -->
                 <div id="cardPredictCost" class="result-card" style="background:linear-gradient(135deg, rgba(168,85,247,0.06), rgba(139,92,246,0.02)); border:1px solid rgba(168,85,247,0.3); animation-delay:0.7s;">
-                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
                         <div>
                             <div style="font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:#7c3aed; margin-bottom:8px; font-weight:700;">Estimated Cost</div>
                             <div id="resCost" style="color:#1e293b; font-size:26px; font-weight:800;"></div>
@@ -720,7 +720,7 @@ $total_pages = ceil($total_records / $records_per_page);
 
                 <!-- Parts Result -->
                 <div id="cardPredictParts" class="result-card" style="background:linear-gradient(135deg, rgba(59,130,246,0.06), rgba(37,99,235,0.02)); border:1px solid rgba(59,130,246,0.3); animation-delay:0.8s;">
-                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
                         <div>
                             <div style="font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:#2563eb; margin-bottom:8px; font-weight:700;">Required Parts</div>
                             <div id="resParts" style="color:#1e293b; font-size:17px; font-weight:700;"></div>
