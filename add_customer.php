@@ -592,64 +592,69 @@ $total_pages = ceil($total_records / $records_per_page);
             }
             .result-card:hover { transform: translateY(-2px); }
         </style>
-
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+            .minimal-summary-card {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            }
+        </style>
         <div id="predictResults" style="display:none; width:100%; margin-top:20px;">
-            <div id="cardPredictDate" class="minimal-summary-card" style="background: #ffffff; border: 1px solid #eaeaea; border-radius: 20px; padding: 32px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); max-width: 440px; margin: 0 auto; width: 100%;">
+            <div id="cardPredictDate" class="minimal-summary-card" style="background: #ffffff; border: 1px solid #eaeaea; border-radius: 24px; padding: 40px; box-shadow: 0 12px 48px rgba(0,0,0,0.05); max-width: 550px; margin: 0 auto; width: 100%;">
                 
-                <div style="text-align: center; margin-bottom: 24px;">
-                    <div style="font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1.5px;">Completion Estimate</div>
-                    <div id="resDate" style="font-size: 38px; font-weight: 800; color: #111; margin-top: 6px; letter-spacing: -0.5px;"></div>
-                    <div style="font-size: 13px; color: #666; margin-top: 4px;">Takes approx <span id="resRaw" style="font-weight: 700; color: #111;"></span> days to repair</div>
+                <div style="text-align: center; margin-bottom: 28px;">
+                    <div style="font-size: 13px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1.5px;">Completion Estimate</div>
+                    <div id="resDate" style="font-size: 48px; font-weight: 800; color: #111; margin-top: 8px; letter-spacing: -1px;"></div>
+                    <div style="font-size: 15px; color: #666; margin-top: 6px;">Takes approx <span id="resRaw" style="font-weight: 700; color: #111;"></span> days to repair</div>
                 </div>
 
-                <div style="border-top: 1px dashed #e0e0e0; margin: 24px 0;"></div>
+                <div style="border-top: 1px dashed #e0e0e0; margin: 28px 0;"></div>
                 
-                <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div style="display: flex; flex-direction: column; gap: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="font-size: 14px; color: #666;">Reported Fault</div>
-                        <div id="resFault" style="font-size: 14px; font-weight: 600; color: #222; text-align: right; max-width: 60%;"></div>
+                        <div style="font-size: 16px; color: #666;">Reported Fault</div>
+                        <div id="resFault" style="font-size: 16px; font-weight: 600; color: #222; text-align: right; max-width: 60%;"></div>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="font-size: 14px; color: #666;">Assigned Technician</div>
-                        <div id="resTech" style="font-size: 14px; font-weight: 600; color: #222;"></div>
+                        <div style="font-size: 16px; color: #666;">Assigned Technician</div>
+                        <div id="resTech" style="font-size: 16px; font-weight: 600; color: #222;"></div>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="font-size: 14px; color: #666;">Repair Pathway</div>
-                        <div id="resPath" style="font-size: 14px; font-weight: 600; color: #222;"></div>
+                        <div style="font-size: 16px; color: #666;">Repair Pathway</div>
+                        <div id="resPath" style="font-size: 16px; font-weight: 600; color: #222;"></div>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="font-size: 14px; color: #666;">Expected Solution</div>
-                        <div id="resSolution" style="font-size: 14px; font-weight: 600; color: #222; text-align: right; max-width: 60%;"></div>
+                        <div style="font-size: 16px; color: #666;">Expected Solution</div>
+                        <div id="resSolution" style="font-size: 16px; font-weight: 600; color: #222; text-align: right; max-width: 60%;"></div>
                     </div>
                 </div>
             </div>
 
-            <div id="cardPredictCost" class="minimal-summary-card" style="background: #ffffff; border: 1px solid #eaeaea; border-radius: 20px; padding: 32px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); max-width: 440px; margin: 0 auto; width: 100%;">
+            <div id="cardPredictCost" class="minimal-summary-card" style="background: #ffffff; border: 1px solid #eaeaea; border-radius: 24px; padding: 40px; box-shadow: 0 12px 48px rgba(0,0,0,0.05); max-width: 550px; margin: 0 auto; width: 100%;">
                 
-                <div style="text-align: center; margin-bottom: 24px;">
-                    <div style="font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1.5px;">Estimated Cost</div>
-                    <div id="resCost" style="font-size: 42px; font-weight: 850; color: #111; margin-top: 6px; letter-spacing: -1px;"></div>
+                <div style="text-align: center; margin-bottom: 28px;">
+                    <div style="font-size: 13px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1.5px;">Estimated Cost</div>
+                    <div id="resCost" style="font-size: 54px; font-weight: 850; color: #111; margin-top: 8px; letter-spacing: -1.5px;"></div>
                 </div>
 
-                <div style="border-top: 1px dashed #e0e0e0; margin: 24px 0;"></div>
+                <div style="border-top: 1px dashed #e0e0e0; margin: 28px 0;"></div>
                 
-                <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div style="display: flex; flex-direction: column; gap: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="font-size: 14px; color: #666;">Device Type</div>
-                        <div id="resDeviceType" style="font-size: 14px; font-weight: 600; color: #222;"></div>
+                        <div style="font-size: 16px; color: #666;">Device Type</div>
+                        <div id="resDeviceType" style="font-size: 16px; font-weight: 600; color: #222;"></div>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="font-size: 14px; color: #666;">Item Model</div>
-                        <div id="resItemModel" style="font-size: 14px; font-weight: 600; color: #222;"></div>
+                        <div style="font-size: 16px; color: #666;">Item Model</div>
+                        <div id="resItemModel" style="font-size: 16px; font-weight: 600; color: #222;"></div>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="font-size: 14px; color: #666;">Reported Fault</div>
-                        <div id="resFaultCost" style="font-size: 14px; font-weight: 600; color: #222; text-align: right; max-width: 60%;"></div>
+                        <div style="font-size: 16px; color: #666;">Reported Fault</div>
+                        <div id="resFaultCost" style="font-size: 16px; font-weight: 600; color: #222; text-align: right; max-width: 60%;"></div>
                     </div>
                     
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 16px; border-top: 1px solid #f0f0f0;">
-                        <div style="font-size: 14px; font-weight: 600; color: #111;">Required Parts</div>
-                        <div id="resParts" style="font-size: 12px; font-weight: 700; color: #0f172a; background: #f1f5f9; padding: 6px 12px; border-radius: 6px;"></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 20px; border-top: 1px solid #f0f0f0;">
+                        <div style="font-size: 16px; font-weight: 600; color: #111;">Required Parts</div>
+                        <div id="resParts" style="font-size: 14px; font-weight: 700; color: #0f172a; background: #f1f5f9; padding: 8px 16px; border-radius: 8px;"></div>
                     </div>
                 </div>
             </div>
