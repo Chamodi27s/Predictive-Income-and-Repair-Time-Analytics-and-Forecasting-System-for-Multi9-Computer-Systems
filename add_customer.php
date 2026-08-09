@@ -594,8 +594,8 @@ $total_pages = ceil($total_records / $records_per_page);
         </style>
 
         <div id="predictResults" style="display:none; flex-direction:column; gap:0;">
-            <!-- Timeline Steps -->
-            <div style="display:flex; flex-direction:column; gap:0;">
+            <!-- Timeline Steps for Date Prediction -->
+            <div id="timelineDateSteps" style="display:flex; flex-direction:column; gap:0;">
                 <!-- Step 1: Reported Fault -->
                 <div class="timeline-step">
                     <div class="timeline-dot-wrap">
@@ -637,6 +637,42 @@ $total_pages = ceil($total_records / $records_per_page);
                     <div class="timeline-card" style="border-left: 3px solid #14b8a6;">
                         <div class="timeline-label" style="color: #2dd4bf;">Expected Solution</div>
                         <div class="timeline-value" id="resSolution"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Steps for Cost & Parts Prediction -->
+            <div id="timelineCostSteps" style="display:flex; flex-direction:column; gap:0;">
+                <!-- Step 1: Device Type -->
+                <div class="timeline-step">
+                    <div class="timeline-dot-wrap">
+                        <div class="timeline-dot" style="background: linear-gradient(135deg, #60a5fa, #3b82f6); box-shadow: 0 0 10px rgba(59,130,246,0.4);"></div>
+                        <div class="timeline-line"></div>
+                    </div>
+                    <div class="timeline-card" style="border-left: 3px solid #3b82f6;">
+                        <div class="timeline-label" style="color: #60a5fa;">Device Type</div>
+                        <div class="timeline-value" id="resDeviceType"></div>
+                    </div>
+                </div>
+                <!-- Step 2: Item Model -->
+                <div class="timeline-step">
+                    <div class="timeline-dot-wrap">
+                        <div class="timeline-dot" style="background: linear-gradient(135deg, #c084fc, #a855f7); box-shadow: 0 0 10px rgba(168,85,247,0.4);"></div>
+                        <div class="timeline-line"></div>
+                    </div>
+                    <div class="timeline-card" style="border-left: 3px solid #a855f7;">
+                        <div class="timeline-label" style="color: #c084fc;">Item Model</div>
+                        <div class="timeline-value" id="resItemModel"></div>
+                    </div>
+                </div>
+                <!-- Step 3: Reported Fault -->
+                <div class="timeline-step">
+                    <div class="timeline-dot-wrap">
+                        <div class="timeline-dot" style="background: linear-gradient(135deg, #f87171, #ef4444); box-shadow: 0 0 10px rgba(239,68,68,0.4);"></div>
+                    </div>
+                    <div class="timeline-card" style="border-left: 3px solid #ef4444;">
+                        <div class="timeline-label" style="color: #f87171;">Reported Fault</div>
+                        <div class="timeline-value" id="resFaultCost"></div>
                     </div>
                 </div>
             </div>
@@ -720,6 +756,9 @@ $total_pages = ceil($total_records / $records_per_page);
         const cardCost = document.getElementById('cardPredictCost');
         const cardParts = document.getElementById('cardPredictParts');
 
+        const timelineDate = document.getElementById('timelineDateSteps');
+        const timelineCost = document.getElementById('timelineCostSteps');
+
         if (mode === 'cost') {
             if (titleEl) titleEl.innerText = "AI Cost & Parts Prediction";
             if (iconEl) iconEl.className = "ph-fill ph-currency-dollar";
@@ -731,6 +770,9 @@ $total_pages = ceil($total_records / $records_per_page);
             if (cardDate) cardDate.style.display = 'none';
             if (cardCost) cardCost.style.display = 'flex';
             if (cardParts) cardParts.style.display = 'block';
+
+            if (timelineDate) timelineDate.style.display = 'none';
+            if (timelineCost) timelineCost.style.display = 'flex';
         } else {
             if (titleEl) titleEl.innerText = "AI Date Prediction";
             if (iconEl) iconEl.className = "ph-fill ph-clock";
@@ -742,6 +784,9 @@ $total_pages = ceil($total_records / $records_per_page);
             if (cardDate) cardDate.style.display = 'flex';
             if (cardCost) cardCost.style.display = 'none';
             if (cardParts) cardParts.style.display = 'none';
+
+            if (timelineDate) timelineDate.style.display = 'flex';
+            if (timelineCost) timelineCost.style.display = 'none';
         }
     }
 
@@ -782,12 +827,18 @@ $total_pages = ceil($total_records / $records_per_page);
                 if(data.status === 'success') {
                     document.getElementById('predictResults').style.display = 'flex';
                     
+                    // Date prediction fields
                     document.getElementById('resFault').innerText = data.issue;
                     document.getElementById('resPath').innerText = data.repair_path;
                     document.getElementById('resTech').innerText = data.technician;
                     document.getElementById('resSolution').innerText = data.solution;
                     document.getElementById('resRaw').innerText = data.days;
                     document.getElementById('resDate').innerText = data.completion_date;
+
+                    // Cost prediction fields
+                    document.getElementById('resDeviceType').innerText = data.device;
+                    document.getElementById('resItemModel').innerText = data.model;
+                    document.getElementById('resFaultCost').innerText = data.issue;
 
                     document.getElementById('resCost').innerText = 'Rs. ' + data.cost;
                     document.getElementById('resParts').innerText = data.parts;
