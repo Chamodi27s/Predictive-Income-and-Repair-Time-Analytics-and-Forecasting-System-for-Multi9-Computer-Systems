@@ -593,54 +593,64 @@ $total_pages = ceil($total_records / $records_per_page);
             .result-card:hover { transform: translateY(-2px); }
         </style>
 
-        <div id="predictResults" style="display:none; width:100%; border:1px solid #e2e8f0; border-radius:16px; background:#ffffff; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.03); margin-top:20px;">
-            <div style="display:flex; width:100%;">
-                <!-- Left Side: Inputs -->
-                <div style="flex:1; padding:30px; background:#f8fafc; border-right:1px solid #e2e8f0; display:flex; flex-direction:column; gap:24px;">
-                    <div style="font-size:11px; font-weight:700; color:#94a3b8; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">Prediction Inputs</div>
-                    
-                    <div id="inputDateContainer" style="display:flex; flex-direction:column; gap:20px;">
-                        <div><div style="font-size:10px; font-weight:700; color:#94a3b8; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">Reported Fault</div><div id="resFault" style="font-size:14px; font-weight:600; color:#334155;"></div></div>
-                        <div><div style="font-size:10px; font-weight:700; color:#94a3b8; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">Assigned Technician</div><div id="resTech" style="font-size:14px; font-weight:600; color:#334155;"></div></div>
-                        <div><div style="font-size:10px; font-weight:700; color:#94a3b8; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">Repair Pathway</div><div id="resPath" style="font-size:14px; font-weight:600; color:#334155;"></div></div>
-                        <div><div style="font-size:10px; font-weight:700; color:#94a3b8; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">Expected Solution</div><div id="resSolution" style="font-size:14px; font-weight:600; color:#334155;"></div></div>
-                    </div>
-
-                    <div id="inputCostContainer" style="display:flex; flex-direction:column; gap:20px;">
-                        <div><div style="font-size:10px; font-weight:700; color:#94a3b8; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">Device Type</div><div id="resDeviceType" style="font-size:14px; font-weight:600; color:#334155;"></div></div>
-                        <div><div style="font-size:10px; font-weight:700; color:#94a3b8; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">Item Model</div><div id="resItemModel" style="font-size:14px; font-weight:600; color:#334155;"></div></div>
-                        <div><div style="font-size:10px; font-weight:700; color:#94a3b8; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">Reported Fault</div><div id="resFaultCost" style="font-size:14px; font-weight:600; color:#334155;"></div></div>
-                    </div>
+        <div id="predictResults" style="display:none; width:100%; margin-top:20px;">
+            <div id="cardPredictDate" class="minimal-summary-card" style="background: #ffffff; border: 1px solid #eaeaea; border-radius: 20px; padding: 32px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); max-width: 440px; margin: 0 auto; width: 100%;">
+                
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <div style="font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1.5px;">Completion Estimate</div>
+                    <div id="resDate" style="font-size: 38px; font-weight: 800; color: #111; margin-top: 6px; letter-spacing: -0.5px;"></div>
+                    <div style="font-size: 13px; color: #666; margin-top: 4px;">Takes approx <span id="resRaw" style="font-weight: 700; color: #111;"></span> days to repair</div>
                 </div>
 
-                <!-- Right Side: Outputs -->
-                <div style="flex:1.4; padding:36px 40px; display:flex; flex-direction:column; justify-content:center;">
+                <div style="border-top: 1px dashed #e0e0e0; margin: 24px 0;"></div>
+                
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 14px; color: #666;">Reported Fault</div>
+                        <div id="resFault" style="font-size: 14px; font-weight: 600; color: #222; text-align: right; max-width: 60%;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 14px; color: #666;">Assigned Technician</div>
+                        <div id="resTech" style="font-size: 14px; font-weight: 600; color: #222;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 14px; color: #666;">Repair Pathway</div>
+                        <div id="resPath" style="font-size: 14px; font-weight: 600; color: #222;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 14px; color: #666;">Expected Solution</div>
+                        <div id="resSolution" style="font-size: 14px; font-weight: 600; color: #222; text-align: right; max-width: 60%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="cardPredictCost" class="minimal-summary-card" style="background: #ffffff; border: 1px solid #eaeaea; border-radius: 20px; padding: 32px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); max-width: 440px; margin: 0 auto; width: 100%;">
+                
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <div style="font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1.5px;">Estimated Cost</div>
+                    <div id="resCost" style="font-size: 42px; font-weight: 850; color: #111; margin-top: 6px; letter-spacing: -1px;"></div>
+                </div>
+
+                <div style="border-top: 1px dashed #e0e0e0; margin: 24px 0;"></div>
+                
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 14px; color: #666;">Device Type</div>
+                        <div id="resDeviceType" style="font-size: 14px; font-weight: 600; color: #222;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 14px; color: #666;">Item Model</div>
+                        <div id="resItemModel" style="font-size: 14px; font-weight: 600; color: #222;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 14px; color: #666;">Reported Fault</div>
+                        <div id="resFaultCost" style="font-size: 14px; font-weight: 600; color: #222; text-align: right; max-width: 60%;"></div>
+                    </div>
                     
-                    <div id="cardPredictDate" style="display:flex; flex-direction:column; gap:8px;">
-                        <div style="font-size:11px; font-weight:700; color:#059669; letter-spacing:1px; text-transform:uppercase; display:flex; align-items:center; gap:6px;">
-                            <i class="ph-fill ph-check-circle"></i> Completion Estimate
-                        </div>
-                        <div id="resDate" style="font-size:38px; font-weight:800; color:#0f172a; letter-spacing:-1px;"></div>
-                        <div style="font-size:13px; color:#64748b; font-weight:500;">Takes approx <span id="resRaw" style="color:#0f172a; font-weight:700;"></span> days to repair</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 16px; border-top: 1px solid #f0f0f0;">
+                        <div style="font-size: 14px; font-weight: 600; color: #111;">Required Parts</div>
+                        <div id="resParts" style="font-size: 12px; font-weight: 700; color: #0f172a; background: #f1f5f9; padding: 6px 12px; border-radius: 6px;"></div>
                     </div>
-
-                    <div id="cardPredictCost" style="display:flex; flex-direction:column; gap:20px;">
-                        <div style="display:flex; flex-direction:column; gap:8px;">
-                            <div style="font-size:11px; font-weight:700; color:#7c3aed; letter-spacing:1px; text-transform:uppercase; display:flex; align-items:center; gap:6px;">
-                                <i class="ph-fill ph-lightning"></i> Estimated Cost
-                            </div>
-                            <div id="resCost" style="font-size:44px; font-weight:850; color:#0f172a; letter-spacing:-1.5px;"></div>
-                            <div style="font-size:13px; color:#64748b; font-weight:500;">Cost calculated via AI engine.</div>
-                        </div>
-                        
-                        <div style="height:1px; background:#e2e8f0; width:100%; margin:4px 0;"></div>
-                        
-                        <div id="cardPredictParts" style="display:flex; flex-direction:column; gap:8px;">
-                            <div style="font-size:10px; font-weight:700; color:#94a3b8; letter-spacing:1px; text-transform:uppercase;">Required Parts</div>
-                            <div id="resParts" style="font-size:13px; font-weight:600; color:#2563eb; background:#eff6ff; padding:8px 16px; border-radius:20px; display:inline-block; align-self:flex-start;"></div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>
@@ -667,35 +677,26 @@ $total_pages = ceil($total_records / $records_per_page);
         const cardDate = document.getElementById('cardPredictDate');
         const cardCost = document.getElementById('cardPredictCost');
 
-        const inputDate = document.getElementById('inputDateContainer');
-        const inputCost = document.getElementById('inputCostContainer');
-
         if (mode === 'cost') {
             if (titleEl) titleEl.innerText = "AI Cost & Parts Prediction";
             if (iconEl) iconEl.className = "ph-fill ph-currency-dollar";
-            if (iconEl) iconEl.style.color = "#c084fc";
+            if (iconEl) iconEl.style.color = "#111";
             if (iconBox) {
-                iconBox.style.background = "rgba(168, 85, 247, 0.1)";
-                iconBox.style.boxShadow = "0 0 20px rgba(168, 85, 247, 0.2)";
+                iconBox.style.background = "#f1f5f9";
+                iconBox.style.boxShadow = "none";
             }
             if (cardDate) cardDate.style.display = 'none';
-            if (cardCost) cardCost.style.display = 'flex';
-
-            if (inputDate) inputDate.style.display = 'none';
-            if (inputCost) inputCost.style.display = 'flex';
+            if (cardCost) cardCost.style.display = 'block';
         } else {
             if (titleEl) titleEl.innerText = "AI Date Prediction";
             if (iconEl) iconEl.className = "ph-fill ph-clock";
-            if (iconEl) iconEl.style.color = "var(--primary-green)";
+            if (iconEl) iconEl.style.color = "#111";
             if (iconBox) {
-                iconBox.style.background = "rgba(4, 217, 146, 0.1)";
-                iconBox.style.boxShadow = "0 0 20px rgba(4, 217, 146, 0.2)";
+                iconBox.style.background = "#f1f5f9";
+                iconBox.style.boxShadow = "none";
             }
-            if (cardDate) cardDate.style.display = 'flex';
+            if (cardDate) cardDate.style.display = 'block';
             if (cardCost) cardCost.style.display = 'none';
-
-            if (inputDate) inputDate.style.display = 'flex';
-            if (inputCost) inputCost.style.display = 'none';
         }
     }
 
