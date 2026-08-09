@@ -706,14 +706,14 @@ $total_pages = ceil($total_records / $records_per_page);
                 </div>
 
                 <!-- Cost Result -->
-                <div id="cardPredictCost" class="result-card" style="background:linear-gradient(135deg, rgba(168,85,247,0.06), rgba(139,92,246,0.02)); border:1px solid rgba(168,85,247,0.3); animation-delay:0.7s;">
+                <div id="cardPredictCost" class="result-card" style="background:linear-gradient(135deg, rgba(168,85,247,0.12), rgba(124,58,237,0.04)); border:1.5px solid rgba(168,85,247,0.4); box-shadow: 0 10px 30px -10px rgba(124,58,237,0.2); padding:28px 30px; animation-delay:0.7s;">
                     <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
                         <div>
-                            <div style="font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:#7c3aed; margin-bottom:8px; font-weight:700;">Estimated Cost</div>
-                            <div id="resCost" style="color:#1e293b; font-size:26px; font-weight:800;"></div>
+                            <div style="font-size:13px; text-transform:uppercase; letter-spacing:1.5px; color:#7c3aed; margin-bottom:8px; font-weight:800;">Estimated Cost</div>
+                            <div id="resCost" style="color:#1e293b; font-size:36px; font-weight:850; letter-spacing:-0.5px;"></div>
                         </div>
-                        <div style="width:48px; height:48px; border-radius:14px; background:rgba(168,85,247,0.15); display:flex; align-items:center; justify-content:center;">
-                            <span style="color:#7c3aed; font-size:20px; font-weight:800; font-family:'Inter',sans-serif;">Rs</span>
+                        <div style="width:52px; height:52px; border-radius:16px; background:rgba(124,58,237,0.15); display:flex; align-items:center; justify-content:center; box-shadow: 0 0 15px rgba(124,58,237,0.15);">
+                            <span style="color:#7c3aed; font-size:22px; font-weight:850; font-family:'Inter',sans-serif;">Rs</span>
                         </div>
                     </div>
                 </div>
