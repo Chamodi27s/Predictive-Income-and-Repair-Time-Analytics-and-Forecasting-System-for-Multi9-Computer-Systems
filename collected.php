@@ -21,10 +21,14 @@ if(isset($_GET['range'])) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jobs Management | Smart Repair</title>
-<link rel="stylesheet" href="CSS/global.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
 :root {
     --primary: #2ecc71;
@@ -47,7 +51,7 @@ if(isset($_GET['range'])) {
 body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
-    padding: var(--nav-height) 20px 40px;
+    padding: 140px 20px 40px;
     color: var(--text-main);
 }
 
@@ -60,6 +64,7 @@ body {
     background: linear-gradient(135deg, #2ecc71, #27ae60);
     padding: 36px 40px;
     border-radius: 22px;
+    margin-top: 15px;
     margin-bottom: 32px;
     box-shadow: 0 12px 30px rgba(46,204,113,0.35);
     color: white;
@@ -348,11 +353,11 @@ body.dark-mode .advance-badge {
 /* Mobile & Small Tablets (Max-width: 768px) */
 @media (max-width: 768px) {
     body {
-        padding: 115px 12px 100px; /* Top spacing above header and bottom protection for chatbot */
+        padding: 80px 12px 100px; /* Top spacing above header and bottom protection for chatbot */
     }
 
     .page-header {
-        margin-top: 15px;
+        margin-top: 10px;
         padding: 22px 16px;
         border-radius: 18px;
         margin-bottom: 18px;

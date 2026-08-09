@@ -57,13 +57,14 @@ include_once 'navbar.php';
         .page-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding-top: 35px;
+            padding-top: 0;
         }
 
         .page-header {
             background: linear-gradient(135deg, #2ecc71, #27ae60);
             padding: 36px 40px;
             border-radius: 20px;
+            margin-top: 10px;
             margin-bottom: 32px;
             box-shadow: 0 10px 30px rgba(46, 204, 113, 0.35);
             color: white;
@@ -281,10 +282,249 @@ include_once 'navbar.php';
             color: var(--accent-green);
         }
 
+        /* ==================== RESPONSIVE MEDIA QUERIES ==================== */
+
+        @media (max-width: 1024px) {
+            .page-container {
+                padding-top: 0;
+                padding-bottom: 40px;
+                width: 94%;
+            }
+
+            .page-header {
+                margin-top: 6px;
+                padding: 28px 24px;
+                margin-bottom: 24px;
+            }
+
+            .page-header h1 {
+                font-size: 26px;
+            }
+
+            .container {
+                padding: 24px;
+            }
+
+            .grid-form {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         @media (max-width: 768px) {
-            body { padding-top: 100px; }
-            .grid-form { grid-template-columns: 1fr; }
-            .section-header { flex-direction: column; gap: 15px; }
+            .page-container {
+                padding-top: 0;
+                padding-bottom: 100px; /* Chatbot float space */
+                width: 94%;
+            }
+
+            .page-header {
+                margin-top: 4px;
+                padding: 22px 16px;
+                border-radius: 18px;
+                margin-bottom: 18px;
+            }
+
+            .page-header h1 {
+                font-size: 22px;
+            }
+
+            .page-header p {
+                font-size: 13px;
+            }
+
+            .container {
+                padding: 16px 12px;
+                border-radius: 18px;
+            }
+
+            .form-section {
+                padding: 18px 14px;
+                border-radius: 16px;
+                margin-bottom: 22px;
+            }
+
+            .form-section h3 {
+                font-size: 18px;
+                margin-bottom: 16px;
+            }
+
+            .grid-form {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .btn-primary {
+                width: 100%;
+                padding: 14px;
+                font-size: 15px;
+                border-radius: 12px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 14px;
+                margin-bottom: 20px;
+                padding-bottom: 16px;
+            }
+
+            .section-header h3 {
+                font-size: 20px;
+                justify-content: center;
+                border-left: none;
+                padding-left: 0;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            /* Transform Table into Responsive Cards */
+            .table-container {
+                border: none;
+                background: transparent;
+                border-radius: 0;
+                overflow: visible;
+            }
+
+            table#transactionsTable,
+            table#transactionsTable tbody,
+            table#transactionsTable tr,
+            table#transactionsTable td {
+                display: block;
+                width: 100%;
+            }
+
+            table#transactionsTable {
+                min-width: 0 !important;
+            }
+
+            table#transactionsTable thead {
+                display: none;
+            }
+
+            table#transactionsTable tbody tr {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px 10px;
+                background: var(--light-surface);
+                border: 1px solid var(--border-light);
+                border-radius: 20px;
+                margin-bottom: 16px;
+                padding: 16px;
+                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+                position: relative;
+            }
+
+            body.dark-mode table#transactionsTable tbody tr {
+                background: rgba(30, 41, 59, 0.9) !important;
+                border-color: rgba(255, 255, 255, 0.1);
+                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+            }
+
+            table#transactionsTable td {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+                padding: 0;
+                border: none;
+                font-size: 14px;
+            }
+
+            table#transactionsTable td::before {
+                content: attr(data-label);
+                font-weight: 800;
+                font-size: 11px;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            body.dark-mode table#transactionsTable td::before {
+                color: #94a3b8;
+            }
+
+            /* Row 1: Date (Left) & Account Badge (Right) */
+            table#transactionsTable td:nth-child(1) {
+                grid-column: 1 / 2;
+                grid-row: 1;
+                padding-bottom: 8px;
+                border-bottom: 1.5px dashed var(--border-light);
+            }
+            table#transactionsTable td:nth-child(1)::before {
+                display: none;
+            }
+
+            table#transactionsTable td:nth-child(2) {
+                grid-column: 2 / 3;
+                grid-row: 1;
+                align-items: flex-end;
+                padding-bottom: 8px;
+                border-bottom: 1.5px dashed var(--border-light);
+            }
+            table#transactionsTable td:nth-child(2)::before {
+                display: none;
+            }
+
+            /* Row 2: Reference */
+            table#transactionsTable td:nth-child(3) {
+                grid-column: 1 / -1;
+                grid-row: 2;
+            }
+
+            /* Row 3: Income (Left) & Running Balance (Right) */
+            table#transactionsTable td:nth-child(4) {
+                grid-column: 1 / 2;
+                grid-row: 3;
+                background: var(--light-bg);
+                padding: 10px;
+                border-radius: 12px;
+                border: 1px solid var(--border-light);
+            }
+
+            table#transactionsTable td:nth-child(5) {
+                grid-column: 2 / 3;
+                grid-row: 3;
+                background: var(--light-bg);
+                padding: 10px;
+                border-radius: 12px;
+                border: 1px solid var(--border-light);
+            }
+
+            body.dark-mode table#transactionsTable td:nth-child(4),
+            body.dark-mode table#transactionsTable td:nth-child(5) {
+                background: rgba(15, 23, 42, 0.6);
+                border-color: rgba(255, 255, 255, 0.08);
+            }
+
+            .amount-positive,
+            .balance-bold {
+                width: 100%;
+                text-align: center;
+                box-sizing: border-box;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-container {
+                padding-top: 95px;
+                padding-bottom: 100px;
+                width: 94%;
+            }
+
+            .container {
+                padding: 12px 10px;
+            }
+
+            table#transactionsTable tbody tr {
+                padding: 14px 12px;
+            }
         }
     </style>
 </head>
@@ -378,11 +618,11 @@ include_once 'navbar.php';
                         while($row = $result->fetch_assoc()) {
                             $accName = $row['acc_name'] ? $row['acc_name'] : "cash";
                             echo "<tr>
-                                    <td><strong>{$row['date']}</strong></td>
-                                    <td><span class='account-badge'>{$accName}</span></td>
-                                    <td>{$row['invoice_no']}</td>
-                                    <td><span class='amount-positive'>+ " . number_format($row['income'], 2) . "</span></td>
-                                    <td><span class='balance-bold'>" . number_format($row['balance'], 2) . "</span></td>
+                                    <td data-label='Date'><strong>{$row['date']}</strong></td>
+                                    <td data-label='Account'><span class='account-badge'>{$accName}</span></td>
+                                    <td data-label='Reference'>{$row['invoice_no']}</td>
+                                    <td data-label='Income'><span class='amount-positive'>+ " . number_format($row['income'], 2) . "</span></td>
+                                    <td data-label='Running Balance'><span class='balance-bold'>" . number_format($row['balance'], 2) . "</span></td>
                                   </tr>";
                         }
                     } else {
