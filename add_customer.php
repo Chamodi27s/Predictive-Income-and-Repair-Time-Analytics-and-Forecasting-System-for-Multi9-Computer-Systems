@@ -224,30 +224,16 @@ $total_pages = ceil($total_records / $records_per_page);
 
         body.dark-mode .customer-table th { background: rgba(0,0,0,0.2); border-bottom-color: #334155; }
         body.dark-mode .customer-table tbody tr { background: var(--dark-surface); }
-        body.dark-mode .customer-table tbody tr:hover { background: #1e293b; }
-        body.dark-mode .customer-table td { border-bottom-color: #1e293b; color: #e2e8f0; }
+        /* ---- Text Highlights ---- */
+        .job-badge { color: #111; font-weight: 700; font-size: 13px; white-space: nowrap; }
+        .status-badge { color: #111; font-weight: 700; font-size: 12px; text-transform: uppercase; white-space: nowrap; }
+        body.dark-mode .job-badge, body.dark-mode .status-badge { color: #f1f5f9; }
 
-        /* ---- Badges ---- */
-        .job-badge { background: var(--primary-green-light); color: var(--primary-green-dark); padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 13px; white-space: nowrap; }
-        .device-badge { background: #f3e8ff; color: #7e22ce; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 13px; }
-        body.dark-mode .device-badge { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; }
-        .tech-badge { background: #e0f2fe; color: #0369a1; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 13px; white-space: nowrap; }
-        body.dark-mode .tech-badge { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; }
-
-        .status-badge { padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 12px; text-transform: uppercase; white-space: nowrap; }
-        .status-pending { background: #fef9c3; color: #854d0e; }
-        .status-approved { background: #dbeafe; color: #1e40af; }
-        .status-in-progress { background: #ffedd5; color: #9a3412; }
-        .status-completed { background: #dcfce7; color: #166534; }
-        body.dark-mode .status-pending { background: rgba(234, 179, 8, 0.2); color: #fef08a; }
-        body.dark-mode .status-approved { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
-        body.dark-mode .status-in-progress { background: rgba(249, 115, 22, 0.2); color: #fdba74; }
-        body.dark-mode .status-completed { background: rgba(34, 197, 94, 0.2); color: #86efac; }
-
-        .predict-btn { background: linear-gradient(135deg, var(--primary-green), var(--primary-green-dark)); color: white !important; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; transition: var(--transition); box-shadow: 0 3px 10px rgba(15, 118, 110, 0.3); white-space: nowrap; }
-        .predict-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(15, 118, 110, 0.4); }
-        .cost-btn { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white !important; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; transition: var(--transition); box-shadow: 0 3px 10px rgba(37, 99, 235, 0.3); white-space: nowrap; }
-        .cost-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4); }
+        .predict-btn, .cost-btn { background: #ffffff; color: var(--primary-green-dark) !important; border: 1px solid var(--primary-green-dark); padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; transition: var(--transition); box-shadow: none; white-space: nowrap; }
+        .predict-btn:hover, .cost-btn:hover { background: var(--primary-green-light); transform: translateY(-1px); }
+        
+        body.dark-mode .predict-btn, body.dark-mode .cost-btn { background: transparent; border-color: var(--primary-green); color: var(--primary-green) !important; }
+        body.dark-mode .predict-btn:hover, body.dark-mode .cost-btn:hover { background: rgba(4, 217, 146, 0.1); }
 
         /* ---- Pagination ---- */
         .pagination-container {
@@ -313,7 +299,7 @@ $total_pages = ceil($total_records / $records_per_page);
                 padding: 6px 10px;
                 font-size: 11px;
             }
-            .job-badge, .device-badge, .tech-badge, .status-badge {
+            .job-badge, .status-badge {
                 font-size: 11px;
                 padding: 4px 8px;
             }
@@ -425,18 +411,18 @@ $total_pages = ceil($total_records / $records_per_page);
                                 <?= htmlspecialchars($row['customer_name']) ?><br>
                                 <span style="font-size:12px; color:var(--text-muted); font-weight:normal;"><?= htmlspecialchars($row['phone_number']) ?></span>
                             </td>
-                            <td><span class="device-badge"><?= htmlspecialchars($row['all_devices'] ?? '-') ?></span></td>
+                            <td><?= htmlspecialchars($row['all_devices'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($row['all_models'] ?? '-') ?></td>
                             <td><span style="color:#ef4444; font-weight:600;"><?= htmlspecialchars($row['all_issues'] ?? '-') ?></span></td>
                             <td><?= htmlspecialchars($row['all_warranties'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($row['all_paths'] ?? '-') ?></td>
-                            <td><span class="tech-badge"><i class="ph-fill ph-wrench"></i> <?= htmlspecialchars($row['tech_name'] ?? 'Unassigned') ?></span></td>
-                            <td><span class="status-badge <?= $status_class ?>"><?= htmlspecialchars($status) ?></span></td>
+                            <td><?= htmlspecialchars($row['tech_name'] ?? 'Unassigned') ?></td>
+                            <td><span class="status-badge"><?= htmlspecialchars($status) ?></span></td>
                             <td onclick="event.stopPropagation();">
                                 <?php if($row['job_no']): ?>
                                     <div style="display: flex; gap: 6px; align-items: center; justify-content:center;">
                                         <a href="duration.php?job_no=<?= rawurlencode((string) $row['job_no']) ?>" class="predict-btn" title="Predict Completion Date"><i class="ph ph-clock"></i> Date</a>
-                                        <button type="button" onclick="openPredictionModal('<?= htmlspecialchars($row['job_no']) ?>', 'cost')" class="cost-btn" style="border:none; cursor:pointer;" title="Predict Cost & Parts"><i class="ph ph-currency-dollar"></i> Cost</button>
+                                        <button type="button" onclick="openPredictionModal('<?= htmlspecialchars($row['job_no']) ?>', 'cost')" class="cost-btn" style="cursor:pointer;" title="Predict Cost & Parts"><i class="ph ph-currency-dollar"></i> Cost</button>
                                     </div>
                                 <?php endif; ?>
                             </td>

@@ -54,7 +54,7 @@ if(isset($_GET['range'])) {
         .supplier-input { padding: 10px 14px; border-radius: 10px; border: 2px solid var(--border); width: 150px; background: #f8fafc; font-weight: 600; transition: all 0.3s ease; }
         .supplier-input.editing { background: white; border-color: var(--primary); }
         .btn-edit { background: var(--primary); color: white; border: none; padding: 10px 18px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 13px; }
-        .job-badge { background: #e3f2fd; color: #1976d2; padding: 6px 12px; border-radius: 8px; font-weight: 800; }
+        .job-badge { background: transparent; color: #111; padding: 0; border-radius: 0; font-weight: 700; font-size: 13px; white-space: nowrap; }
         .save-toast { position: fixed; bottom: 30px; right: 30px; background: #1e293b; color: white; padding: 16px 28px; border-radius: 12px; display: none; z-index: 1000; box-shadow: var(--shadow-lg); }
         body.dark-mode { background: #0f172a; color: #f8fafc; }
         body.dark-mode .container { background: #1e293b; border-color: #334155; }
