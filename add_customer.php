@@ -478,17 +478,17 @@ $total_pages = ceil($total_records / $records_per_page);
 </script>
 
 <!-- Prediction Modal -->
-<div id="predictModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); z-index:9999; justify-content:center; align-items:center;">
-    <div class="modal-content" style="background:linear-gradient(145deg, #1e293b, #0f172a); border:1px solid rgba(255,255,255,0.05); border-radius:24px; width:750px; max-width:95vw; padding:40px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); position:relative;">
-        <button onclick="closePredictionModal()" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.05); border:none; color:var(--text-muted); font-size:20px; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="ph ph-x"></i></button>
+<div id="predictModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.35); backdrop-filter:blur(10px); z-index:9999; justify-content:center; align-items:center;">
+    <div class="modal-content" style="background:linear-gradient(145deg, #ffffff, #f1f5f9); border:1px solid rgba(0,0,0,0.08); border-radius:24px; width:750px; max-width:95vw; padding:40px; box-shadow:0 25px 60px -12px rgba(0,0,0,0.2); position:relative;">
+        <button onclick="closePredictionModal()" style="position:absolute; top:20px; right:20px; background:rgba(0,0,0,0.05); border:none; color:#64748b; font-size:20px; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="ph ph-x"></i></button>
         
-        <div style="display:flex; align-items:center; gap:15px; margin-bottom:25px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:18px;">
-            <div id="predictHeaderIcon" style="background:rgba(4, 217, 146, 0.1); width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 20px rgba(4,217,146,0.2);">
-                <i id="predictIcon" class="ph-fill ph-clock" style="font-size:32px; color:var(--primary-green);"></i>
+        <div style="display:flex; align-items:center; gap:15px; margin-bottom:25px; border-bottom:1px solid rgba(0,0,0,0.06); padding-bottom:18px;">
+            <div id="predictHeaderIcon" style="background:rgba(4, 217, 146, 0.1); width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 20px rgba(4,217,146,0.15);">
+                <i id="predictIcon" class="ph-fill ph-clock" style="font-size:32px; color:#10b981;"></i>
             </div>
             <div>
-                <h2 id="predictTitleText" style="margin:0 0 4px 0; font-size:22px; color:#f8fafc; font-weight:700;">AI Date Prediction</h2>
-                <p id="predictJobNo" style="color:#94a3b8; font-size:14px; margin:0; font-family:monospace;"></p>
+                <h2 id="predictTitleText" style="margin:0 0 4px 0; font-size:22px; color:#1e293b; font-weight:700;">AI Date Prediction</h2>
+                <p id="predictJobNo" style="color:#64748b; font-size:14px; margin:0; font-family:monospace;"></p>
             </div>
         </div>
         
@@ -522,65 +522,140 @@ $total_pages = ceil($total_records / $records_per_page);
                 </div>
             </div>
 
-            <h4 style="margin:0 0 8px 0; color:#f8fafc; font-size:18px; font-weight:700;">AI Engine Processing</h4>
-            <p id="predictLoadingText" style="color:#94a3b8; font-size:14px; margin:0 0 20px 0; min-height:22px; font-weight:500;">Analyzing historical repair data & calculating metrics...</p>
+            <h4 style="margin:0 0 8px 0; color:#1e293b; font-size:18px; font-weight:700;">AI Engine Processing</h4>
+            <p id="predictLoadingText" style="color:#64748b; font-size:14px; margin:0 0 20px 0; min-height:22px; font-weight:500;">Analyzing historical repair data & calculating metrics...</p>
 
             <!-- Animated Progress Line -->
-            <div style="width:240px; height:4px; background:rgba(255,255,255,0.08); border-radius:10px; overflow:hidden; position:relative;">
+            <div style="width:240px; height:4px; background:rgba(0,0,0,0.06); border-radius:10px; overflow:hidden; position:relative;">
                 <div style="height:100%; background:linear-gradient(90deg, #10b981, #3b82f6, #8b5cf6); border-radius:10px; position:absolute; animation: progressSweep 1.5s ease-in-out infinite;"></div>
             </div>
         </div>
         
-        <div id="predictResults" style="display:none; gap:25px; align-items:stretch;">
-            <!-- Left Column: Inputs -->
-            <div style="flex:1; background:rgba(255, 255, 255, 0.02); border:1px solid rgba(255,255,255,0.05); border-radius:16px; padding:25px;">
-                <h3 style="font-size:13px; text-transform:uppercase; letter-spacing:1px; color:#64748b; margin:0 0 20px 0; font-weight:600;">Prediction Parameters</h3>
+        <style>
+            @keyframes timelineFadeIn {
+                from { opacity: 0; transform: translateX(-15px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes resultCardPop {
+                from { opacity: 0; transform: scale(0.92); }
+                to { opacity: 1; transform: scale(1); }
+            }
+            @keyframes glowPulse {
+                0%, 100% { box-shadow: 0 0 15px rgba(16,185,129,0.3); }
+                50% { box-shadow: 0 0 30px rgba(16,185,129,0.5); }
+            }
+            @keyframes dotPulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.3); }
+            }
+            .timeline-step { 
+                display: flex; gap: 18px; align-items: flex-start; 
+                animation: timelineFadeIn 0.4s ease-out both;
+                position: relative;
+            }
+            .timeline-step:nth-child(1) { animation-delay: 0.1s; }
+            .timeline-step:nth-child(2) { animation-delay: 0.2s; }
+            .timeline-step:nth-child(3) { animation-delay: 0.3s; }
+            .timeline-step:nth-child(4) { animation-delay: 0.4s; }
+            .timeline-dot-wrap {
+                display: flex; flex-direction: column; align-items: center; min-width: 20px; padding-top: 2px;
+            }
+            .timeline-dot {
+                width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+                animation: dotPulse 2s ease-in-out infinite;
+            }
+            .timeline-line {
+                width: 2px; flex: 1; min-height: 28px; background: rgba(0,0,0,0.08); margin-top: 4px;
+            }
+            .timeline-card {
+                background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06);
+                border-radius: 12px; padding: 14px 18px; flex: 1; transition: 0.3s;
+            }
+            .timeline-card:hover {
+                background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.10);
+            }
+            .timeline-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; margin-bottom: 4px; }
+            .timeline-value { color: #1e293b; font-size: 15px; font-weight: 600; }
+            .ai-divider {
+                display: flex; align-items: center; gap: 12px; margin: 22px 0;
+                animation: timelineFadeIn 0.5s ease-out 0.5s both;
+            }
+            .ai-divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(16,185,129,0.35), transparent); }
+            .ai-divider-badge {
+                display: flex; align-items: center; gap: 6px; background: rgba(16,185,129,0.1);
+                border: 1px solid rgba(16,185,129,0.25); border-radius: 20px; padding: 6px 16px;
+                color: #10b981; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+            }
+            .result-card {
+                border-radius: 16px; padding: 22px 24px; transition: 0.3s;
+                animation: resultCardPop 0.5s ease-out both;
+            }
+            .result-card:hover { transform: translateY(-2px); }
+        </style>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+            .minimal-summary-card {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            }
+        </style>
+        <div id="predictResults" style="display:none; width:100%; margin-top:20px;">
+            <div id="cardPredictDate" class="minimal-summary-card" style="background: #ffffff; border: 1px solid #eaeaea; border-top: 5px solid #10b981; border-radius: 24px; padding: 40px; box-shadow: 0 12px 48px rgba(0,0,0,0.05); max-width: 550px; margin: 0 auto; width: 100%;">
                 
-                <div style="margin-bottom:16px;">
-                    <div style="font-size:12px; color:#64748b; margin-bottom:4px;">Reported Fault</div>
-                    <div id="resFault" style="color:#f1f5f9; font-size:15px; font-weight:500;"></div>
+                <div style="text-align: center; margin-bottom: 28px;">
+                    <div style="font-size: 13px; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 1.5px;">Completion Estimate</div>
+                    <div id="resDate" style="font-size: 48px; font-weight: 800; color: #064e3b; margin-top: 8px; letter-spacing: -1px;"></div>
+                    <div style="font-size: 15px; color: #047857; margin-top: 6px;">Takes approx <span id="resRaw" style="font-weight: 700; color: #064e3b;"></span> days to repair</div>
                 </div>
-                <div style="margin-bottom:16px;">
-                    <div style="font-size:12px; color:#64748b; margin-bottom:4px;">Assigned Technician</div>
-                    <div id="resTech" style="color:#f1f5f9; font-size:15px; font-weight:500;"></div>
-                </div>
-                <div style="margin-bottom:16px;">
-                    <div style="font-size:12px; color:#64748b; margin-bottom:4px;">Repair Pathway</div>
-                    <div id="resPath" style="color:#f1f5f9; font-size:15px; font-weight:500;"></div>
-                </div>
-                <div>
-                    <div style="font-size:12px; color:#64748b; margin-bottom:4px;">Expected Solution</div>
-                    <div id="resSolution" style="color:#f1f5f9; font-size:15px; font-weight:500;"></div>
+
+                <div style="border-top: 1px dashed #e0e0e0; margin: 28px 0;"></div>
+                
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 16px; color: #666;">Reported Fault</div>
+                        <div id="resFault" style="font-size: 16px; font-weight: 600; color: #222; text-align: right; max-width: 60%;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 16px; color: #666;">Assigned Technician</div>
+                        <div id="resTech" style="font-size: 16px; font-weight: 600; color: #222;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 16px; color: #666;">Repair Pathway</div>
+                        <div id="resPath" style="font-size: 16px; font-weight: 600; color: #222;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 16px; color: #666;">Expected Solution</div>
+                        <div id="resSolution" style="font-size: 16px; font-weight: 600; color: #222; text-align: right; max-width: 60%;"></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Right Column: Outputs -->
-            <div style="flex:1; display:flex; flex-direction:column; gap:15px;">
-                <!-- Dates Card -->
-                <div id="cardPredictDate" style="background:rgba(4, 217, 146, 0.05); border:1px solid rgba(4,217,146,0.2); border-radius:16px; padding:25px; flex:1; display:flex; flex-direction:column; justify-content:center;">
-                    <h3 style="font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--primary-green); margin:0 0 15px 0; font-weight:700;">Completion Estimate</h3>
+            <div id="cardPredictCost" class="minimal-summary-card" style="background: #ffffff; border: 1px solid #eaeaea; border-top: 5px solid #10b981; border-radius: 24px; padding: 40px; box-shadow: 0 12px 48px rgba(0,0,0,0.05); max-width: 550px; margin: 0 auto; width: 100%;">
+                
+                <div style="text-align: center; margin-bottom: 28px;">
+                    <div style="font-size: 13px; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 1.5px;">Estimated Cost</div>
+                    <div id="resCost" style="font-size: 54px; font-weight: 850; color: #064e3b; margin-top: 8px; letter-spacing: -1.5px;"></div>
+                </div>
+
+                <div style="border-top: 1px dashed #e0e0e0; margin: 28px 0;"></div>
+                
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 16px; color: #666;">Device Type</div>
+                        <div id="resDeviceType" style="font-size: 16px; font-weight: 600; color: #222;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 16px; color: #666;">Item Model</div>
+                        <div id="resItemModel" style="font-size: 16px; font-weight: 600; color: #222;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 16px; color: #666;">Reported Fault</div>
+                        <div id="resFaultCost" style="font-size: 16px; font-weight: 600; color: #222; text-align: right; max-width: 60%;"></div>
+                    </div>
                     
-                    <div style="display:flex; align-items:flex-end; gap:10px; margin-bottom:5px;">
-                        <span id="resDate" style="color:#f8fafc; font-size:32px; font-weight:800; line-height:1;"></span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 20px; border-top: 1px solid #f0f0f0;">
+                        <div style="font-size: 16px; font-weight: 600; color: #111;">Required Parts</div>
+                        <div id="resParts" style="font-size: 14px; font-weight: 700; color: #047857; background: #d1fae5; padding: 8px 16px; border-radius: 8px;"></div>
                     </div>
-                    <div style="color:#94a3b8; font-size:14px;">Takes approx <span id="resRaw" style="color:var(--primary-green); font-weight:700;"></span> days to repair</div>
-                </div>
-
-                <!-- Cost Card -->
-                <div id="cardPredictCost" style="background:rgba(168, 85, 247, 0.05); border:1px solid rgba(168,85,247,0.2); border-radius:16px; padding:20px; display:flex; align-items:center; justify-content:space-between;">
-                    <div>
-                        <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#c084fc; margin-bottom:5px; font-weight:700;">Estimated Cost</div>
-                        <div id="resCost" style="color:#f8fafc; font-size:24px; font-weight:700;"></div>
-                    </div>
-                    <div style="width:40px; height:40px; border-radius:10px; background:rgba(168,85,247,0.1); display:flex; align-items:center; justify-content:center;">
-                        <i class="ph ph-currency-dollar" style="color:#c084fc; font-size:20px;"></i>
-                    </div>
-                </div>
-
-                <!-- Parts Card -->
-                <div id="cardPredictParts" style="background:rgba(59, 130, 246, 0.05); border:1px solid rgba(59,130,246,0.2); border-radius:16px; padding:20px;">
-                    <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#60a5fa; margin-bottom:5px; font-weight:700;">Required Parts</div>
-                    <div id="resParts" style="color:#f8fafc; font-size:16px; font-weight:600;"></div>
                 </div>
             </div>
         </div>
@@ -606,30 +681,27 @@ $total_pages = ceil($total_records / $records_per_page);
 
         const cardDate = document.getElementById('cardPredictDate');
         const cardCost = document.getElementById('cardPredictCost');
-        const cardParts = document.getElementById('cardPredictParts');
 
         if (mode === 'cost') {
             if (titleEl) titleEl.innerText = "AI Cost & Parts Prediction";
             if (iconEl) iconEl.className = "ph-fill ph-currency-dollar";
-            if (iconEl) iconEl.style.color = "#c084fc";
+            if (iconEl) iconEl.style.color = "#111";
             if (iconBox) {
-                iconBox.style.background = "rgba(168, 85, 247, 0.1)";
-                iconBox.style.boxShadow = "0 0 20px rgba(168, 85, 247, 0.2)";
+                iconBox.style.background = "#f1f5f9";
+                iconBox.style.boxShadow = "none";
             }
             if (cardDate) cardDate.style.display = 'none';
-            if (cardCost) cardCost.style.display = 'flex';
-            if (cardParts) cardParts.style.display = 'block';
+            if (cardCost) cardCost.style.display = 'block';
         } else {
             if (titleEl) titleEl.innerText = "AI Date Prediction";
             if (iconEl) iconEl.className = "ph-fill ph-clock";
-            if (iconEl) iconEl.style.color = "var(--primary-green)";
+            if (iconEl) iconEl.style.color = "#111";
             if (iconBox) {
-                iconBox.style.background = "rgba(4, 217, 146, 0.1)";
-                iconBox.style.boxShadow = "0 0 20px rgba(4, 217, 146, 0.2)";
+                iconBox.style.background = "#f1f5f9";
+                iconBox.style.boxShadow = "none";
             }
-            if (cardDate) cardDate.style.display = 'flex';
+            if (cardDate) cardDate.style.display = 'block';
             if (cardCost) cardCost.style.display = 'none';
-            if (cardParts) cardParts.style.display = 'none';
         }
     }
 
@@ -670,12 +742,18 @@ $total_pages = ceil($total_records / $records_per_page);
                 if(data.status === 'success') {
                     document.getElementById('predictResults').style.display = 'flex';
                     
+                    // Date prediction fields
                     document.getElementById('resFault').innerText = data.issue;
                     document.getElementById('resPath').innerText = data.repair_path;
                     document.getElementById('resTech').innerText = data.technician;
                     document.getElementById('resSolution').innerText = data.solution;
                     document.getElementById('resRaw').innerText = data.days;
                     document.getElementById('resDate').innerText = data.completion_date;
+
+                    // Cost prediction fields
+                    document.getElementById('resDeviceType').innerText = data.device;
+                    document.getElementById('resItemModel').innerText = data.model;
+                    document.getElementById('resFaultCost').innerText = data.issue;
 
                     document.getElementById('resCost').innerText = 'Rs. ' + data.cost;
                     document.getElementById('resParts').innerText = data.parts;

@@ -235,6 +235,7 @@ body.dark-mode .stat-value, body.dark-mode .section-title { color: #f8fafc; }
     border:1px solid var(--border-light);
     margin-bottom:30px;
     box-shadow:var(--card-shadow);
+    min-width: 0; /* Fix CSS Grid overflow for Chart.js */
 }
 
 .section-title{
@@ -625,7 +626,7 @@ Automated data analysis has identified the following recurring technical issues:
 Revenue Trend
 </h2>
 
-<div style="height:280px;">
+<div style="position:relative; height:280px; width:100%;">
 <canvas id="revenueChart"></canvas>
 </div>
 

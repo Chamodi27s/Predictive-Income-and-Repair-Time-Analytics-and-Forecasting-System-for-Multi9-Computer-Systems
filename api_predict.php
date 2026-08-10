@@ -84,6 +84,7 @@ if (is_resource($process)) {
             "cost" => number_format($data['cost'], 2),
             "parts" => $data['parts'],
             "device" => $device_type,
+            "model" => $item_model,
             "issue" => $fault_description,
             "repair_path" => $repair_path,
             "solution" => $solution,
