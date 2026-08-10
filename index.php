@@ -77,8 +77,7 @@ body.dark-mode .welcome-text .sub-text { color: #94a3b8; }
     border-radius: 24px;
     padding: 35px; 
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
-    border: 1.5px solid rgba(0,0,0,0.15); /* More visible outline */
-    transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1.5px solid rgba(0,0,0,0.15);
     display: flex; flex-direction: column; justify-content: space-between;
     text-decoration: none; position: relative; overflow: hidden;
     z-index: 10;
@@ -88,12 +87,12 @@ body.dark-mode .dashboard-card {
     background: rgba(30, 41, 59, 0.4);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1.5px solid rgba(255, 255, 255, 0.15); /* More visible outline */
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
-.dashboard-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); }
-body.dark-mode .dashboard-card:hover { box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); border-color:rgba(255,255,255,0.1); }
+.dashboard-card:hover { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08); }
+body.dark-mode .dashboard-card:hover { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); border-color:rgba(255,255,255,0.2); }
 
 .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
 
@@ -110,27 +109,27 @@ body.dark-mode .card-value { color:#f8fafc; }
 /* Category Accents */
 .accent-pending .icon-box { color: #f59e0b; background: rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.2); box-shadow: inset 0 0 15px rgba(245,158,11,0.1); }
 .accent-pending .card-footer i { color: #f59e0b; }
-.dashboard-card.accent-pending:hover { border-bottom: 4px solid #f59e0b; padding-bottom: 31px; }
+.dashboard-card.accent-pending { border-bottom: 4px solid #f59e0b; padding-bottom: 31px; }
 
 .accent-progress .icon-box { color: #3b82f6; background: rgba(59, 130, 246, 0.1); border:1px solid rgba(59, 130, 246, 0.2); box-shadow: inset 0 0 15px rgba(59,130,246,0.1); }
 .accent-progress .card-footer i { color: #3b82f6; }
-.dashboard-card.accent-progress:hover { border-bottom: 4px solid #3b82f6; padding-bottom: 31px; }
+.dashboard-card.accent-progress { border-bottom: 4px solid #3b82f6; padding-bottom: 31px; }
 
 .accent-completed .icon-box { color: #10b981; background: rgba(16, 185, 129, 0.1); border:1px solid rgba(16, 185, 129, 0.2); box-shadow: inset 0 0 15px rgba(16,185,129,0.1); }
 .accent-completed .card-footer i { color: #10b981; }
-.dashboard-card.accent-completed:hover { border-bottom: 4px solid #10b981; padding-bottom: 31px; }
+.dashboard-card.accent-completed { border-bottom: 4px solid #10b981; padding-bottom: 31px; }
 
 .accent-customers .icon-box { color: #8b5cf6; background: rgba(139, 92, 246, 0.1); border:1px solid rgba(139, 92, 246, 0.2); box-shadow: inset 0 0 15px rgba(139,92,246,0.1); }
 .accent-customers .card-footer i { color: #8b5cf6; }
-.dashboard-card.accent-customers:hover { border-bottom: 4px solid #8b5cf6; padding-bottom: 31px; }
+.dashboard-card.accent-customers { border-bottom: 4px solid #8b5cf6; padding-bottom: 31px; }
 
 .accent-revenue .icon-box { color: #06b6d4; background: rgba(6, 182, 212, 0.1); border:1px solid rgba(6, 182, 212, 0.2); box-shadow: inset 0 0 15px rgba(6,182,212,0.1); }
 .accent-revenue .card-footer i { color: #06b6d4; }
-.dashboard-card.accent-revenue:hover { border-bottom: 4px solid #06b6d4; padding-bottom: 31px; }
+.dashboard-card.accent-revenue { border-bottom: 4px solid #06b6d4; padding-bottom: 31px; }
 
 .accent-returned .icon-box { color: #ec4899; background: rgba(236, 72, 153, 0.1); border:1px solid rgba(236, 72, 153, 0.2); box-shadow: inset 0 0 15px rgba(236,72,153,0.1); }
 .accent-returned .card-footer i { color: #ec4899; }
-.dashboard-card.accent-returned:hover { border-bottom: 4px solid #ec4899; padding-bottom: 31px; }
+.dashboard-card.accent-returned { border-bottom: 4px solid #ec4899; padding-bottom: 31px; }
 
 /* MOBILE & TABLET RESPONSIVE */
 @media screen and (max-width: 1024px) {
@@ -276,29 +275,23 @@ body.dark-mode .card-value { color:#f8fafc; }
     z-index: -1;
     overflow: hidden;
     pointer-events: none;
+    background: #ffffff;
 }
 .orb {
     position: absolute;
     border-radius: 50%;
-    filter: blur(70px);
-    opacity: 0.9;
-    animation: float 12s infinite ease-in-out alternate;
+    filter: blur(120px);
+    opacity: 0.8;
 }
-.orb-1 { width: 600px; height: 600px; background: rgba(16, 185, 129, 0.35); top: -150px; left: -150px; animation-delay: 0s; }
-.orb-2 { width: 500px; height: 500px; background: rgba(59, 130, 246, 0.35); bottom: -100px; right: -100px; animation-delay: -3s; }
-.orb-3 { width: 450px; height: 450px; background: rgba(139, 92, 246, 0.35); top: 35%; left: 50%; animation-delay: -7s; }
+.orb-1 { width: 700px; height: 700px; background: rgba(16, 185, 129, 0.15); top: -200px; left: -100px; }
+.orb-2 { width: 600px; height: 600px; background: rgba(16, 185, 129, 0.1); bottom: -150px; right: -100px; }
+.orb-3 { width: 500px; height: 500px; background: rgba(255, 255, 255, 1); top: 35%; left: 40%; }
 
+body.dark-mode .bg-animation { background: var(--bg-dark, #0f172a); }
 body.dark-mode .orb { opacity: 0.6; }
-body.dark-mode .orb-1 { background: rgba(16, 185, 129, 0.6); }
-body.dark-mode .orb-2 { background: rgba(59, 130, 246, 0.6); }
-body.dark-mode .orb-3 { background: rgba(139, 92, 246, 0.6); }
-
-@keyframes float {
-    0% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(100px, -120px) scale(1.2); }
-    66% { transform: translate(-80px, 100px) scale(0.8); }
-    100% { transform: translate(0, 0) scale(1); }
-}
+body.dark-mode .orb-1 { background: rgba(16, 185, 129, 0.2); }
+body.dark-mode .orb-2 { background: rgba(16, 185, 129, 0.15); }
+body.dark-mode .orb-3 { background: rgba(30, 41, 59, 1); }
 </style>
 </head>
 <body>
@@ -404,78 +397,14 @@ body.dark-mode .orb-3 { background: rgba(139, 92, 246, 0.6); }
     syncDashboardTheme();
     window.addEventListener('storage', syncDashboardTheme);
 
-    // Number Counter Animation
+    // Static values
     document.addEventListener("DOMContentLoaded", () => {
-        const speed = 200; // The lower the slower
-        
-        // Regular counters
         document.querySelectorAll('.counter').forEach(counter => {
-            const updateCount = () => {
-                const target = +counter.getAttribute('data-target');
-                const count = +counter.innerText;
-                const inc = target / speed;
-                if (count < target) {
-                    counter.innerText = Math.ceil(count + inc);
-                    setTimeout(updateCount, 15);
-                } else {
-                    counter.innerText = target;
-                }
-            };
-            updateCount();
+            counter.innerText = counter.getAttribute('data-target');
         });
-
-        // Currency counter (with decimals and commas)
         document.querySelectorAll('.counter-currency').forEach(counter => {
-            const updateCount = () => {
-                const target = +counter.getAttribute('data-target');
-                const count = +(counter.innerText.replace(/,/g, ''));
-                const inc = target / speed;
-                if (count < target) {
-                    const newValue = count + inc;
-                    counter.innerText = newValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                    setTimeout(updateCount, 15);
-                } else {
-                    counter.innerText = target.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                }
-            };
-            updateCount();
-        });
-
-        // 3D Tilt Effect for Cards
-        const cards = document.querySelectorAll('.dashboard-card');
-        cards.forEach(card => {
-            // Force navigation on click to bypass transform-interrupted native clicks
-            card.addEventListener('click', (e) => {
-                e.preventDefault(); // Stop native link just in case
-                window.location.href = card.getAttribute('href');
-            });
-
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                const rotateX = ((y - centerY) / centerY) * -8; // subtle tilt
-                const rotateY = ((x - centerX) / centerX) * 8;
-                
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px) scale(1.02)`;
-                card.style.transition = 'none';
-                
-                // Add a dynamic spotlight gradient based on mouse position
-                card.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.8) 0%, rgba(255,255,255,1) 80%)`;
-                if(document.body.classList.contains('dark-mode')) {
-                     card.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.08) 0%, rgba(30, 41, 59, 0.4) 60%)`;
-                }
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'translateY(0) scale(1) rotateX(0) rotateY(0)';
-                card.style.transition = 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-                card.style.background = ''; // reset to default CSS
-            });
+            const target = +counter.getAttribute('data-target');
+            counter.innerText = target.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         });
     });
 </script>
