@@ -296,7 +296,7 @@ $jobs = $jobsStmt->get_result();
             --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08); --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
-        body { background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%); font-family: 'Inter', sans-serif; padding: var(--nav-height, 100px) 40px 40px 40px; color: var(--text-main); line-height: 1.6; transition: background 0.3s ease; }
+        body { background: var(--bg-main); font-family: 'Inter', sans-serif; padding: var(--nav-height, 100px) 40px 40px 40px; color: var(--text-main); line-height: 1.6; transition: background 0.3s ease; }
 
         body.dark-mode {
             --bg-main: #0b1329;
@@ -350,8 +350,8 @@ $jobs = $jobsStmt->get_result();
         }
 
         .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; padding-bottom: 50px; }
-        .back-link { display:inline-flex; align-items:center; gap:8px; margin-bottom:30px; color:var(--primary); font-weight:700; text-decoration:none; font-size:15px; transition:0.3s; padding:10px 20px; background:rgba(46,204,113,0.1); border-radius:100px; margin-top: 15px; }
-        .back-link:hover { background:rgba(46,204,113,0.2); }
+        .back-link { display:inline-flex; align-items:center; gap:8px; margin-bottom:30px; color:var(--text-muted); font-weight:700; text-decoration:none; font-size:15px; transition:0.3s; padding:10px 20px; background:transparent; border: 1px solid var(--border); border-radius:100px; margin-top: 15px; }
+        .back-link:hover { background:var(--card-bg); color:var(--text-main); border-color:var(--secondary); }
         
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap:wrap; gap:20px; }
         .page-header h1 { font-size: 32px; font-weight: 800; display: flex; align-items: center; gap: 12px; margin-bottom:5px; color:var(--text-dark); }
@@ -380,8 +380,8 @@ $jobs = $jobsStmt->get_result();
         .device-name { font-size: 19px; font-weight: 800; }
         
         .status-badge { padding: 8px 16px; border-radius: 100px; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing:0.5px; display:inline-flex; align-items:center; gap:6px; white-space: nowrap; }
-        .status-warranty { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
-        .status-no-warranty { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .status-warranty { background: transparent; color: #10b981; border: 1px solid #10b981; }
+        .status-no-warranty { background: transparent; color: #ef4444; border: 1px solid #ef4444; }
         
         .btn { padding: 14px 28px; border-radius: 14px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: none; font-size:14px; transition:0.3s; }
         .btn:hover { transform:translateY(-2px); box-shadow:0 10px 20px -10px rgba(0,0,0,0.3); }
@@ -486,7 +486,7 @@ $jobs = $jobsStmt->get_result();
                 <a href="?phone=<?= rawurlencode($phone) ?>" class="btn btn-secondary"><i class="ph-bold ph-x"></i> Cancel</a>
             <?php else: ?>
                 <a href="?phone=<?= rawurlencode($phone) ?>&edit=true" class="btn btn-outline" style="background: var(--card-bg); border-color:var(--primary); color:var(--primary);"><i class="ph-bold ph-pencil-simple"></i> Edit Details</a>
-                <button type="button" onclick="confirmDelete()" class="btn" style="background:var(--danger); color:white;"><i class="ph-bold ph-trash"></i> Delete</button>
+                <button type="button" onclick="confirmDelete()" class="btn" style="background:transparent; border: 1px solid var(--danger); color:var(--danger);"><i class="ph-bold ph-trash"></i> Delete</button>
             <?php endif; ?>
         </div>
     </div>
@@ -498,7 +498,7 @@ $jobs = $jobsStmt->get_result();
             <!-- Left Column: Sticky Profile Card -->
             <div class="profile-sidebar">
                 <div class="card" style="padding:40px 30px; text-align:center;">
-                    <div style="width:120px; height:120px; background:linear-gradient(135deg, rgba(46,204,113,0.1), rgba(46,204,113,0.2)); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 30px auto; border:4px solid var(--card-bg); box-shadow:0 0 20px rgba(46,204,113,0.2);">
+                    <div style="width:120px; height:120px; background:transparent; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 30px auto; border:2px solid var(--border);">
                         <i class="ph-fill ph-user" style="font-size:56px; color:var(--primary);"></i>
                     </div>
                     
@@ -557,7 +557,7 @@ $jobs = $jobsStmt->get_result();
                     <div class="device-box">
                         <div class="device-header">
                             <div class="device-info">
-                                <div class="device-name" style="display:flex; align-items:center; gap:10px;"><i class="ph-fill ph-device-mobile" style="color:var(--primary); font-size:28px; background:rgba(46,204,113,0.1); padding:8px; border-radius:12px;"></i> <?= htmlspecialchars((string) $d['device_name'], ENT_QUOTES, 'UTF-8') ?></div>
+                                <div class="device-name" style="display:flex; align-items:center; gap:10px;"><i class="ph-fill ph-device-mobile" style="color:var(--primary); font-size:28px;"></i> <?= htmlspecialchars((string) $d['device_name'], ENT_QUOTES, 'UTF-8') ?></div>
                                 <div style="margin-top:12px; color:var(--secondary); font-size:14px;"><strong style="color:var(--text-main);">Reported Issue:</strong> <?= htmlspecialchars((string) ($d['issue_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></div>
                             </div>
                             <span class="status-badge <?= $is_warranty ? 'status-warranty' : 'status-no-warranty' ?>">
