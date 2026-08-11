@@ -142,9 +142,9 @@ $result = mysqli_query($conn, $sql);
         }
 
         .status-table { width: 100%; border-collapse: collapse; min-width: 1100px; }
-        .status-table th { background: var(--light-bg, #f8fafc); color: var(--text-muted, #64748b); padding: 16px 18px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 800; border-bottom: 2px solid var(--border-light, #e2e8f0); }
-        .status-table td { padding: 16px 18px; border-bottom: 1px solid var(--border-light, #e2e8f0); text-align: center; color: var(--text-dark, #0f172a); font-size: 13px; vertical-align: middle; }
-        .status-table tr:hover td { background: rgba(241, 245, 249, 0.5); }
+        .status-table th { background: #f8fafc; color: #64748b; padding: 14px 18px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; border-bottom: 2px solid #e2e8f0; white-space: nowrap; text-align: left; }
+        .status-table td { padding: 14px 18px; border-bottom: 1px solid #e2e8f0; text-align: left; color: #0f172a; font-size: 13px; vertical-align: middle; }
+        .status-table tr:hover td { background: rgba(248, 250, 252, 0.8); }
 
         .job-badge { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 6px 14px; border-radius: 50px; font-weight: 800; font-size: 12px; display: inline-block; }
 

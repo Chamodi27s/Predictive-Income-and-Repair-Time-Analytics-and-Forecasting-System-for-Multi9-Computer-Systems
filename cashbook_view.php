@@ -188,19 +188,23 @@ include_once 'navbar.php';
         }
 
         .table-container { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-light); }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1000px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
         th {
-            background: var(--light-bg);
-            padding: 16px 18px;
-            color: var(--text-muted);
-            font-size: 13px;
+            background: #f8fafc;
+            padding: 14px 18px;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
             text-transform: uppercase;
-            border-bottom: 2px solid var(--border-light);
+            letter-spacing: 0.6px;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+            text-align: left;
         }
 
         tbody tr { background: var(--light-surface); }
-        tbody tr:hover { background: var(--light-bg); transform: translateX(4px); transition: var(--transition); }
-        td { padding: 16px 18px; border-bottom: 1px solid var(--border-light); color: var(--text-dark); }
+        tbody tr:hover { background: var(--light-bg); transition: var(--transition); }
+        td { padding: 14px 18px; border-bottom: 1px solid #e2e8f0; color: var(--text-dark); font-size: 14px; }
 
         .amount-positive {
             color: #15803d;

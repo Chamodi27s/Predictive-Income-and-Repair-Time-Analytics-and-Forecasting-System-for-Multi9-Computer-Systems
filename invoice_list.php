@@ -159,18 +159,21 @@ table {
 }
 
 th {
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
-    padding: 16px 18px;
-    color: white;
-    font-weight: 800;
+    background: #f8fafc;
+    padding: 14px 18px;
+    color: #64748b;
+    font-weight: 700;
     text-transform: uppercase;
-    font-size: 13px;
+    font-size: 11px;
+    letter-spacing: 0.6px;
     text-align: left;
+    border-bottom: 2px solid #e2e8f0;
+    white-space: nowrap;
 }
 
 td {
-    padding: 16px 18px;
-    border-bottom: 1px solid #f1f5f9;
+    padding: 14px 18px;
+    border-bottom: 1px solid #e2e8f0;
     color: #334155;
     font-size: 14px;
     vertical-align: middle;

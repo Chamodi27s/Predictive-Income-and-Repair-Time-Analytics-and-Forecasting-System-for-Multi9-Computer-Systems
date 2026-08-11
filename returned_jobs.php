@@ -117,19 +117,23 @@ $result = mysqli_query($conn, $sql);
 
         .status-table { width: 100%; border-collapse: collapse; }
         .status-table th {
-            background: rgba(0,0,0,0.02);
-            padding: 20px;
-            text-align: center;
-            font-size: 12px;
+            background: #f8fafc;
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            border-bottom: 1px solid var(--border);
+            letter-spacing: 0.6px;
+            color: #64748b;
+            font-weight: 700;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
         }
         .status-table td {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-            text-align: center;
+            padding: 14px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+            color: #1e293b;
+            font-size: 14px;
         }
 
         .job-id-badge {
