@@ -57,12 +57,142 @@ body {
     margin: auto;
 }
 
+/* ===== STOCK MANAGEMENT HEADER ===== */
+.stock-header {
+    position: relative;
+    overflow: hidden;
+    min-height: 132px;
+    margin-bottom: 22px;
+    padding: 26px 30px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #2ecc71 0%, #2ecc71 100%);
+    color: #0f172a !important;
+    box-shadow: 0 10px 30px rgba(46, 204, 113, 0.40);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-align: center;
+}
+
+.stock-header::before,
+.stock-header::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.10);
+    pointer-events: none;
+}
+
+.stock-header::before {
+    width: 230px;
+    height: 230px;
+    right: -72px;
+    top: -118px;
+}
+
+.stock-header::after {
+    width: 130px;
+    height: 130px;
+    right: 132px;
+    bottom: -92px;
+}
+
+.stock-heading-wrap {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    width: 100%;
+}
+
+.stock-header-icon {
+    width: 62px;
+    height: 62px;
+    flex: 0 0 62px;
+    display: grid;
+    place-items: center;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.34);
+    border: 1px solid rgba(15, 23, 42, 0.30);
+    box-shadow: 0 6px 16px rgba(8, 78, 46, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.38);
+    color: #0f172a !important;
+    backdrop-filter: blur(8px);
+}
+
+.stock-header-icon svg {
+    width: 34px;
+    height: 34px;
+    color: #0f172a !important;
+    stroke: #0f172a !important;
+    filter: none;
+}
+
+.stock-eyebrow {
+    margin-bottom: 5px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: #123524 !important;
+    text-shadow: none;
+}
+
+.stock-header h1 {
+    margin: 0 0 5px;
+    font-size: clamp(25px, 3vw, 36px);
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: -0.7px;
+    color: #081c12 !important;
+    text-shadow: none;
+}
+
+.stock-header p {
+    margin: 0;
+    max-width: 620px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #123524 !important;
+    font-weight: 700;
+    text-shadow: none;
+}
+
+.stock-live-badge {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 15px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.34);
+    border: 1px solid rgba(15, 23, 42, 0.28);
+    color: #0f172a !important;
+    font-size: 12px;
+    font-weight: 700;
+    backdrop-filter: blur(8px);
+    text-shadow: none;
+}
+
+.stock-live-badge::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #0f172a;
+    box-shadow: 0 0 0 5px rgba(15, 23, 42, 0.10);
+}
+
 /* ===== COMPACT CARDS ===== */
 .cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 16px;
-    margin-top: 15px;
     margin-bottom: 28px;
 }
 
@@ -85,9 +215,20 @@ body {
     box-shadow: var(--shadow-lg);
 }
 
-.card span {
-    font-size: 26px;
-    margin-bottom: 8px;
+.card .card-icon {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 10px;
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.65);
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+}
+
+.card .card-icon svg {
+    width: 23px;
+    height: 23px;
 }
 
 .card h3 {
@@ -144,6 +285,30 @@ body {
     border: 1px solid var(--border);
 }
 
+.content-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding-bottom: 20px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--border);
+}
+
+.content-heading h2 {
+    margin: 0 0 5px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.3px;
+}
+
+.content-heading p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
 /* ===== SEARCH BAR ===== */
 .search-add-bar {
     display: flex;
@@ -155,14 +320,30 @@ body {
 }
 
 .search-box {
-    width: 290px;
-    padding: 13px 18px;
+    width: 310px;
+    padding: 13px 18px 13px 44px;
     border: 2px solid var(--border);
     border-radius: 14px;
     font-size: 14px;
     outline: none;
     background: #f8fafc;
     transition: 0.3s;
+}
+
+.search-wrap {
+    position: relative;
+    width: 310px;
+}
+
+.search-wrap svg {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    color: #64748b;
+    transform: translateY(-50%);
+    pointer-events: none;
 }
 
 .search-box:focus {
@@ -305,6 +486,14 @@ body.dark-mode .content-box {
     border-color: rgba(255,255,255,0.08);
 }
 
+body.dark-mode .content-heading {
+    border-bottom-color: rgba(255,255,255,0.08);
+}
+
+body.dark-mode .content-heading h2 {
+    color: #f8fafc;
+}
+
 body.dark-mode td {
     color: #cbd5e1;
     border-bottom-color: rgba(255,255,255,0.06);
@@ -355,6 +544,40 @@ body.dark-mode .table-box {
         margin-bottom: 20px;
     }
 
+    .stock-header {
+        min-height: auto;
+        padding: 22px 18px;
+        border-radius: 18px;
+        align-items: center;
+        text-align: center;
+    }
+
+    .stock-heading-wrap {
+        align-items: center;
+        justify-content: center;
+        gap: 13px;
+    }
+
+    .stock-header-icon {
+        width: 50px;
+        height: 50px;
+        flex-basis: 50px;
+        border-radius: 14px;
+    }
+
+    .stock-header-icon svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .stock-header p {
+        font-size: 12px;
+    }
+
+    .stock-live-badge {
+        display: none;
+    }
+
     .card {
         padding: 14px 10px;
         border-radius: 14px;
@@ -378,6 +601,15 @@ body.dark-mode .table-box {
         border-radius: 18px;
     }
 
+    .content-heading {
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+    }
+
+    .content-heading h2 {
+        font-size: 18px;
+    }
+
     .search-add-bar {
         flex-direction: column;
         align-items: stretch;
@@ -385,6 +617,7 @@ body.dark-mode .table-box {
         margin-bottom: 18px;
     }
 
+    .search-wrap,
     .search-box {
         width: 100%;
     }
@@ -545,35 +778,82 @@ body.dark-mode .table-box {
 
 <div class="page-container">
 
+    <section class="stock-header">
+        <div class="stock-heading-wrap">
+            <div class="stock-header-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 8l-9 5-9-5"></path>
+                    <path d="M3 16l9 5 9-5"></path>
+                    <path d="M3 12l9 5 9-5"></path>
+                    <path d="M12 3l9 5-9 5-9-5 9-5z"></path>
+                </svg>
+            </div>
+            <div>
+                <div class="stock-eyebrow">Inventory Control</div>
+                <h1>Stock Management</h1>
+                <p>Monitor inventory levels, search items and update stock quantities from one place.</p>
+            </div>
+        </div>
+        <div class="stock-live-badge">Live Inventory Overview</div>
+    </section>
+
     <div class="cards">
         <div class="card total" onclick="showAll()">
-            <span></span>
+            <span class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 8l-9 5-9-5"></path><path d="M3 16l9 5 9-5"></path><path d="M3 12l9 5 9-5"></path><path d="M12 3l9 5-9 5-9-5 9-5z"></path>
+                </svg>
+            </span>
             <h3>Total Items</h3>
             <h1><?= $totalItems ?></h1>
         </div>
 
         <div class="card in" onclick="filterIn()">
-            <span></span>
+            <span class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 6L9 17l-5-5"></path>
+                </svg>
+            </span>
             <h3>In Stock</h3>
             <h1><?= $inStock ?></h1>
         </div>
 
         <div class="card out" onclick="filterOut()">
-            <span></span>
+            <span class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9"></circle><path d="M9 9l6 6M15 9l-6 6"></path>
+                </svg>
+            </span>
             <h3>Out Stock</h3>
             <h1><?= $outStock ?></h1>
         </div>
 
         <div class="card low" onclick="filterLow()">
-            <span></span>
+            <span class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.3 3.7L2.4 17.3A2 2 0 004.1 20h15.8a2 2 0 001.7-2.7L13.7 3.7a2 2 0 00-3.4 0z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path>
+                </svg>
+            </span>
             <h3>Low Stock</h3>
             <h1><?= $lowStock ?></h1>
         </div>
     </div>
 
     <div class="content-box">
+        <div class="content-heading">
+            <div>
+                <h2>Inventory Items</h2>
+                <p>Search, review and update the available quantity of each item.</p>
+            </div>
+        </div>
+
         <div class="search-add-bar">
-            <input type="text" class="search-box" placeholder="🔍 Search item..." onkeyup="searchTable(this.value)">
+            <div class="search-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path>
+                </svg>
+                <input type="text" class="search-box" placeholder="Search by code, item or category..." onkeyup="searchTable(this.value)">
+            </div>
             <a href="stock_register.php" class="add-btn">+ Add Item</a>
         </div>
 
