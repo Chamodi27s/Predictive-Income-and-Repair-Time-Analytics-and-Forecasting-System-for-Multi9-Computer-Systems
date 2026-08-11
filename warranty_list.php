@@ -46,9 +46,9 @@ if(isset($_GET['range'])) {
         .filter-btn { padding: 8px 15px; border-radius: 8px; border: 1px solid var(--border); background: white; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.3s; }
         .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
         th { background: #f8fafc; color: #64748b; padding: 14px 18px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
-        td { padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #1e293b; transition: background 0.2s; }
+        td { padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #1e293b; transition: background 0.2s; vertical-align: middle; }
         .status-select { padding: 8px 12px; border-radius: 10px; border: 2px solid var(--border); font-weight: 700; font-size: 13px; background: white; transition: all 0.3s ease; }
         .status-select:disabled { background: #f1f5f9; cursor: not-allowed; opacity: 0.7; }
         .supplier-input { padding: 10px 14px; border-radius: 10px; border: 2px solid var(--border); width: 150px; background: #f8fafc; font-weight: 600; transition: all 0.3s ease; }
