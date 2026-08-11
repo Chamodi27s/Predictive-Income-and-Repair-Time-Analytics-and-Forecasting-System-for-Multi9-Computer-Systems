@@ -470,7 +470,7 @@ function sendEstimateSMS(row_uid, job_no) {
     xhr.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             if (this.responseText.trim().includes("success")) {
-                alert("Estimate SMS එක සාර්ථකව යවන ලදී!");
+                alert("Estimate SMS sent successfully to the customer.");
             } else {
                 alert("Error sending SMS: " + this.responseText);
             }
