@@ -2,7 +2,8 @@
 include 'db_config.php';
 include 'navbar.php'; 
 
-$filter_query = " WHERE (jd.warranty_status = 'No' OR jd.warranty_status = 'No Warranty' OR jd.warranty_status IS NULL OR jd.warranty_status = '') ";
+$filter_query = " WHERE (jd.warranty_status = 'No' OR jd.warranty_status = 'No Warranty' OR jd.warranty_status IS NULL OR jd.warranty_status = '') 
+                  AND (j.job_status != 'Approved' OR j.job_status IS NULL) ";
 
 if(isset($_GET['range'])) {
     if($_GET['range'] == 'today') {
@@ -35,11 +36,9 @@ if(isset($_GET['range'])) {
     --primary-hover: #27ae60;
     --success: #22c55e;
     --warning: #f59e0b;
-
     --purple: #7c3aed;
     --purple-dark: #5b21b6;
     --purple-soft: #ede9fe;
-
     --bg-main: #f8fafc;
     --card-bg: #ffffff;
     --text-main: #1e293b;
@@ -90,7 +89,6 @@ body {
     border: 1px solid var(--border);
 }
 
-/* filters */
 .filter-buttons {
     display: flex;
     gap: 10px;
@@ -121,7 +119,6 @@ body {
     border-color: transparent;
 }
 
-/* table */
 .table-container {
     overflow-x: auto;
     border-radius: 16px;
@@ -162,7 +159,6 @@ tbody tr:hover {
     transform: translateX(4px);
 }
 
-/* inputs */
 .table-input,
 .est-input {
     border: 2px solid transparent;
@@ -193,7 +189,6 @@ tbody tr:hover {
     border: 2px solid var(--primary) !important;
 }
 
-/* advance badge - purple */
 .advance-badge {
     background: linear-gradient(135deg, #ede9fe, #c4b5fd);
     color: #5b21b6;
@@ -206,7 +201,6 @@ tbody tr:hover {
     white-space: nowrap;
 }
 
-/* selects */
 .status-select {
     padding: 10px 14px;
     border-radius: 12px;
@@ -226,7 +220,6 @@ tbody tr:hover {
     color: #166534;
 }
 
-/* buttons */
 .action-buttons {
     display: flex;
     flex-direction: column;
@@ -266,14 +259,6 @@ tbody tr:hover {
     transform: translateY(-3px);
 }
 
-.btn-sms:hover {
-    box-shadow: 0 8px 18px rgba(249,115,22,0.38);
-}
-
-.btn-edit:hover {
-    box-shadow: 0 8px 18px rgba(59,130,246,0.38);
-}
-
 .status-wrapper {
     display: flex;
     align-items: center;
@@ -289,7 +274,6 @@ tbody tr:hover {
     white-space: nowrap;
 }
 
-/* dark mode */
 body.dark-mode {
     background: linear-gradient(135deg, #020617, #0f172a) !important;
     color: #e2e8f0 !important;
@@ -321,302 +305,6 @@ body.dark-mode .advance-badge {
     background: rgba(124,58,237,0.2);
     color: #c4b5fd;
 }
-
-/* ==================== RESPONSIVE MEDIA QUERIES ==================== */
-
-/* Tablet & Medium Screens (Max-width: 1024px) */
-@media (max-width: 1024px) {
-    body {
-        padding: 120px 16px 40px;
-    }
-
-    .page-header {
-        margin-top: 15px;
-        padding: 28px 24px;
-        margin-bottom: 24px;
-    }
-
-    .page-header h1 {
-        font-size: 26px;
-    }
-
-    .container {
-        padding: 24px;
-    }
-
-    .filter-btn {
-        padding: 9px 14px;
-        font-size: 13px;
-    }
-}
-
-/* Mobile & Small Tablets (Max-width: 768px) */
-@media (max-width: 768px) {
-    body {
-        padding: 80px 12px 100px; /* Top spacing above header and bottom protection for chatbot */
-    }
-
-    .page-header {
-        margin-top: 10px;
-        padding: 22px 16px;
-        border-radius: 18px;
-        margin-bottom: 18px;
-    }
-
-    .page-header h1 {
-        font-size: 22px;
-    }
-
-    .page-header p {
-        font-size: 13px;
-    }
-
-    .container {
-        padding: 14px 10px;
-        border-radius: 18px;
-    }
-
-    /* Filter Buttons in 2x2 Compact Grid */
-    .filter-buttons {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        margin-bottom: 16px;
-    }
-
-    .filter-btn {
-        width: 100%;
-        text-align: center;
-        padding: 11px 8px;
-        font-size: 13px;
-        border-radius: 12px;
-    }
-
-    /* Transform Table into Responsive Cards on Mobile */
-    .table-container {
-        border: none;
-        background: transparent;
-        border-radius: 0;
-        overflow: visible;
-    }
-
-    table#jobsTable,
-    table#jobsTable tbody,
-    table#jobsTable tr,
-    table#jobsTable td {
-        display: block;
-        width: 100%;
-    }
-
-    table#jobsTable {
-        min-width: 0 !important;
-    }
-
-    table#jobsTable thead {
-        display: none;
-    }
-
-    table#jobsTable tbody tr {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px 10px;
-        background: var(--card-bg);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        margin-bottom: 16px;
-        padding: 16px;
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
-        position: relative;
-    }
-
-    table#jobsTable tbody tr:hover {
-        transform: none;
-    }
-
-    body.dark-mode table#jobsTable tbody tr {
-        background: rgba(30, 41, 59, 0.9) !important;
-        border-color: rgba(255, 255, 255, 0.1);
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
-    }
-
-    /* Card Field Cells */
-    table#jobsTable td {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
-        padding: 0;
-        border: none;
-        font-size: 14px;
-    }
-
-    /* Labels for mobile cards */
-    table#jobsTable td::before {
-        content: attr(data-label);
-        font-weight: 800;
-        font-size: 11px;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    body.dark-mode table#jobsTable td::before {
-        color: #94a3b8;
-    }
-
-    /* Row 1: Header - Job No (Left) & Status (Right) */
-    table#jobsTable td:nth-child(1) {
-        grid-column: 1 / 2;
-        grid-row: 1;
-        font-size: 18px;
-        font-weight: 800;
-        color: var(--primary-hover);
-        padding-bottom: 8px;
-        border-bottom: 1.5px dashed var(--border);
-        justify-content: center;
-    }
-
-    table#jobsTable td:nth-child(1)::before {
-        display: none;
-    }
-
-    table#jobsTable td:nth-child(8) {
-        grid-column: 2 / 3;
-        grid-row: 1;
-        align-items: flex-end;
-        padding-bottom: 8px;
-        border-bottom: 1.5px dashed var(--border);
-    }
-
-    table#jobsTable td:nth-child(8)::before {
-        display: none;
-    }
-
-    table#jobsTable td:nth-child(8) .status-wrapper {
-        justify-content: flex-end;
-        width: 100%;
-    }
-
-    /* Row 2: Customer Name */
-    table#jobsTable td:nth-child(2) {
-        grid-column: 1 / -1;
-        grid-row: 2;
-    }
-
-    /* Row 3: Issue Name */
-    table#jobsTable td:nth-child(3) {
-        grid-column: 1 / -1;
-        grid-row: 3;
-    }
-
-    /* Row 4: Phone Number */
-    table#jobsTable td:nth-child(7) {
-        grid-column: 1 / -1;
-        grid-row: 4;
-    }
-
-    /* Row 5: Financial Stats - Estimate (Left) & Advance (Right) */
-    table#jobsTable td:nth-child(4) {
-        grid-column: 1 / 2;
-        grid-row: 5;
-        background: #f8fafc;
-        padding: 10px;
-        border-radius: 12px;
-        border: 1px solid var(--border);
-    }
-
-    table#jobsTable td:nth-child(5) {
-        grid-column: 2 / 3;
-        grid-row: 5;
-        background: #f8fafc;
-        padding: 10px;
-        border-radius: 12px;
-        border: 1px solid var(--border);
-    }
-
-    body.dark-mode table#jobsTable td:nth-child(4),
-    body.dark-mode table#jobsTable td:nth-child(5) {
-        background: rgba(15, 23, 42, 0.6);
-        border-color: rgba(255, 255, 255, 0.08);
-    }
-
-    /* Row 6: Category */
-    table#jobsTable td:nth-child(6) {
-        grid-column: 1 / -1;
-        grid-row: 6;
-    }
-
-    /* Row 7: Action Buttons */
-    table#jobsTable td:nth-child(9) {
-        grid-column: 1 / -1;
-        grid-row: 7;
-        padding-top: 4px;
-    }
-
-    table#jobsTable td:nth-child(9)::before {
-        display: none;
-    }
-
-    /* Controls inside mobile cards */
-    .table-input,
-    .est-input,
-    .status-select {
-        width: 100% !important;
-        max-width: 100% !important;
-        font-size: 14px;
-        padding: 9px 12px;
-        border-radius: 10px;
-        text-align: left;
-    }
-
-    .advance-badge {
-        width: 100%;
-        text-align: center;
-        padding: 8px 10px;
-        font-size: 13px;
-    }
-
-    .action-buttons {
-        display: flex;
-        flex-direction: row;
-        gap: 8px;
-        width: 100%;
-    }
-
-    .btn-sms,
-    .btn-edit {
-        flex: 1;
-        padding: 11px 10px;
-        font-size: 13px;
-        border-radius: 12px;
-    }
-}
-
-/* Extra Small Phones (Max-width: 480px) */
-@media (max-width: 480px) {
-    body {
-        padding: 80px 8px 100px;
-    }
-
-    .container {
-        padding: 10px 8px;
-    }
-
-    table#jobsTable tbody tr {
-        padding: 14px 12px;
-        gap: 10px 8px;
-    }
-
-    .action-buttons {
-        flex-direction: row;
-    }
-
-    .btn-sms,
-    .btn-edit {
-        padding: 10px;
-        font-size: 12.5px;
-    }
-}
 </style>
 </head>
 
@@ -624,7 +312,7 @@ body.dark-mode .advance-badge {
 
 <div class="page-container">
     <div class="page-header">
-        <h1> Jobs Management</h1>
+        <h1>Jobs Management</h1>
         <p>Manage non-warranty jobs, estimates and approvals</p>
     </div>
 
@@ -680,7 +368,7 @@ body.dark-mode .advance-badge {
 
                         $status_class = ($status_val == 'Approved') ? 'status-approved' : 'status-pending';
                 ?>
-                    <tr id="row-<?= $row_uid ?>">
+                    <tr id="row-<?= $row_uid ?>" data-jobno="<?= $id ?>">
                         <td data-label="Job No"><strong>#<?= $id ?></strong></td>
 
                         <td data-label="Customer">
@@ -706,8 +394,8 @@ body.dark-mode .advance-badge {
                         <td data-label="Category">
                             <select id="cat-<?= $row_uid ?>" class="status-select"
                             onchange="saveToDB('<?= $row_uid ?>', '<?= $id ?>')">
-                                <option value="Hardware" <?= $cat_val == 'Hardware' ? 'selected' : ''; ?>> Hardware</option>
-                                <option value="Software" <?= $cat_val == 'Software' ? 'selected' : ''; ?>> Software</option>
+                                <option value="Hardware" <?= $cat_val == 'Hardware' ? 'selected' : ''; ?>>Hardware</option>
+                                <option value="Software" <?= $cat_val == 'Software' ? 'selected' : ''; ?>>Software</option>
                             </select>
                         </td>
 
@@ -720,16 +408,16 @@ body.dark-mode .advance-badge {
                             <div class="status-wrapper">
                                 <select id="stat-<?= $row_uid ?>" class="status-select <?= $status_class ?>"
                                 onchange="updateStatusOnly('<?= $row_uid ?>', '<?= $id ?>')">
-                                    <option value="Pending" <?= $status_val == 'Pending' ? 'selected' : ''; ?>> Pending</option>
-                                    <option value="Approved" <?= $status_val == 'Approved' ? 'selected' : ''; ?>> Approved</option>
+                                    <option value="Pending" <?= $status_val == 'Pending' ? 'selected' : ''; ?>>Pending</option>
+                                    <option value="Approved" <?= $status_val == 'Approved' ? 'selected' : ''; ?>>Approved</option>
                                 </select>
-                                <span id="msg-<?= $row_uid ?>" class="save-msg"> Saved</span>
+                                <span id="msg-<?= $row_uid ?>" class="save-msg">Saved</span>
                             </div>
                         </td>
 
                         <td data-label="Action">
                             <div class="action-buttons">
-                                <button class="btn-sms" onclick="sendEstimateSMS('<?= $row_uid ?>', '<?= $id ?>')"> Send Estimate</button>
+                                <button class="btn-sms" onclick="sendEstimateSMS('<?= $row_uid ?>', '<?= $id ?>')">Send Estimate</button>
                                 <button id="btn-edit-<?= $row_uid ?>" class="btn-edit" onclick="toggleEdit('<?= $row_uid ?>', '<?= $id ?>')">Edit</button>
                             </div>
                             <input type="hidden" id="email-<?= $row_uid ?>" value="<?= $row['email']; ?>">
@@ -782,7 +470,7 @@ function sendEstimateSMS(row_uid, job_no) {
     xhr.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             if (this.responseText.trim().includes("success")) {
-                alert("Estimate SMS එක සාර්ථකව යවන ලදී!");
+                alert("Estimate SMS sent successfully to the customer.");
             } else {
                 alert("Error sending SMS: " + this.responseText);
             }
@@ -797,7 +485,7 @@ function updateStatusOnly(row_uid, job_no) {
     let advanceAmount = 0;
 
     if (statSelect.value === 'Approved') {
-        if (confirm("Did the customer confirm this? Once approved, it will be removed from this list..")) {
+        if (confirm("Did the customer confirm this? Once approved, it will be removed from this list and redirected to jobs list.")) {
             let userInput = prompt("Enter the advance amount paid by the customer:", "0");
 
             if (userInput === null) {
@@ -806,23 +494,72 @@ function updateStatusOnly(row_uid, job_no) {
             }
 
             advanceAmount = parseFloat(userInput) || 0;
-            saveToDB(row_uid, job_no, advanceAmount);
+            
+            updateAllRowsForJobNo(job_no, 'Approved', advanceAmount);
         } else {
             statSelect.value = 'Pending';
         }
     } else {
-        saveToDB(row_uid, job_no, 0);
+        updateAllRowsForJobNo(job_no, 'Pending', 0);
     }
 }
 
-function saveToDB(row_uid, job_no, advance = 0, callback = null) {
+function updateAllRowsForJobNo(job_no, statusVal, advanceAmount) {
+    const rows = document.querySelectorAll(`tr[data-jobno='${job_no}']`);
+    rows.forEach(row => {
+        const select = row.querySelector('.status-select');
+        if(select) {
+            select.value = statusVal;
+            if(statusVal === 'Approved') {
+                select.classList.remove('status-pending');
+                select.classList.add('status-approved');
+            } else {
+                select.classList.remove('status-approved');
+                select.classList.add('status-pending');
+            }
+        }
+    });
+
+    rows.forEach(row => {
+        const current_row_uid = row.id.replace('row-', '');
+        saveToDBWithoutRedirect(current_row_uid, job_no, advanceAmount, statusVal);
+    });
+
+    if(statusVal === 'Approved') {
+        setTimeout(() => {
+            window.location.href = 'job_list.php';
+        }, 1000);
+    }
+}
+
+function saveToDBWithoutRedirect(row_uid, job_no, advance, statusVal) {
     const data = {
         job_no: job_no,
         customer_name: document.getElementById('name-' + row_uid).value,
         email: document.getElementById('email-' + row_uid).value,
         issue_name: document.getElementById('issue-' + row_uid).value,
         phone_number: document.getElementById('phone-' + row_uid).value,
-        job_status: document.getElementById('stat-' + row_uid).value,
+        job_status: statusVal,
+        issue_category: document.getElementById('cat-' + row_uid).value,
+        estimated_cost: document.getElementById('est-' + row_uid).value,
+        advance_paid: advance
+    };
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "update_engine.php", true);
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhr.send("id=" + encodeURIComponent(job_no) + "&data=" + encodeURIComponent(JSON.stringify(data)));
+}
+
+function saveToDB(row_uid, job_no, advance = 0, callback = null) {
+    const statusVal = document.getElementById('stat-' + row_uid).value;
+    const data = {
+        job_no: job_no,
+        customer_name: document.getElementById('name-' + row_uid).value,
+        email: document.getElementById('email-' + row_uid).value,
+        issue_name: document.getElementById('issue-' + row_uid).value,
+        phone_number: document.getElementById('phone-' + row_uid).value,
+        job_status: statusVal,
         issue_category: document.getElementById('cat-' + row_uid).value,
         estimated_cost: document.getElementById('est-' + row_uid).value,
         advance_paid: advance
@@ -840,8 +577,8 @@ function saveToDB(row_uid, job_no, advance = 0, callback = null) {
                 setTimeout(() => {
                     document.getElementById('msg-' + row_uid).style.display = 'none';
 
-                    if (data.job_status === 'Approved') {
-                        location.reload();
+                    if (statusVal === 'Approved') {
+                        window.location.href = 'job_list.php';
                     }
                 }, 1000);
 
@@ -865,7 +602,7 @@ function toggleEdit(row_uid, job_no) {
             el.classList.add('editing-active');
         });
 
-        btn.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Save';
+        btn.innerHTML = 'Save';
     } else {
         saveToDB(row_uid, job_no, 0, () => {
             fields.forEach(f => {
@@ -874,7 +611,7 @@ function toggleEdit(row_uid, job_no) {
                 el.classList.remove('editing-active');
             });
 
-            btn.innerHTML = '<i class="ph-bold ph-pencil-simple"></i> Edit';
+            btn.innerHTML = 'Edit';
         });
     }
 }
