@@ -48,10 +48,10 @@ $filter_status = isset($_GET['status']) ? mysqli_real_escape_string($conn, $_GET
 $status_flow = ['Pending', 'In Progress', 'Completed', 'Returned'];
 
 $sql = "SELECT j.job_no, j.job_date, jd.advance_paid, t.name as technician_name, c.customer_name, j.phone_number, 
-                jd.job_device_id, jd.device_name, jd.issue_name, jd.solution,
-                CASE WHEN inv.payment_status = 'Paid' THEN 'Returned' ELSE jd.device_status END AS device_status,
-                jd.completed_date, jd.destroy_notice_sent_date, jd.rent_warning_sent,
-                inv.payment_status
+               jd.job_device_id, jd.device_name, jd.issue_name, jd.solution,
+               CASE WHEN inv.payment_status = 'Paid' THEN 'Returned' ELSE jd.device_status END AS device_status,
+               jd.completed_date, jd.destroy_notice_sent_date, jd.rent_warning_sent,
+               inv.payment_status
         FROM job j
         INNER JOIN customer c ON j.phone_number = c.phone_number
         INNER JOIN job_device jd ON j.job_no = jd.job_no 
@@ -312,7 +312,14 @@ $result = mysqli_query($conn, $sql);
                                 <?php endforeach; ?>
                             </select>
                             
-                            <?php if($delay_fee > 0): ?>
+                            <?php if($days_passed >= 365 && $current_status == 'Completed'): ?>
+                                <div style="margin-top: 8px; padding: 6px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 8px;">
+                                    <div style="color: #dc2626; font-weight: 900; font-size: 11px; margin-bottom: 4px;">
+                                         OVER 1 YEAR
+                                    </div>
+                                    <button class="sms-btn" style="background: #ef4444 !important;" onclick="sendDestroySMS(<?= $id ?>)"><i class="ph ph-trash"></i> DESTROY SMS</button>
+                                </div>
+                            <?php elseif($delay_fee > 0): ?>
                                 <div style="margin-top: 8px; padding: 6px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 8px;">
                                     <div style="color: #dc2626; font-weight: 900; font-size: 11px; margin-bottom: 4px;">
                                          RENT: Rs. <?= $delay_fee ?>
@@ -426,7 +433,6 @@ function toggleEdit(id) {
 // Added JS function for the Destroy SMS button
 function sendDestroySMS(id) {
     if(confirm("Are you sure you want to send a destroy notice for this device?")) {
-        // Here you can point this to your actual API that sends the destroy SMS
         fetch('./send_sms_api.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
