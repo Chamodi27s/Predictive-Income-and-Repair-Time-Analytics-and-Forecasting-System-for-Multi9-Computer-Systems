@@ -9,7 +9,6 @@ if (isset($_POST['id']) && isset($_POST['data'])) {
         die("Invalid JSON format");
     }
 
-    
     $stmt_get_phone = $conn->prepare("SELECT phone_number FROM job WHERE job_no = ?");
     $stmt_get_phone->bind_param("s", $id);
     $stmt_get_phone->execute();
@@ -26,9 +25,20 @@ if (isset($_POST['id']) && isset($_POST['data'])) {
     $clean_phone = preg_replace('/[^0-9]/', '', $current_phone);
     $phone = "94" . ltrim($clean_phone, '0');
 
-    
+    // 1. Send Estimate SMS Action එක ක්‍රියාත්මක වන විට
     if (isset($data['action']) && $data['action'] === 'send_estimate_sms') {
-        $total_cost = number_format($data['estimated_cost'], 2);
+        
+        // Input එකෙන් එන Cost එක ලබා ගැනීම
+        $raw_cost = isset($data['estimated_cost']) && is_numeric($data['estimated_cost']) ? $data['estimated_cost'] : 0;
+        
+        // **වැදගත්ම දෙය:** SMS එක යවන්න කලින්, Input එකේ දුන් Estimate අගය Database එකේ `estimated_cost` කණුවට (Column) Save කරගැනීම!
+        $stmt_update_cost = $conn->prepare("UPDATE job SET estimated_cost = ? WHERE job_no = ?");
+        $stmt_update_cost->bind_param("ds", $raw_cost, $id);
+        $stmt_update_cost->execute();
+        $stmt_update_cost->close();
+
+        // Parts සහ අනෙකුත් විස්තර Save කරගැනීම
+        $total_cost = number_format((float)$raw_cost, 2);
         $parts_with_prices = $data['parts_details']; 
         $name = $data['customer_name'];
         $issue = $data['issue_name'];
@@ -38,6 +48,7 @@ if (isset($_POST['id']) && isset($_POST['data'])) {
         $stmt_save_parts->execute();
         $stmt_save_parts->close();
 
+        // SMS එක සකස් කිරීම
         $message = "Multi9: Hi $name, Job #$id ($issue) Estimate:\n";
         $message .= "Parts: $parts_with_prices\n";
         $message .= "Total: Rs.$total_cost\n";
@@ -66,22 +77,20 @@ if (isset($_POST['id']) && isset($_POST['data'])) {
         exit; 
     }
 
-    
-    
-    // 1. Customer table update 
+    // 2. Customer table update 
     $sql1 = "UPDATE customer SET customer_name = ?, email = ? WHERE phone_number = ?";
     $stmt1 = $conn->prepare($sql1);
     $stmt1->bind_param("sss", $data['customer_name'], $data['email'], $current_phone);
     $stmt1->execute();
 
-    // 2. Job table update 
+    // 3. Job table update 
     $advance = isset($data['advance_paid']) ? $data['advance_paid'] : 0;
     $sql2 = "UPDATE job SET job_status = ?, estimated_cost = ?, advance_paid = ? WHERE job_no = ?";
     $stmt2 = $conn->prepare($sql2);
     $stmt2->bind_param("sdds", $data['job_status'], $data['estimated_cost'], $advance, $id);
     $stmt2->execute();
 
-    // 3. Job Device table update 
+    // 4. Job Device table update 
     $sql3 = "UPDATE job_device SET issue_category = ? WHERE job_no = ? AND issue_name = ?";
     $stmt3 = $conn->prepare($sql3);
     $stmt3->bind_param("sss", $data['issue_category'], $id, $data['issue_name']);
