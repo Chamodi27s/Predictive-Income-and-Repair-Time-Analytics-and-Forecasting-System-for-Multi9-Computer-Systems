@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $cust_sql = "INSERT INTO customer (phone_number, customer_name, email, address) 
                  VALUES ('$phone', '$cust_name', '$email', '$address') 
                  ON DUPLICATE KEY UPDATE customer_name='$cust_name', email='$email', address='$address'";
-    mysqli_query($conn, $cust_sql)
+    mysqli_query($conn, $cust_sql);
     $sql_job = "INSERT INTO job (job_no, job_date, phone_number, technician_id) 
                 VALUES ('$job_no', '$job_date', '$phone', '$tech_id')";
     
