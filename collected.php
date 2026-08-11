@@ -309,19 +309,65 @@ body.dark-mode .advance-badge {
 
 @media(max-width: 768px) {
     body {
-        padding: 110px 15px 30px;
+        padding: 110px 12px 20px;
     }
 
     .page-header {
-        padding: 28px 20px;
+        padding: 24px 16px;
+        border-radius: 16px;
+        margin-bottom: 20px;
     }
 
     .page-header h1 {
-        font-size: 25px;
+        font-size: 24px;
+    }
+
+    .page-header p {
+        font-size: 13px;
     }
 
     .container {
-        padding: 20px;
+        padding: 15px;
+        border-radius: 16px;
+        overflow-x: hidden;
+    }
+
+    .filter-buttons {
+        gap: 6px;
+        margin-bottom: 15px;
+    }
+
+    .filter-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+        border-radius: 10px;
+        flex: 1;
+        text-align: center;
+        min-width: 75px;
+    }
+
+    .table-container {
+        border-radius: 12px;
+        box-shadow: none;
+    }
+
+    table {
+        min-width: 1000px;
+    }
+
+    th, td {
+        padding: 12px 10px;
+        font-size: 13px;
+    }
+
+    .est-input {
+        width: 90px;
+    }
+
+    .btn-sms, .btn-edit {
+        padding: 8px 12px;
+        font-size: 12px;
+        border-radius: 10px;
     }
 }
 </style>
@@ -466,7 +512,7 @@ syncTheme();
 setInterval(syncTheme, 1000);
 
 function sendEstimateSMS(row_uid, job_no) {
-    let parts = prompt("Enter the required parts and prices for the repair.:", "Service Charge Only");
+    let parts = prompt("Enter required parts and prices for the repair:", "Service Charge Only");
     if (parts === null) return;
 
     const data = {
@@ -500,8 +546,8 @@ function updateStatusOnly(row_uid, job_no) {
     let advanceAmount = 0;
 
     if (statSelect.value === 'Approved') {
-        if (confirm("Did the customer confirm this? Once approved, will this be removed from this list?.")) {
-            let userInput = prompt("Enter the received advance payment:", "0");
+        if (confirm("Did the customer confirm this? Once approved, it will be removed from this list.")) {
+            let userInput = prompt("Enter the received advance payment amount:", "0");
 
             if (userInput === null) {
                 statSelect.value = 'Pending';
