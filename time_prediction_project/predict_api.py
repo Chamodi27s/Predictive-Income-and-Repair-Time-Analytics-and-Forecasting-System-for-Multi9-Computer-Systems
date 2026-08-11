@@ -27,14 +27,14 @@ except Exception:
     model_time = None
 
 try:
-    if os.path.exists("parts_model.pkl"):
-        model_parts = joblib.load("parts_model.pkl")
+    if os.path.exists("../cost_prediction_project/parts_model.pkl"):
+        model_parts = joblib.load("../cost_prediction_project/parts_model.pkl")
 except Exception:
     model_parts = None
 
 try:
-    if os.path.exists("cost_model.pkl"):
-        model_cost = joblib.load("cost_model.pkl")
+    if os.path.exists("../cost_prediction_project/cost_model.pkl"):
+        model_cost = joblib.load("../cost_prediction_project/cost_model.pkl")
 except Exception:
     model_cost = None
 
@@ -43,8 +43,8 @@ df_dataset = None
 df_time_dataset = None
 
 try:
-    if os.path.exists("cleaned_parts_required_dataset.xlsx"):
-        df_dataset = pd.read_excel("cleaned_parts_required_dataset.xlsx")
+    if os.path.exists("../cost_prediction_project/cleaned_parts_required_dataset.xlsx"):
+        df_dataset = pd.read_excel("../cost_prediction_project/cleaned_parts_required_dataset.xlsx")
 except Exception:
     df_dataset = None
 
