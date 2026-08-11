@@ -337,7 +337,11 @@ $result = mysqli_query($conn, $sql);
                                 <?php endif; ?>
 
                                 <?php if($current_status == 'Completed' || $current_status == 'Returned'): ?>
-                                    <?php if(!$is_paid): ?>
+                                    <?php if($days_passed >= 365 && $current_status == 'Completed'): ?>
+                                        <button onclick="sendDestroySMS(<?= $id ?>)" class="btn-action-edit" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;" title="Send Destroy Notice">
+                                            <i class="ph ph-trash" style="font-size:15px;"></i> <span>Destroy</span>
+                                        </button>
+                                    <?php elseif(!$is_paid): ?>
                                         <a href="generate_bill.php?job_no=<?= $row['job_no'] ?>&fee=<?= $delay_fee ?>" class="bill-btn"><i class="ph ph-receipt" style="font-size:15px;"></i> BILL</a>
                                     <?php else: ?>
                                         <span class="paid-badge"><i class="ph ph-check-circle" style="font-size:15px;"></i> PAID</span>
@@ -416,6 +420,21 @@ function toggleEdit(id) {
     } else {
         // Save Mode
         updateStatusAndSMS(id);
+    }
+}
+
+// Added JS function for the Destroy SMS button
+function sendDestroySMS(id) {
+    if(confirm("Are you sure you want to send a destroy notice for this device?")) {
+        // Here you can point this to your actual API that sends the destroy SMS
+        fetch('./send_sms_api.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${id}&type=destroy` 
+        }).then(res => res.text()).then(data => { 
+            alert(data); 
+            location.reload(); 
+        });
     }
 }
 </script>
