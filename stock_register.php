@@ -86,12 +86,12 @@ $cat_items = [
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f0fdf4 0%, #f3f4f6 100%);
+            background:
+                radial-gradient(circle at 8% 18%, rgba(46, 204, 113, 0.14), transparent 27%),
+                radial-gradient(circle at 92% 82%, rgba(16, 185, 129, 0.10), transparent 25%),
+                linear-gradient(135deg, #f8fffb 0%, #f3f4f6 100%);
             margin: 0;
-            /* Navbar height offset */
-            padding-top: var(--nav-height);
-            padding-left: 20px;
-            padding-right: 20px;
+            padding: calc(var(--nav-height, 88px) + 26px) 20px 60px;
             min-height: 100vh;
             color: var(--text-dark);
             transition: all 0.3s ease;
@@ -109,7 +109,7 @@ $cat_items = [
             backdrop-filter: blur(10px);
         }
 
-        body.dark-mode .header h2, body.dark-mode label {
+        body.dark-mode .form-header h2, body.dark-mode label {
             color: #ffffff !important;
         }
 
@@ -125,17 +125,25 @@ $cat_items = [
             to { opacity: 1; transform: translateY(0); }
         }
 
+        .page-shell {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
         .form-box {
-            max-width: 750px;
-            margin: 0 auto 50px;
-            background: #ffffff;
-            padding: 40px;
+            width: 100%;
+            margin: 0;
+            background: rgba(255, 255, 255, 0.97);
+            padding: 36px;
             border-radius: 24px;
-            box-shadow: 0 20px 60px -10px rgba(16, 185, 129, 0.15);
+            box-shadow: 0 22px 55px -16px rgba(15, 23, 42, 0.20);
             animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            border: 1px solid rgba(255,255,255,0.8);
+            border: 1px solid #e5e7eb;
             position: relative;
             overflow: hidden;
+            box-sizing: border-box;
+            backdrop-filter: blur(8px);
         }
 
         .form-box::before {
@@ -146,15 +154,170 @@ $cat_items = [
             width: 100%;
             height: 6px;
             background: linear-gradient(90deg, var(--primary), #34d399);
+            z-index: 2;
         }
 
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h2 { font-size: 26px; font-weight: 800; margin: 0 0 5px 0; }
-        .header p { color: var(--text-gray); font-size: 14px; margin: 0; }
+        .form-box::after {
+            content: '';
+            position: absolute;
+            width: 190px;
+            height: 190px;
+            right: -105px;
+            top: -105px;
+            border-radius: 50%;
+            background: rgba(16, 185, 129, 0.055);
+            pointer-events: none;
+        }
+
+        .form-box > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .form-header-copy {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .form-header-icon {
+            width: 46px;
+            height: 46px;
+            flex: 0 0 46px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #047857;
+            font-size: 19px;
+            box-shadow: 0 7px 16px rgba(16, 185, 129, 0.16);
+        }
+
+        .form-header h2 {
+            font-size: 23px;
+            font-weight: 800;
+            margin: 0 0 4px;
+            color: #111827;
+        }
+
+        .form-header p {
+            color: var(--text-gray);
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .form-back-btn {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 11px;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #047857 !important;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+            transition: 0.25s ease;
+        }
+
+        .form-back-btn:hover {
+            background: #d1fae5;
+            border-color: #6ee7b7;
+            transform: translateY(-2px);
+        }
+
+        body.dark-mode .form-header {
+            border-bottom-color: #334155;
+        }
+
+        body.dark-mode .form-header-icon {
+            background: rgba(16, 185, 129, 0.15);
+            color: #6ee7b7;
+        }
+
+        body.dark-mode .form-back-btn {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: rgba(110, 231, 183, 0.35);
+            color: #6ee7b7 !important;
+        }
 
         .msg { padding: 12px; border-radius: 10px; margin-bottom: 20px; text-align: center; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .msg.success { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
         .msg.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+
+        .form-section {
+            margin-bottom: 22px;
+            padding: 22px 22px 2px;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .form-section:focus-within {
+            border-color: #a7f3d0;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.08);
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            margin-bottom: 20px;
+        }
+
+        .section-number {
+            width: 30px;
+            height: 30px;
+            flex: 0 0 30px;
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            background: #d1fae5;
+            color: #047857;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .section-heading h3 {
+            margin: 0 0 2px;
+            color: #1f2937;
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .section-heading p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 11px;
+        }
+
+        body.dark-mode .form-section {
+            background: rgba(15, 23, 42, 0.48);
+            border-color: #334155;
+        }
+
+        body.dark-mode .section-heading h3 {
+            color: #f8fafc;
+        }
+
+        body.dark-mode .section-heading p {
+            color: #94a3b8;
+        }
 
         .input-group { margin-bottom: 20px; }
         .input-group label { display: block; margin-bottom: 8px; color: #374151; font-weight: 600; font-size: 12px; text-transform: uppercase; }
@@ -173,37 +336,137 @@ $cat_items = [
             box-sizing: border-box;
         }
 
+        input:hover,
+        select:hover {
+            border-color: #cbd5e1;
+            background: #ffffff;
+        }
+
+        input::placeholder {
+            color: #9ca3af;
+        }
+
         input:focus, select:focus { border-color: var(--primary); outline: none; background: #fff; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
 
         .row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-        button {
+        .form-actions {
+            display: grid;
+            grid-template-columns: minmax(150px, 0.7fr) minmax(230px, 1.3fr);
+            gap: 14px;
+            margin-top: 8px;
+        }
+
+        .save-btn,
+        .cancel-btn {
             width: 100%;
             padding: 16px;
-            border: none;
             border-radius: 12px;
             font-size: 16px;
             cursor: pointer;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: #fff;
             font-weight: 700;
-            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
             transition: 0.3s;
-            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            box-sizing: border-box;
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
         }
 
-        button:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(16, 185, 129, 0.3); }
+        .save-btn {
+            border: none;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.20);
+        }
 
-        @media (max-width: 650px) { .row { grid-template-columns: 1fr; gap: 0; } body { padding-top: 90px; } }
+        .cancel-btn {
+            border: 2px solid #d1d5db;
+            background: #ffffff;
+            color: #374151 !important;
+        }
+
+        .save-btn:hover,
+        .cancel-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .save-btn:hover {
+            box-shadow: 0 12px 25px rgba(16, 185, 129, 0.30);
+        }
+
+        .cancel-btn:hover {
+            border-color: #9ca3af;
+            background: #f9fafb;
+        }
+
+        body.dark-mode .cancel-btn {
+            background: #0f172a;
+            border-color: #475569;
+            color: #e2e8f0 !important;
+        }
+
+        @media (max-width: 650px) {
+            body {
+                padding: calc(var(--nav-height, 82px) + 18px) 12px 90px;
+            }
+
+            .form-box {
+                padding: 26px 18px;
+                border-radius: 18px;
+            }
+
+            .form-section {
+                padding: 18px 14px 1px;
+                border-radius: 15px;
+            }
+
+            .form-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .form-header-copy {
+                align-items: flex-start;
+            }
+
+            .form-back-btn {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .form-actions {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body class="<?php echo isset($_COOKIE['darkMode']) && $_COOKIE['darkMode'] == 'enabled' ? 'dark-mode' : ''; ?>">
 
-<div class="form-box">
-    <div class="header">
-        <h2>Add New Stock</h2>
-        <p>Fill in the details below to update inventory</p>
-    </div>
+<main class="page-shell">
+    <div class="form-box">
+        <div class="form-header">
+            <div class="form-header-copy">
+                <div class="form-header-icon" aria-hidden="true">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </div>
+                <div>
+                    <h2>Register Stock Item</h2>
+                    <p>Complete all required fields before saving the inventory item.</p>
+                </div>
+            </div>
+            <a href="stock.php" class="form-back-btn">
+                <i class="fa-solid fa-arrow-left"></i>
+                Back to Stock
+            </a>
+        </div>
 
     <?php if($msg!=""){ ?>
         <div class="msg <?= $msg_type ?>">
@@ -212,6 +475,15 @@ $cat_items = [
     <?php } ?>
 
     <form method="post">
+        <section class="form-section">
+            <div class="section-heading">
+                <span class="section-number">01</span>
+                <div>
+                    <h3>Item Details</h3>
+                    <p>Enter the item identity and category information.</p>
+                </div>
+            </div>
+
         <div class="row">
             <div class="input-group">
                 <label>Item Code</label>
@@ -241,6 +513,17 @@ $cat_items = [
                 <datalist id="item_suggestions"></datalist>
             </div>
         </div>
+
+        </section>
+
+        <section class="form-section">
+            <div class="section-heading">
+                <span class="section-number">02</span>
+                <div>
+                    <h3>Stock and Pricing</h3>
+                    <p>Set the opening quantity, unit price and availability.</p>
+                </div>
+            </div>
 
         <div class="row">
             <div class="input-group">
@@ -272,9 +555,21 @@ $cat_items = [
             </div>
         </div>
 
-        <button name="save">Save Inventory Item</button>
+        </section>
+
+        <div class="form-actions">
+            <a href="stock.php" class="cancel-btn">
+                <i class="fa-solid fa-xmark"></i>
+                Cancel
+            </a>
+            <button type="submit" name="save" class="save-btn">
+                <i class="fa-solid fa-floppy-disk"></i>
+                Save Inventory Item
+            </button>
+        </div>
     </form>
-</div>
+    </div>
+</main>
 
 <script>
 const catItems = <?= json_encode($cat_items); ?>;
