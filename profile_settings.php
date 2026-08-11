@@ -60,7 +60,7 @@ if (isset($_POST['update_password'])) {
         $_SESSION['msg'] = "Passwords do not match!";
         $_SESSION['msg_type'] = "danger";
     }
-    header("Location: admin_settings.php");
+    header("Location: profile_settings.php");
     exit();
 }
 
@@ -115,22 +115,411 @@ $st = $res->fetch_assoc();
         body.dark-mode .form-control { background: #0f172a; border-color: #334155; color: #f1f5f9; }
         body.dark-mode .bg-light-subtle { background-color: rgba(30, 41, 59, 0.5) !important; border-color: #334155 !important; }
         body.dark-mode .text-dark { color: #f1f5f9 !important; }
+
+        /* ===== POLISHED SETTINGS UI ===== */
+        :root {
+            --settings-green: #2ecc71;
+            --settings-green-dark: #159957;
+            --settings-soft: #ecfdf5;
+            --settings-border: #e5e7eb;
+            --settings-ink: #0f172a;
+            --settings-muted: #64748b;
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 34px 18px 70px;
+            background:
+                radial-gradient(circle at 8% 14%, rgba(46, 204, 113, 0.13), transparent 27%),
+                radial-gradient(circle at 94% 86%, rgba(16, 185, 129, 0.09), transparent 25%),
+                linear-gradient(135deg, #f8fffb 0%, #f4f6f8 100%) !important;
+        }
+
+        .main-container {
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .page-header {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 22px;
+            margin-bottom: 22px;
+            padding: 22px 24px;
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: 0 16px 38px -18px rgba(15, 23, 42, 0.24);
+            backdrop-filter: blur(8px);
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            width: 145px;
+            height: 145px;
+            right: -70px;
+            top: -84px;
+            border-radius: 50%;
+            background: rgba(46, 204, 113, 0.09);
+            pointer-events: none;
+        }
+
+        .header-copy {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 0;
+        }
+
+        .page-icon {
+            width: 52px;
+            height: 52px;
+            flex: 0 0 52px;
+            display: grid;
+            place-items: center;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #047857;
+            font-size: 25px;
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.16);
+        }
+
+        .header-kicker {
+            display: block;
+            margin-bottom: 3px;
+            color: #059669;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .page-header h2 {
+            margin: 0 0 4px !important;
+            color: var(--settings-ink) !important;
+            font-size: clamp(23px, 3vw, 31px);
+            letter-spacing: -0.55px;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: var(--settings-muted) !important;
+            font-size: 13px;
+        }
+
+        .btn-back {
+            position: relative;
+            z-index: 1;
+            flex: 0 0 auto;
+            padding: 10px 15px;
+            border: 1px solid #a7f3d0;
+            border-radius: 11px;
+            background: var(--settings-soft);
+            color: #047857 !important;
+            box-shadow: none;
+        }
+
+        .btn-back:hover {
+            border-color: #6ee7b7;
+            background: #d1fae5;
+            color: #065f46 !important;
+            transform: translateY(-2px);
+        }
+
+        .nav-tabs {
+            flex-wrap: nowrap;
+            gap: 7px;
+            overflow-x: auto;
+            margin-bottom: 14px;
+            padding: 8px;
+            border: 1px solid var(--settings-border);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: 0 10px 26px -18px rgba(15, 23, 42, 0.30);
+            scrollbar-width: thin;
+        }
+
+        .nav-tabs .nav-item {
+            flex: 1 0 auto;
+        }
+
+        .nav-tabs .nav-link {
+            width: 100%;
+            justify-content: center;
+            white-space: nowrap;
+            padding: 11px 15px;
+            border: 1px solid transparent !important;
+            border-radius: 11px !important;
+            background: transparent;
+            color: #64748b;
+            font-size: 13px;
+            box-shadow: none;
+        }
+
+        .nav-tabs .nav-link.active {
+            border: 1px solid #a7f3d0 !important;
+            border-top: 1px solid #a7f3d0 !important;
+            border-radius: 11px !important;
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5) !important;
+            color: #047857 !important;
+            box-shadow: 0 5px 13px rgba(16, 185, 129, 0.10);
+        }
+
+        .nav-tabs .nav-link:hover:not(.active) {
+            background: #f8fafc;
+            color: #334155;
+        }
+
+        .settings-card {
+            padding: 34px;
+            border: 1px solid var(--settings-border);
+            border-radius: 20px !important;
+            background: rgba(255, 255, 255, 0.97);
+            box-shadow: 0 22px 55px -20px rgba(15, 23, 42, 0.24);
+            backdrop-filter: blur(8px);
+        }
+
+        .tab-pane {
+            min-height: 260px;
+            animation: settingsFade 0.28s ease;
+        }
+
+        @keyframes settingsFade {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            margin-bottom: 24px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--settings-border);
+            color: var(--settings-ink);
+            font-size: 17px;
+        }
+
+        .section-title i {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            background: #d1fae5;
+            color: #047857;
+            font-size: 18px;
+        }
+
+        .form-label {
+            margin-bottom: 7px;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .form-control {
+            min-height: 45px;
+            padding: 11px 13px;
+            border: 1.5px solid #dfe4ea;
+            border-radius: 11px;
+            background: #f8fafc;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        textarea.form-control {
+            min-height: auto;
+            resize: vertical;
+        }
+
+        .form-control:hover {
+            border-color: #cbd5e1;
+            background: #ffffff;
+        }
+
+        .form-control:focus {
+            border-color: #2ecc71;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.12);
+        }
+
+        .bg-light-subtle {
+            border-color: #e2e8f0 !important;
+            border-radius: 15px !important;
+            background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
+            box-shadow: none !important;
+        }
+
+        .input-group-text,
+        .input-group .btn-outline-secondary {
+            border-color: #dfe4ea !important;
+            background: #f8fafc !important;
+            color: #64748b;
+        }
+
+        .save-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 22px;
+            margin-top: 30px;
+            padding-top: 22px;
+            border-top: 1px solid var(--settings-border);
+        }
+
+        .save-copy strong,
+        .save-copy span {
+            display: block;
+        }
+
+        .save-copy strong {
+            margin-bottom: 3px;
+            color: #1e293b;
+            font-size: 13px;
+        }
+
+        .save-copy span {
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        .btn-save-main {
+            width: auto;
+            min-width: 230px;
+            margin: 0;
+            padding: 13px 20px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #2ecc71, #159957);
+            box-shadow: 0 9px 19px rgba(21, 153, 87, 0.20);
+            font-size: 14px;
+        }
+
+        .btn-save-main:hover {
+            background: linear-gradient(135deg, #27ae60, #12824a);
+            box-shadow: 0 12px 25px rgba(21, 153, 87, 0.28);
+            transform: translateY(-2px);
+        }
+
+        .btn-password {
+            padding: 11px 17px;
+            border-radius: 10px;
+            box-shadow: 0 7px 15px rgba(239, 68, 68, 0.18);
+        }
+
+        .alert {
+            border-radius: 13px !important;
+        }
+
+        body.dark-mode {
+            background:
+                radial-gradient(circle at 8% 14%, rgba(46, 204, 113, 0.09), transparent 27%),
+                linear-gradient(135deg, #020617, #0f172a) !important;
+        }
+
+        body.dark-mode .page-header,
+        body.dark-mode .nav-tabs,
+        body.dark-mode .settings-card {
+            background: rgba(30, 41, 59, 0.94) !important;
+            border-color: #334155 !important;
+        }
+
+        body.dark-mode .page-header h2,
+        body.dark-mode .save-copy strong {
+            color: #f8fafc !important;
+        }
+
+        body.dark-mode .page-header p,
+        body.dark-mode .save-copy span {
+            color: #94a3b8 !important;
+        }
+
+        body.dark-mode .nav-tabs .nav-link {
+            background: transparent;
+        }
+
+        body.dark-mode .section-title,
+        body.dark-mode .save-actions {
+            border-color: #334155;
+        }
+
+        body.dark-mode .form-control:hover,
+        body.dark-mode .form-control:focus {
+            background: #111c30 !important;
+        }
+
+        body.dark-mode .input-group-text,
+        body.dark-mode .input-group .btn-outline-secondary {
+            border-color: #334155 !important;
+            background: #0f172a !important;
+            color: #94a3b8;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 11px 90px;
+            }
+
+            .page-header {
+                align-items: stretch;
+                flex-direction: column;
+                padding: 19px 17px;
+                border-radius: 17px;
+            }
+
+            .btn-back {
+                width: 100%;
+                justify-content: center;
+                box-sizing: border-box;
+            }
+
+            .nav-tabs {
+                justify-content: flex-start;
+            }
+
+            .nav-tabs .nav-item {
+                flex: 0 0 auto;
+            }
+
+            .settings-card {
+                padding: 24px 16px;
+                border-radius: 17px !important;
+            }
+
+            .save-actions {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .btn-save-main {
+                width: 100%;
+                min-width: 0;
+            }
+        }
     </style>
 </head>
-<body id="settingsBody">
+<body id="settingsBody" class="<?= isset($_COOKIE['darkMode']) && $_COOKIE['darkMode'] === 'enabled' ? 'dark-mode' : '' ?>">
 
 <div class="container main-container">
     <div class="page-header">
-        <div>
-            <h2 class="fw-bold mb-0" style="color: var(--primary-green); display: flex; align-items: center; gap: 10px;"><i class="ph-fill ph-gear"></i> System Settings</h2>
-            <p class="text-muted mb-0">Manage and configure your system global preferences</p>
+        <div class="header-copy">
+            <div class="page-icon" aria-hidden="true"><i class="ph-fill ph-gear"></i></div>
+            <div>
+                <span class="header-kicker">Administration</span>
+                <h2 class="fw-bold">System Settings</h2>
+                <p>Manage and configure your system global preferences</p>
+            </div>
         </div>
         <a href="index.php" class="btn-back"><i class="ph ph-house"></i> Dashboard</a>
     </div>
 
     <?php if(isset($_SESSION['msg'])): ?>
         <div class="alert alert-<?= $_SESSION['msg_type'] ?> alert-dismissible fade show border-0 shadow-sm mb-4" style="border-radius: 10px;">
-            <i class="fas <?= $_SESSION['msg_type'] == 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' ?> me-2"></i>
+            <i class="ph-fill <?= $_SESSION['msg_type'] == 'success' ? 'ph-check-circle' : 'ph-warning-circle' ?> me-2"></i>
             <?= $_SESSION['msg']; unset($_SESSION['msg']); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
@@ -230,9 +619,15 @@ $st = $res->fetch_assoc();
 
             </div>
 
-            <button type="submit" name="update_settings" class="btn-save-main">
-                <i class="ph-fill ph-floppy-disk"></i> Save All Settings
-            </button>
+            <div class="save-actions">
+                <div class="save-copy">
+                    <strong>Ready to apply your changes?</strong>
+                    <span>Review the active settings tab before saving.</span>
+                </div>
+                <button type="submit" name="update_settings" class="btn-save-main">
+                    <i class="ph-fill ph-floppy-disk"></i> Save All Settings
+                </button>
+            </div>
         </form>
     </div>
 </div>
