@@ -3,7 +3,7 @@ include 'db_config.php';
 include 'navbar.php'; 
 
 $filter_query = " WHERE (jd.warranty_status = 'No' OR jd.warranty_status = 'No Warranty' OR jd.warranty_status IS NULL OR jd.warranty_status = '') 
-                  AND (j.job_status != 'Approved' OR j.job_status IS NULL) ";
+                AND (j.job_status != 'Approved' OR j.job_status IS NULL) ";
 
 if(isset($_GET['range'])) {
     if($_GET['range'] == 'today') {
@@ -36,9 +36,11 @@ if(isset($_GET['range'])) {
     --primary-hover: #27ae60;
     --success: #22c55e;
     --warning: #f59e0b;
+
     --purple: #7c3aed;
     --purple-dark: #5b21b6;
     --purple-soft: #ede9fe;
+
     --bg-main: #f8fafc;
     --card-bg: #ffffff;
     --text-main: #1e293b;
@@ -63,7 +65,6 @@ body {
     background: linear-gradient(135deg, #2ecc71, #27ae60);
     padding: 36px 40px;
     border-radius: 22px;
-    margin-top: 15px;
     margin-bottom: 32px;
     box-shadow: 0 12px 30px rgba(46,204,113,0.35);
     color: white;
@@ -89,6 +90,7 @@ body {
     border: 1px solid var(--border);
 }
 
+/* filters */
 .filter-buttons {
     display: flex;
     gap: 10px;
@@ -119,11 +121,11 @@ body {
     border-color: transparent;
 }
 
+/* table */
 .table-container {
     overflow-x: auto;
     border-radius: 16px;
     border: 1px solid var(--border);
-    -webkit-overflow-scrolling: touch;
 }
 
 table {
@@ -159,6 +161,7 @@ tbody tr:hover {
     transform: translateX(4px);
 }
 
+/* inputs */
 .table-input,
 .est-input {
     border: 2px solid transparent;
@@ -189,6 +192,7 @@ tbody tr:hover {
     border: 2px solid var(--primary) !important;
 }
 
+/* advance badge - purple */
 .advance-badge {
     background: linear-gradient(135deg, #ede9fe, #c4b5fd);
     color: #5b21b6;
@@ -198,9 +202,9 @@ tbody tr:hover {
     font-size: 13px;
     display: inline-block;
     box-shadow: 0 4px 10px rgba(124,58,237,0.15);
-    white-space: nowrap;
 }
 
+/* selects */
 .status-select {
     padding: 10px 14px;
     border-radius: 12px;
@@ -220,12 +224,7 @@ tbody tr:hover {
     color: #166534;
 }
 
-.action-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
+/* buttons */
 .btn-edit,
 .btn-sms {
     border: none;
@@ -239,12 +238,12 @@ tbody tr:hover {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    font-size: 13px;
 }
 
 .btn-sms {
     background: linear-gradient(135deg, #fbbf24, #f97316);
     color: #1f2937;
+    margin-bottom: 8px;
     box-shadow: 0 5px 12px rgba(249,115,22,0.28);
 }
 
@@ -259,10 +258,12 @@ tbody tr:hover {
     transform: translateY(-3px);
 }
 
-.status-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+.btn-sms:hover {
+    box-shadow: 0 8px 18px rgba(249,115,22,0.38);
+}
+
+.btn-edit:hover {
+    box-shadow: 0 8px 18px rgba(59,130,246,0.38);
 }
 
 .save-msg {
@@ -271,9 +272,9 @@ tbody tr:hover {
     display: none;
     font-weight: 800;
     margin-left: 6px;
-    white-space: nowrap;
 }
 
+/* dark mode */
 body.dark-mode {
     background: linear-gradient(135deg, #020617, #0f172a) !important;
     color: #e2e8f0 !important;
@@ -305,6 +306,24 @@ body.dark-mode .advance-badge {
     background: rgba(124,58,237,0.2);
     color: #c4b5fd;
 }
+
+@media(max-width: 768px) {
+    body {
+        padding: 110px 15px 30px;
+    }
+
+    .page-header {
+        padding: 28px 20px;
+    }
+
+    .page-header h1 {
+        font-size: 25px;
+    }
+
+    .container {
+        padding: 20px;
+    }
+}
 </style>
 </head>
 
@@ -312,7 +331,7 @@ body.dark-mode .advance-badge {
 
 <div class="page-container">
     <div class="page-header">
-        <h1>Jobs Management</h1>
+        <h1>🛠️ Jobs Management</h1>
         <p>Manage non-warranty jobs, estimates and approvals</p>
     </div>
 
@@ -368,58 +387,54 @@ body.dark-mode .advance-badge {
 
                         $status_class = ($status_val == 'Approved') ? 'status-approved' : 'status-pending';
                 ?>
-                    <tr id="row-<?= $row_uid ?>" data-jobno="<?= $id ?>">
-                        <td data-label="Job No"><strong>#<?= $id ?></strong></td>
+                    <tr id="row-<?= $row_uid ?>">
+                        <td><strong>#<?= $id ?></strong></td>
 
-                        <td data-label="Customer">
+                        <td>
                             <input type="text" id="name-<?= $row_uid ?>" class="table-input"
                             value="<?= htmlspecialchars($row['customer_name']); ?>" readonly>
                         </td>
 
-                        <td data-label="Issue">
+                        <td>
                             <input type="text" id="issue-<?= $row_uid ?>" class="table-input"
                             value="<?= htmlspecialchars($row['issue_name']); ?>" readonly>
                         </td>
 
-                        <td data-label="Estimate">
+                        <td>
                             <input type="number" id="est-<?= $row_uid ?>" class="est-input"
                             value="<?= $est_cost ?>"
                             onchange="saveToDB('<?= $row_uid ?>', '<?= $id ?>')">
                         </td>
 
-                        <td data-label="Advance">
+                        <td>
                             <span class="advance-badge">Rs. <?= number_format($adv_paid, 2); ?></span>
                         </td>
 
-                        <td data-label="Category">
+                        <td>
                             <select id="cat-<?= $row_uid ?>" class="status-select"
                             onchange="saveToDB('<?= $row_uid ?>', '<?= $id ?>')">
-                                <option value="Hardware" <?= $cat_val == 'Hardware' ? 'selected' : ''; ?>>Hardware</option>
-                                <option value="Software" <?= $cat_val == 'Software' ? 'selected' : ''; ?>>Software</option>
+                                <option value="Hardware" <?= $cat_val == 'Hardware' ? 'selected' : ''; ?>>⚙️ Hardware</option>
+                                <option value="Software" <?= $cat_val == 'Software' ? 'selected' : ''; ?>>💻 Software</option>
                             </select>
                         </td>
 
-                        <td data-label="Phone">
+                        <td>
                             <input type="text" id="phone-<?= $row_uid ?>" class="table-input"
                             value="<?= htmlspecialchars($row['phone_number']); ?>" readonly>
                         </td>
 
-                        <td data-label="Status">
-                            <div class="status-wrapper">
-                                <select id="stat-<?= $row_uid ?>" class="status-select <?= $status_class ?>"
-                                onchange="updateStatusOnly('<?= $row_uid ?>', '<?= $id ?>')">
-                                    <option value="Pending" <?= $status_val == 'Pending' ? 'selected' : ''; ?>>Pending</option>
-                                    <option value="Approved" <?= $status_val == 'Approved' ? 'selected' : ''; ?>>Approved</option>
-                                </select>
-                                <span id="msg-<?= $row_uid ?>" class="save-msg">Saved</span>
-                            </div>
+                        <td>
+                            <select id="stat-<?= $row_uid ?>" class="status-select <?= $status_class ?>"
+                            onchange="updateStatusOnly('<?= $row_uid ?>', '<?= $id ?>')">
+                                <option value="Pending" <?= $status_val == 'Pending' ? 'selected' : ''; ?>>⏳ Pending</option>
+                                <option value="Approved" <?= $status_val == 'Approved' ? 'selected' : ''; ?>>✅ Approved</option>
+                            </select>
+                            <span id="msg-<?= $row_uid ?>" class="save-msg">✓ Saved</span>
                         </td>
 
-                        <td data-label="Action">
-                            <div class="action-buttons">
-                                <button class="btn-sms" onclick="sendEstimateSMS('<?= $row_uid ?>', '<?= $id ?>')">Send Estimate</button>
-                                <button id="btn-edit-<?= $row_uid ?>" class="btn-edit" onclick="toggleEdit('<?= $row_uid ?>', '<?= $id ?>')">Edit</button>
-                            </div>
+                        <td>
+                            <button class="btn-sms" onclick="sendEstimateSMS('<?= $row_uid ?>', '<?= $id ?>')">📩 Send Estimate</button>
+                            <button id="btn-edit-<?= $row_uid ?>" class="btn-edit" onclick="toggleEdit('<?= $row_uid ?>', '<?= $id ?>')">✏️ Edit</button>
                             <input type="hidden" id="email-<?= $row_uid ?>" value="<?= $row['email']; ?>">
                         </td>
                     </tr>
@@ -451,7 +466,7 @@ syncTheme();
 setInterval(syncTheme, 1000);
 
 function sendEstimateSMS(row_uid, job_no) {
-    let parts = prompt("Inclusion of items and prices required for repair:", "Service Charge Only");
+    let parts = prompt("Enter the required parts and prices for the repair.:", "Service Charge Only");
     if (parts === null) return;
 
     const data = {
@@ -470,9 +485,9 @@ function sendEstimateSMS(row_uid, job_no) {
     xhr.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             if (this.responseText.trim().includes("success")) {
-                alert("Estimate SMS sent successfully to the customer.");
+                alert("Estimate SMS sent successfully!");
             } else {
-                alert("Error sending SMS: " + this.responseText);
+                alert("Error occurred while sending SMS: " + this.responseText);
             }
         }
     };
@@ -485,8 +500,8 @@ function updateStatusOnly(row_uid, job_no) {
     let advanceAmount = 0;
 
     if (statSelect.value === 'Approved') {
-        if (confirm("Did the customer confirm this? Once approved, it will be removed from this list and redirected to jobs list.")) {
-            let userInput = prompt("Enter the advance amount paid by the customer:", "0");
+        if (confirm("Did the customer confirm this? Once approved, will this be removed from this list?.")) {
+            let userInput = prompt("Enter the received advance payment:", "0");
 
             if (userInput === null) {
                 statSelect.value = 'Pending';
@@ -494,72 +509,23 @@ function updateStatusOnly(row_uid, job_no) {
             }
 
             advanceAmount = parseFloat(userInput) || 0;
-            
-            updateAllRowsForJobNo(job_no, 'Approved', advanceAmount);
+            saveToDB(row_uid, job_no, advanceAmount);
         } else {
             statSelect.value = 'Pending';
         }
     } else {
-        updateAllRowsForJobNo(job_no, 'Pending', 0);
+        saveToDB(row_uid, job_no, 0);
     }
-}
-
-function updateAllRowsForJobNo(job_no, statusVal, advanceAmount) {
-    const rows = document.querySelectorAll(`tr[data-jobno='${job_no}']`);
-    rows.forEach(row => {
-        const select = row.querySelector('.status-select');
-        if(select) {
-            select.value = statusVal;
-            if(statusVal === 'Approved') {
-                select.classList.remove('status-pending');
-                select.classList.add('status-approved');
-            } else {
-                select.classList.remove('status-approved');
-                select.classList.add('status-pending');
-            }
-        }
-    });
-
-    rows.forEach(row => {
-        const current_row_uid = row.id.replace('row-', '');
-        saveToDBWithoutRedirect(current_row_uid, job_no, advanceAmount, statusVal);
-    });
-
-    if(statusVal === 'Approved') {
-        setTimeout(() => {
-            window.location.href = 'job_list.php';
-        }, 1000);
-    }
-}
-
-function saveToDBWithoutRedirect(row_uid, job_no, advance, statusVal) {
-    const data = {
-        job_no: job_no,
-        customer_name: document.getElementById('name-' + row_uid).value,
-        email: document.getElementById('email-' + row_uid).value,
-        issue_name: document.getElementById('issue-' + row_uid).value,
-        phone_number: document.getElementById('phone-' + row_uid).value,
-        job_status: statusVal,
-        issue_category: document.getElementById('cat-' + row_uid).value,
-        estimated_cost: document.getElementById('est-' + row_uid).value,
-        advance_paid: advance
-    };
-
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "update_engine.php", true);
-    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhr.send("id=" + encodeURIComponent(job_no) + "&data=" + encodeURIComponent(JSON.stringify(data)));
 }
 
 function saveToDB(row_uid, job_no, advance = 0, callback = null) {
-    const statusVal = document.getElementById('stat-' + row_uid).value;
     const data = {
         job_no: job_no,
         customer_name: document.getElementById('name-' + row_uid).value,
         email: document.getElementById('email-' + row_uid).value,
         issue_name: document.getElementById('issue-' + row_uid).value,
         phone_number: document.getElementById('phone-' + row_uid).value,
-        job_status: statusVal,
+        job_status: document.getElementById('stat-' + row_uid).value,
         issue_category: document.getElementById('cat-' + row_uid).value,
         estimated_cost: document.getElementById('est-' + row_uid).value,
         advance_paid: advance
@@ -577,8 +543,8 @@ function saveToDB(row_uid, job_no, advance = 0, callback = null) {
                 setTimeout(() => {
                     document.getElementById('msg-' + row_uid).style.display = 'none';
 
-                    if (statusVal === 'Approved') {
-                        window.location.href = 'job_list.php';
+                    if (data.job_status === 'Approved') {
+                        location.reload();
                     }
                 }, 1000);
 
@@ -602,7 +568,7 @@ function toggleEdit(row_uid, job_no) {
             el.classList.add('editing-active');
         });
 
-        btn.innerHTML = 'Save';
+        btn.innerHTML = "💾 Save";
     } else {
         saveToDB(row_uid, job_no, 0, () => {
             fields.forEach(f => {
@@ -611,12 +577,12 @@ function toggleEdit(row_uid, job_no) {
                 el.classList.remove('editing-active');
             });
 
-            btn.innerHTML = 'Edit';
+            btn.innerHTML = "✏️ Edit";
         });
     }
 }
 </script>
-<?php include_once __DIR__ . '/chatbot.php'; ?>
 
+<?php include_once __DIR__ . '/chatbot.php'; ?>
 </body>
 </html>
