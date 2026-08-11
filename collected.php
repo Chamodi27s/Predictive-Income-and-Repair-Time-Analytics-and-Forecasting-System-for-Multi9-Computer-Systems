@@ -483,8 +483,7 @@ body.dark-mode .advance-badge {
                             <input type="hidden" id="email-<?= $row_uid ?>" value="<?= $row['email']; ?>">
                         </td>
                     </tr>
-                <?> 
-                    <?php 
+                <?php 
                     }
                 } else {
                     echo "<tr><td colspan='9' style='text-align:center; padding:50px;'>No records found</td></tr>";
