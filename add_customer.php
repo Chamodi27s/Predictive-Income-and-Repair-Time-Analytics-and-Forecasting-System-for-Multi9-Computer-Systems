@@ -38,7 +38,7 @@ SELECT
     customer.address,
     job.job_no, 
     job.job_date, 
-    job.job_status,
+    job_device.job_status,
     technicians.name as tech_name,
     GROUP_CONCAT(job_device.device_name SEPARATOR ', ') as all_devices,
     GROUP_CONCAT(job_device.issue_name SEPARATOR ', ') as all_issues,

@@ -3,7 +3,7 @@ include 'db_config.php';
 include 'navbar.php'; 
 
 $filter_query = " WHERE (jd.warranty_status = 'No' OR jd.warranty_status = 'No Warranty' OR jd.warranty_status IS NULL OR jd.warranty_status = '') 
-                AND (j.job_status != 'Approved' OR j.job_status IS NULL) ";
+                AND (jd.job_status != 'Approved' OR jd.job_status IS NULL) ";
 
 if(isset($_GET['range'])) {
     if($_GET['range'] == 'today') {
@@ -407,24 +407,23 @@ body.dark-mode .advance-badge {
 
                 <tbody>
                 <?php
-                $sql = "SELECT j.job_no, j.job_status, j.estimated_cost, j.advance_paid,
+                $sql = "SELECT j.job_no, jd.job_status, jd.estimated_cost, jd.advance_paid, 
                         c.customer_name, c.email, c.phone_number,
+                        jd.job_device_id as device_id,
                         jd.issue_name, jd.issue_category 
-                        FROM job j
+                        FROM job_device jd
+                        LEFT JOIN job j ON jd.job_no = j.job_no
                         LEFT JOIN customer c ON j.phone_number = c.phone_number
-                        LEFT JOIN job_device jd ON j.job_no = jd.job_no
                         $filter_query 
-                        ORDER BY j.job_no DESC";
+                        ORDER BY jd.job_device_id DESC";
 
                 $result = $conn->query($sql);
 
                 if ($result && $result->num_rows > 0) {
-                    $counter = 0;
-
                     while($row = $result->fetch_assoc()) {
-                        $counter++;
                         $id = $row['job_no'];
-                        $row_uid = $id . "_" . $counter;
+                        $device_id = $row['device_id']; 
+                        $row_uid = $id . "_" . $device_id;
 
                         $status_val = $row['job_status'] ?? 'Pending';
                         $cat_val = $row['issue_category'] ?? 'Hardware';
@@ -449,7 +448,7 @@ body.dark-mode .advance-badge {
                         <td>
                             <input type="number" id="est-<?= $row_uid ?>" class="est-input"
                             value="<?= $est_cost ?>"
-                            onchange="saveToDB('<?= $row_uid ?>', '<?= $id ?>')">
+                            onchange="saveToDB('<?= $row_uid ?>', '<?= $id ?>', '<?= $device_id ?>')">
                         </td>
 
                         <td>
@@ -458,7 +457,7 @@ body.dark-mode .advance-badge {
 
                         <td>
                             <select id="cat-<?= $row_uid ?>" class="status-select"
-                            onchange="saveToDB('<?= $row_uid ?>', '<?= $id ?>')">
+                            onchange="saveToDB('<?= $row_uid ?>', '<?= $id ?>', '<?= $device_id ?>')">
                                 <option value="Hardware" <?= $cat_val == 'Hardware' ? 'selected' : ''; ?>>⚙️ Hardware</option>
                                 <option value="Software" <?= $cat_val == 'Software' ? 'selected' : ''; ?>>💻 Software</option>
                             </select>
@@ -471,7 +470,7 @@ body.dark-mode .advance-badge {
 
                         <td>
                             <select id="stat-<?= $row_uid ?>" class="status-select <?= $status_class ?>"
-                            onchange="updateStatusOnly('<?= $row_uid ?>', '<?= $id ?>')">
+                            onchange="updateStatusOnly('<?= $row_uid ?>', '<?= $id ?>', '<?= $device_id ?>')">
                                 <option value="Pending" <?= $status_val == 'Pending' ? 'selected' : ''; ?>>⏳ Pending</option>
                                 <option value="Approved" <?= $status_val == 'Approved' ? 'selected' : ''; ?>>✅ Approved</option>
                             </select>
@@ -479,8 +478,8 @@ body.dark-mode .advance-badge {
                         </td>
 
                         <td>
-                            <button class="btn-sms" onclick="sendEstimateSMS('<?= $row_uid ?>', '<?= $id ?>')">📩 Send Estimate</button>
-                            <button id="btn-edit-<?= $row_uid ?>" class="btn-edit" onclick="toggleEdit('<?= $row_uid ?>', '<?= $id ?>')">✏️ Edit</button>
+                            <button class="btn-sms" onclick="sendEstimateSMS('<?= $row_uid ?>', '<?= $id ?>', '<?= $device_id ?>')">📩 Send Estimate</button>
+                            <button id="btn-edit-<?= $row_uid ?>" class="btn-edit" onclick="toggleEdit('<?= $row_uid ?>', '<?= $id ?>', '<?= $device_id ?>')">✏️ Edit</button>
                             <input type="hidden" id="email-<?= $row_uid ?>" value="<?= $row['email']; ?>">
                         </td>
                     </tr>
@@ -511,13 +510,14 @@ function syncTheme() {
 syncTheme();
 setInterval(syncTheme, 1000);
 
-function sendEstimateSMS(row_uid, job_no) {
+function sendEstimateSMS(row_uid, job_no, device_id) {
     let parts = prompt("Enter required parts and prices for the repair:", "Service Charge Only");
     if (parts === null) return;
 
     const data = {
         action: 'send_estimate_sms',
         job_no: job_no,
+        device_id: device_id,
         customer_name: document.getElementById('name-' + row_uid).value,
         issue_name: document.getElementById('issue-' + row_uid).value,
         estimated_cost: document.getElementById('est-' + row_uid).value,
@@ -538,10 +538,10 @@ function sendEstimateSMS(row_uid, job_no) {
         }
     };
 
-    xhr.send("id=" + encodeURIComponent(job_no) + "&data=" + encodeURIComponent(JSON.stringify(data)));
+    xhr.send("id=" + encodeURIComponent(job_no) + "&device_id=" + encodeURIComponent(device_id) + "&data=" + encodeURIComponent(JSON.stringify(data)));
 }
 
-function updateStatusOnly(row_uid, job_no) {
+function updateStatusOnly(row_uid, job_no, device_id) {
     const statSelect = document.getElementById('stat-' + row_uid);
     let advanceAmount = 0;
 
@@ -555,18 +555,19 @@ function updateStatusOnly(row_uid, job_no) {
             }
 
             advanceAmount = parseFloat(userInput) || 0;
-            saveToDB(row_uid, job_no, advanceAmount);
+            saveToDB(row_uid, job_no, device_id, advanceAmount);
         } else {
             statSelect.value = 'Pending';
         }
     } else {
-        saveToDB(row_uid, job_no, 0);
+        saveToDB(row_uid, job_no, device_id, 0);
     }
 }
 
-function saveToDB(row_uid, job_no, advance = 0, callback = null) {
+function saveToDB(row_uid, job_no, device_id, advance = 0, callback = null) {
     const data = {
         job_no: job_no,
+        device_id: device_id,
         customer_name: document.getElementById('name-' + row_uid).value,
         email: document.getElementById('email-' + row_uid).value,
         issue_name: document.getElementById('issue-' + row_uid).value,
@@ -599,10 +600,10 @@ function saveToDB(row_uid, job_no, advance = 0, callback = null) {
         }
     };
 
-    xhr.send("id=" + encodeURIComponent(job_no) + "&data=" + encodeURIComponent(JSON.stringify(data)));
+    xhr.send("id=" + encodeURIComponent(job_no) + "&device_id=" + encodeURIComponent(device_id) + "&data=" + encodeURIComponent(JSON.stringify(data)));
 }
 
-function toggleEdit(row_uid, job_no) {
+function toggleEdit(row_uid, job_no, device_id) {
     const fields = ['name', 'issue'];
     const btn = document.getElementById('btn-edit-' + row_uid);
     const isReadOnly = document.getElementById('name-' + row_uid).readOnly;
@@ -616,7 +617,7 @@ function toggleEdit(row_uid, job_no) {
 
         btn.innerHTML = "💾 Save";
     } else {
-        saveToDB(row_uid, job_no, 0, () => {
+        saveToDB(row_uid, job_no, device_id, 0, () => {
             fields.forEach(f => {
                 let el = document.getElementById(f + '-' + row_uid);
                 el.readOnly = true;

@@ -41,11 +41,11 @@ function sendSMS($mobile, $message) {
 $job_no_param = $_GET['job_no'] ?? ($_POST['job_no'] ?? '');
 if (!empty($job_no_param)) {
     $job_res = $conn->query("
-        SELECT j.estimated_cost, j.advance_paid, jd.completed_date, c.phone_number 
-        FROM job j 
-        LEFT JOIN job_device jd ON j.job_no = jd.job_no 
+        SELECT jd.estimated_cost, jd.advance_paid, jd.completed_date, c.phone_number 
+        FROM job_device jd 
+        LEFT JOIN job j ON jd.job_no = j.job_no 
         LEFT JOIN customer c ON j.phone_number = c.phone_number
-        WHERE j.job_no = '$job_no_param'
+        WHERE jd.job_no = '$job_no_param'
     ");
     
     if ($job_res->num_rows > 0) {
@@ -344,3 +344,4 @@ function addItem() {
 window.onload = calcTotal;
 </script>
 </body>
+</html>
