@@ -47,7 +47,7 @@ $filter_status = isset($_GET['status']) ? mysqli_real_escape_string($conn, $_GET
 
 $status_flow = ['Pending', 'In Progress', 'Completed', 'Returned'];
 
-$sql = "SELECT j.job_no, j.job_date, j.advance_paid, t.name as technician_name, c.customer_name, j.phone_number, 
+$sql = "SELECT j.job_no, j.job_date, jd.advance_paid, t.name as technician_name, c.customer_name, j.phone_number, 
                 jd.job_device_id, jd.device_name, jd.issue_name, jd.solution,
                 CASE WHEN inv.payment_status = 'Paid' THEN 'Returned' ELSE jd.device_status END AS device_status,
                 jd.completed_date, jd.destroy_notice_sent_date, jd.rent_warning_sent,
@@ -57,7 +57,7 @@ $sql = "SELECT j.job_no, j.job_date, j.advance_paid, t.name as technician_name, 
         INNER JOIN job_device jd ON j.job_no = jd.job_no 
         LEFT JOIN technicians t ON j.technician_id = t.technician_id
         LEFT JOIN invoice inv ON jd.job_no = inv.job_no 
-        WHERE j.job_status = 'Approved' 
+        WHERE jd.job_status = 'Approved' 
         AND jd.device_status != 'Destroyed'";
 
 if ($filter_status != '') { 
