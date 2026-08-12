@@ -347,6 +347,7 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
                         <label>Address</label>
                         <input type="text" name="address" id="customer_address" placeholder="City / Street">
                     </div>
+                </div>
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Assign Technician</label>
@@ -472,13 +473,6 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Repair Path</label>
-                    <select name="repair_paths[]" required>
-                        <option value="In-House">In-House</option>
-                        <option value="Agent">Agent</option>
-                    </select>
-                </div>
-                <div class="form-group">
                     <label>Device Image</label>
                     <input type="file" name="device_images[]" accept="image/*" style="padding: 7px 10px;">
                 </div>
@@ -507,3 +501,4 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
 </script>
 <?php include_once __DIR__ . '/chatbot.php'; ?>
 </body>
+</html>
