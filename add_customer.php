@@ -107,11 +107,24 @@ $total_pages = ceil($total_records / $records_per_page);
             background: var(--light-bg);
             color: var(--text-dark);
             transition: var(--transition);
-            padding-top: var(--nav-height);
+            padding: 140px 20px 40px;
         }
         body.dark-mode { background: #0f172a; color: #f1f5f9; }
 
-        .container { max-width: 1400px; margin: 0 auto; margin-top: 25px; padding: 0 20px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+
+        .page-header {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            padding: 36px 40px;
+            border-radius: 20px;
+            margin-top: 15px;
+            margin-bottom: 32px;
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
+            color: black;
+            text-align: center;
+        }
+        .page-header h1 { font-size: 32px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom:5px; color: #000000; }
+        .page-header p { color: #ffffff; opacity: 0.95; font-size:15px; margin: 0; }
 
         /* ---- Stats Header ---- */
         .stats-header {
@@ -348,6 +361,10 @@ $total_pages = ceil($total_records / $records_per_page);
 <body id="pageBody">
 
 <div class="container">
+    <div class="page-header">
+        <h1>Customer & Job Dashboard</h1>
+        <p>Register new customers, view existing profiles, and manage active repairs.</p>
+    </div>
     <div class="stats-header">
         <div class="stats-container">
             <div class="stat-card">
