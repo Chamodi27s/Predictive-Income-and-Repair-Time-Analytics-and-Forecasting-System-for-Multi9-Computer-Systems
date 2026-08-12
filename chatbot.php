@@ -7,6 +7,22 @@
  * Add your Gemini key below. Keep this PHP file private on the server.
  */
 
+/*
+ * Detect chatbot API calls before any output is produced. PHP warnings from
+ * database/config files must never be mixed with the JSON response.
+ */
+$m9IsApiRequest =
+    isset($_SERVER['REQUEST_METHOD'], $_GET['chat_api']) &&
+    $_SERVER['REQUEST_METHOD'] === 'POST';
+
+if ($m9IsApiRequest) {
+    ini_set('display_errors', '0');
+    ini_set('display_startup_errors', '0');
+    ini_set('html_errors', '0');
+    ini_set('log_errors', '1');
+    ob_start();
+}
+
 if (!defined('M9_GEMINI_API_KEY')) {
     define('M9_GEMINI_API_KEY', 'PASTE_YOUR_GEMINI_API_KEY_HERE');
 }
@@ -20,7 +36,16 @@ if (!defined('M9_ML_URL')) {
 if (!function_exists('m9_json')) {
     function m9_json($success, $text, $status = 200)
     {
+        /* Remove warnings/notices accidentally printed before the JSON. */
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
         http_response_code($status);
+        header('Content-Type: application/json; charset=utf-8');
+        header('X-Content-Type-Options: nosniff');
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+
         echo json_encode(
             $success ? array('success' => true, 'reply' => $text) : array('success' => false, 'message' => $text),
             JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
@@ -98,9 +123,12 @@ if (!function_exists('m9_json')) {
 
     function m9_verified_job($conn, $jobNo, $phone)
     {
-        $sql = "SELECT j.job_no, j.phone_number, j.job_date, j.job_status,
-                       j.actual_repair_time_days, j.estimated_cost, j.advance_paid,
-                       c.customer_name, t.name AS technician_name
+        /*
+         * Select j.* so this works with both the older and newer job-table
+         * versions. Optional prediction/payment columns may not exist in every
+         * installed database.
+         */
+        $sql = "SELECT j.*, c.customer_name, t.name AS technician_name
                 FROM job j
                 LEFT JOIN customer c ON c.phone_number = j.phone_number
                 LEFT JOIN technicians t ON t.technician_id = j.technician_id
@@ -120,10 +148,12 @@ if (!function_exists('m9_json')) {
 
     function m9_devices($conn, $jobNo)
     {
-        $sql = "SELECT job_device_id, device_name, model, warranty_status, issue_name,
-                       description, device_status, completed_date, issue_category,
-                       solution, final_status
-                FROM job_device WHERE job_no = ? ORDER BY job_device_id";
+        /*
+         * Some database versions use `model`; others use `item_model`.
+         * SELECT * avoids an Unknown-column exception and the result is then
+         * normalized to the names used by the chatbot.
+         */
+        $sql = "SELECT * FROM job_device WHERE job_no = ? ORDER BY job_device_id";
 
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
@@ -134,6 +164,20 @@ if (!function_exists('m9_json')) {
         $result = $stmt->get_result();
         $devices = array();
         while ($result && ($row = $result->fetch_assoc())) {
+            $row['device_name'] = isset($row['device_name']) ? $row['device_name'] : '';
+            $row['model'] = isset($row['model']) && trim((string) $row['model']) !== ''
+                ? $row['model']
+                : (isset($row['item_model']) ? $row['item_model'] : '');
+            $row['warranty_status'] = isset($row['warranty_status']) ? $row['warranty_status'] : '';
+            $row['issue_name'] = isset($row['issue_name']) ? $row['issue_name'] : '';
+            $row['description'] = isset($row['description']) ? $row['description'] : '';
+            $row['device_status'] = isset($row['device_status'])
+                ? $row['device_status']
+                : (isset($row['status']) ? $row['status'] : '');
+            $row['completed_date'] = isset($row['completed_date']) ? $row['completed_date'] : '';
+            $row['issue_category'] = isset($row['issue_category']) ? $row['issue_category'] : '';
+            $row['solution'] = isset($row['solution']) ? $row['solution'] : '';
+            $row['final_status'] = isset($row['final_status']) ? $row['final_status'] : '';
             $devices[] = $row;
         }
         $stmt->close();
@@ -142,17 +186,17 @@ if (!function_exists('m9_json')) {
 
     function m9_status_reply($job, $devices, $language)
     {
-        $cost = (float) $job['estimated_cost'];
-        $advance = (float) $job['advance_paid'];
+        $cost = isset($job['estimated_cost']) ? (float) $job['estimated_cost'] : 0.0;
+        $advance = isset($job['advance_paid']) ? (float) $job['advance_paid'] : 0.0;
         $balance = max(0, $cost - $advance);
 
         $lines = array(
             $language === 'si' ? '✅ Job එක verify වුණා.' : '✅ Job verified successfully.',
-            'Job Number: ' . $job['job_no'],
-            'Customer: ' . m9_clean($job['customer_name']),
-            'Job Date: ' . m9_clean($job['job_date']),
-            'Overall Status: ' . m9_clean($job['job_status']),
-            'Technician: ' . m9_clean($job['technician_name'], $language === 'si' ? 'තවම assign කර නැහැ' : 'Not assigned'),
+            'Job Number: ' . m9_clean(isset($job['job_no']) ? $job['job_no'] : ''),
+            'Customer: ' . m9_clean(isset($job['customer_name']) ? $job['customer_name'] : ''),
+            'Job Date: ' . m9_clean(isset($job['job_date']) ? $job['job_date'] : ''),
+            'Overall Status: ' . m9_clean(isset($job['job_status']) ? $job['job_status'] : ''),
+            'Technician: ' . m9_clean(isset($job['technician_name']) ? $job['technician_name'] : '', $language === 'si' ? 'තවම assign කර නැහැ' : 'Not assigned'),
             'Estimated Cost: Rs. ' . number_format($cost, 2),
             'Advance Paid: Rs. ' . number_format($advance, 2),
             'Estimated Balance: Rs. ' . number_format($balance, 2)
@@ -238,11 +282,11 @@ if (!function_exists('m9_json')) {
                 'fault_description' => $fault !== '' ? $fault : 'Unknown fault',
                 'device_type' => m9_clean($device['device_name'], 'Unknown'),
                 'item_model' => m9_clean($device['model'], 'Unknown'),
-                'technician' => m9_clean($job['technician_name'], 'Unknown'),
+                'technician' => m9_clean(isset($job['technician_name']) ? $job['technician_name'] : '', 'Unknown'),
                 'repair_path' => stripos((string) $device['warranty_status'], 'no') !== false ? 'Non-Warranty' : 'Warranty',
                 'warranty' => m9_clean($device['warranty_status'], 'Unknown'),
                 'solution' => m9_clean($device['solution'], 'Pending diagnosis'),
-                'date_in' => m9_clean($job['job_date'], date('Y-m-d'))
+                'date_in' => m9_clean(isset($job['job_date']) ? $job['job_date'] : '', date('Y-m-d'))
             );
             $result = m9_call_ml(M9_ML_URL, $payload);
             if ($result) {
@@ -272,7 +316,7 @@ if (!function_exists('m9_json')) {
         return ($language === 'si'
             ? 'Prediction service එක දැන් response කරන්නේ නැහැ. ටික වේලාවකින් නැවත උත්සාහ කරන්න.'
             : 'The prediction service is not responding. Please try again shortly.')
-            . "\nPrediction page: duration.php?job_no=" . rawurlencode($job['job_no']);
+            . "\nPrediction page: duration.php?job_no=" . rawurlencode(isset($job['job_no']) ? $job['job_no'] : '');
     }
 
     function m9_shop($conn)
@@ -512,88 +556,123 @@ if (!function_exists('m9_json')) {
 }
 
 /* AJAX API: the same chatbot.php file handles all messages. */
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['chat_api'])) {
+if ($m9IsApiRequest) {
     date_default_timezone_set('Asia/Colombo');
-    if (session_status() !== PHP_SESSION_ACTIVE) {
-        session_start();
-    }
-    header('Content-Type: application/json; charset=utf-8');
-    header('X-Content-Type-Options: nosniff');
-    header('Cache-Control: no-store');
 
-    $dbFile = __DIR__ . '/db_config.php';
-    if (!is_file($dbFile)) {
-        m9_json(false, 'db_config.php file not found.', 500);
-    }
-    require_once $dbFile;
-    if (!isset($conn) || !($conn instanceof mysqli)) {
-        m9_json(false, 'Database connection is not available.', 500);
-    }
-    $conn->set_charset('utf8mb4');
-
-    $input = json_decode(file_get_contents('php://input'), true);
-    $message = isset($input['message']) && is_string($input['message']) ? trim($input['message']) : '';
-    if ($message === '') {
-        m9_json(false, 'Please type a message.', 422);
-    }
-    $length = function_exists('mb_strlen') ? mb_strlen($message, 'UTF-8') : strlen($message);
-    if ($length > 600) {
-        m9_json(false, 'Message is too long.', 422);
-    }
-
-    $language = m9_language($message);
-    $normal = m9_lower(preg_replace('/\s+/u', ' ', $message));
-    $jobNo = m9_job_no($message);
-    $phone = m9_phone($message);
-
-    if (!$jobNo && !empty($_SESSION['m9_pending_job']) && $phone) {
-        $jobNo = $_SESSION['m9_pending_job'];
-    }
-
-    $intent = m9_intent($normal, $jobNo);
-    if ($jobNo && !empty($_SESSION['m9_pending_intent'])) {
-        $intent = $_SESSION['m9_pending_intent'];
-    }
-
-    if ($jobNo && in_array($intent, array('status', 'duration'), true)) {
-        if (!$phone) {
-            $_SESSION['m9_pending_job'] = $jobNo;
-            $_SESSION['m9_pending_intent'] = $intent;
-            m9_json(true, $language === 'si'
-                ? $jobNo . ' verify කිරීමට job එක ලබාදුන් phone number එක ඇතුළත් කරන්න.'
-                : 'Enter the phone number used for ' . $jobNo . ' to verify the job.');
+    try {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
         }
 
-        unset($_SESSION['m9_pending_job'], $_SESSION['m9_pending_intent']);
-        $job = m9_verified_job($conn, $jobNo, $phone);
-        if (!$job) {
-            m9_json(true, $language === 'si'
-                ? 'Job number එක සහ phone number එක ගැළපෙන්නේ නැහැ.'
-                : 'The job number and phone number do not match.');
+        $dbFile = __DIR__ . '/db_config.php';
+        if (!is_file($dbFile)) {
+            m9_json(false, 'db_config.php file not found.', 500);
         }
 
-        $devices = m9_devices($conn, $jobNo);
-        m9_json(true, $intent === 'duration'
-            ? m9_duration_reply($job, $devices, $language)
-            : m9_status_reply($job, $devices, $language));
-    }
+        require_once $dbFile;
 
-    if ($intent === 'status') {
-        $_SESSION['m9_pending_intent'] = 'status';
-        m9_json(true, $language === 'si'
-            ? 'Repair status බලන්න job number එක ඇතුළත් කරන්න. උදා: ORD-80'
-            : 'Enter your job number. Example: ORD-80');
-    }
+        if (!isset($conn) || !($conn instanceof mysqli)) {
+            m9_json(false, 'Database connection is not available.', 500);
+        }
 
-    if ($intent === 'duration') {
-        $_SESSION['m9_pending_intent'] = 'duration';
-        m9_json(true, $language === 'si'
-            ? 'Repair duration predict කරන්න job number එක ඇතුළත් කරන්න. උදා: ORD-80'
-            : 'Enter your job number to predict repair duration. Example: ORD-80');
-    }
+        if (!$conn->set_charset('utf8mb4')) {
+            throw new RuntimeException('Unable to set the database character set.');
+        }
 
-    $faq = m9_faq($conn, $normal, $language);
-    m9_json(true, $faq !== null ? $faq : m9_gemini($message, $language));
+        $rawInput = file_get_contents('php://input');
+        $input = json_decode($rawInput, true);
+
+        if (!is_array($input)) {
+            m9_json(false, 'Invalid JSON request.', 400);
+        }
+
+        $message = isset($input['message']) && is_string($input['message'])
+            ? trim($input['message'])
+            : '';
+
+        if ($message === '') {
+            m9_json(false, 'Please type a message.', 422);
+        }
+
+        $length = function_exists('mb_strlen')
+            ? mb_strlen($message, 'UTF-8')
+            : strlen($message);
+
+        if ($length > 600) {
+            m9_json(false, 'Message is too long.', 422);
+        }
+
+        $language = m9_language($message);
+        $normal = m9_lower(preg_replace('/\s+/u', ' ', $message));
+        $jobNo = m9_job_no($message);
+        $phone = m9_phone($message);
+
+        if (!$jobNo && !empty($_SESSION['m9_pending_job']) && $phone) {
+            $jobNo = $_SESSION['m9_pending_job'];
+        }
+
+        $intent = m9_intent($normal, $jobNo);
+        if ($jobNo && !empty($_SESSION['m9_pending_intent'])) {
+            $intent = $_SESSION['m9_pending_intent'];
+        }
+
+        if ($jobNo && in_array($intent, array('status', 'duration'), true)) {
+            if (!$phone) {
+                $_SESSION['m9_pending_job'] = $jobNo;
+                $_SESSION['m9_pending_intent'] = $intent;
+                m9_json(true, $language === 'si'
+                    ? $jobNo . ' verify කිරීමට job එක ලබාදුන් phone number එක ඇතුළත් කරන්න.'
+                    : 'Enter the phone number used for ' . $jobNo . ' to verify the job.');
+            }
+
+            unset($_SESSION['m9_pending_job'], $_SESSION['m9_pending_intent']);
+            $job = m9_verified_job($conn, $jobNo, $phone);
+            if (!$job) {
+                m9_json(true, $language === 'si'
+                    ? 'Job number එක සහ phone number එක ගැළපෙන්නේ නැහැ.'
+                    : 'The job number and phone number do not match.');
+            }
+
+            $devices = m9_devices($conn, $jobNo);
+            m9_json(true, $intent === 'duration'
+                ? m9_duration_reply($job, $devices, $language)
+                : m9_status_reply($job, $devices, $language));
+        }
+
+        if ($intent === 'status') {
+            $_SESSION['m9_pending_intent'] = 'status';
+            m9_json(true, $language === 'si'
+                ? 'Repair status බලන්න job number එක ඇතුළත් කරන්න. උදා: ORD-80'
+                : 'Enter your job number. Example: ORD-80');
+        }
+
+        if ($intent === 'duration') {
+            $_SESSION['m9_pending_intent'] = 'duration';
+            m9_json(true, $language === 'si'
+                ? 'Repair duration predict කරන්න job number එක ඇතුළත් කරන්න. උදා: ORD-80'
+                : 'Enter your job number to predict repair duration. Example: ORD-80');
+        }
+
+        $faq = m9_faq($conn, $normal, $language);
+        m9_json(true, $faq !== null ? $faq : m9_gemini($message, $language));
+    } catch (Throwable $error) {
+        error_log('Multi9 chatbot error: ' . $error->getMessage());
+
+        $host = isset($_SERVER['HTTP_HOST']) ? strtolower((string) $_SERVER['HTTP_HOST']) : '';
+        $remoteAddress = isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : '';
+        $isLocalhost =
+            strpos($host, 'localhost') === 0 ||
+            strpos($host, '127.0.0.1') === 0 ||
+            $remoteAddress === '127.0.0.1' ||
+            $remoteAddress === '::1';
+
+        $clientMessage = 'The chatbot server encountered an error. Please try again.';
+        if ($isLocalhost) {
+            $clientMessage .= ' Technical details: ' . $error->getMessage();
+        }
+
+        m9_json(false, $clientMessage, 500);
+    }
 }
 
 /* Build the correct chatbot API URL even when this file is included by another page. */
@@ -711,7 +790,15 @@ How can I help you today?</div>
                 headers:{'Content-Type':'application/json','Accept':'application/json'},
                 body:JSON.stringify({message:message})
             });
-            var data=await response.json();wait.remove();
+            var raw=await response.text();
+            var data;
+            try{
+                data=JSON.parse(raw);
+            }catch(parseError){
+                console.error('Multi9 chatbot invalid response:',raw);
+                throw new Error('The server returned an invalid response. Check the PHP error log.');
+            }
+            wait.remove();
             if(!response.ok||!data.success){throw new Error(data.message||'Request failed')}
             add(data.reply,'bot');
             showActionsAgain();
