@@ -23,11 +23,10 @@ if(isset($_GET['range'])) {
     <link rel="stylesheet" href="CSS/global.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* --- Styles remains same, adding Returned color logic --- */
         :root {
             --primary: #2ecc71; --primary-hover: #27ae60; --primary-dark: #229954;
             --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
-            --info: #3b82f6; /* Returned සඳහා නිල් පාට */
+            --info: #3b82f6; 
             --secondary: #64748b; --bg-main: #f8fafc; --card-bg: #ffffff;
             --text-main: #1a202c; --text-dark: #0f172a; --text-muted: #64748b;
             --border: #e2e8f0; --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -59,222 +58,42 @@ if(isset($_GET['range'])) {
         body.dark-mode { background: #0f172a; color: #f8fafc; }
         body.dark-mode .container { background: #1e293b; border-color: #334155; }
 
-        /* ==================== RESPONSIVE MEDIA QUERIES ==================== */
-
         @media (max-width: 1024px) {
-            body {
-                padding: 120px 16px 40px;
-            }
-
-            .page-header {
-                margin-top: 15px;
-                padding: 28px 24px;
-                margin-bottom: 24px;
-            }
-
-            .page-header h1 {
-                font-size: 26px;
-            }
-
-            .container {
-                padding: 24px;
-            }
+            body { padding: 120px 16px 40px; }
+            .page-header { margin-top: 15px; padding: 28px 24px; margin-bottom: 24px; }
+            .page-header h1 { font-size: 26px; }
+            .container { padding: 24px; }
         }
 
         @media (max-width: 768px) {
-            body {
-                padding: 80px 12px 100px;
-            }
-
-            .page-header {
-                margin-top: 10px;
-                padding: 22px 16px;
-                border-radius: 18px;
-                margin-bottom: 18px;
-            }
-
-            .page-header h1 {
-                font-size: 22px;
-            }
-
-            .page-header p {
-                font-size: 13px;
-            }
-
-            .container {
-                padding: 16px 12px;
-                border-radius: 18px;
-            }
-
-            /* 2x2 Filter Buttons Grid */
-            .filter-buttons {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-                margin-bottom: 16px;
-            }
-
-            .filter-btn {
-                width: 100%;
-                text-align: center;
-                padding: 11px 8px;
-                font-size: 13px;
-                border-radius: 12px;
-            }
-
-            .header-flex {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 14px;
-                margin-bottom: 20px;
-                padding-bottom: 16px;
-            }
-
-            .header-flex h2 {
-                font-size: 20px;
-                text-align: center;
-            }
-
-            .search-box {
-                width: 100%;
-            }
-
-            .search-input {
-                width: 100%;
-                flex: 1;
-            }
-
-            /* Transform Table into Cards */
-            .table-container {
-                border: none;
-                background: transparent;
-                border-radius: 0;
-                overflow: visible;
-            }
-
-            table#warrantyTable,
-            table#warrantyTable tbody,
-            table#warrantyTable tr,
-            table#warrantyTable td {
-                display: block;
-                width: 100%;
-            }
-
-            table#warrantyTable {
-                min-width: 0 !important;
-            }
-
-            table#warrantyTable thead {
-                display: none;
-            }
-
-            table#warrantyTable tbody tr {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 12px 10px;
-                background: var(--card-bg);
-                border: 1px solid var(--border);
-                border-radius: 20px;
-                margin-bottom: 16px;
-                padding: 16px;
-                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
-                position: relative;
-            }
-
-            body.dark-mode table#warrantyTable tbody tr {
-                background: rgba(30, 41, 59, 0.9) !important;
-                border-color: rgba(255, 255, 255, 0.1);
-                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
-            }
-
-            table#warrantyTable td {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
-                padding: 0;
-                border: none;
-                font-size: 14px;
-            }
-
-            table#warrantyTable td::before {
-                content: attr(data-label);
-                font-weight: 800;
-                font-size: 11px;
-                color: var(--text-muted);
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-
-            body.dark-mode table#warrantyTable td::before {
-                color: #94a3b8;
-            }
-
-            /* Row 1: Job No (Left) & Status (Right) */
-            table#warrantyTable td:nth-child(1) {
-                grid-column: 1 / 2;
-                grid-row: 1;
-                padding-bottom: 8px;
-                border-bottom: 1.5px dashed var(--border);
-                justify-content: center;
-            }
-            table#warrantyTable td:nth-child(1)::before {
-                display: none;
-            }
-
-            table#warrantyTable td:nth-child(4) {
-                grid-column: 2 / 3;
-                grid-row: 1;
-                align-items: flex-end;
-                padding-bottom: 8px;
-                border-bottom: 1.5px dashed var(--border);
-            }
-            table#warrantyTable td:nth-child(4)::before {
-                display: none;
-            }
-
-            /* Row 2: Device & Category */
-            table#warrantyTable td:nth-child(2) {
-                grid-column: 1 / -1;
-                grid-row: 2;
-            }
-
-            /* Row 3: Customer / Phone */
-            table#warrantyTable td:nth-child(3) {
-                grid-column: 1 / -1;
-                grid-row: 3;
-            }
-
-            /* Row 4: Supplier Control */
-            table#warrantyTable td:nth-child(5) {
-                grid-column: 1 / -1;
-                grid-row: 4;
-                padding-top: 4px;
-            }
-
-            .supplier-input {
-                width: 100% !important;
-                flex: 1;
-            }
-
-            .status-select {
-                width: 100%;
-                font-size: 13.5px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 80px 8px 100px;
-            }
-
-            .container {
-                padding: 12px 10px;
-            }
-
-            table#warrantyTable tbody tr {
-                padding: 14px 12px;
-            }
+            body { padding: 80px 12px 100px; }
+            .page-header { margin-top: 10px; padding: 22px 16px; border-radius: 18px; margin-bottom: 18px; }
+            .page-header h1 { font-size: 22px; }
+            .container { padding: 16px 12px; border-radius: 18px; }
+            .filter-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+            .filter-btn { width: 100%; text-align: center; padding: 11px 8px; font-size: 13px; border-radius: 12px; }
+            .header-flex { flex-direction: column; align-items: stretch; gap: 14px; margin-bottom: 20px; padding-bottom: 16px; }
+            .header-flex h2 { font-size: 20px; text-align: center; }
+            .search-box { width: 100%; }
+            .search-input { width: 100%; flex: 1; }
+            .table-container { border: none; background: transparent; border-radius: 0; overflow: visible; }
+            table#warrantyTable, table#warrantyTable tbody, table#warrantyTable tr, table#warrantyTable td { display: block; width: 100%; }
+            table#warrantyTable { min-width: 0 !important; }
+            table#warrantyTable thead { display: none; }
+            table#warrantyTable tbody tr { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 10px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 16px; padding: 16px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05); position: relative; }
+            body.dark-mode table#warrantyTable tbody tr { background: rgba(30, 41, 59, 0.9) !important; border-color: rgba(255, 255, 255, 0.1); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25); }
+            table#warrantyTable td { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; padding: 0; border: none; font-size: 14px; }
+            table#warrantyTable td::before { content: attr(data-label); font-weight: 800; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+            body.dark-mode table#warrantyTable td::before { color: #94a3b8; }
+            table#warrantyTable td:nth-child(1) { grid-column: 1 / 2; grid-row: 1; padding-bottom: 8px; border-bottom: 1.5px dashed var(--border); justify-content: center; }
+            table#warrantyTable td:nth-child(1)::before { display: none; }
+            table#warrantyTable td:nth-child(4) { grid-column: 2 / 3; grid-row: 1; align-items: flex-end; padding-bottom: 8px; border-bottom: 1.5px dashed var(--border); }
+            table#warrantyTable td:nth-child(4)::before { display: none; }
+            table#warrantyTable td:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+            table#warrantyTable td:nth-child(3) { grid-column: 1 / -1; grid-row: 3; }
+            table#warrantyTable td:nth-child(5) { grid-column: 1 / -1; grid-row: 4; padding-top: 4px; }
+            .supplier-input { width: 100% !important; flex: 1; }
+            .status-select { width: 100%; font-size: 13.5px; }
         }
     </style>
 </head>
@@ -343,20 +162,20 @@ if(isset($_GET['range'])) {
                             <span style="color:var(--text-muted); font-size:12px;"><?= htmlspecialchars($row['phone_number']) ?></span>
                         </td>
                         <td data-label="Status">
-                            <select class="status-select" id="stat-<?= $id ?>" onchange="saveAll(<?= $id ?>)" 
-                                <?= ($current_status == 'Completed' || $current_status == 'Returned') ? 'disabled' : ''; ?>>
+                            
+                            <select class="status-select" id="stat-<?= $id ?>" onchange="saveAll(<?= $id ?>)">
                                 
                                 <option value="Pending" 
                                     <?= $current_status =='Pending'?'selected':'' ?> 
-                                    <?= ($current_status != 'Pending') ? 'disabled' : ''; ?>> Pending</option>
+                                    <?= ($current_status == 'Completed' || $current_status == 'Returned' || $current_status == 'Rejected') ? 'disabled' : ''; ?>> Pending</option>
                                 
                                 <option value="Sent to Warranty" 
                                     <?= $current_status =='Sent to Warranty'?'selected':'' ?> 
                                     <?= ($current_status == 'Completed' || $current_status == 'Returned' || $current_status == 'Rejected') ? 'disabled' : ''; ?>> Sent</option>
                                 
-                                
                                 <option value="Completed" 
                                     <?= $current_status =='Completed'?'selected':'' ?>> Completed</option>
+                                
                                 <option value="Returned" 
                                     <?= $current_status =='Returned'?'selected':'' ?>
                                     style="color: var(--info);"> Returned</option>
@@ -394,8 +213,7 @@ function saveAll(id) {
     xhr.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             showToast("Updated!");
-            // Refresh logic to apply "disabled" status locks for final states
-            if(status === 'Completed' || status === 'Sent to Warranty' || status === 'Returned') {
+            if(status === 'Completed' || status === 'Sent to Warranty' || status === 'Returned' || status === 'Rejected') {
                 setTimeout(() => { location.reload(); }, 1000);
             }
         }
@@ -445,5 +263,4 @@ function showToast(text) {
 </script>
 <?php include_once __DIR__ . '/chatbot.php'; ?>
 </body>
-
 </html>
