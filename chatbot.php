@@ -13,7 +13,7 @@ if ($m9IsApiRequest) {
 }
 
 if (!defined('M9_GEMINI_API_KEY')) {
-    define('M9_GEMINI_API_KEY', 'AQ.Ab8RN6KFvBglo9tVYBWPyynS2kgcal95-D1BE7Bg_Sb-fO6QVA');
+    define('M9_GEMINI_API_KEY', 'PASTE_YOUR_GEMINI_API_KEY_HERE');
 }
 if (!defined('M9_GEMINI_MODEL')) {
     define('M9_GEMINI_MODEL', 'gemini-2.5-flash');
