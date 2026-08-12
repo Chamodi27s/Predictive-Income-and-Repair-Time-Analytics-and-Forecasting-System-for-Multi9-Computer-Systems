@@ -59,7 +59,7 @@ body {
 }
 
 .page-container {
-    max-width: 1250px;
+    max-width: 1500px;
     margin: auto;
 }
 
@@ -146,46 +146,47 @@ body {
 }
 
 .table-container {
-    overflow-x: auto;
+    overflow: visible;
     border-radius: 16px;
     border: 1px solid var(--border);
 }
 
 table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    min-width: 1100px;
+    border-collapse: collapse;
+    table-layout: fixed;
 }
 
 th {
     background: #f8fafc;
-    padding: 14px 18px;
+    padding: 10px 10px;
     color: #64748b;
     font-weight: 700;
     text-transform: uppercase;
-    font-size: 11px;
-    letter-spacing: 0.6px;
+    font-size: 10px;
+    letter-spacing: 0.5px;
     text-align: left;
     border-bottom: 2px solid #e2e8f0;
     white-space: nowrap;
+    overflow: hidden;
 }
 
 td {
-    padding: 14px 18px;
+    padding: 8px 10px;
     border-bottom: 1px solid #e2e8f0;
     color: #334155;
-    font-size: 14px;
+    font-size: 13px;
     vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 tbody tr {
-    transition: 0.25s;
 }
 
 tbody tr:hover {
     background: #f8fafc;
-    transform: translateX(4px);
 }
 
 .customer-name {
@@ -199,39 +200,30 @@ tbody tr:hover {
 }
 
 .inv-badge {
-    background: #e0f2fe;
-    color: #075985;
-    padding: 7px 13px;
-    border-radius: 20px;
     font-weight: 800;
+    font-size: 13px;
+    color: #0f172a;
     display: inline-block;
 }
 
 .subtotal-badge {
-    background: #f1f5f9;
-    color: #334155;
-    padding: 7px 13px;
-    border-radius: 20px;
     font-weight: 800;
+    font-size: 13px;
+    color: #0f172a;
     display: inline-block;
 }
 
 .late-badge {
-    background: linear-gradient(135deg, #ffedd5, #fed7aa);
-    color: #c2410c;
-    padding: 7px 13px;
-    border-radius: 20px;
     font-weight: 800;
+    font-size: 13px;
+    color: #c2410c;
     display: inline-block;
-    box-shadow: 0 4px 10px rgba(249,115,22,0.12);
 }
 
 .final-badge {
-    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-    color: #166534;
-    padding: 7px 13px;
-    border-radius: 20px;
     font-weight: 900;
+    font-size: 13px;
+    color: #166534;
     display: inline-block;
 }
 
@@ -255,24 +247,23 @@ tbody tr:hover {
 }
 
 .action-btn {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    background: linear-gradient(135deg, #22c55e, #16a34a);
     color: white;
-    padding: 11px 16px;
-    border-radius: 13px;
+    padding: 8px 12px;
+    border-radius: 10px;
     text-decoration: none;
-    font-size: 13px;
-    font-weight: 800;
-    transition: 0.3s;
+    font-size: 12px;
+    font-weight: 700;
+    transition: 0.2s;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    box-shadow: 0 5px 12px rgba(59,130,246,0.28);
+    gap: 5px;
+    box-shadow: 0 4px 12px rgba(34,197,94,0.3);
 }
 
 .action-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 18px rgba(59,130,246,0.38);
+    background: linear-gradient(135deg, #16a34a, #15803d);
 }
 
 .empty-state {
@@ -319,17 +310,14 @@ body.dark-mode .subtotal-badge {
 }
 
 body.dark-mode .inv-badge {
-    background: rgba(59,130,246,0.18);
-    color: #93c5fd;
+    color: #e2e8f0;
 }
 
 body.dark-mode .late-badge {
-    background: rgba(249,115,22,0.18);
     color: #fdba74;
 }
 
 body.dark-mode .final-badge {
-    background: rgba(34,197,94,0.18);
     color: #86efac;
 }
 
@@ -572,6 +560,17 @@ body.dark-mode .final-badge {
 
         <div class="table-container">
             <table>
+                <colgroup>
+                    <col style="width:8%">   <!-- Inv No -->
+                    <col style="width:10%">  <!-- Job No -->
+                    <col style="width:20%">  <!-- Customer Details -->
+                    <col style="width:12%">  <!-- Device -->
+                    <col style="width:10%">  <!-- Subtotal -->
+                    <col style="width:10%">  <!-- Late Rent -->
+                    <col style="width:12%">  <!-- Final Amount -->
+                    <col style="width:9%">   <!-- Status -->
+                    <col style="width:9%">   <!-- Actions -->
+                </colgroup>
                 <thead>
                     <tr>
                         <th>Inv No</th>
