@@ -23,11 +23,10 @@ if(isset($_GET['range'])) {
     <link rel="stylesheet" href="CSS/global.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* --- Styles remains same, adding Returned color logic --- */
         :root {
             --primary: #2ecc71; --primary-hover: #27ae60; --primary-dark: #229954;
             --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
-            --info: #3b82f6; /* Returned සඳහා නිල් පාට */
+            --info: #3b82f6; 
             --secondary: #64748b; --bg-main: #f8fafc; --card-bg: #ffffff;
             --text-main: #1a202c; --text-dark: #0f172a; --text-muted: #64748b;
             --border: #e2e8f0; --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -59,8 +58,6 @@ if(isset($_GET['range'])) {
         body.dark-mode { background: #0f172a; color: #f8fafc; }
         body.dark-mode .container { background: #1e293b; border-color: #334155; }
 
-        /* ==================== RESPONSIVE MEDIA QUERIES ==================== */
-
         @media (max-width: 1024px) {
             body { padding: 120px 16px 40px; }
             .page-header { margin-top: 15px; padding: 28px 24px; margin-bottom: 24px; }
@@ -72,7 +69,6 @@ if(isset($_GET['range'])) {
             body { padding: 80px 12px 100px; }
             .page-header { margin-top: 10px; padding: 22px 16px; border-radius: 18px; margin-bottom: 18px; }
             .page-header h1 { font-size: 22px; }
-            .page-header p { font-size: 13px; }
             .container { padding: 16px 12px; border-radius: 18px; }
             .filter-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
             .filter-btn { width: 100%; text-align: center; padding: 11px 8px; font-size: 13px; border-radius: 12px; }
@@ -98,12 +94,6 @@ if(isset($_GET['range'])) {
             table#warrantyTable td:nth-child(5) { grid-column: 1 / -1; grid-row: 4; padding-top: 4px; }
             .supplier-input { width: 100% !important; flex: 1; }
             .status-select { width: 100%; font-size: 13.5px; }
-        }
-
-        @media (max-width: 480px) {
-            body { padding: 80px 8px 100px; }
-            .container { padding: 12px 10px; }
-            table#warrantyTable tbody tr { padding: 14px 12px; }
         }
     </style>
 </head>
@@ -172,12 +162,12 @@ if(isset($_GET['range'])) {
                             <span style="color:var(--text-muted); font-size:12px;"><?= htmlspecialchars($row['phone_number']) ?></span>
                         </td>
                         <td data-label="Status">
-                            <select class="status-select" id="stat-<?= $id ?>" onchange="saveAll(<?= $id ?>)" 
-                                <?= ($current_status == 'Completed' || $current_status == 'Returned') ? 'disabled' : ''; ?>>
+                            <!-- මුළු Select Box එකම disable කර නැත. Completed හෝ Returned නම් කලින් status (Pending/Sent) වෙත යාම පමණක් option මඟින් block කර ඇත -->
+                            <select class="status-select" id="stat-<?= $id ?>" onchange="saveAll(<?= $id ?>)">
                                 
                                 <option value="Pending" 
                                     <?= $current_status =='Pending'?'selected':'' ?> 
-                                    <?= ($current_status != 'Pending') ? 'disabled' : ''; ?>> Pending</option>
+                                    <?= ($current_status == 'Completed' || $current_status == 'Returned' || $current_status == 'Rejected') ? 'disabled' : ''; ?>> Pending</option>
                                 
                                 <option value="Sent to Warranty" 
                                     <?= $current_status =='Sent to Warranty'?'selected':'' ?> 
@@ -185,6 +175,7 @@ if(isset($_GET['range'])) {
                                 
                                 <option value="Completed" 
                                     <?= $current_status =='Completed'?'selected':'' ?>> Completed</option>
+                                
                                 <option value="Returned" 
                                     <?= $current_status =='Returned'?'selected':'' ?>
                                     style="color: var(--info);"> Returned</option>
@@ -222,7 +213,7 @@ function saveAll(id) {
     xhr.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             showToast("Updated!");
-            if(status === 'Completed' || status === 'Sent to Warranty' || status === 'Returned') {
+            if(status === 'Completed' || status === 'Sent to Warranty' || status === 'Returned' || status === 'Rejected') {
                 setTimeout(() => { location.reload(); }, 1000);
             }
         }
