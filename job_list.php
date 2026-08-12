@@ -2,13 +2,13 @@
 include 'db_config.php';
 include 'navbar.php';
 
-//  Auto Status Update (Destroyed) ---
+//  Auto Status Update (Destroyed) 
 mysqli_query($conn, "UPDATE job_device SET device_status = 'Destroyed' 
                      WHERE destroy_notice_sent_date IS NOT NULL 
                      AND DATEDIFF(NOW(), destroy_notice_sent_date) >= 7 
                      AND device_status != 'Destroyed'");
 
-// Auto SMS Logic (Ready to collect) ---
+// Auto SMS Logic 
 $auto_sms_query = "SELECT jd.job_device_id, j.phone_number, c.customer_name, jd.device_name, j.job_no 
                    FROM job_device jd
                    INNER JOIN job j ON jd.job_no = j.job_no
@@ -118,7 +118,6 @@ $result = mysqli_query($conn, $sql);
             -webkit-overflow-scrolling: touch; 
         }
 
-        /* ==================== RESPONSIVE QUERIES ==================== */
         @media (max-width: 768px) {
             .page-container { margin-top: 15px; padding: 0 10px; }
             .page-header { padding: 20px 15px; border-radius: 16px; margin-bottom: 20px; }
@@ -152,7 +151,6 @@ $result = mysqli_query($conn, $sql);
         .inline-input[readonly] { background: rgba(241, 245, 249, 0.6); border-color: #e2e8f0; cursor: not-allowed; }
         .inline-input.editing { border-color: #2563eb !important; background: #ffffff !important; outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important; cursor: text !important; }
 
-        /* Action Buttons with High Visibility */
         .btn-action-group {
             display: flex;
             flex-direction: row;
@@ -181,7 +179,6 @@ $result = mysqli_query($conn, $sql);
             text-decoration: none;
         }
 
-        /* SMS - white with green border */
         .btn-action-sms {
             background: #ffffff !important;
             color: #16a34a !important;
@@ -193,7 +190,6 @@ $result = mysqli_query($conn, $sql);
             border-color: #16a34a !important;
         }
 
-        /* Edit and Bill - solid green */
         .btn-action-edit, .bill-btn {
             background: linear-gradient(135deg, #22c55e, #16a34a) !important;
             color: white !important;
@@ -348,7 +344,8 @@ $result = mysqli_query($conn, $sql);
 
                                 <?php if($current_status == 'Completed' || $current_status == 'Returned'): ?>
                                     <?php if($days_passed >= 365 && $current_status == 'Completed'): ?>
-                                        <button onclick="sendDestroySMS(<?= $id ?>)" class="btn-action-edit" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;" title="Send Destroy Notice">
+                                        <!-- මෙතැනදී Destroy බොත්තම එබූ විට කෙලින්ම destroyed_items_view.php වෙත යාමට API එක ක්‍රියාත්මක වේ -->
+                                        <button onclick="markAsDestroyed(<?= $id ?>)" class="btn-action-edit" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;" title="Move to Destroyed List">
                                             <i class="ph ph-trash" style="font-size:15px;"></i> <span>Destroy</span>
                                         </button>
                                     <?php elseif(!$is_paid): ?>
@@ -356,15 +353,15 @@ $result = mysqli_query($conn, $sql);
                                     <?php else: ?>
                                         <span class="paid-badge"><i class="ph ph-check-circle" style="font-size:15px;"></i> PAID</span>
                                     <?php endif; ?>
-                                <?php endif; ?>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <tr><td colspan="8" style="padding: 60px; color: var(--text-muted, #64748b); font-size:15px; font-weight:600;">No active jobs found.</td></tr>
-                <?php endif; ?>
-            </tbody>
+                              <?php endif; ?>
+                          </div>
+                      </td>
+                  </tr>
+                  <?php endwhile; ?>
+              <?php else: ?>
+                  <tr><td colspan="8" style="padding: 60px; color: var(--text-muted, #64748b); font-size:15px; font-weight:600;">No active jobs found.</td></tr>
+              <?php endif; ?>
+          </tbody>
         </table>
     </div>
 </div>
@@ -417,7 +414,6 @@ function toggleEdit(id) {
     let btn = document.getElementById('btn-edit-' + id);
     
     if (dev.readOnly) {
-        // Edit Mode On
         dev.readOnly = false; 
         iss.readOnly = false; 
         sol.readOnly = false;
@@ -425,24 +421,43 @@ function toggleEdit(id) {
         iss.classList.add('editing'); 
         sol.classList.add('editing');
         sol.focus();
-        btn.innerHTML = "<i class='ph ph-floppy-disk' style='font-size:15px;'></i> <span>Save</span>";
+        btn.innerHTML = "<i class='ph ph-floppy-disk' style='font-size:15px;'><span>Save</span>";
         btn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
     } else {
-        // Save Mode
         updateStatusAndSMS(id);
     }
 }
 
-// Added JS function for the Destroy SMS button
+// DESTROY SMS sent
 function sendDestroySMS(id) {
     if(confirm("Are you sure you want to send a destroy notice for this device?")) {
-        fetch('./send_sms_api.php', {
+        fetch('./send_destroy_sms_api.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `id=${id}&type=destroy` 
         }).then(res => res.text()).then(data => { 
             alert(data); 
             location.reload(); 
+        });
+    }
+}
+
+// click destroy button and go to destroy page
+function markAsDestroyed(id) {
+    if(confirm("Are you sure you want to move this item to the destroyed list?")) {
+        fetch('./mark_destroyed_api.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${id}`
+        })
+        .then(res => res.text())
+        .then(data => { 
+            if(data.trim() === "Success") {
+                alert("Item moved to destroyed list successfully!");
+                location.reload(); 
+            } else {
+                alert(data);
+            }
         });
     }
 }

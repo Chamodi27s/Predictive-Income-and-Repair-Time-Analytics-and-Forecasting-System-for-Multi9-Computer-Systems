@@ -92,7 +92,6 @@ $result = mysqli_query($conn, $sql);
             color: #94a3b8 !important;
         }
 
-        /* NEW: Dark mode search bar input */
         body.dark-mode .search-input {
             background: #334155 !important;
             border-color: #475569 !important;
@@ -146,7 +145,6 @@ $result = mysqli_query($conn, $sql);
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Update flexbox to handle search bar on the right */
         .table-header-flex {
             display: flex;
             justify-content: space-between;
@@ -170,7 +168,6 @@ $result = mysqli_query($conn, $sql);
             padding-bottom: 0;
         }
 
-        /* SEARCH BAR STYLES */
         .search-container {
             position: relative;
             width: 300px;
@@ -267,17 +264,14 @@ $result = mysqli_query($conn, $sql);
             body {
                 padding: 120px 16px 40px;
             }
-
             .page-header {
                 margin-top: 15px;
                 padding: 28px 24px;
                 margin-bottom: 24px;
             }
-
             .page-header h1 {
                 font-size: 26px;
             }
-
             .container {
                 padding: 24px;
             }
@@ -287,27 +281,22 @@ $result = mysqli_query($conn, $sql);
             body {
                 padding: 115px 12px 100px;
             }
-
             .page-header {
                 margin-top: 15px;
                 padding: 22px 16px;
                 border-radius: 18px;
                 margin-bottom: 18px;
             }
-
             .page-header h1 {
                 font-size: 22px;
             }
-
             .page-header p {
                 font-size: 13px;
             }
-
             .container {
                 padding: 16px 12px;
                 border-radius: 18px;
             }
-
             .table-header-flex {
                 flex-direction: column;
                 align-items: stretch;
@@ -315,24 +304,19 @@ $result = mysqli_query($conn, $sql);
                 margin-bottom: 20px;
                 padding-bottom: 16px;
             }
-
             .header-title {
                 font-size: 20px;
                 justify-content: center;
             }
-
             .search-container {
                 width: 100%;
             }
-
-            /* Transform Table into Responsive Cards on Mobile */
             .table-container {
                 border: none;
                 background: transparent;
                 border-radius: 0;
                 overflow: visible;
             }
-
             table.report-table,
             table.report-table tbody,
             table.report-table tr,
@@ -340,15 +324,12 @@ $result = mysqli_query($conn, $sql);
                 display: block;
                 width: 100%;
             }
-
             table.report-table {
                 min-width: 0 !important;
             }
-
             table.report-table thead {
                 display: none;
             }
-
             table.report-table tbody tr {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
@@ -361,13 +342,11 @@ $result = mysqli_query($conn, $sql);
                 box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
                 position: relative;
             }
-
             body.dark-mode table.report-table tbody tr {
                 background: rgba(30, 41, 59, 0.9) !important;
                 border-color: rgba(255, 255, 255, 0.1);
                 box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
             }
-
             table.report-table td {
                 display: flex;
                 flex-direction: column;
@@ -378,7 +357,6 @@ $result = mysqli_query($conn, $sql);
                 border: none;
                 font-size: 14px;
             }
-
             table.report-table td::before {
                 content: attr(data-label);
                 font-weight: 800;
@@ -387,48 +365,37 @@ $result = mysqli_query($conn, $sql);
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
             }
-
             body.dark-mode table.report-table td::before {
                 color: #94a3b8;
             }
-
-            /* Card Row 1: Job No (Left) & Destroyed Date Badge (Right) */
             table.report-table td:nth-child(1) {
                 grid-column: 1 / 2;
                 grid-row: 1;
                 padding-bottom: 8px;
                 border-bottom: 1.5px dashed var(--border);
             }
-
             table.report-table td:nth-child(1)::before {
                 display: none;
             }
-
             table.report-table td:nth-child(5) {
                 grid-column: 2 / 3;
                 grid-row: 1;
                 align-items: flex-end;
+                text-align: right !important;
                 padding-bottom: 8px;
                 border-bottom: 1.5px dashed var(--border);
             }
-
             table.report-table td:nth-child(5)::before {
                 display: none;
             }
-
-            /* Card Row 2: Customer */
             table.report-table td:nth-child(2) {
                 grid-column: 1 / -1;
                 grid-row: 2;
             }
-
-            /* Card Row 3: Device Details */
             table.report-table td:nth-child(3) {
                 grid-column: 1 / -1;
                 grid-row: 3;
             }
-
-            /* Card Row 4: Completion Date */
             table.report-table td:nth-child(4) {
                 grid-column: 1 / -1;
                 grid-row: 4;
@@ -437,12 +404,10 @@ $result = mysqli_query($conn, $sql);
                 border-radius: 12px;
                 border: 1px solid var(--border);
             }
-
             body.dark-mode table.report-table td:nth-child(4) {
                 background: rgba(15, 23, 42, 0.6);
                 border-color: rgba(255, 255, 255, 0.08);
             }
-
             .badge-date {
                 font-size: 12px;
                 padding: 6px 12px;
@@ -453,11 +418,9 @@ $result = mysqli_query($conn, $sql);
             body {
                 padding: 80px 8px 100px;
             }
-
             .container {
                 padding: 12px 10px;
             }
-
             table.report-table tbody tr {
                 padding: 14px 12px;
             }
@@ -510,10 +473,30 @@ $result = mysqli_query($conn, $sql);
                             </div>
                         </td>
                         <td data-label="Completion Date">
-                            <b><?= date('M d, Y', strtotime($row['completed_date'])) ?></b>
+                            <b>
+                                <?php 
+                                $comp_date = $row['completed_date'];
+                                if (!empty($comp_date) && $comp_date != '0000-00-00' && $comp_date != '1970-01-01') {
+                                    echo date('M d, Y', strtotime($comp_date));
+                                } else {
+                                    echo "N/A";
+                                }
+                                ?>
+                            </b>
                         </td>
                         <td data-label="Destroyed Date">
-                            <span class="badge-date"><?= date('M d, Y', strtotime($row['destroy_notice_sent_date'])) ?></span>
+                            <span class="badge-date">
+                                <?php 
+                                $dest_date = $row['destroy_notice_sent_date'];
+                                if (!empty($dest_date) && $dest_date != '0000-00-00' && $dest_date != '1970-01-01') {
+                                    // destroy_notice_sent_date දිනට දින 7ක් (Days 7) එකතු කරයි
+                                    $destroyed_date_plus_7 = date('M d, Y', strtotime($dest_date . ' +7 days'));
+                                    echo $destroyed_date_plus_7;
+                                } else {
+                                    echo "N/A";
+                                }
+                                ?>
+                            </span>
                         </td>
                     </tr>
                     <?php endwhile; ?>
@@ -534,7 +517,6 @@ $result = mysqli_query($conn, $sql);
 </div>
 
 <script>
-// --- REAL-TIME SEARCH FUNCTIONALITY ---
 document.getElementById('searchInput').addEventListener('keyup', function() {
     const filter = this.value.toLowerCase();
     const tableBody = document.getElementById('tableBody');
@@ -542,7 +524,6 @@ document.getElementById('searchInput').addEventListener('keyup', function() {
     const noResultsMsg = document.getElementById('noSearchResults');
     let hasMatch = false;
 
-    // Start loop (skip 'No records' row if it exists)
     for (let i = 0; i < rows.length; i++) {
         if (rows[i].id === 'noRecordsRow') continue;
 
@@ -555,7 +536,6 @@ document.getElementById('searchInput').addEventListener('keyup', function() {
         }
     }
 
-    // Show/Hide "No Match" message
     if (!hasMatch && filter !== "") {
         noResultsMsg.style.display = "block";
     } else {
@@ -563,7 +543,6 @@ document.getElementById('searchInput').addEventListener('keyup', function() {
     }
 });
 
-// --- AUTO REFRESH ON MODE CHANGE ---
 let lastMode = document.body.classList.contains('dark-mode');
 const observer = new MutationObserver(() => {
     let currentMode = document.body.classList.contains('dark-mode');
@@ -576,5 +555,4 @@ observer.observe(document.body, { attributes: true, attributeFilter: ['class'] }
 </script>
 <?php include_once __DIR__ . '/chatbot.php'; ?>
 </body>
-
 </html>
