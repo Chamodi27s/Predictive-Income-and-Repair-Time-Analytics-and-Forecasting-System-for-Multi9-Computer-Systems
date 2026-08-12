@@ -2,13 +2,13 @@
 include 'db_config.php';
 include 'navbar.php';
 
-//  Auto Status Update (Destroyed) ---
+//  Auto Status Update (Destroyed) 
 mysqli_query($conn, "UPDATE job_device SET device_status = 'Destroyed' 
                      WHERE destroy_notice_sent_date IS NOT NULL 
                      AND DATEDIFF(NOW(), destroy_notice_sent_date) >= 7 
                      AND device_status != 'Destroyed'");
 
-// Auto SMS Logic (Ready to collect) ---
+// Auto SMS Logic 
 $auto_sms_query = "SELECT jd.job_device_id, j.phone_number, c.customer_name, jd.device_name, j.job_no 
                    FROM job_device jd
                    INNER JOIN job j ON jd.job_no = j.job_no
@@ -428,10 +428,10 @@ function toggleEdit(id) {
     }
 }
 
-// DESTROY SMS යැවීම සඳහා (SMS එක පමණක් යවයි)
+// DESTROY SMS sent
 function sendDestroySMS(id) {
     if(confirm("Are you sure you want to send a destroy notice for this device?")) {
-        fetch('./send_sms_api.php', {
+        fetch('./send_destroy_sms_api.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `id=${id}&type=destroy` 
@@ -442,7 +442,7 @@ function sendDestroySMS(id) {
     }
 }
 
-// DESTROY බොත්තම එබූ විට Active ලැයිස්තුවෙන් ඉවත් වී destroyed_items_view.php වෙත යැවීම සඳහා
+// click destroy button and go to destroy page
 function markAsDestroyed(id) {
     if(confirm("Are you sure you want to move this item to the destroyed list?")) {
         fetch('./mark_destroyed_api.php', {

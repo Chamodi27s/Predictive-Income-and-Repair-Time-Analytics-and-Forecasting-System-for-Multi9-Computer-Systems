@@ -381,6 +381,7 @@ $result = mysqli_query($conn, $sql);
                 grid-column: 2 / 3;
                 grid-row: 1;
                 align-items: flex-end;
+                text-align: right !important;
                 padding-bottom: 8px;
                 border-bottom: 1.5px dashed var(--border);
             }
@@ -488,7 +489,9 @@ $result = mysqli_query($conn, $sql);
                                 <?php 
                                 $dest_date = $row['destroy_notice_sent_date'];
                                 if (!empty($dest_date) && $dest_date != '0000-00-00' && $dest_date != '1970-01-01') {
-                                    echo date('M d, Y', strtotime($dest_date));
+                                    // destroy_notice_sent_date දිනට දින 7ක් (Days 7) එකතු කරයි
+                                    $destroyed_date_plus_7 = date('M d, Y', strtotime($dest_date . ' +7 days'));
+                                    echo $destroyed_date_plus_7;
                                 } else {
                                     echo "N/A";
                                 }
