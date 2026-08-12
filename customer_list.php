@@ -84,20 +84,25 @@ $q = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
         }
         body.dark-mode .search-box:focus { background: rgba(15, 23, 42, 0.9); }
 
-        table { width: 100%; border-collapse: separate; border-spacing: 0 12px; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { 
-            text-align: left; padding: 0 20px 10px; color: #64748b; font-weight: 600; 
-            font-size: 12px; text-transform: uppercase; letter-spacing: 1px; 
+            text-align: left; padding: 14px 20px; background: #f8fafc;
+            color: #64748b; font-size: 11px;
+            text-transform: uppercase; font-weight: 700;
+            letter-spacing: 0.6px; border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
         }
         
         td { 
-            padding: 20px; background: #ffffff; 
-            border-top: 1px solid var(--border-light); 
-            border-bottom: 1px solid var(--border-light); 
+            padding: 14px 20px; background: #ffffff; 
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 13px;
+            color: #1e293b;
             transition: 0.3s; 
+            line-height: 1.4;
         }
-        td:first-child { border-left: 1px solid var(--border-light); border-radius: 16px 0 0 16px; border-left: 4px solid transparent; }
-        td:last-child { border-right: 1px solid var(--border-light); border-radius: 0 16px 16px 0; }
+        td:first-child { border-left: 4px solid transparent; }
+        td:last-child {  }
 
         body.dark-mode td { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); }
 

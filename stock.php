@@ -381,17 +381,21 @@ table {
 }
 
 th {
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
-    color: white;
-    padding: 16px;
+    background: #f8fafc;
+    color: #64748b;
+    padding: 14px 16px;
     text-align: left;
-    font-size: 13px;
+    font-size: 11px;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border-bottom: 2px solid #e2e8f0;
+    white-space: nowrap;
 }
 
 td {
-    padding: 15px 16px;
-    border-bottom: 1px solid #eef2f7;
+    padding: 14px 16px;
+    border-bottom: 1px solid #e2e8f0;
     font-size: 14px;
     color: #334155;
 }

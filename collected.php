@@ -52,12 +52,12 @@ if(isset($_GET['range'])) {
 body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
-    padding: 140px 20px 40px;
+    padding: 140px 10px 40px;
     color: var(--text-main);
 }
 
 .page-container {
-    max-width: 1200px;
+    max-width: 1500px;
     margin: auto;
 }
 
@@ -84,7 +84,7 @@ body {
 
 .container {
     background: var(--card-bg);
-    padding: 34px;
+    padding: 24px 20px;
     border-radius: 22px;
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border);
@@ -106,7 +106,6 @@ body {
     cursor: pointer;
     font-weight: 700;
     color: #334155;
-    transition: 0.3s;
 }
 
 .filter-btn:hover {
@@ -123,42 +122,47 @@ body {
 
 /* table */
 .table-container {
-    overflow-x: auto;
+    overflow: visible;
     border-radius: 16px;
     border: 1px solid var(--border);
 }
 
 table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    min-width: 1100px;
+    border-collapse: collapse;
+    table-layout: fixed;
 }
 
 th {
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
-    padding: 16px 18px;
-    color: white;
-    font-weight: 800;
+    background: #f8fafc;
+    color: #64748b;
+    padding: 10px 10px;
+    font-weight: 700;
     text-transform: uppercase;
-    font-size: 13px;
+    font-size: 10px;
+    letter-spacing: 0.5px;
     text-align: left;
+    border-bottom: 2px solid #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 td {
-    padding: 16px 18px;
-    border-bottom: 1px solid #f1f5f9;
+    padding: 8px 10px;
+    border-bottom: 1px solid #e2e8f0;
     color: #334155;
-    font-size: 14px;
+    font-size: 13px;
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 tbody tr {
-    transition: 0.25s;
 }
 
 tbody tr:hover {
     background: #f8fafc;
-    transform: translateX(4px);
 }
 
 /* inputs */
@@ -174,10 +178,16 @@ tbody tr:hover {
 
 .table-input {
     width: 100%;
+    box-sizing: border-box;
+    padding: 5px 6px;
+    font-size: 12px;
 }
 
 .est-input {
-    width: 110px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 5px 6px;
+    font-size: 12px;
 }
 
 .table-input:focus,
@@ -192,26 +202,29 @@ tbody tr:hover {
     border: 2px solid var(--primary) !important;
 }
 
-/* advance badge - purple */
+/* advance badge - green theme */
 .advance-badge {
-    background: linear-gradient(135deg, #ede9fe, #c4b5fd);
-    color: #5b21b6;
-    padding: 7px 14px;
-    border-radius: 20px;
-    font-weight: 800;
-    font-size: 13px;
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    color: #15803d;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 11px;
     display: inline-block;
-    box-shadow: 0 4px 10px rgba(124,58,237,0.15);
+    border: 1px solid #86efac;
 }
 
 /* selects */
 .status-select {
-    padding: 10px 14px;
-    border-radius: 12px;
-    border: 2px solid var(--border);
-    font-weight: 700;
+    padding: 5px 6px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    font-weight: 600;
+    font-size: 12px;
     cursor: pointer;
     background: #ffffff;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .status-pending {
@@ -224,54 +237,59 @@ tbody tr:hover {
     color: #166534;
 }
 
-/* buttons */
+/* buttons - side by side */
+.btn-action-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: nowrap;
+}
+
 .btn-edit,
 .btn-sms {
     border: none;
-    padding: 11px 16px;
-    border-radius: 13px;
+    padding: 6px 10px;
+    border-radius: 7px;
     cursor: pointer;
-    font-weight: 800;
-    transition: 0.3s;
-    width: 100%;
-    display: flex;
+    font-weight: 700;
+    font-size: 11px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
+/* Send Estimate - white with green border */
 .btn-sms {
-    background: linear-gradient(135deg, #fbbf24, #f97316);
-    color: #1f2937;
-    margin-bottom: 8px;
-    box-shadow: 0 5px 12px rgba(249,115,22,0.28);
+    background: #ffffff;
+    color: #16a34a;
+    border: 1.5px solid #22c55e;
+    box-shadow: 0 1px 4px rgba(46,204,113,0.15);
 }
 
+/* Edit - solid green */
 .btn-edit {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    background: linear-gradient(135deg, #22c55e, #16a34a);
     color: white;
-    box-shadow: 0 5px 12px rgba(59,130,246,0.28);
-}
-
-.btn-sms:hover,
-.btn-edit:hover {
-    transform: translateY(-3px);
+    box-shadow: 0 1px 6px rgba(34,197,94,0.25);
 }
 
 .btn-sms:hover {
-    box-shadow: 0 8px 18px rgba(249,115,22,0.38);
+    background: #f0fdf4;
+    border-color: #16a34a;
 }
 
 .btn-edit:hover {
-    box-shadow: 0 8px 18px rgba(59,130,246,0.38);
+    background: linear-gradient(135deg, #16a34a, #15803d);
 }
 
 .save-msg {
-    font-size: 13px;
+    font-size: 11px;
     color: var(--success);
     display: none;
-    font-weight: 800;
-    margin-left: 6px;
+    font-weight: 700;
 }
 
 /* dark mode */
@@ -377,7 +395,7 @@ body.dark-mode .advance-badge {
 
 <div class="page-container">
     <div class="page-header">
-        <h1>🛠️ Jobs Management</h1>
+        <h1>Jobs Management</h1>
         <p>Manage non-warranty jobs, estimates and approvals</p>
     </div>
 
@@ -391,6 +409,17 @@ body.dark-mode .advance-badge {
 
         <div class="table-container">
             <table id="jobsTable">
+                <colgroup>
+                    <col style="width:10%">  <!-- Job No -->
+                    <col style="width:13%">  <!-- Customer -->
+                    <col style="width:10%">  <!-- Issue -->
+                    <col style="width:8%">   <!-- Estimate -->
+                    <col style="width:8%">   <!-- Advance -->
+                    <col style="width:10%">  <!-- Category -->
+                    <col style="width:10%">  <!-- Phone -->
+                    <col style="width:10%">  <!-- Status -->
+                    <col style="width:21%">  <!-- Action -->
+                </colgroup>
                 <thead>
                     <tr>
                         <th>Job No</th>
@@ -458,8 +487,8 @@ body.dark-mode .advance-badge {
                         <td>
                             <select id="cat-<?= $row_uid ?>" class="status-select"
                             onchange="saveToDB('<?= $row_uid ?>', '<?= $id ?>', '<?= $device_id ?>')">
-                                <option value="Hardware" <?= $cat_val == 'Hardware' ? 'selected' : ''; ?>>⚙️ Hardware</option>
-                                <option value="Software" <?= $cat_val == 'Software' ? 'selected' : ''; ?>>💻 Software</option>
+                                <option value="Hardware" <?= $cat_val == 'Hardware' ? 'selected' : ''; ?>>Hardware</option>
+                                <option value="Software" <?= $cat_val == 'Software' ? 'selected' : ''; ?>>Software</option>
                             </select>
                         </td>
 
@@ -471,15 +500,17 @@ body.dark-mode .advance-badge {
                         <td>
                             <select id="stat-<?= $row_uid ?>" class="status-select <?= $status_class ?>"
                             onchange="updateStatusOnly('<?= $row_uid ?>', '<?= $id ?>', '<?= $device_id ?>')">
-                                <option value="Pending" <?= $status_val == 'Pending' ? 'selected' : ''; ?>>⏳ Pending</option>
-                                <option value="Approved" <?= $status_val == 'Approved' ? 'selected' : ''; ?>>✅ Approved</option>
+                                <option value="Pending" <?= $status_val == 'Pending' ? 'selected' : ''; ?>>Pending</option>
+                                <option value="Approved" <?= $status_val == 'Approved' ? 'selected' : ''; ?>>Approved</option>
                             </select>
-                            <span id="msg-<?= $row_uid ?>" class="save-msg">✓ Saved</span>
+                            <span id="msg-<?= $row_uid ?>" class="save-msg">Saved</span>
                         </td>
 
                         <td>
-                            <button class="btn-sms" onclick="sendEstimateSMS('<?= $row_uid ?>', '<?= $id ?>', '<?= $device_id ?>')">📩 Send Estimate</button>
-                            <button id="btn-edit-<?= $row_uid ?>" class="btn-edit" onclick="toggleEdit('<?= $row_uid ?>', '<?= $id ?>', '<?= $device_id ?>')">✏️ Edit</button>
+                            <div class="btn-action-group">
+                                <button class="btn-sms" onclick="sendEstimateSMS('<?= $row_uid ?>', '<?= $id ?>', '<?= $device_id ?>')">Send Estimate</button>
+                                <button id="btn-edit-<?= $row_uid ?>" class="btn-edit" onclick="toggleEdit('<?= $row_uid ?>', '<?= $id ?>', '<?= $device_id ?>')">Edit</button>
+                            </div>
                             <input type="hidden" id="email-<?= $row_uid ?>" value="<?= $row['email']; ?>">
                         </td>
                     </tr>
@@ -615,7 +646,7 @@ function toggleEdit(row_uid, job_no, device_id) {
             el.classList.add('editing-active');
         });
 
-        btn.innerHTML = "💾 Save";
+        btn.innerHTML = " Save";
     } else {
         saveToDB(row_uid, job_no, device_id, 0, () => {
             fields.forEach(f => {
@@ -624,7 +655,7 @@ function toggleEdit(row_uid, job_no, device_id) {
                 el.classList.remove('editing-active');
             });
 
-            btn.innerHTML = "✏️ Edit";
+            btn.innerHTML = "Edit";
         });
     }
 }

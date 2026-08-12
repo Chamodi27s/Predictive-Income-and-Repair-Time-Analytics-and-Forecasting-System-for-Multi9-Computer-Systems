@@ -90,7 +90,7 @@ $result = mysqli_query($conn, $sql);
         
         body { padding-top: var(--nav-height, 100px); }
 
-        .page-container { max-width: 1400px; margin: 0 auto; margin-top: 25px; padding: 0 15px; }
+        .page-container { max-width: 1550px; margin: 0 auto; margin-top: 25px; padding: 0 15px; }
         .page-header { background: linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%); padding: 30px; border-radius: 20px; margin-bottom: 30px; color: white; text-align: center; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.25); }
         .page-header h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .page-header p { font-size: 14px; opacity: 0.9; }
@@ -105,15 +105,15 @@ $result = mysqli_query($conn, $sql);
         .history-link:hover { background: #0f172a; transform: translateY(-1px); }
 
         .filter-container { display: flex; justify-content: center; gap: 12px; margin-bottom: 25px; flex-wrap: wrap; }
-        .filter-tag { padding: 10px 20px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 13px; color: white; transition: all 0.2s; border: 2px solid transparent; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .filter-tag:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
-        .active-tag { transform: scale(1.05); box-shadow: 0 6px 18px rgba(0,0,0,0.2) !important; border-color: #ffffff !important; }
+        .filter-tag { padding: 10px 18px; border-radius: 12px; border: 1px solid var(--border-light, #e2e8f0); background: #ffffff; text-decoration: none; font-weight: 700; font-size: 13px; color: #334155; transition: all 0.2s; }
+        .filter-tag:hover { background: #ecfdf5; border-color: #10b981; color: #047857; }
+        .active-tag { background: linear-gradient(135deg, #10b981, #059669) !important; color: white !important; border-color: transparent !important; }
 
         .table-container { 
             background: var(--light-surface, #ffffff); 
             border-radius: 18px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.06); 
-            overflow-x: auto; 
+            overflow: visible; 
             border: 1px solid var(--border-light, #e2e8f0);
             -webkit-overflow-scrolling: touch; 
         }
@@ -141,74 +141,67 @@ $result = mysqli_query($conn, $sql);
             .btn-action-sms, .btn-action-edit, .bill-btn { padding: 8px 12px; font-size: 11px; }
         }
 
-        .status-table { width: 100%; border-collapse: collapse; min-width: 1100px; }
-        .status-table th { background: var(--light-bg, #f8fafc); color: var(--text-muted, #64748b); padding: 16px 18px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 800; border-bottom: 2px solid var(--border-light, #e2e8f0); }
-        .status-table td { padding: 16px 18px; border-bottom: 1px solid var(--border-light, #e2e8f0); text-align: center; color: var(--text-dark, #0f172a); font-size: 13px; vertical-align: middle; }
-        .status-table tr:hover td { background: rgba(241, 245, 249, 0.5); }
+        .status-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .status-table th { background: #f8fafc; color: #64748b; padding: 10px 10px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; border-bottom: 2px solid #e2e8f0; white-space: nowrap; text-align: left; overflow: hidden; }
+        .status-table td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; text-align: left; color: #0f172a; font-size: 13px; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .status-table tr:hover td { background: rgba(248, 250, 252, 0.8); }
 
-        .job-badge { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 6px 14px; border-radius: 50px; font-weight: 800; font-size: 12px; display: inline-block; }
+        .job-badge { font-weight: 800; font-size: 13px; color: #0f172a; display: inline-block; }
 
         .inline-input { width: 100%; border: 1px solid #cbd5e1; background: var(--light-bg, #f8fafc); padding: 10px 12px; border-radius: 10px; font-size: 13px; color: var(--text-dark, #0f172a); transition: all 0.2s; }
         .inline-input[readonly] { background: rgba(241, 245, 249, 0.6); border-color: #e2e8f0; cursor: not-allowed; }
         .inline-input.editing { border-color: #2563eb !important; background: #ffffff !important; outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important; cursor: text !important; }
 
         /* Action Buttons with High Visibility */
-        .btn-action-edit {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
-            color: #ffffff !important;
-            border: none;
-            padding: 9px 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 12px;
-            display: inline-flex;
+        .btn-action-group {
+            display: flex;
+            flex-direction: row;
             align-items: center;
-            gap: 6px;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
-            transition: all 0.2s;
-        }
-        .btn-action-edit:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5);
-            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
+            justify-content: center;
+            gap: 5px;
+            flex-wrap: nowrap;
         }
 
-        .btn-action-sms {
-            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%) !important;
-            color: #ffffff !important;
+        .btn-action-edit,
+        .btn-action-sms,
+        .bill-btn {
             border: none;
-            padding: 9px 12px;
-            border-radius: 10px;
+            padding: 6px 10px;
+            border-radius: 7px;
             cursor: pointer;
             font-weight: 700;
-            font-size: 12px;
+            font-size: 11px;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+            justify-content: center;
+            gap: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
             transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        /* SMS - white with green border */
+        .btn-action-sms {
+            background: #ffffff !important;
+            color: #16a34a !important;
+            border: 1.5px solid #22c55e !important;
+            box-shadow: 0 1px 4px rgba(46,204,113,0.15) !important;
         }
         .btn-action-sms:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5);
+            background: #f0fdf4 !important;
+            border-color: #16a34a !important;
         }
 
-        .bill-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: white;
-            padding: 9px 16px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 800;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
-            transition: all 0.2s;
+        /* Edit and Bill - solid green */
+        .btn-action-edit, .bill-btn {
+            background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+            color: white !important;
+            box-shadow: 0 1px 6px rgba(34,197,94,0.25) !important;
         }
-        .bill-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(245, 158, 11, 0.5); }
+        .btn-action-edit:hover, .bill-btn:hover {
+            background: linear-gradient(135deg, #16a34a, #15803d) !important;
+        }
 
         .paid-badge { background: #ecfdf5; color: #059669; border: 1px solid #10b981; padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; }
 
@@ -245,15 +238,25 @@ $result = mysqli_query($conn, $sql);
     </div>
 
     <div class="filter-container">
-        <a href="?search=<?= $search ?>" class="filter-tag <?= $filter_status == '' ? 'active-tag' : '' ?>" style="background: #334155;">All Jobs</a>
-        <a href="?status=Pending&search=<?= $search ?>" class="filter-tag <?= $filter_status == 'Pending' ? 'active-tag' : '' ?>" style="background: #f59e0b;">Pending</a>
-        <a href="?status=In Progress&search=<?= $search ?>" class="filter-tag <?= $filter_status == 'In Progress' ? 'active-tag' : '' ?>" style="background: #2563eb;">In Progress</a>
-        <a href="?status=Completed&search=<?= $search ?>" class="filter-tag <?= $filter_status == 'Completed' ? 'active-tag' : '' ?>" style="background: #059669;">Completed</a>
-        <a href="?status=Returned&search=<?= $search ?>" class="filter-tag <?= $filter_status == 'Returned' ? 'active-tag' : '' ?>" style="background: #64748b;">Returned</a>
+        <a href="?search=<?= $search ?>" class="filter-tag <?= $filter_status == '' ? 'active-tag' : '' ?>">All Jobs</a>
+        <a href="?status=Pending&search=<?= $search ?>" class="filter-tag <?= $filter_status == 'Pending' ? 'active-tag' : '' ?>">Pending</a>
+        <a href="?status=In Progress&search=<?= $search ?>" class="filter-tag <?= $filter_status == 'In Progress' ? 'active-tag' : '' ?>">In Progress</a>
+        <a href="?status=Completed&search=<?= $search ?>" class="filter-tag <?= $filter_status == 'Completed' ? 'active-tag' : '' ?>">Completed</a>
+        <a href="?status=Returned&search=<?= $search ?>" class="filter-tag <?= $filter_status == 'Returned' ? 'active-tag' : '' ?>">Returned</a>
     </div>
 
     <div class="table-container">
         <table class="status-table">
+            <colgroup>
+                <col style="width:10%">  <!-- JOB NO -->
+                <col style="width:17%">  <!-- CUSTOMER DETAILS -->
+                <col style="width:12%">  <!-- DEVICE -->
+                <col style="width:12%">  <!-- ISSUE -->
+                <col style="width:10%">  <!-- ADVANCE -->
+                <col style="width:15%">  <!-- SOLUTION -->
+                <col style="width:10%">  <!-- STATUS -->
+                <col style="width:14%">  <!-- ACTIONS -->
+            </colgroup>
             <thead>
                 <tr>
                     <th>JOB NO</th>
@@ -298,8 +301,8 @@ $result = mysqli_query($conn, $sql);
                             Rs. <?= number_format($row['advance_paid'], 2) ?>
                         </td>
 
-                        <td style="min-width:180px;">
-                            <textarea id="sol-<?= $id ?>" class="inline-input" readonly rows="2" style="resize:vertical; min-height:48px;" placeholder="Click Edit button to enter solution..."><?= htmlspecialchars($row['solution'] ?? '') ?></textarea>
+                        <td style="min-width:140px;">
+                            <textarea id="sol-<?= $id ?>" class="inline-input" readonly rows="2" style="resize:vertical; min-height:40px; padding: 6px 8px; font-size: 12px;" placeholder="Click Edit button to enter solution..."><?= htmlspecialchars($row['solution'] ?? '') ?></textarea>
                         </td>
                         
                         <td style="vertical-align: middle; min-width: 140px;">
@@ -332,7 +335,7 @@ $result = mysqli_query($conn, $sql);
                         </td>
 
                         <td>
-                            <div style="display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                            <div class="btn-action-group">
                                 <button onclick="viewSMSHistory(<?= $id ?>)" title="View SMS History" class="btn-action-sms">
                                     <i class="ph ph-chat-text" style="font-size:15px;"></i> <span>SMS</span>
                                 </button>

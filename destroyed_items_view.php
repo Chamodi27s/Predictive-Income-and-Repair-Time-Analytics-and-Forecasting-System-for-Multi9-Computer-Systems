@@ -214,22 +214,24 @@ $result = mysqli_query($conn, $sql);
         }
 
         .report-table th {
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-            color: white;
-            padding: 16px 18px;
-            font-size: 13px;
-            font-weight: 800;
-            text-align: center;
+            background: #f8fafc;
+            color: #64748b;
+            padding: 14px 18px;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: left;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
+            letter-spacing: 0.6px;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
         }
 
         .report-table td {
-            padding: 16px 18px;
-            border-bottom: 1px solid #f0f2f5;
-            text-align: center;
+            padding: 14px 18px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
             font-size: 14px;
-            color: var(--text-main);
+            color: #1e293b;
             font-weight: 500;
         }
 
