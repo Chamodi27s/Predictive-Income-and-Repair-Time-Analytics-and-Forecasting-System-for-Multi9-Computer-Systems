@@ -1,16 +1,5 @@
 <?php
-/*
- * Multi9 Assistant - single-file chatbot
- * Put this file in the project root, next to db_config.php.
- * Add before </body> on each root-level page:
- * <?php include_once __DIR__ . '/chatbot.php'; ?>
- * Add your Gemini key below. Keep this PHP file private on the server.
- */
 
-/*
- * Detect chatbot API calls before any output is produced. PHP warnings from
- * database/config files must never be mixed with the JSON response.
- */
 $m9IsApiRequest =
     isset($_SERVER['REQUEST_METHOD'], $_GET['chat_api']) &&
     $_SERVER['REQUEST_METHOD'] === 'POST';
@@ -24,7 +13,7 @@ if ($m9IsApiRequest) {
 }
 
 if (!defined('M9_GEMINI_API_KEY')) {
-    define('M9_GEMINI_API_KEY', 'PASTE_YOUR_GEMINI_API_KEY_HERE');
+    define('M9_GEMINI_API_KEY', 'AQ.Ab8RN6J_WFGq3bLgdZahUCKMIc1pXZxvEVZ8TB7dB9liy_c6TA');
 }
 if (!defined('M9_GEMINI_MODEL')) {
     define('M9_GEMINI_MODEL', 'gemini-2.5-flash');
