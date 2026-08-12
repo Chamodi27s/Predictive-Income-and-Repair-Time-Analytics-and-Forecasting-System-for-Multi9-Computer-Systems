@@ -162,7 +162,7 @@ if(isset($_GET['range'])) {
                             <span style="color:var(--text-muted); font-size:12px;"><?= htmlspecialchars($row['phone_number']) ?></span>
                         </td>
                         <td data-label="Status">
-                            <!-- මුළු Select Box එකම disable කර නැත. Completed හෝ Returned නම් කලින් status (Pending/Sent) වෙත යාම පමණක් option මඟින් block කර ඇත -->
+                            
                             <select class="status-select" id="stat-<?= $id ?>" onchange="saveAll(<?= $id ?>)">
                                 
                                 <option value="Pending" 

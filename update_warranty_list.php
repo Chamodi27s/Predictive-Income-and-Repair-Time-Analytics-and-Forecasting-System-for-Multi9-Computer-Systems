@@ -7,7 +7,7 @@ if (isset($_POST['id'])) {
     $status = mysqli_real_escape_string($conn, $_POST['status']);
     $category = isset($_POST['category']) ? mysqli_real_escape_string($conn, $_POST['category']) : '';
 
-    // 1. Update Database
+    //  Update Database
     $sql = "UPDATE job_device SET 
             supplier_name = '$supplier', 
             device_status = '$status',
@@ -16,7 +16,7 @@ if (isset($_POST['id'])) {
 
     if (mysqli_query($conn, $sql)) {
         
-        // 2. Fetch all required data (දැන් මෙතනට supplier_name එකත් එකතු කළා)
+        //  Fetch all required data 
         $query = "SELECT j.job_no, j.phone_number, jd.device_name, jd.completed_date, c.customer_name, jd.supplier_name 
                   FROM job j 
                   INNER JOIN job_device jd ON j.job_no = jd.job_no 
@@ -50,7 +50,7 @@ if (isset($_POST['id'])) {
                 // Phone Number Formatting
                 $phone = "94" . ltrim(ltrim(preg_replace('/[^0-9]/', '', $data['phone_number']), '94'), '0');
 
-                // 3. Send SMS (CURL)
+                //  Send SMS (CURL)
                 $api_key = "391|gyFVyQXSWNywx289bNDJdCkdKcOVRcPqyiUQzXzb";
                 $sender_id = "SMSAPI Demo";
                 
@@ -63,7 +63,7 @@ if (isset($_POST['id'])) {
                 curl_exec($ch);
                 curl_close($ch);
 
-                // 4. Save to History
+                //  Save to History
                 mysqli_query($conn, "INSERT INTO sms_history (job_device_id, phone_number, message, status) VALUES ('$id', '$phone', '" . mysqli_real_escape_string($conn, $msg) . "', 'Sent')");
                 mysqli_query($conn, "UPDATE job_device SET last_sms_sent_date = CURDATE() WHERE job_device_id = '$id'");
             }
