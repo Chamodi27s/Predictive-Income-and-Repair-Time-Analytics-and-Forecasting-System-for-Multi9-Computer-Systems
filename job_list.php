@@ -88,10 +88,10 @@ $result = mysqli_query($conn, $sql);
             --btn-amber: #d97706;
         }
         
-        body { padding-top: var(--nav-height, 100px); }
+        body { padding: 140px 20px 40px; }
 
-        .page-container { max-width: 1550px; margin: 0 auto; margin-top: 25px; padding: 0 15px; }
-        .page-header { background: linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%); padding: 30px; border-radius: 20px; margin-bottom: 30px; color: white; text-align: center; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.25); }
+        .page-container { max-width: 1550px; margin: 0 auto; padding: 0 15px; }
+        .page-header { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); padding: 36px 40px; border-radius: 20px; margin-top: 15px; margin-bottom: 32px; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4); color: white; text-align: center; }
         .page-header h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .page-header p { font-size: 14px; opacity: 0.9; }
 
@@ -224,7 +224,7 @@ $result = mysqli_query($conn, $sql);
 
 <div class="page-container">
     <div class="page-header">
-        <h1><i class="ph ph-wrench"></i> Job Management System</h1>
+        <h1> Job Management System</h1>
         <p>Track repair status, manage billing, and automate notifications</p>
     </div>
 

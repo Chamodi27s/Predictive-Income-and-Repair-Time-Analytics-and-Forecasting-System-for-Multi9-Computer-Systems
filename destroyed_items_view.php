@@ -106,9 +106,10 @@ $result = mysqli_query($conn, $sql);
         }
 
         .page-header {
-            background: linear-gradient(135deg, #2ecc71 0%, #2ecc71 100%);
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
             padding: 36px 40px;
             border-radius: 20px;
+            margin-top: 15px;
             margin-bottom: 32px;
             box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
             color: white;

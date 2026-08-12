@@ -298,9 +298,9 @@ if (isset($_POST['predict']) && $job_no && $job_data) {
 </head>
 <body>
 
-<div class="container">
-    <div class="page-header">
-        <h1>⏱️ Repair Time Prediction</h1>
+<div class="container" style="max-width: 1200px; margin: auto; padding: 140px 20px 40px;">
+    <div class="page-header" style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); padding: 36px 40px; border-radius: 20px; margin-top: 15px; margin-bottom: 32px; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4); color: white; text-align: center;">
+        <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 8px;">Repair Time Prediction</h1>
         <p>AI-powered completion estimate using your trained ML model</p>
     </div>
 

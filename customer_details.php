@@ -296,7 +296,7 @@ $jobs = $jobsStmt->get_result();
             --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08); --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
-        body { background: var(--bg-main); font-family: 'Inter', sans-serif; padding: var(--nav-height, 100px) 40px 40px 40px; color: var(--text-main); line-height: 1.6; transition: background 0.3s ease; }
+        body { background: var(--bg-main); font-family: 'Inter', sans-serif; padding: 140px 20px 40px; color: var(--text-main); line-height: 1.6; transition: background 0.3s ease; }
 
         body.dark-mode {
             --bg-main: #0b1329;
@@ -353,9 +353,18 @@ $jobs = $jobsStmt->get_result();
         .back-link { display:inline-flex; align-items:center; gap:8px; margin-bottom:30px; color:var(--text-muted); font-weight:700; text-decoration:none; font-size:15px; transition:0.3s; padding:10px 20px; background:transparent; border: 1px solid var(--border); border-radius:100px; margin-top: 15px; }
         .back-link:hover { background:var(--card-bg); color:var(--text-main); border-color:var(--secondary); }
         
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap:wrap; gap:20px; }
-        .page-header h1 { font-size: 32px; font-weight: 800; display: flex; align-items: center; gap: 12px; margin-bottom:5px; color:var(--text-dark); }
-        .page-header p { color:var(--text-muted); font-size:15px; margin-left:45px; }
+        .page-header {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            padding: 36px 40px;
+            border-radius: 20px;
+            margin-top: 15px;
+            margin-bottom: 32px;
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
+            color: white;
+            text-align: center;
+        }
+        .page-header h1 { font-size: 32px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom:5px; color: white; }
+        .page-header p { color: white; opacity: 0.95; font-size:15px; margin: 0; }
         
         .top-actions { display:flex; gap:12px; flex-wrap:wrap; }
         
@@ -471,24 +480,22 @@ $jobs = $jobsStmt->get_result();
     </a>
     
     <div class="page-header">
-        <div>
-            <h1><i class="ph-fill ph-user-circle" style="color:var(--primary);"></i> Customer Profile</h1>
-            <p>Manage customer details and repair history</p>
-        </div>
-        
-        <div class="top-actions" style="display:flex; gap:12px; flex-wrap:wrap;">
-            <?php if(!empty($current_job_no)): ?>
-                <a href="jobsheet.php?job_no=<?= rawurlencode((string) $current_job_no) ?>" class="btn btn-outline" target="_blank"><i class="ph-bold ph-printer"></i> Print Job Sheet</a>
-            <?php endif; ?>
+        <h1> Customer Profile</h1>
+        <p>Manage customer details and repair history</p>
+    </div>
+    
+    <div class="top-actions" style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom: 30px; justify-content: flex-end;">
+        <?php if(!empty($current_job_no)): ?>
+            <a href="jobsheet.php?job_no=<?= rawurlencode((string) $current_job_no) ?>" class="btn btn-outline" target="_blank"><i class="ph-bold ph-printer"></i> Print Job Sheet</a>
+        <?php endif; ?>
 
-            <?php if($is_edit): ?>
-                <button type="submit" form="customerForm" class="btn btn-success"><i class="ph-bold ph-floppy-disk"></i> Save Changes</button>
-                <a href="?phone=<?= rawurlencode($phone) ?>" class="btn btn-secondary"><i class="ph-bold ph-x"></i> Cancel</a>
-            <?php else: ?>
-                <a href="?phone=<?= rawurlencode($phone) ?>&edit=true" class="btn btn-outline" style="background: var(--card-bg); border-color:var(--primary); color:var(--primary);"><i class="ph-bold ph-pencil-simple"></i> Edit Details</a>
-                <button type="button" onclick="confirmDelete()" class="btn" style="background:transparent; border: 1px solid var(--danger); color:var(--danger);"><i class="ph-bold ph-trash"></i> Delete</button>
-            <?php endif; ?>
-        </div>
+        <?php if($is_edit): ?>
+            <button type="submit" form="customerForm" class="btn btn-success"><i class="ph-bold ph-floppy-disk"></i> Save Changes</button>
+            <a href="?phone=<?= rawurlencode($phone) ?>" class="btn btn-secondary"><i class="ph-bold ph-x"></i> Cancel</a>
+        <?php else: ?>
+            <a href="?phone=<?= rawurlencode($phone) ?>&edit=true" class="btn btn-outline" style="background: var(--card-bg); border-color:var(--primary); color:var(--primary);"><i class="ph-bold ph-pencil-simple"></i> Edit Details</a>
+            <button type="button" onclick="confirmDelete()" class="btn" style="background:transparent; border: 1px solid var(--danger); color:var(--danger);"><i class="ph-bold ph-trash"></i> Delete</button>
+        <?php endif; ?>
     </div>
 
     <form method="POST" enctype="multipart/form-data" id="customerForm">
