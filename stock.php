@@ -48,7 +48,7 @@ body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
     margin: 0;
-    padding: 125px 25px 40px; 
+    padding: 140px 20px 40px; 
     color: var(--text-main);
 }
 
@@ -59,21 +59,20 @@ body {
 
 /* ===== STOCK MANAGEMENT HEADER ===== */
 .stock-header {
-    position: relative;
-    overflow: hidden;
-    min-height: 132px;
-    margin-bottom: 22px;
-    padding: 26px 30px;
-    border-radius: 22px;
-    background: linear-gradient(135deg, #2ecc71 0%, #2ecc71 100%);
-    color: #0f172a !important;
-    box-shadow: 0 10px 30px rgba(46, 204, 113, 0.40);
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    padding: 45px 40px;
+    border-radius: 20px;
+    margin-top: 15px;
+    margin-bottom: 32px;
+    box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
+    text-align: center;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
-    gap: 14px;
-    text-align: center;
+    align-items: center;
+}
+.stock-header h1, .stock-header p {
+    color: #ffffff !important;
 }
 
 .stock-header::before,
@@ -783,22 +782,8 @@ body.dark-mode .table-box {
 <div class="page-container">
 
     <section class="stock-header">
-        <div class="stock-heading-wrap">
-            <div class="stock-header-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 8l-9 5-9-5"></path>
-                    <path d="M3 16l9 5 9-5"></path>
-                    <path d="M3 12l9 5 9-5"></path>
-                    <path d="M12 3l9 5-9 5-9-5 9-5z"></path>
-                </svg>
-            </div>
-            <div>
-                <div class="stock-eyebrow">Inventory Control</div>
-                <h1>Stock Management</h1>
-                <p>Monitor inventory levels, search items and update stock quantities from one place.</p>
-            </div>
-        </div>
-        <div class="stock-live-badge">Live Inventory Overview</div>
+        <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 8px;">Stock Management</h1>
+        <p style="margin: 0; opacity: 0.95;">Monitor inventory levels, search items and update stock quantities from one place.</p>
     </section>
 
     <div class="cards">

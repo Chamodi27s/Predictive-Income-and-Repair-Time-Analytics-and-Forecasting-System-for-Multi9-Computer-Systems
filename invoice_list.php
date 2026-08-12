@@ -54,7 +54,7 @@ $result = $conn->query($query);
 body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
-    padding: 125px 20px 40px;
+    padding: 140px 20px 40px;
     color: var(--text-main);
 }
 
@@ -64,12 +64,12 @@ body {
 }
 
 .page-header {
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
     padding: 36px 40px;
-    border-radius: 22px;
+    border-radius: 20px;
     margin-top: 15px;
     margin-bottom: 32px;
-    box-shadow: 0 12px 30px rgba(46,204,113,0.35);
+    box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
     color: white;
     text-align: center;
 }

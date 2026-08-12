@@ -187,13 +187,13 @@ body{
 }
 
 .page-header{
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
     padding:40px;
     border-radius:24px;
     margin-bottom:40px;
     color:white;
     text-align:center;
-    box-shadow: 0 10px 30px rgba(46, 204, 113, 0.35);
+    box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
 }
 
 /* --- NEW EXECUTIVE LAYOUT --- */
@@ -567,9 +567,7 @@ td{
 
 <div class="page-header">
 
-<h1>
-<i class="ph-fill ph-chart-bar" style="vertical-align: middle;"></i> Business Intelligence Report
-</h1>
+<h1> Business Intelligence Report </h1>
 
 <p>
 Smart Repair Management Insight -

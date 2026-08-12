@@ -51,7 +51,7 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
             background: var(--bg-light);
             color: var(--text-light);
             transition: background 0.3s, color 0.3s;
-            padding-bottom: 50px;
+            padding: 140px 20px 40px;
         }
         body.dark-mode { background: linear-gradient(135deg, #020617, #0f172a); color: #f1f5f9; }
 
@@ -61,8 +61,17 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
             margin-top: 20px;
             padding: 0 20px;
         }
-        .page-title { text-align: center; margin-bottom: 20px; }
-        .page-title h1 {
+        .page-header {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            padding: 36px 40px;
+            border-radius: 20px;
+            margin-top: 15px;
+            margin-bottom: 32px;
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
+            color: white;
+            text-align: center;
+        }
+        .page-header h1 {
             font-size: clamp(20px, 4vw, 28px);
             font-weight: 800;
             margin-bottom: 5px;
@@ -72,8 +81,8 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
             gap: 10px;
             flex-wrap: wrap;
         }
-        .page-title p { color: #64748b; font-size: 14px; margin: 0; }
-        body.dark-mode .page-title h1 { color: white; }
+        .page-header p { font-size: 14px; margin: 0; opacity: 0.95; }
+        body.dark-mode .page-header h1 { color: white; }
 
         .form-card {
             background: var(--card-light);
@@ -294,8 +303,8 @@ $issue_result = mysqli_query($conn, "SELECT * FROM issue");
 <body class="<?= (isset($_COOKIE['darkMode']) && $_COOKIE['darkMode'] == 'enabled') ? 'dark-mode' : '' ?>">
 
 <div class="container">
-    <div class="page-title">
-        <h1><i class="ph-fill ph-user-plus"></i> Customer Registration</h1>
+    <div class="page-header">
+        <h1> Customer Registration</h1>
         <p>Register new customer and service details</p>
     </div>
     

@@ -176,20 +176,24 @@ if ($failureResult) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <style>
+body {
+    padding: 140px 20px 40px;
+}
+
 .page-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding-top: 35px;
 }
 
-.page-header{
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
-    padding:40px;
-    border-radius:24px;
-    margin-bottom:40px;
-    color:white;
-    text-align:center;
-    box-shadow: 0 10px 30px rgba(46, 204, 113, 0.35);
+.page-header {
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    padding: 36px 40px;
+    border-radius: 20px;
+    margin-top: 15px;
+    margin-bottom: 32px;
+    box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
+    color: white;
+    text-align: center;
 }
 
 .stats-grid{
@@ -535,9 +539,7 @@ body.dark-mode .item-name { color: #f8fafc; }
 
 <div class="page-header">
 
-<h1>
-<i class="ph-fill ph-chart-line-up"></i> Business Intelligence Report
-</h1>
+<h1> Business Intelligence Report </h1>
 
 <p>
 Smart Repair Management Insight -

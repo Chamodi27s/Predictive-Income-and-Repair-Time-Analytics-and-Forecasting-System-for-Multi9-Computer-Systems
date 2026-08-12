@@ -54,19 +54,20 @@ include_once 'navbar.php';
     <link rel="stylesheet" href="CSS/global.css">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
+        body { padding: 140px 20px 40px; }
+
         .page-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding-top: 0;
         }
 
         .page-header {
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
             padding: 36px 40px;
             border-radius: 20px;
-            margin-top: 10px;
+            margin-top: 15px;
             margin-bottom: 32px;
-            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.35);
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
             color: white;
             text-align: center;
         }
@@ -536,7 +537,7 @@ include_once 'navbar.php';
 
 <div class="page-container">
     <div class="page-header">
-        <h1><i class="ph-fill ph-book-open-text"></i> Cashbook Management</h1>
+        <h1> Cashbook Management</h1>
         <p>Track all bank transactions and financial records</p>
     </div>
 

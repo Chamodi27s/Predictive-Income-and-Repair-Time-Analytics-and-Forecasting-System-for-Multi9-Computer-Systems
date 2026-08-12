@@ -55,20 +55,21 @@ $result = mysqli_query($conn, $sql);
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-main);
             color: var(--text-main);
-            padding: var(--nav-height) 20px 40px;
+            padding: 140px 20px 40px;
             transition: all 0.3s ease;
         }
 
         .container { max-width: 1300px; margin: 0 auto; }
 
         .page-header {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            padding: 40px;
-            border-radius: 24px;
-            text-align: center;
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            padding: 36px 40px;
+            border-radius: 20px;
+            margin-top: 15px;
+            margin-bottom: 32px;
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
             color: white;
-            margin-bottom: 40px;
-            box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.2);
+            text-align: center;
         }
 
         .search-container {
@@ -165,7 +166,7 @@ $result = mysqli_query($conn, $sql);
 
 <div class="container">
     <div class="page-header">
-        <h1 style="font-size: 32px; font-weight: 800;"> Returned Jobs History</h1>
+        <h1 style="font-size: 32px; font-weight: 800;">Returned Jobs History</h1>
         <p style="opacity: 0.9; margin-top: 8px;">List of all devices successfully returned to customers</p>
     </div>
 
