@@ -581,15 +581,17 @@ function updateStatusOnly(row_uid, job_no, device_id) {
         if (confirm("Did the customer confirm this? Once approved, it will be removed from this list.")) {
             let userInput = prompt("Enter the received advance payment amount:", "0");
 
-            if (userInput === null) {
-                statSelect.value = 'Pending';
-                return;
+            // මෙහිදී Cancel කළත් හෝ හිස්ව තිබුණත් advance එක 0 ලෙස සලකා Approved වේ
+            if (userInput !== null && userInput.trim() !== "") {
+                advanceAmount = parseFloat(userInput) || 0;
+            } else {
+                advanceAmount = 0; 
             }
 
-            advanceAmount = parseFloat(userInput) || 0;
             saveToDB(row_uid, job_no, device_id, advanceAmount);
         } else {
             statSelect.value = 'Pending';
+            statSelect.className = 'status-select status-pending';
         }
     } else {
         saveToDB(row_uid, job_no, device_id, 0);
