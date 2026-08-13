@@ -5,9 +5,9 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import LabelEncoder
 from sklearn import metrics
 import joblib
-import json # අලුතින් එක් කළා
+import json 
 
-# 1. දත්ත Load කිරීම
+# load data
 file_name = 'Model Train 2 (1).xlsx' 
 df = pd.read_excel(file_name)
 df = df.dropna(subset=['Duration_Days'])
@@ -28,14 +28,14 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 model = RandomForestRegressor(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
-# 4. Accuracy ගණනය කිරීම
+# 4. Accuracy 
 predictions = model.predict(X_test)
 mae = metrics.mean_absolute_error(y_test, predictions)
 rmse = np.sqrt(metrics.mean_squared_error(y_test, predictions))
 r2 = metrics.r2_score(y_test, predictions)
 accuracy = 100 - np.mean(100 * (abs(predictions - y_test) / y_test.replace(0, 1)))
 
-# 5. Stats JSON එකකට Save කිරීම (PHP එකට කියවන්න)
+# 5. Stats JSON save
 stats = {
     "accuracy": round(accuracy, 2),
     "mae": round(mae, 2),
@@ -44,7 +44,7 @@ stats = {
 with open('model_stats.json', 'w') as f:
     json.dump(stats, f)
 
-# Files Save කිරීම
+# Files Save 
 joblib.dump(model, 'repair_model.pkl')
 joblib.dump(encoders, 'label_encoders.pkl')
 joblib.dump(X.columns.tolist(), 'feature_names.pkl')

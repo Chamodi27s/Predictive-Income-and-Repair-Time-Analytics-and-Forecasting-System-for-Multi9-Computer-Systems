@@ -127,7 +127,7 @@
         }
     }
 
-    // AI Stats Load කිරීම
+    // AI Stats Load 
     $stats = json_decode(@file_get_contents('model_stats.json'), true);
     $acc = $stats['accuracy'] ?? '85.0';
     $mae = $stats['mae'] ?? '0.8';
